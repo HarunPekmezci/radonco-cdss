@@ -367,3 +367,121 @@ export function runBonePalliativeEngine(data: any): EngineOutput {
   else regimens = [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Tek Doz', regimenName: 'Tek Fraksiyon (8 Gy / 1 fx)', totalDoseGy: 8, fractionCount: 1, dosePerFractionGy: 8, alphaBeta: 10, bedGy: 14.4, eqd2Gy: 12, targetVolumeCTV: 'Ağrılı kemik', volumeUnionHierarchy: 'PTV=CTV+5-10mm', gtvToCtvMargin: '10mm', ctvToPtvMargin: '5-10mm', clinicalIndication: 'ASTRO Kategori 1', preferredBadge: true }];
   return { ajccStage: 'Palyatif M1', stageSummary: lifeEx === '<3' ? 'Kısa Yaşam Beklentisi' : isSbrt ? 'Oligometastaz' : isCordComp ? 'Kord Basısı' : 'Kemik Ağrısı', color: isCordComp ? 'bg-rose-100 text-rose-950 font-bold' : lifeEx === '<3' ? 'bg-slate-200 text-slate-800' : 'bg-amber-50 text-amber-900 border-amber-300', strategy: lifeEx === '<3' ? 'SADECE 8 Gy Tek Fraksiyon önerilir.' : isSbrt ? 'SBRT.' : isCordComp ? 'Acil Dekompresyon RT.' : '8 Gy Tek Fraksiyon.', systemic: 'Zoledronik Asit.', regimens, url: 'https://www.astro.org', ref: 'ASTRO Bone' };
 }
+
+// ============================================================================
+// 22. MİDE (GASTRİK KANSER) MOTORU
+// ============================================================================
+export function runStomachEngine(data: any): EngineOutput {
+  const isM1 = data.hasM1;
+  const isGej = data.location === 'GEJ';
+  const isSuboptimalOrR1 = data.surgeryStatus === 'SUBOPTIMAL_D0_D1' || data.resectionMargin === 'R1';
+  const isD2R0 = data.surgeryStatus === 'D2_RESECTION' && data.resectionMargin === 'R0';
+  const isNodePositive = data.nodalStatus === 'cN+' || data.nodalStatus === 'pN+';
+
+  // 1. Palyatif Şema (Kanama / Obstrüksiyon / Ağrı)
+  const palliativeRegimen: DoseRegimen = {
+    categoryRank: '2_HIPOFRAKSIYONE',
+    modalityDisplay: 'Palyatif KRT/RT',
+    regimenName: 'Palyatif Hemostatik RT (30 Gy / 10 fx)',
+    totalDoseGy: 30.0,
+    fractionCount: 10,
+    dosePerFractionGy: 3.0,
+    alphaBeta: 10.0,
+    bedGy: 39.0,
+    eqd2Gy: 32.5,
+    targetVolumeCTV: 'Kanayan/Obstrüktif Mide Kitlesi',
+    volumeUnionHierarchy: 'PTV = CTV + 10 mm',
+    gtvToCtvMargin: '10-15 mm',
+    ctvToPtvMargin: '5-10 mm',
+    clinicalIndication: 'Tümör kanaması veya obstrüksiyon palyasyonu',
+    preferredBadge: isM1
+  };
+
+  // 2. Postoperatif Adjuvan KRT (INT 0116 / Macdonald Şeması)
+  const adjuvantInt0116: DoseRegimen = {
+    categoryRank: '1_KONVANSIYONEL',
+    modalityDisplay: 'Adjuvan KRT',
+    regimenName: 'Postop KRT (45 Gy / 25 fx)',
+    totalDoseGy: 45.0,
+    fractionCount: 25,
+    dosePerFractionGy: 1.8,
+    alphaBeta: 10.0,
+    bedGy: 53.1,
+    eqd2Gy: 44.3,
+    targetVolumeCTV: 'Tümör Yatağı + Anastomoz + Bölgesel LN',
+    volumeUnionHierarchy: 'PTV = CTV + 5 mm',
+    gtvToCtvMargin: 'Cerrahi yatak + drenaj istasyonları',
+    ctvToPtvMargin: '5 mm',
+    boostDoseDetails: 'R1 cerrahi sınır durumunda 50.4 - 54 Gy boost',
+    clinicalIndication: 'Suboptimal diseksiyon (<15 LN, D0-D1) veya R1 sınır',
+    preferredBadge: !isM1 && isSuboptimalOrR1
+  };
+
+  // 3. Preoperatif / CROSS Modeli Neoadjuvan (Özellikle GEJ Siewert I-II)
+  const neoadjuvantCross: DoseRegimen = {
+    categoryRank: '1_KONVANSIYONEL',
+    modalityDisplay: 'CROSS Neoadjuvan',
+    regimenName: 'Neoadjuvan KRT (41.4 Gy / 23 fx)',
+    totalDoseGy: 41.4,
+    fractionCount: 23,
+    dosePerFractionGy: 1.8,
+    alphaBeta: 10.0,
+    bedGy: 48.85,
+    eqd2Gy: 40.7,
+    targetVolumeCTV: 'GEJ / Primer Kitle + Çölyak / Mediastinal LN',
+    volumeUnionHierarchy: 'PTV = CTV + 5 mm',
+    gtvToCtvMargin: 'Boyuna 3 cm, radyal 1 cm',
+    ctvToPtvMargin: '5 mm',
+    clinicalIndication: 'GEJ tümörleri ve lokal ileri rezektabl kitleler',
+    preferredBadge: !isM1 && isGej && data.setting === 'NEOADJUVANT'
+  };
+
+  // Evreleme ve Klinik Çıktı Belirleme
+  let stage = 'Evre I-II';
+  if (isM1) stage = 'Evre IV (Metastatik M1)';
+  else if (data.clinicalT === 'cT4' || data.pathologicT === 'pT4' || isNodePositive) stage = 'Evre III (Lokal İleri)';
+  else if (data.clinicalT === 'cT3' || data.pathologicT === 'pT3') stage = 'Evre IIB-III';
+
+  let strategy = 'Perioperatif FLOT Kemoterapisi (Küratif Cerrahi Öncesi ve Sonrası).';
+  let color = 'bg-emerald-50 text-emerald-900 border-emerald-300';
+  let systemic = 'FLOT Protokolü (5-FU, Leucovorin, Oksaliplatin, Dosetaksel).';
+  let regimens: DoseRegimen[] = [];
+
+  if (isM1) {
+    strategy = 'Palyatif Hemostatik / Dekompresif RT + Sistemik Tedavi.';
+    color = 'bg-purple-50 text-purple-900 border-purple-300';
+    systemic = 'Palyatif kemoterapi (FOLFOX / CAPOX ± Nivolumab/Trastuzumab).';
+    regimens = [palliativeRegimen];
+  } else if (isSuboptimalOrR1) {
+    strategy = 'Suboptimal Diseksiyon (D0-D1 / <15 LN) veya R1 Rezeksiyon: Adjuvan Eşzamanlı Kemoradyoterapi (INT 0116).';
+    color = 'bg-rose-50 text-rose-900 border-rose-300';
+    systemic = 'Kapecitabin (825 mg/m² BID) veya Sürekli İnfüzyon 5-FU.';
+    regimens = [adjuvantInt0116];
+  } else if (isGej && data.setting === 'NEOADJUVANT') {
+    strategy = 'GEJ Siewert: Neoadjuvan KRT (CROSS Protokolü) -> Radikal Rezeksiyon.';
+    color = 'bg-amber-50 text-amber-900 border-amber-300';
+    systemic = 'Haftalık Karboplatin (AUC 2) + Paklitaksel (50 mg/m²).';
+    regimens = [neoadjuvantCross];
+  } else if (isD2R0) {
+    if (data.receivedPriorChemo) {
+      strategy = 'D2 Tam Rezeksiyon + Perioperatif KT Tamamlanması (CRITICS/ARTIST: Rutin Adjuvan KRT Endikasyonu Yoktur).';
+      systemic = 'Adjuvan FLOT kürlerinin tamamlanması.';
+      regimens = [];
+    } else if (isNodePositive) {
+      strategy = 'D2 Rezeke fakat Preop KT Almamış pN(+) Olgular: Adjuvan KT veya KRT (ARTIST-2).';
+      systemic = 'SOX / CAPOX veya Eşzamanlı Kapecitabin KRT.';
+      regimens = [adjuvantInt0116];
+    }
+  }
+
+  return {
+    ajccStage: stage,
+    stageSummary: isM1 ? 'Metastatik Mide Ca' : isGej ? 'GEJ Karsinomu' : 'Mide Adenokarsinomu',
+    color,
+    strategy,
+    systemic,
+    regimens,
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/gastric.pdf',
+    ref: 'NCCN Gastric / INT 0116 / CRITICS / FLOT4'
+  };
+}

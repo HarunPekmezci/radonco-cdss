@@ -5,11 +5,12 @@ import { DISEASE_CATALOG, MAIN_GROUPS } from '../data/catalog';
 import { EngineOutput } from '../types';
 import {
   runProstateEngine, runBladderEngine, runKidneyRccEngine, runRectumEngine,
-  runAnalCanalEngine, runEsophagusEngine, runPancreasEngine, runLiverEngine,
+  runAnalCanalEngine, runEsophagusEngine, runStomachEngine, runPancreasEngine, runLiverEngine,
   runLungNsclcEngine, runLungSclcEngine, runNasopharynxEngine, runHypopharynxEngine,
   runCervixEngine, runEndometriumEngine, runBreastEngine, runGliomaEngine,
-  runMeningiomaEngine, runSarcomaEngine, runMelanomaEngine, runNmscEngine,
-  runBonePalliativeEngine
+  runMeningiomaEngine, runSoftTissueSarcomaEngine, runMelanomaEngine, runNmscEngine,
+  runBonePalliativeEngine, runBoneCurativeEngine, 
+
 } from '../engines';
 
 const TNM_DICTIONARY: Record<string, { 
@@ -138,6 +139,34 @@ const TNM_DICTIONARY: Record<string, {
     ],
     M: [{ label: 'M0', desc: 'Uzak organ met yok', val: false }, { label: 'M1', desc: 'Uzak metastaz (+)', val: true }]
   },
+  stomach: {
+    T: [
+      { label: 'cT1-T2', desc: 'Erken evre (Mukoza, submukoza veya muskularis propria)', val: 'cT1-T2' },
+      { label: 'cT3', desc: 'Subserozal bağ dokusu invazyonu', val: 'cT3' },
+      { label: 'cT4', desc: 'Seroza perforasyonu veya komşu organ invazyonu', val: 'cT4' }
+    ],
+    N: [
+      { label: 'cN0', desc: 'Bölgesel lenf nodu metastazı yok', val: 'cN0' },
+      { label: 'cN+', desc: 'Bölgesel lenf nodu metastazı (+)', val: 'cN+' }
+    ],
+    M: [{ label: 'cM0', desc: 'Metastaz yok', val: false }, { label: 'cM1', desc: 'Uzak metastaz (+)', val: true }]
+  },
+  breast: {
+    T: [
+      { label: 'T1 (≤ 20 mm)', desc: 'Erken evre küçük kitle', val: 18 },
+      { label: 'T2 (20 - 50 mm)', desc: 'Orta çaplı primer tümör', val: 35 },
+      { label: 'T3 (> 50 mm)', desc: 'Geniş kitle (> 5 cm)', val: 55 },
+      { label: 'T4', desc: 'Göğüs duvarı veya cilt tutulumu', val: 65 }
+    ],
+    N: [
+      { label: 'N0', desc: 'Aksiller LN negatif', val: 0 },
+      { label: 'N1 (1-3 LN)', desc: '1 - 3 adet tutulu aksiller LN', val: 2 },
+      { label: 'N2 (4-9 LN)', desc: '4 - 9 adet tutulu aksiller LN', val: 5 },
+      { label: 'N3 (≥ 10 LN)', desc: '10+ LN veya supraklavikuler', val: 10 }
+    ],
+    M: [{ label: 'M0', desc: 'Uzak metastaz yok', val: false }, { label: 'M1', desc: 'Uzak metastaz (+)', val: true }]
+  },
+  
   lung_nsclc: {
     T: [
       { label: 'T1a-c', desc: 'Tümör çapı ≤ 3 cm', val: 'T1a-T1c (<=3cm)' },
@@ -269,22 +298,7 @@ const TNM_DICTIONARY: Record<string, {
       { label: 'cN1', desc: '1 - 3 adet bölgesel LN pozitif', val: 'cN1' },
       { label: 'cN2', desc: '4 veya daha fazla LN pozitif', val: 'cN2' }
     ],
-    M: [{ label: 'cM0', desc: 'Metastaz yok', val: false }, { label: 'cM1', desc: 'Uzak metastaz (+)', val: true }]
-  },
-  breast: {
-    T: [
-      { label: 'T1 (≤ 20 mm)', desc: 'Erken evre küçük kitle', val: 18 },
-      { label: 'T2 (20 - 50 mm)', desc: 'Orta çaplı primer tümör', val: 35 },
-      { label: 'T3 (> 50 mm)', desc: 'Geniş kitle (> 5 cm)', val: 55 },
-      { label: 'T4', desc: 'Göğüs duvarı veya cilt tutulumu', val: 65 }
-    ],
-    N: [
-      { label: 'N0', desc: 'Aksiller LN negatif', val: 0 },
-      { label: 'N1 (1-3 LN)', desc: '1 - 3 adet tutulu aksiller LN', val: 2 },
-      { label: 'N2 (4-9 LN)', desc: '4 - 9 adet tutulu aksiller LN', val: 5 },
-      { label: 'N3 (≥ 10 LN)', desc: '10+ LN veya supraklavikuler', val: 10 }
-    ],
-    M: [{ label: 'M0', desc: 'Uzak metastaz yok', val: false }, { label: 'M1', desc: 'Uzak metastaz (+)', val: true }]
+M: [{ label: 'cM0', desc: 'Metastaz yok', val: false }, { label: 'cM1', desc: 'Uzak metastaz (+)', val: true }]
   }
 };
 
@@ -349,6 +363,16 @@ export default function AdaptiveCDSSPlatform() {
   const [rectumData, setRectumData] = useState({ clinicalT: 'cT3a/b', nodalStatus: 'cN1', mrfThreatened: false, emviPositive: false, hasM1: false });
   const [analCanalData, setAnalCanalData] = useState({ clinicalT: 'T2 (2-5cm)', nodalStatus: 'N0', hasM1: false, hivPositive: false });
   const [esophagusData, setEsophagusData] = useState({ clinicalT: 'T3', nodalStatus: 'N1', intent: 'NEOADJUVANT_CROSS', location: 'MID_LOWER_THORACIC', hasM1: false, histology: 'SCC' });
+  const [stomachData, setStomachData] = useState<any>({
+  location: 'BODY',
+  setting: 'SURGERY_FIRST',
+  surgeryStatus: 'NONE',
+  resectionMargin: 'R0',
+  clinicalT: 'cT3',
+  nodalStatus: 'cN0',
+  hasM1: false,
+  receivedPriorChemo: false
+});
   const [pancreasData, setPancreasData] = useState({ resectability: 'BORDERLINE_RESECTABLE', hasM1: false, tumorSizeMm: 30, vascularInvolvement: true, nodalStatus: false });
   const [liverData, setLiverData] = useState({ etiology: 'PRIMARY_HCC', childPughScore: 'CLASS_A', tumorSizeMm: 30, hasM1: false, blcStage: 'STAGE_A' });
   const [lungNsclcData, setLungNsclcData] = useState({ clinicalT: 'T1a-T1c (<=3cm)', nodalStatus: 'N0', hasM1: false, isMedicallyOperable: false, performanceScoreECOG: 1, hasILD: false, smokingHistory: 30 });
@@ -511,54 +535,57 @@ export default function AdaptiveCDSSPlatform() {
   };
 
   const getActiveOutput = (): { res: EngineOutput; alphaBeta: number } => {
-    switch (selectedDiseaseId) {
-      case 'prostate': return { res: runProstateEngine(prostateData), alphaBeta: 1.5 };
-      case 'bladder': return { res: runBladderEngine(bladderData), alphaBeta: 10.0 };
-      case 'kidney_rcc': return { res: runKidneyRccEngine(kidneyData), alphaBeta: 2.6 };
-      case 'rectum': return { res: runRectumEngine(rectumData), alphaBeta: 10.0 };
-      case 'anal_canal': return { res: runAnalCanalEngine(analCanalData), alphaBeta: 10.0 };
-      case 'esophagus': return { res: runEsophagusEngine(esophagusData), alphaBeta: 10.0 };
-      case 'pancreas': return { res: runPancreasEngine(pancreasData), alphaBeta: 10.0 };
-      case 'liver_hcc': return { res: runLiverEngine(liverData), alphaBeta: 10.0 };
-      case 'lung_nsclc': return { res: runLungNsclcEngine(lungNsclcData), alphaBeta: 10.0 };
-      case 'lung_sclc': return { res: runLungSclcEngine(lungSclcData), alphaBeta: 10.0 };
-      case 'nasopharynx': return { res: runNasopharynxEngine(nasopharynxData), alphaBeta: 10.0 };
-      case 'hypopharynx': return { res: runHypopharynxEngine(hypopharynxData), alphaBeta: 10.0 };
-      case 'cervix': return { res: runCervixEngine(cervixData), alphaBeta: 10.0 };
-      case 'endometrium': return { res: runEndometriumEngine(endometriumData), alphaBeta: 10.0 };
-      case 'breast': return { res: runBreastEngine(breastData), alphaBeta: 4.0 };
-      case 'glioma': return { res: runGliomaEngine(gliomaData), alphaBeta: 10.0 };
-      case 'meningioma': return { res: runMeningiomaEngine(meningiomaData), alphaBeta: 3.0 };
-      case 'sarcoma_sts': return { res: runSarcomaEngine(sarcomaData), alphaBeta: 4.0 };
-      case 'skin_melanoma': return { res: runMelanomaEngine(melanomaData), alphaBeta: 2.5 };
-      case 'skin_nonmelanoma': return { res: runNmscEngine(skinNmscData), alphaBeta: 8.0 };
-      case 'palliative_bone': return { res: runBonePalliativeEngine(bonePalliativeData), alphaBeta: 10.0 };
-      default: return { res: runProstateEngine(prostateData), alphaBeta: 1.5 };
-    }
-  };
+  switch (selectedDiseaseId) {
+    case 'prostate': return { res: runProstateEngine(prostateData), alphaBeta: 1.5 };
+    case 'bladder': return { res: runBladderEngine(bladderData), alphaBeta: 10.0 };
+    case 'kidney_rcc': return { res: runKidneyRccEngine(kidneyData), alphaBeta: 2.6 };
+    case 'rectum': return { res: runRectumEngine(rectumData), alphaBeta: 10.0 };
+    case 'anal_canal': return { res: runAnalCanalEngine(analCanalData), alphaBeta: 10.0 };
+    case 'esophagus': return { res: runEsophagusEngine(esophagusData), alphaBeta: 10.0 };
+    case 'stomach': return { res: runStomachEngine(stomachData), alphaBeta: 10.0 };
+    case 'pancreas': return { res: runPancreasEngine(pancreasData), alphaBeta: 10.0 };
+    case 'liver_hcc': return { res: runLiverEngine(liverData), alphaBeta: 10.0 };
+    case 'lung_nsclc': return { res: runLungNsclcEngine(lungNsclcData), alphaBeta: 10.0 };
+    case 'lung_sclc': return { res: runLungSclcEngine(lungSclcData), alphaBeta: 10.0 };
+    case 'nasopharynx': return { res: runNasopharynxEngine(nasopharynxData), alphaBeta: 10.0 };
+    case 'hypopharynx': return { res: runHypopharynxEngine(hypopharynxData), alphaBeta: 10.0 };
+    case 'cervix': return { res: runCervixEngine(cervixData), alphaBeta: 10.0 };
+    case 'endometrium': return { res: runEndometriumEngine(endometriumData), alphaBeta: 10.0 };
+    case 'breast': return { res: runBreastEngine(breastData), alphaBeta: 4.0 };
+    case 'glioma': return { res: runGliomaEngine(gliomaData), alphaBeta: 10.0 };
+    case 'meningioma': return { res: runMeningiomaEngine(meningiomaData), alphaBeta: 3.0 };
+    case 'sarcoma_sts': return { res: runSarcomaEngine(sarcomaData), alphaBeta: 4.0 };
+    case 'skin_melanoma': return { res: runMelanomaEngine(melanomaData), alphaBeta: 2.5 };
+    case 'skin_nonmelanoma': return { res: runNmscEngine(skinNmscData), alphaBeta: 8.0 };
+    case 'palliative_bone': return { res: runBonePalliativeEngine(bonePalliativeData), alphaBeta: 10.0 };
+    default: return { res: runProstateEngine(prostateData), alphaBeta: 1.5 };
+  }
+};
 
-  const activeDisease = DISEASE_CATALOG.find((d) => d.id === selectedDiseaseId) || DISEASE_CATALOG[0];
-  const { res: currentRes, alphaBeta: currentAlphaBeta } = getActiveOutput();
+const activeDisease = DISEASE_CATALOG.find((d) => d.id === selectedDiseaseId) || DISEASE_CATALOG[0];
+const { res: currentRes, alphaBeta: currentAlphaBeta } = getActiveOutput();
 
-  const handleGlobalM1 = (m1Val: boolean) => {
-    if (selectedDiseaseId === 'prostate') setProstateData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'bladder') setBladderData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'kidney_rcc') setKidneyData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'rectum') setRectumData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'anal_canal') setAnalCanalData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'esophagus') setEsophagusData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'pancreas') setPancreasData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'liver_hcc') setLiverData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'lung_nsclc') setLungNsclcData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'lung_sclc') setLungSclcData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'nasopharynx') setNasopharynxData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'hypopharynx') setHypopharynxData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'cervix') setCervixData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'sarcoma_sts') setSarcomaData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'skin_melanoma') setMelanomaData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'skin_nonmelanoma') setSkinNmscData(prev => ({ ...prev, hasM1: m1Val }));
-    if (selectedDiseaseId === 'breast') setBreastData(prev => ({ ...prev, hasM1: m1Val }));
-  };
+const handleGlobalM1 = (m1Val: boolean) => {
+  if (selectedDiseaseId === 'prostate') setProstateData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'bladder') setBladderData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'kidney_rcc') setKidneyData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'rectum') setRectumData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'anal_canal') setAnalCanalData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'esophagus') setEsophagusData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'stomach') setStomachData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'pancreas') setPancreasData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'liver_hcc') setLiverData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'lung_nsclc') setLungNsclcData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'lung_sclc') setLungSclcData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'nasopharynx') setNasopharynxData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'hypopharynx') setHypopharynxData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'cervix') setCervixData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'endometrium') setEndometriumData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'sarcoma_sts') setSarcomaData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'skin_melanoma') setMelanomaData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'skin_nonmelanoma') setSkinNmscData(prev => ({ ...prev, hasM1: m1Val }));
+  if (selectedDiseaseId === 'breast') setBreastData(prev => ({ ...prev, hasM1: m1Val }));
+};
 
   const getGlobalM1Status = () => {
     switch (selectedDiseaseId) {
