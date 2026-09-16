@@ -6,12 +6,12 @@ from download_guidelines import run as download_all_guidelines
 
 PDF_DIR = "guidelines_pdf"
 OUTPUT_INDEX = "src/data/guidelines_rag.json"
-OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
+OLLAMA_EMBED_URL = os.getenv("OLLAMA_API_BASE", "http://localhost:11434") + "/api/embeddings"
 EMBED_MODEL = "nomic-embed-text"
 
 def check_ollama():
     try:
-        r = requests.get("http://localhost:11434/", timeout=3)
+        r = requests.get(os.getenv("OLLAMA_API_BASE", "http://localhost:11434"), timeout=3)
         if r.status_code == 200:
             print("✓ Ollama servisi aktif.")
             return True
