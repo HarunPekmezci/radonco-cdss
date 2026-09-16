@@ -13,4 +13,61 @@ import {
 
 import { JsonSchema7 } from 'json-schema';
 
-// ... rest of the file content ...
+export const ENGINE_REGISTRY = {
+  nsclcEngine,
+  sclcEngine,
+  stomachEngine,
+  rectumEngine,
+  prostateEngine,
+  bladderEngine,
+  breastEngine,
+  glialTumorEngine,
+  brainMetastasesEngine,
+  nasopharynxEngine,
+  cervixEngine,
+  palliativeRadiotherapyEngine,
+  colonEngine,
+  analEngine,
+  gistEngine,
+  liverCancerEngine,
+  kidneyEngine,
+  testisEngine,
+  penileEngine,
+  meningeiomaEngine,
+  ependymomaEngine,
+  primaryCNSLymphomaEngine,
+  leptomeningealMetastasesEngine,
+  metastaticSpinalTumorEngine,
+  primarySpinalCordTumorEngine,
+  oropharynxEngine,
+  hypopharynxEngine,
+  oralCavityEngine,
+  salivaryGlandEngine,
+  maxillarySinusEngine,
+  thyroidEngine,
+  endometrialEngine,
+  ovaryEngine,
+  uterusEngine,
+  vaginalEngine,
+  vulvarEngine,
+  medulloblastomaEngine,
+  ewingSarcomaEngine,
+  acuteLymphoblasticLeukemiaEngine,
+  wilmsTumorEngine,
+  osteosarcomaEngine,
+  chondrosarcomaEngine,
+  giantCellTumorEngine,
+  melanomaEngine,
+  bccEngine,
+  skinSccEngine,
+  cutaneousLymphomaEngine,
+  kaposiSarcomaEngine,
+  multipleMyelomaEngine,
+  acuteMyeloidLeukemiaEngine,
+  chronicMyeloidLeukemiaEngine,
+};
+
+export function getEnginesByOrgan(organ: OrganSystem): RegisteredEngine[] {
+  // Implement the logic to get engines by organ
+  return [];
+}
