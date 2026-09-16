@@ -9,7 +9,7 @@ import {
   acuteLymphoblasticLeukemiaEngine, wilmsTumorEngine, osteosarcomaEngine, chondrosarcomaEngine,
   giantCellTumorEngine, melanomaEngine, bccEngine, skinSccEngine, cutaneousLymphomaEngine, kaposiSarcomaEngine,
   multipleMyelomaEngine, acuteMyeloidLeukemiaEngine, chronicMyeloidLeukemiaEngine,
-} from './engines';
+} from './index';
 
 import { JsonSchema7 } from 'json-schema';
 
