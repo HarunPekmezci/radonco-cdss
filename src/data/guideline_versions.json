@@ -1,0 +1,26 @@
+{
+  "lastCheck": "2026-09-15",
+  "sources": {
+    "prostate": {
+      "name": "NCCN Prostate Cancer",
+      "url": "https://www.nccn.org/guidelines/category_1",
+      "currentVersion": "v1.2026",
+      "hasPendingUpdate": false,
+      "pendingNotes": ""
+    },
+    "breast": {
+      "name": "ASTRO Breast Guidelines",
+      "url": "https://www.astro.org/clinical-guidelines",
+      "currentVersion": "2026 Update",
+      "hasPendingUpdate": false,
+      "pendingNotes": ""
+    },
+    "cervix": {
+      "name": "FIGO Staging Cervical",
+      "url": "https://www.figo.org",
+      "currentVersion": "2026 Edition",
+      "hasPendingUpdate": false,
+      "pendingNotes": ""
+    }
+  }
+}

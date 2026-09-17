@@ -1,0 +1,128 @@
+{
+  "version": "2026.1.0",
+  "lastUpdated": "2026-09-14",
+  "guidelines": {
+    "prostate": {
+      "reference": "NCCN Prostate Cancer v1.2026",
+      "referenceUrl": "https://www.nccn.org",
+      "riskThresholds": {
+        "psaHigh": 20,
+        "psaIntermediate": 10,
+        "roachCutoff": 15
+      },
+      "regimens": [
+        {
+          "id": "chhip_standard",
+          "categoryRank": "2_HIPOFRAKSIYONE",
+          "modalityDisplay": "Orta-Hipofraksiyone",
+          "regimenName": "CHHiP Şeması (60 Gy / 20 fx)",
+          "totalDoseGy": 60,
+          "fractionCount": 20,
+          "dosePerFractionGy": 3,
+          "alphaBeta": 1.5,
+          "bedGy": 180,
+          "eqd2Gy": 77.1,
+          "targetVolumeCTV": "Prostat ± Proksimal SV",
+          "volumeUnionHierarchy": "PTV = CTV + 5-6 mm (Post 4 mm)",
+          "gtvToCtvMargin": "0 mm",
+          "ctvToPtvMargin": "Posterior 4 mm, Diğer 5-6 mm",
+          "clinicalIndication": "Lokalize Düşük & Orta Risk Standart",
+          "preferredFor": [
+            "LOW_RISK",
+            "FAVORABLE_INTERMEDIATE"
+          ]
+        },
+        {
+          "id": "pace_b_sbrt",
+          "categoryRank": "3_ULTRA_HIPOFRAKSIYONE_SBRT",
+          "modalityDisplay": "Ultra-Hipofraksiyone SBRT",
+          "regimenName": "PACE-B Şeması (36.25 Gy / 5 fx)",
+          "totalDoseGy": 36.25,
+          "fractionCount": 5,
+          "dosePerFractionGy": 7.25,
+          "alphaBeta": 1.5,
+          "bedGy": 211.5,
+          "eqd2Gy": 90.6,
+          "targetVolumeCTV": "Prostat",
+          "volumeUnionHierarchy": "PTV = CTV + 3-4 mm",
+          "gtvToCtvMargin": "0 mm",
+          "ctvToPtvMargin": "2 mm (İntra-fraksiyon takipli)",
+          "preferredFor": [
+            "LOW_RISK",
+            "FAVORABLE_INTERMEDIATE_SBRT"
+          ]
+        },
+        {
+          "id": "pelvic_sib",
+          "categoryRank": "2_HIPOFRAKSIYONE",
+          "modalityDisplay": "Pelvik SIB",
+          "regimenName": "SIB-EBRT (70 / 56 / 46 Gy / 28 fx)",
+          "totalDoseGy": 70,
+          "fractionCount": 28,
+          "dosePerFractionGy": 2.5,
+          "alphaBeta": 1.5,
+          "bedGy": 186.7,
+          "eqd2Gy": 80,
+          "targetVolumeCTV": "Prostat + SV + Pelvik LN",
+          "volumeUnionHierarchy": "PTV_46 ∪ PTV_56 ∪ PTV_70",
+          "gtvToCtvMargin": "Pelvik LN + 7 mm",
+          "ctvToPtvMargin": "4 mm",
+          "Bu satırın değeri değiştirildi ve 4 mm olarak güncellendi": "",
+          "clinicalIndication": "Yüksek / Çok Yüksek Risk Nodal Kapsama",
+          "preferredFor": [
+            "HIGH_RISK",
+            "VERY_HIGH_RISK",
+            "NODE_POSITIVE"
+          ]
+        }
+      ]
+    },
+    "breast": {
+      "reference": "ASTRO Whole Breast Hypofractionation & FAST-Forward 2026",
+      "referenceUrl": "https://www.astro.org",
+      "regimens": [
+        {
+          "id": "fast_forward",
+          "categoryRank": "2_HIPOFRAKSIYONE",
+          "modalityDisplay": "1 Haftalık Ultra-Hipofraksiyone",
+          "regimenName": "FAST-Forward (26 Gy / 5 fx)",
+          "totalDoseGy": 26,
+          "fractionCount": 5,
+          "dosePerFractionGy": 5.2,
+          "alphaBeta": 4,
+          "bedGy": 59.8,
+          "eqd2Gy": 39.9,
+          "targetVolumeCTV": "Tüm Meme Dokusu",
+          "volumeUnionHierarchy": "PTV = CTV + 5 mm (Ciltten 3-5 mm kırpılır)",
+          "gtvToCtvMargin": "Glanduler doku sınırları",
+          "ctvToPtvMargin": "5 mm",
+          "clinicalIndication": "Düşük Nodal Yük / Standart WBI",
+          "preferredFor": [
+            "NODE_NEGATIVE"
+          ]
+        },
+        {
+          "id": "start_b_pmrt",
+          "categoryRank": "2_HIPOFRAKSIYONE",
+          "modalityDisplay": "Orta-Hipofraksiyone PMRT/RNI",
+          "regimenName": "START-B Şeması (40.05 Gy / 15 fx)",
+          "totalDoseGy": 40.05,
+          "fractionCount": 15,
+          "dosePerFractionGy": 2.67,
+          "alphaBeta": 4,
+          "bedGy": 66.8,
+          "eqd2Gy": 44.5,
+          "targetVolumeCTV": "Göğüs Duvarı + Supraklavikuler/Aksiller LN",
+          "volumeUnionHierarchy": "PTV = CTV + 5 mm",
+          "gtvToCtvMargin": "ESTRO/RTOG konturlama atlası",
+          "ctvToPtvMargin": "5 mm",
+          "clinicalIndication": "Postmastektomi ve Nodal Işınlama (RNI)",
+          "preferredFor": [
+            "NODE_POSITIVE",
+            "MASTECTOMY_HIGH_RISK"
+          ]
+        }
+      ]
+    }
+  }
+}
