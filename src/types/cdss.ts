@@ -152,6 +152,15 @@ export interface TargetVolume {
 
 export type ConstraintMetric = 'Dmax' | 'D0.03cc' | 'D1cc' | 'D2cc' | 'Dmean' | 'Vx' | 'V20' | 'V30';
 
+export type OARSourceReference =
+  | 'QUANTEC'
+  | 'HyTEC'
+  | 'RTOG_0617'
+  | 'RTOG_0813'
+  | 'protocol'
+  | 'institutional'
+  | 'other';
+
 export interface OARConstraint {
   organ: string;
   metric: ConstraintMetric | string;
@@ -159,7 +168,7 @@ export interface OARConstraint {
   unit: 'Gy' | 'cGy' | '%' | 'cc' | 'Gy/fraction';
   volume?: number;
   priority?: 'mandatory' | 'optimal' | 'acceptable';
-  source: 'QUANTEC' | 'HyTEC' | 'protocol' | 'institutional' | 'other';
+  source: OARSourceReference;
   sourceReference?: string;
 }
 
@@ -233,6 +242,7 @@ export interface CDSSResult {
   uncertainties?: string[];
   confidence?: number;
   generatedAt?: string;
+  llmContext?: string;
   guidelineReferences: GuidelineReference[];
   alternativeDoseSchemes?: RegimenCatalog;
 }
