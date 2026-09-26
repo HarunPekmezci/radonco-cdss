@@ -335,6 +335,16 @@ const getAdaptiveEContour = (
 };
 
 const TRANSLATION_MAP: Record<string, string> = {
+  'Çok Yüksek Riskli veya N1 Prostat Ca': 'Very High-Risk or N1 Prostate Cancer',
+  'Çok Yüksek Risk': 'Very High Risk',
+  'Çok yüksek risk': 'Very high risk',
+  'Çok Yüksek': 'Very High',
+  'Çok yüksek': 'Very high',
+  'Yüksek-Orta Risk': 'High-Intermediate Risk',
+  'Yüksek Orta Risk': 'High-Intermediate Risk',
+  'Yüksek risk': 'High risk',
+  'Düşük risk': 'Low risk',
+  'Standart Risk': 'Standard Risk',
   'Küçük Hücreli Dışı Akciğer Ca (KHDAK)': 'Non-Small Cell Lung Cancer (NSCLC)',
   'Küçük Hücreli Akciğer Ca (KHAK / SCLC)': 'Small Cell Lung Cancer (SCLC)',
   'Küçük Hücreli Akciğer Ca (KHAK)': 'Small Cell Lung Cancer (SCLC)',
@@ -512,7 +522,6 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Düşük Risk': 'Low Risk',
   'Orta Risk': 'Intermediate Risk',
   'Yüksek Risk': 'High Risk',
-  'Yüksek-Orta Risk': 'High-Intermediate Risk',
   'Radyoterapi Amacı': 'Radiotherapy Intent',
   'Klinik Evre / Cerrahi': 'Clinical Stage / Surgery',
   'Radyoterapi Zamanlaması': 'Radiotherapy Timing',
@@ -609,9 +618,7 @@ const TRANSLATION_MAP: Record<string, string> = {
   'standart': 'standard',
   'Standart': 'Standard',
   'yüksek risk': 'high risk',
-  'Yüksek risk': 'High risk',
   'düşük risk': 'low risk',
-  'Düşük risk': 'Low risk',
   'negatif': 'negative',
   'pozitif': 'positive',
   'Kurumsal Hekim Erişimi / Institutional Access': 'Institutional Physician Access',
@@ -4558,22 +4565,23 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <div className={`w-full border rounded-lg p-1 shadow-sm mb-4 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0b1324] border-slate-800'}`}>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
-          { id: 'thorax', name: 'Toraks (Akciğer)', nameEn: 'Thorax (Lung)', icon: Wind, color: 'text-sky-700' },
-          { id: 'prostate', name: 'GÜS', nameEn: 'GU (Prostate & Bladder)', icon: Droplets, color: 'text-blue-700' },
-          { id: 'breast', name: 'Meme', nameEn: 'Breast', icon: CircleDot, color: 'text-pink-700' },
-          { id: 'gis', name: 'GİS (Gastrointestinal)', nameEn: 'GI (Colorectal & Gastric)', icon: UtensilsCrossed, color: 'text-orange-700' },
-          { id: 'head-neck', name: 'Baş-Boyun', nameEn: 'Head & Neck', icon: User, color: 'text-indigo-700' },
-          { id: 'cns', name: 'MSS (Beyin & Omurilik)', nameEn: 'CNS (Brain & Spine)', icon: Brain, color: 'text-purple-700' },
-          { id: 'gynecology', name: 'Jinekoloji', nameEn: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
-          { id: 'bone-sarcoma', name: 'Kemik & Sarkom', nameEn: 'Bone & Soft Tissue Sarcoma', icon: Bone, color: 'text-amber-700' },
-          { id: 'skin', name: 'Cilt (Melanom/BCC/SCC)', nameEn: 'Skin (Melanoma & NMSC)', icon: Shield, color: 'text-yellow-700' },
-          { id: 'hematologic', name: 'Hematolojik (Lenfoma)', nameEn: 'Hematologic (Lymphoma)', icon: Droplet, color: 'text-red-700' },
-          { id: 'pediatric', name: 'Pediatrik Tümörler', nameEn: 'Pediatric Tumors', icon: Baby, color: 'text-emerald-700' },
-          { id: 'palliative', name: 'Palyatif Radyoterapi', nameEn: 'Palliative RT', icon: HandHeart, color: 'text-teal-700' },
-          { id: 'benign', name: 'Benign Hastalıklar', nameEn: 'Benign Diseases', icon: ShieldCheck, color: 'text-emerald-700' },
+          { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
+          { id: 'prostate', name_tr: 'GÜS', name_en: 'GU', icon: Droplets, color: 'text-blue-700' },
+          { id: 'breast', name_tr: 'Meme', name_en: 'Breast', icon: CircleDot, color: 'text-pink-700' },
+          { id: 'gis', name_tr: 'GİS', name_en: 'GI', icon: UtensilsCrossed, color: 'text-orange-700' },
+          { id: 'head-neck', name_tr: 'Baş-Boyun', name_en: 'Head & Neck', icon: User, color: 'text-indigo-700' },
+          { id: 'cns', name_tr: 'MSS', name_en: 'CNS', icon: Brain, color: 'text-purple-700' },
+          { id: 'gynecology', name_tr: 'Jinekoloji', name_en: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
+          { id: 'bone-sarcoma', name_tr: 'Kemik & Sarkom', name_en: 'Bone & Sarcoma', icon: Bone, color: 'text-amber-700' },
+          { id: 'skin', name_tr: 'Cilt', name_en: 'Skin', icon: Shield, color: 'text-yellow-700' },
+          { id: 'hematologic', name_tr: 'Hematolojik', name_en: 'Hematologic', icon: Droplet, color: 'text-red-700' },
+          { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric', icon: Baby, color: 'text-emerald-700' },
+          { id: 'palliative', name_tr: 'Palyatif', name_en: 'Palliative', icon: HandHeart, color: 'text-teal-700' },
+          { id: 'benign', name_tr: 'Benign', name_en: 'Benign', icon: ShieldCheck, color: 'text-emerald-700' },
         ].map(item => {
           const Icon = item.icon;
           const isActive = selectedOrgan === item.id;
+          const displayName = lang === 'en' ? item.name_en : item.name_tr;
           return (
             <button
               key={item.id}
@@ -4591,7 +4599,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-              {lang === 'tr' ? item.name : item.nameEn}
+              <span>{displayName}</span>
             </button>
           );
         })}
