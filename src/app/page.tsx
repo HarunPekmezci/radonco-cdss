@@ -446,7 +446,7 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Bölgesel lenf nodu metastazı yok': 'No regional lymph node metastasis',
   'İpsilateral peribronşiyal / hiler lenf nodu tutulumu': 'Ipsilateral peribronchial / hilar lymph node involvement',
   'İpsilateral mediastinal / subkarinal lenf nodu tutulumu': 'Ipsilateral mediastinal / subcarinal lymph node involvement',
-  'Kontralateral mediastinal / hiler / supraklavikular lenf nodu': 'Contralateral mediastinal / hilar / supraclavicular lymph node',
+  'Kontralateral mediastinal/hiler veya supraklavikular lenf nodu': 'Contralateral mediastinal, hilar, or supraclavicular lymph node involvement',
   'Uzak metastaz yok': 'No distant metastasis',
   'Uzak metastaz var': 'Distant metastasis present',
   'Tek organ / oligometastaz': 'Single organ / oligometastatic disease',
@@ -877,6 +877,22 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Ewing': 'Ewing Sarcoma',
   'GCTB': 'Giant Cell Tumor of Bone',
   'DFSP': 'Dermatofibrosarcoma Protuberans',
+  '>7 cm or mediasten, kalp, büyük damarlar, trakea, omur...': '>7 cm or mediastinum, heart, great vessels, trachea, and spine invasion',
+  'Contralateral mediastinal/hiler or supraklavikular lymph...': 'Contralateral mediastinal, hilar, or supraclavicular lymph node involvement',
+  'Karşı akciğer nodülü, plevral/perikardiyal efüzyon or...': 'Contralateral lung nodules, malignant pleural or pericardial effusion',
+  'Karşı akciğer nodülü, plevral/perikardiyal efüzyon': 'Contralateral lung nodules, malignant pleural or pericardial effusion',
+  'Tek bir ekstratorasik organda soliter metastaz...': 'Single extrathoracic metastasis in a single organ (Oligometastatic)',
+  'Tek bir ekstratorasik organda soliter metastaz': 'Single extrathoracic metastasis in a single organ (Oligometastatic)',
+  'Çoklu organlarda yaygın metastazlar (Polimetastatik)': 'Multiple extrathoracic metastases in multiple organs (Polymetastatic)',
+  'Göğüs Duvarı': 'Chest Wall',
+  'Kategori 1': 'Category 1',
+  'Kategori 2A': 'Category 2A',
+  'Klinik Reçete Raporunu Kopyala': 'Copy Clinical Prescription Report',
+  'Rapor Kopyalandı!': 'Report Copied to Clipboard!',
+  'Kopyalandı!': 'Copied!',
+  '>7 cm veya mediasten, kalp, büyük damarlar, trakea, omurga invazyonu': '>7 cm or invasion of the mediastinum, heart, great vessels, trachea, or spine',
+  'Karşı akciğer nodülü, plevral/perikardiyal efüzyon veya nodül': 'Contralateral lung nodules, malignant pleural or pericardial effusion',
+  'Tek bir ekstratorasik organda soliter metastaz (Oligometastatik)': 'Single extrathoracic metastasis in a single organ (Oligometastatic)',
 };
 
 const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(
@@ -1740,7 +1756,7 @@ TNM_DATABASE['bone-sarcoma'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [lang, setLang] = useState<'tr' | 'en'>('tr');
+  const [lang, setLang] = useState<'tr' | 'en'>('en');
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = (text: string | undefined): string => {
     if (!text) return '';
@@ -1787,9 +1803,12 @@ export default function RadoncoCDSSPage() {
   }, []);
 
   useEffect(() => {
-    const storedLanguage = window.localStorage.getItem('radonco-lang');
-    if (storedLanguage === 'tr' || storedLanguage === 'en') {
-      setLang(storedLanguage);
+    const saved = window.localStorage.getItem('radonco-lang');
+    if (saved === 'tr' || saved === 'en') {
+      setLang(saved);
+    } else {
+      setLang('en');
+      window.localStorage.setItem('radonco-lang', 'en');
     }
   }, []);
 
@@ -4425,8 +4444,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-6 text-slate-700 font-sans" role="status" aria-live="polite">
-        {lang === 'tr' ? 'Kurumsal erişim doğrulanıyor…' : 'Verifying institutional access…'}
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-[#080e1a] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
+        <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+          {lang === 'tr' ? 'Kurumsal Kimlik Bilgileri Doğrulanıyor...' : 'Verifying Institutional Credentials...'}
+        </div>
+        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          {lang === 'tr' ? 'Verifying institutional credentials' : 'Kurumsal hekim doğrulaması yapılıyor'}
+        </div>
       </div>
     );
   }
@@ -4490,21 +4515,23 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           >
             {theme === 'light' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
           </button>
-          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label="Language">
-            <button
-              type="button"
-              onClick={() => changeLanguage('tr')}
-              aria-pressed={lang === 'tr'}
-              className={`px-2 py-1 rounded ${lang === 'tr' ? 'bg-slate-900 dark:bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
-            >
-              {tText("\n              TR\n            ")}</button>
+          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
             <button
               type="button"
               onClick={() => changeLanguage('en')}
               aria-pressed={lang === 'en'}
-              className={`px-2 py-1 rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+              className={`px-2 py-1 rounded-md transition ${lang === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
             >
-              {tText("\n              EN\n            ")}</button>
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => changeLanguage('tr')}
+              aria-pressed={lang === 'tr'}
+              className={`px-2 py-1 rounded-md transition ${lang === 'tr' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+            >
+              TR
+            </button>
           </div>
           <Show when="signed-out">
             <SignInButton mode="redirect">
@@ -6000,13 +6027,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}
             <div className="bg-[#f1f5f9] border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs">
               <div>
-                <span className="text-[11px] text-slate-600 block">{tText("Radyobiyolojik Eşdeğerlik")}</span>
+                <span className="text-[11px] text-slate-600 block">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
                 <span className="font-bold text-slate-700">
                   {tText("\n                  α/β = ")}{radiobiology.ab} {tText(" Gy | BED: ")}<span className="text-amber-700">{radiobiology.bed} {tText(" Gy")}</span> {tText(" | EQD2: ")}<span className="text-emerald-700">{radiobiology.eqd2} {tText(" Gy")}</span>
                 </span>
               </div>
               <div className="text-[11px] text-slate-500 text-right">
-                {tText("\n                Linear-Quadratic Model\n              ")}</div>
+                {lang === 'tr' ? 'Lineer-Kuadratik Model' : 'Linear-Quadratic Model'}</div>
             </div>
 
             {/* SİSTEMİK TEDAVİ VE KANIT */}
@@ -6027,7 +6054,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Kopyalandı!' : 'Klinik Reçete Raporunu Kopyala'}
+                <span>
+                  {copied
+                    ? (lang === 'tr' ? 'Rapor Kopyalandı!' : 'Report Copied!')
+                    : (lang === 'tr' ? 'Klinik Reçete Raporunu Kopyala' : 'Copy Clinical Prescription Report')}
+                </span>
               </button>
             </div>
           </div>
