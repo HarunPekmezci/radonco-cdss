@@ -65,6 +65,12 @@ html.dark input:not([type="checkbox"]):not([type="radio"]) {
   color: #94a3b8 !important;
 }
 
+.auth-screen .auth-clerk-input:focus {
+  border-color: #3b82f6 !important;
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .auth-screen .auth-clerk-social {
   border-color: rgb(51 65 85 / 0.8) !important;
   background-color: #131e36 !important;
@@ -73,6 +79,14 @@ html.dark input:not([type="checkbox"]):not([type="radio"]) {
 
 .auth-screen .auth-clerk-social:hover {
   background-color: #1a2947 !important;
+}
+
+.auth-screen .auth-clerk-primary {
+  color: #ffffff !important;
+}
+
+.auth-screen .auth-clerk-primary:hover {
+  background-image: linear-gradient(to right, #3b82f6, #6366f1) !important;
 }
 
 .auth-screen .auth-clerk-link {
