@@ -1183,6 +1183,240 @@ export const calculatePrognosticIndex = (
 ): PrognosticResult | null => {
   const age = extraParams.age || 65;
   const kps = extraParams.kps || 80;
+  const isM1 = m.startsWith('M1');
+  const isNodalPositive = /^N[1-3]/.test(n);
+  const lowerSubsite = subsite.toLowerCase();
+
+  if (organ === 'thorax') {
+    if (isM1) {
+      const oligometastatic = m.includes('M1b');
+      return {
+        indexName: 'IASLC & NCCN Evre IV KHDAK Modeli',
+        score: oligometastatic ? 'Evre IVA (Oligometastatik)' : 'Evre IVB (Polimetastatik)',
+        riskCategory: oligometastatic ? 'Orta-Kötü Prognoz (Oligometastatik)' : 'Kötü Prognoz (Yaygın Metastatik)',
+        medianSurvivalOrRecurrence: oligometastatic ? 'Median OS: ~18-24 ay' : 'Median OS: ~10-14 ay',
+        recommendation: oligometastatic ? 'Sistemik Kemo-İmmünoterapi / Hedefe Yönelik Tedavi + primer ve oligometastazlara konsolidatif SBRT/SABR.' : 'Sistemik Kemo-İmmünoterapi (Kategori 1); RT semptomatik lezyonlara palyatif amaçla uygulanır.',
+      };
+    }
+    if (isNodalPositive || /^T[34]/.test(t)) {
+      return {
+        indexName: 'PACIFIC & RTOG Evre III Lokal İleri Modeli',
+        score: `${t} ${n} (Evre III)`,
+        riskCategory: 'Lokal İleri Yüksek Risk',
+        medianSurvivalOrRecurrence: '5 yıllık genel sağkalım (PACIFIC): ~43%',
+        recommendation: 'Eşzamanlı Kemo-Radyoterapi (60-66 Gy), uygun olgularda 12 ay Durvalumab idamesi.',
+      };
+    }
+    return {
+      indexName: 'RTOG / ESTRO Erken Evre KHDAK SBRT Modeli',
+      score: `${t} ${n} M0 (Evre I)`,
+      riskCategory: 'Mükemmel Lokal Kontrol (Düşük Sistemik Risk)',
+      medianSurvivalOrRecurrence: '3 yıllık lokal kontrol: >%90; Median OS: ~4-5 yıl',
+      recommendation: 'Küratif SBRT (54 Gy/3 fx veya 50 Gy/5 fx); nodal ışınlama yapılmaz.',
+    };
+  }
+
+  if (organ === 'prostate' || lowerSubsite.includes('prostate')) {
+    if (m.includes('M1c')) {
+      return {
+        indexName: 'CHAARTED & LATITUDE Metastatik Risk Modeli',
+        score: 'M1c (Visseral Yüksek Volüm)',
+        riskCategory: 'Evre IVB: Kötü Prognoz (Visseral Metastatik mHSPC)',
+        medianSurvivalOrRecurrence: 'Median OS: ~32-36 ay',
+        recommendation: 'ADT + ARPI ± Dosetaksel ile yoğunlaştırılmış sistemik tedavi esastır; primer RT seçilmiş olgularla sınırlıdır.',
+      };
+    }
+    if (isM1) {
+      return {
+        indexName: 'STAMPEDE & CHAARTED Düşük Volüm Modeli',
+        score: m.includes('M1b') ? 'M1b (Kemik Met)' : 'M1a (Uzak Nodal)',
+        riskCategory: 'Evre IVB: Düşük Volümlü / Oligometastatik mHSPC',
+        medianSurvivalOrRecurrence: 'Median OS: ~48-60+ ay',
+        recommendation: 'ADT + ARPI kombinasyonu, uygun olguda primer prostat RT ve oligometastazlara SBRT.',
+      };
+    }
+    const psa = extraParams.psa || 8.5;
+    const g1 = extraParams.gleasonPrimary || 3;
+    const g2 = extraParams.gleasonSecondary || 4;
+    const gleasonSum = g1 + g2;
+    let capra = psa > 20 ? 3 : psa >= 10 ? 2 : psa >= 6 ? 1 : 0;
+    capra += gleasonSum >= 8 || g1 >= 4 ? 3 : gleasonSum === 7 ? 1 : 0;
+    if (/^T[34]/.test(t)) capra += 1;
+    if (t.startsWith('T4') || t === 'T3b' || capra >= 6 || isNodalPositive) {
+      return {
+        indexName: 'UCSF CAPRA & NCCN Çok Yüksek Risk Modeli',
+        score: `${Math.max(capra, 6)} / 10`,
+        riskCategory: 'Çok Yüksek Risk',
+        medianSurvivalOrRecurrence: '5 yıllık biyokimyasal nükssüzlük: ~35-45%',
+        recommendation: 'Doz eskalasyonu (78-80 Gy veya SIB) + 24-36 ay ADT + elektif pelvik nodal RT.',
+      };
+    }
+    if (capra >= 3) {
+      return {
+        indexName: 'UCSF CAPRA & NCCN Orta Risk Modeli',
+        score: `${capra} / 10`,
+        riskCategory: 'Orta Risk',
+        medianSurvivalOrRecurrence: '5 yıllık biyokimyasal nükssüzlük: ~70-75%',
+        recommendation: '60 Gy/20 fx veya SBRT (36.25 Gy) ± 4-6 ay kısa dönem ADT.',
+      };
+    }
+    return {
+      indexName: 'UCSF CAPRA & NCCN Düşük Risk Modeli',
+      score: `${capra} / 10`,
+      riskCategory: 'Düşük Risk',
+      medianSurvivalOrRecurrence: '5 yıllık biyokimyasal nükssüzlük: ~85-90%',
+      recommendation: 'Aktif izlem veya tek başına SBRT / ılımlı hipofraksiyonasyon; ADT gerekmez.',
+    };
+  }
+
+  if (organ === 'breast') {
+    if (isM1) {
+      return {
+        indexName: 'Evre IV Metastatik Meme Kanseri Risk Modeli',
+        score: 'M1 (Uzak Metastaz)',
+        riskCategory: 'Evre IV: İleri Sistemik Hastalık',
+        medianSurvivalOrRecurrence: 'Median OS: biyolojik alt tipe göre ~2-5+ yıl',
+        recommendation: 'Sistemik tedavi önceliklidir; RT semptom palyasyonu veya seçilmiş oligometastaz ablasyonu için uygulanır.',
+      };
+    }
+    if (isNodalPositive || /^T[34]/.test(t)) {
+      return {
+        indexName: 'Lokal İleri Meme Kanseri (LABC) Risk Modeli',
+        score: `${t} ${n} (Evre III)`,
+        riskCategory: 'Yüksek Lokal Nüks Riski',
+        medianSurvivalOrRecurrence: '10 yıllık lokal nüks riski: ~20-30% (RT ile <%8-10)',
+        recommendation: 'PMRT veya meme koruyucu RT + kapsamlı bölgesel nodal ışınlama (RNI).',
+      };
+    }
+    const sizeCm = extraParams.tumorSizeCm || (t === 'T1a' ? 0.5 : t === 'T1b' ? 1 : t === 'T1c' ? 1.8 : 3);
+    const npi = (0.2 * sizeCm) + (n === 'N0' ? 1 : 2) + (extraParams.grade || 2);
+    const favorable = npi <= 3.4;
+    return {
+      indexName: 'Nottingham Prognostic Index (NPI)',
+      score: npi.toFixed(2),
+      riskCategory: favorable ? 'İyi Prognoz (NPI ≤ 3.4)' : 'Orta Prognoz (NPI 3.41-5.4)',
+      medianSurvivalOrRecurrence: favorable ? '10 yıllık sağkalım: ~85%' : '10 yıllık sağkalım: ~65%',
+      recommendation: favorable ? 'Standart adjuvan tüm meme RT (FAST-Forward 26 Gy/5 fx); RNI yapılmaz.' : 'Tüm meme RT + tümör yatağı boost ve sistemik tedavinin multidisipliner değerlendirilmesi.',
+    };
+  }
+
+  if (organ === 'cns') {
+    if (lowerSubsite.includes('gbm') || lowerSubsite.includes('glioblast')) {
+      return {
+        indexName: 'EORTC / RTOG RPA Glioblastom Modeli',
+        score: age < 50 ? 'RPA Sınıf III' : kps >= 70 ? 'RPA Sınıf IV' : 'RPA Sınıf V',
+        riskCategory: age < 50 ? 'Göreceli İyi Prognoz' : kps >= 70 ? 'Standart Yüksek Risk' : 'Kötü Performans / Düşkün',
+        medianSurvivalOrRecurrence: age < 50 ? 'Median OS: ~17-24 ay' : kps >= 70 ? 'Median OS: ~14-16 ay' : 'Median OS: ~6-9 ay',
+        recommendation: kps >= 70 ? 'Stupp protokolü: 60 Gy/30 fx + eşzamanlı ve adjuvan Temozolomid.' : 'Kısa dönem hipofraksiyonasyon (40.05 Gy/15 fx) ± Temozolomid.',
+      };
+    }
+    if (isM1 || lowerSubsite.includes('mets')) {
+      let gpa = 1;
+      if (age < 50) gpa += 1;
+      else if (age <= 59) gpa += 0.5;
+      if (kps >= 90) gpa += 1;
+      else if (kps >= 70) gpa += 0.5;
+      return {
+        indexName: 'Diagnosis-Specific GPA (DS-GPA)',
+        score: `${gpa.toFixed(1)} / 4.0`,
+        riskCategory: gpa >= 3.5 ? 'Mükemmel Prognoz' : gpa >= 2.5 ? 'İyi-Orta Prognoz' : 'Kötü Prognoz',
+        medianSurvivalOrRecurrence: gpa >= 3.5 ? 'Median OS: ~14-25 ay' : gpa >= 2.5 ? 'Median OS: ~8-12 ay' : 'Median OS: ~3-5 ay',
+        recommendation: gpa >= 2.5 ? 'SRS veya hipokampus korumalı WBRT değerlendirilir.' : 'WBRT veya best supportive care değerlendirilir.',
+      };
+    }
+  }
+
+  if (organ === 'gis') {
+    if (isM1) {
+      return {
+        indexName: 'Metastatik Kolorektal / GİS Modeli',
+        score: 'M1 (Uzak Metastaz)',
+        riskCategory: 'Evre IV GİS Malignitesi',
+        medianSurvivalOrRecurrence: 'Median OS: ~20-30 ay',
+        recommendation: 'Sistemik kemoterapi ve biyolojik ajanlar; oligometastazlara SBRT veya cerrahi ablasyon.',
+      };
+    }
+    if (lowerSubsite.includes('rect') || lowerSubsite.includes('rekt')) {
+      const locallyAdvanced = /^T[34]/.test(t) || isNodalPositive;
+      return {
+        indexName: 'RAPIDO & PRODIGE-23 LARC Risk Modeli',
+        score: locallyAdvanced ? 'Lokal İleri Rektum (LARC)' : 'Erken Evre Rektum',
+        riskCategory: locallyAdvanced ? 'Yüksek Lokal ve Sistemik Nüks Riski' : 'Düşük Nüks Riski',
+        medianSurvivalOrRecurrence: locallyAdvanced ? '3 yıllık hastalıksız sağkalım: ~75%' : '5 yıllık lokal kontrol: >%90',
+        recommendation: locallyAdvanced ? 'Total neoadjuvan tedavi: 25 Gy/5 fx + konsolidasyon KT veya uzun dönem KRT.' : 'Primer cerrahi (TME) veya seçilmiş olguda lokal eksizyon.',
+      };
+    }
+  }
+
+  if (organ === 'head-neck') {
+    if (isM1) {
+      return {
+        indexName: 'KEYNOTE-048 Evre IVC Baş-Boyun Modeli',
+        score: 'Evre IVC (Uzak Metastaz)',
+        riskCategory: 'Kötü Prognoz',
+        medianSurvivalOrRecurrence: 'Median OS: ~10-14 ay',
+        recommendation: 'Pembrolizumab ± platin/5-FU; primer kitleye palyatif RT.',
+      };
+    }
+    return {
+      indexName: 'Ang et al. Orofarenks / Baş-Boyun RPA Modeli',
+      score: isNodalPositive ? 'Nodal Pozitif Lokal İleri' : 'Erken Evre',
+      riskCategory: isNodalPositive ? 'Orta-Yüksek Nüks Riski' : 'Düşük Nüks Riski',
+      medianSurvivalOrRecurrence: isNodalPositive ? '5 yıllık sağkalım: ~65-75%' : '5 yıllık sağkalım: >%85',
+      recommendation: isNodalPositive ? 'Definitif kemoradyoterapi: SIB 70/60/54 Gy/33 fx + yüksek doz Sisplatin.' : 'Küratif radyoterapi veya cerrahi rezeksiyon.',
+    };
+  }
+
+  if (organ === 'gynecology') {
+    if (isM1) {
+      return {
+        indexName: 'FIGO Evre IVB Jinekolojik Kanser Modeli',
+        score: 'Evre IVB (Uzak Metastaz)',
+        riskCategory: 'İleri Evre Sistemik Tutulum',
+        medianSurvivalOrRecurrence: 'Median OS: ~12-18 ay',
+        recommendation: 'Karboplatin + Paklitaksel ± Pembrolizumab/Bevasizumab; kanama kontrolü için palyatif RT.',
+      };
+    }
+    return {
+      indexName: 'EMBRACE II & PORTEC-3 Pelvik Risk Modeli',
+      score: isNodalPositive ? 'Yüksek Risk (Nodal Tutulum)' : 'Lokal Pelvik Risk',
+      riskCategory: isNodalPositive ? 'Yüksek Pelvik ve Paraaortik Nüks Riski' : 'Standart Pelvik Risk',
+      medianSurvivalOrRecurrence: '5 yıllık pelvik lokal kontrol: ~70-85%',
+      recommendation: 'Pelvik EBRT + eşzamanlı Sisplatin ve 3D MR-IGABT brakiterapi değerlendirilir.',
+    };
+  }
+
+  if (organ === 'palliative' || lowerSubsite.includes('spinal')) {
+    const tokuhashi = (kps >= 80 ? 2 : 1) + (isM1 ? 1 : 2) + 2;
+    const favorable = tokuhashi >= 9;
+    return {
+      indexName: 'Modifiye Tokuhashi & Tomita Spinal İndeksi',
+      score: `${tokuhashi} / 15`,
+      riskCategory: favorable ? 'Orta/İyi Prognoz' : 'Kısa Yaşam Beklentisi',
+      medianSurvivalOrRecurrence: favorable ? 'Beklenen yaşam: > 6-12 ay' : 'Beklenen yaşam: < 6 ay',
+      recommendation: favorable ? 'Spine SBRT (16-24 Gy tek fx veya 24-30 Gy/3-5 fx).' : 'Hızlı ağrı ve bası palyasyonu: 8 Gy tek fx veya 20 Gy/5 fx.',
+    };
+  }
+
+  if (organ === 'bone-sarcoma' || organ === 'hematologic' || organ === 'pediatric' || organ === 'benign') {
+    const advanced = isNodalPositive || /^T[34]/.test(t);
+    if (isM1) {
+      return {
+        indexName: 'Uluslararası Evre IV Metastatik Risk Modeli',
+        score: 'Evre IV (Metastatik)',
+        riskCategory: 'İleri Evre Sistemik Hastalık',
+        medianSurvivalOrRecurrence: 'Prognoz primer tümör biyolojisine bağlıdır',
+        recommendation: 'Sistemik tedavi önceliklidir; RT semptom palyasyonu veya oligometastaz ablasyonu için uygulanır.',
+      };
+    }
+    return {
+      indexName: 'Organ-Spesifik Evreleme ve Nüks Risk Modeli',
+      score: advanced ? 'Lokal İleri' : 'Lokalize',
+      riskCategory: advanced ? 'Yüksek Nüks Riski' : 'Düşük-Orta Nüks Riski',
+      medianSurvivalOrRecurrence: 'Prognoz histoloji, evre ve tedavi yanıtına göre değişir',
+      recommendation: advanced ? 'Multidisipliner sistemik tedavi ve definitif/adyuvan RT değerlendirilir.' : 'Evreye uygun cerrahi veya küratif RT ve yakın takip.',
+    };
+  }
 
   if (organ === 'cns' && (subsite.includes('mets') || m.includes('M1'))) {
     let gpa = 0;
@@ -1291,6 +1525,15 @@ export const calculatePrognosticIndex = (
       riskCategory,
       medianSurvivalOrRecurrence,
       recommendation,
+    };
+  }
+  if (isM1) {
+    return {
+      indexName: 'Uluslararası Evre IV Metastatik Risk Modeli',
+      score: 'Evre IV (Metastatik)',
+      riskCategory: 'İleri Evre Sistemik Hastalık',
+      medianSurvivalOrRecurrence: 'Prognoz primer tümör biyolojisine bağlıdır',
+      recommendation: 'Sistemik tedavi önceliklidir; RT semptom palyasyonu veya oligometastaz ablasyonu için uygulanır.',
     };
   }
   return null;
