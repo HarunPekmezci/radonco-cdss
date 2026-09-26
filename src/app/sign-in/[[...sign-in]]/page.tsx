@@ -1,9 +1,5 @@
-import { SignIn } from '@clerk/nextjs';
+import AuthScreen from '../../auth-screen';
 
 export default function SignInPage() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f1f5f9] p-4">
-      <SignIn />
-    </main>
-  );
+  return <AuthScreen mode="sign-in" />;
 }

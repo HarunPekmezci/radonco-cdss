@@ -11,8 +11,76 @@ html {
 }
 
 html.dark {
-  --background: #020817;
+  --background: #0b1120;
   --foreground: #e2e8f0;
+}
+
+html.dark [class~="bg-white"] {
+  background-color: #131c31;
+}
+
+html.dark [class~="bg-[#f1f5f9]"] {
+  background-color: #0b1120;
+}
+
+html.dark [class~="text-slate-900"] {
+  color: #f1f5f9;
+}
+
+html.dark [class~="text-slate-800"] {
+  color: #e2e8f0;
+}
+
+html.dark [class~="text-slate-700"] {
+  color: #cbd5e1;
+}
+
+html.dark [class~="text-slate-600"],
+html.dark [class~="text-slate-500"] {
+  color: #94a3b8;
+}
+
+html.dark select,
+html.dark input:not([type="checkbox"]):not([type="radio"]) {
+  border-color: #475569;
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+.auth-screen .auth-clerk-title {
+  color: #f8fafc !important;
+}
+
+.auth-screen .auth-clerk-subtitle {
+  color: #94a3b8 !important;
+}
+
+.auth-screen .auth-clerk-input {
+  border-color: #334155 !important;
+  background-color: #131e36 !important;
+  color: #ffffff !important;
+}
+
+.auth-screen .auth-clerk-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.auth-screen .auth-clerk-social {
+  border-color: rgb(51 65 85 / 0.8) !important;
+  background-color: #131e36 !important;
+  color: #ffffff !important;
+}
+
+.auth-screen .auth-clerk-social:hover {
+  background-color: #1a2947 !important;
+}
+
+.auth-screen .auth-clerk-link {
+  color: #60a5fa !important;
+}
+
+.auth-screen .auth-clerk-link:hover {
+  color: #93c5fd !important;
 }
 
 @theme inline {

@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Radiation,
   Copy,
@@ -32,7 +32,9 @@ import {
   Activity,
   Layers,
   ChevronRight,
-  Info
+  Info,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 
@@ -901,6 +903,40 @@ TNM_DATABASE['bone-sarcoma'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 
 
 export default function RadoncoCDSSPage() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
+
+  useEffect(() => {
+    const storedTheme = window.localStorage.getItem('radonco-theme');
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const applyTheme = (nextTheme: 'light' | 'dark') => {
+      setTheme(nextTheme);
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+    };
+
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      applyTheme(storedTheme);
+    } else {
+      applyTheme(mediaQuery.matches ? 'dark' : 'light');
+    }
+
+    const handleSystemThemeChange = (event: MediaQueryListEvent) => {
+      if (!window.localStorage.getItem('radonco-theme')) {
+        applyTheme(event.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+    window.localStorage.setItem('radonco-theme', nextTheme);
+  };
+
   // ==========================================
   // ANA ORGAN VE EVRE DURUMU
   // ==========================================
@@ -3425,12 +3461,12 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
       : 'Nodal: Elektif nodal hedef yok');
 
   return (
-    <div className="min-h-screen w-full bg-[#f1f5f9] text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-[#f8fafc] text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 flex flex-col font-sans transition-colors">
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className="w-full border-b border-slate-200/80 bg-white/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+      <header className="w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#131c31]/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-700 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             <Radiation className="w-6 h-6" aria-hidden="true" />
@@ -3444,20 +3480,32 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
 
         <div className="flex shrink-0 items-center gap-2">
           <button
-            onClick={() => setShowGuidelineModal(true)}
+            onClick={() => {
+              setActiveReferenceTab('guidelines');
+              setShowGuidelineModal(true);
+            }}
             className="flex items-center gap-1.5 text-xs bg-[#0f294a] hover:bg-blue-950 text-white px-3 py-1.5 rounded-lg border border-[#0f294a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <BookOpen className="w-4 h-4 text-amber-700" />
             📖 Kılavuz İlkeleri
           </button>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
+            aria-pressed={theme === 'dark'}
+            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-500 dark:text-blue-400 transition-colors"
+          >
+            {theme === 'light' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
+          </button>
           <Show when="signed-out">
             <SignInButton mode="redirect">
-              <button type="button" className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              <button type="button" className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                 Giriş yap
               </button>
             </SignInButton>
             <SignUpButton mode="redirect">
-              <button type="button" className="rounded-md bg-[#0f294a] px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-950">
+              <button type="button" className="rounded-md bg-[#0f294a] dark:bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-950 dark:hover:bg-blue-600">
                 Kayıt ol
               </button>
             </SignUpButton>
@@ -3471,7 +3519,9 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
       {/* ==========================================
           ORGAN SEÇİM ŞERİDİ (12 ORGAN TAM LİSTE)
          ========================================== */}
-      <nav className="w-full border-b border-slate-200/80 bg-[#f1f5f9] px-6 py-2 flex flex-wrap items-center justify-between gap-1">
+      <nav className="w-full bg-[#f8fafc] dark:bg-[#0b1120] px-6 py-2 transition-colors">
+        <div className="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg p-1 shadow-sm mb-4 transition-colors">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
           { id: 'thorax', name: 'Toraks (Akciğer)', icon: Wind, color: 'text-sky-700' },
           { id: 'prostate', name: 'GÜS', icon: Droplets, color: 'text-blue-700' },
@@ -3493,21 +3543,23 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             <button
               key={item.id}
               onClick={() => handleOrganChange(item.id as OrganId)}
-              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              className={`min-w-0 py-2 px-1 text-xs font-medium text-center flex items-center justify-center gap-1.5 rounded-md transition-colors ${
                 isActive
                   ? item.id === 'benign'
-                    ? 'bg-emerald-700 text-white border border-emerald-700 shadow-sm'
-                    : 'bg-[#0f294a] text-white border border-[#0f294a] shadow-[0_1px_3px_rgba(0,0,0,0.05)] ring-1 ring-blue-500'
+                    ? 'bg-emerald-600 text-white font-semibold shadow-sm'
+                    : 'bg-slate-900 dark:bg-blue-600 text-white font-semibold shadow-sm'
                   : item.id === 'benign'
-                    ? 'text-emerald-800 hover:text-emerald-900 hover:bg-emerald-50 border border-emerald-300'
-                    : 'text-slate-600 hover:text-slate-700 hover:bg-white border border-transparent'
+                    ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? item.color : 'text-slate-500'}`} />
+              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
               {item.name}
             </button>
           );
         })}
+          </div>
+        </div>
       </nav>
 
       {/* ==========================================
@@ -3519,7 +3571,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
         <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-          <div className="bg-white border border-slate-200/80 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span>Organ & Alt Başlık Seçimi</span>
               <span className="text-[10px] text-amber-700 font-normal">Kılavuz Tanımlı</span>
@@ -3841,7 +3893,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
           </div>
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
-          <div className="bg-white border border-slate-200/80 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col gap-3">
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
               Klinik Parametreler & Risk
@@ -4665,7 +4717,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
         <section className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-          <div className="bg-white border border-slate-200/80 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -4810,7 +4862,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
         <section className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-white border border-slate-200/80 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
             <div className={`p-3.5 rounded-md border font-bold text-xs flex items-center justify-between mb-4 transition-colors ${evaluatedDecision.badgeClass}`}>
@@ -4971,16 +5023,49 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
         </section>
       </main>
 
+      <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
+        <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-400">
+          © 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.
+        </p>
+        <div className="flex shrink-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveReferenceTab('guidelines');
+              setShowGuidelineModal(true);
+            }}
+            className="whitespace-nowrap text-[11px] font-semibold text-blue-800 dark:text-blue-300 hover:underline"
+          >
+            📚 Kılavuz &amp; Kaynakça
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveReferenceTab('disclaimer');
+              setShowGuidelineModal(true);
+            }}
+            className="whitespace-nowrap text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:underline"
+          >
+            ⚖️ Yasal Sorumluluk Reddi
+          </button>
+        </div>
+      </footer>
+
       {/* ==========================================
           MODAL: KILAVUZ BİLGİ DOKÜMANI
          ========================================== */}
       {showGuidelineModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-300 rounded-lg max-w-2xl w-full p-6 text-xs text-slate-700 max-h-[85vh] overflow-y-auto">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reference-modal-title"
+            className="bg-white dark:bg-[#131c31] border border-slate-300 dark:border-slate-700 rounded-lg max-w-3xl w-full p-6 text-xs text-slate-700 dark:text-slate-200 max-h-[85vh] overflow-y-auto"
+          >
             <div className="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-4">
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <h3 id="reference-modal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-amber-700" />
-                Radyasyon Onkolojisi CDSS - Kılavuz ve Standartlar
+                Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler
               </h3>
               <button
                 onClick={() => setShowGuidelineModal(false)}
@@ -4991,24 +5076,79 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
               </button>
             </div>
 
-            <div className="space-y-4 leading-relaxed text-slate-700">
-              <p>
-                Bu Karar Destek Sistemi, güncel <strong>NCCN v1.2025</strong>, <strong>ASTRO</strong>, <strong>ESTRO</strong> ve uluslararası randomize faz III çalışmaların (PACIFIC, EMBRACE II, RAPIDO, PORTEC-3, GROINSS-V, STAMPEDE, FAST-Forward, CONVERT, Turrisi) kanıt düzeylerini temel alır.
-              </p>
-              <div>
-                <h4 className="font-bold text-amber-700 mb-1">Alt Başlıklar ve Klinik Kapsam:</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>Toraks:</strong> KHDAK (SBRT/PACIFIC KRT), KHAK (Turrisi Erken BID / CONVERT QD / HA-PCI / CREST Konsolidasyon), Timoma (PORT/İzlem) ve Mezotelyoma.</li>
-                  <li><strong>Jinekoloji:</strong> Serviks (EMBRACE II KRT + IGABT / Peters / Sedlis), Endometriyum (PORTEC-2 VCB / PORTEC-3 KRT), Over & Tuba (Oligomets SBRT / Palyatif), Vajen ve Vulva (GROINSS-V Adjuvan / Definitif KRT).</li>
-                  <li><strong>Kemik & Sarkom:</strong> Yumuşak Doku Sarkomu (Kanada Faz III Preop 50 Gy / Postop 66 Gy), Osteosarkom (R1/R2 ve inoperabl eskalasyon 70 Gy), Ewing Sarkomu (Definitif 55.8 Gy / Adjuvan 50.4 Gy), Kondrosarkom, Kordoma (&gt;74 Gy EQD2) ve GCTB.</li>
-                  <li><strong>Baş-Boyun:</strong> Nazofarenks (KRT SIB 70/60/54), Orofarenks (p16/HPV), Larinks (Erken Glottik 63 Gy/28 fx boyunsuz vs Lokal İleri KRT 70 Gy), Oral Kavite (EORTC 22931 / RTOG 9501 Adjuvan KRT) ve Tükürük Bezi.</li>
-                  <li><strong>MSS:</strong> Beyin Metastazları (Herniasyon acil triajı, tek/oligometastatik SRS, WBRT+HA), Glioblastom (Stupp 60 Gy / Perry 40 Gy) ve Menenjiyom.</li>
-                  <li><strong>GİS:</strong> Rektum (RAPIDO TNT Kısa Dönem vs Uzun Dönem KRT), Mide (INT-0116), Karaciğer (SBRT), Özofagus (CROSS) ve Anal Kanal (Nigro).</li>
-                </ul>
-              </div>
-              <p className="text-[11px] text-slate-600 pt-2 border-t border-slate-200">
-                Geliştirici: Dr. Harun Pekmezci (RadOnco CDSS). Kayseri Şehir Eğitim ve Araştırma Hastanesi Radyasyon Onkolojisi Kliniği.
-              </p>
+            <div role="tablist" aria-label="Kaynakça modalı sekmeleri" className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700">
+              {([
+                ['guidelines', 'Kılavuzlar & Landmark Çalışmalar'],
+                ['oar', 'OAR Tolerans Standartları'],
+                ['disclaimer', 'Yasal Sorumluluk & Telif'],
+              ] as const).map(([tab, label]) => (
+                <button
+                  key={tab}
+                  id={`reference-tab-${tab}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeReferenceTab === tab}
+                  aria-controls="reference-tab-panel"
+                  onClick={() => setActiveReferenceTab(tab)}
+                  className={`border-b-2 px-3 py-2 text-xs font-semibold transition-colors ${
+                    activeReferenceTab === tab
+                      ? 'border-blue-700 text-blue-800 dark:border-blue-400 dark:text-blue-300'
+                      : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div
+              id="reference-tab-panel"
+              role="tabpanel"
+              aria-labelledby={`reference-tab-${activeReferenceTab}`}
+              className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-200"
+            >
+              {activeReferenceTab === 'guidelines' && (
+                <>
+                  <p>
+                    Klinik kapsam, <strong>NCCN v1.2025</strong>, <strong>ASTRO</strong> ve <strong>ESTRO</strong> kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.
+                  </p>
+                  <div>
+                    <h4 className="mb-1 font-bold text-amber-700">Landmark çalışmalar ve klinik başlıklar</h4>
+                    <ul className="list-disc space-y-1 pl-5">
+                      <li><strong>Toraks:</strong> PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).</li>
+                      <li><strong>Meme:</strong> FAST-Forward (hipofraksiyone adjuvan RT).</li>
+                      <li><strong>GİS:</strong> RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).</li>
+                      <li><strong>Jinekoloji:</strong> EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).</li>
+                      <li><strong>MSS:</strong> Stupp protokolü (glioblastom kemoradyoterapisi).</li>
+                    </ul>
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.
+                  </p>
+                </>
+              )}
+              {activeReferenceTab === 'oar' && (
+                <>
+                  <p>Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.</p>
+                  <ul className="list-disc space-y-2 pl-5">
+                    <li><strong>QUANTEC:</strong> Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.</li>
+                    <li><strong>HyTEC:</strong> Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.</li>
+                    <li><strong>UK SABR Consortium:</strong> SABR hasta seçimi, planlama ve organ riskindeki doz kısıtları için teknik rehberler.</li>
+                    <li><strong>EMBRACE II:</strong> Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.</li>
+                  </ul>
+                  <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                    Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.
+                  </p>
+                </>
+              )}
+              {activeReferenceTab === 'disclaimer' && (
+                <div className="space-y-3">
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Yasal sorumluluk reddi ve telif</h4>
+                  <p>
+                    RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
