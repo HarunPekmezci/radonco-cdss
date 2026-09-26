@@ -1670,7 +1670,7 @@ export default function RadoncoCDSSPage() {
         };
       }
       return {
-        statusText: `ENDİKE: KÜRİTİF ${sbrt.tag} PROTOKOLÜ`,
+        statusText: `ENDİKE: KÜRATİF ${sbrt.tag} PROTOKOLÜ`,
         badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
         primaryScheme: sbrt,
         alternativeSchemes: [sbrt],
@@ -2408,7 +2408,7 @@ export default function RadoncoCDSSPage() {
           evidence: 'NCCN v1.2025 Kategori 1, Yamamoto et al. (Lancet Oncol)',
         };
         return {
-          statusText: 'ENDİKE: KÜRİTİF STEREOTAKTİK RADYOCERRAHİ (SRS / SRT)',
+          statusText: 'ENDİKE: KÜRATİF STEREOTAKTİK RADYOCERRAHİ (SRS / SRT)',
           badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
           primaryScheme: srs,
           alternativeSchemes: [srs],
@@ -2963,7 +2963,7 @@ export default function RadoncoCDSSPage() {
           evidence: 'RTOG 1112 (Lancet Oncol), NRG GI003',
         };
         return {
-          statusText: 'ENDİKE: KÜRİTİF KARACİĞER STEREOTAKTİK SBRT',
+          statusText: 'ENDİKE: KÜRATİF KARACİĞER STEREOTAKTİK SBRT',
           badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
           primaryScheme: liverSbrt,
           alternativeSchemes: [liverSbrt],
