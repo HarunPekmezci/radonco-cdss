@@ -113,7 +113,21 @@ const getAdaptiveEContour = (
   }
 
   if (organ === 'thorax') {
-    if (normalizedSubsite.includes('sclc') || normalizedSubsite.includes('khak')) {
+    if (normalizedSubsite.includes('nsclc') || normalizedSubsite === 'thorax-nsclc') {
+      if (n === 'N2' || n === 'N3' || t === 'T3' || t === 'T4') {
+        return target(
+          'https://econtour.org/cases/',
+          'eContour: Lokal İleri KHDAK & Mediasten Atlası',
+          'eContour: Locally Advanced NSCLC & Mediastinal Nodes',
+        );
+      }
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Akciğer SBRT (4D-CT / ITV) Atlası',
+        'eContour: Lung SBRT (4D-CT / ITV Target Volume)',
+      );
+    }
+    if (normalizedSubsite.includes('sclc') && !normalizedSubsite.includes('nsclc')) {
       return target(
         'https://econtour.org/cases/',
         'eContour: Sınırlı Evre KHAK Torasik KRT & PCI',
@@ -335,6 +349,20 @@ const getAdaptiveEContour = (
 };
 
 const TRANSLATION_MAP: Record<string, string> = {
+  'Muayenede palpe edilemeyen; PSA yüksekliği biyopsisinde saptanan': 'Non-palpable tumor identified clinically; detected by elevated PSA biopsy',
+  'Palpabl tümör; bir lobun yarısı or daha azı ile limited': 'Palpable tumor confined to half of one lobe or less',
+  'Palpabl tümör; bir lobun yarısından fazlasına uzanmış': 'Palpable tumor involving more than half of one lobe',
+  'Bilateral her iki prostat lobunu tutan kitle': 'Tumor involving both lobes bilaterally',
+  'Extracapsular extension (ECE) - Prostate kapsülünü aşmış': 'Extracapsular extension (ECE) - Extends beyond prostatic capsule',
+  'Rectum, levator kasları or pelvik taban komşu organ invasion': 'Invasion of adjacent organs: rectum, levator muscles, or pelvic floor',
+  'Regional pelvik lymph node metastasis absent': 'No regional pelvic lymph node metastasis',
+  'Pelvic lymph node metastasis (obturator, iliak nodlar)': 'Pelvic lymph node metastasis (obturator, internal/external iliac)',
+  'ORTA-FAVORABLE: ADT GENELLİKLE NOT REQUIRED': 'INTERMEDIATE-FAVORABLE: ADT GENERALLY NOT REQUIRED',
+  '60 Gy / 20 fx (Ilımlı Hipofraksiyonasyon CHHIP)': '60 Gy / 20 fx (Moderate Hypofractionation - CHHIP Protocol)',
+  'Intermediate riskli prostat kanserinde 20 fraksiyonluk rejim 39 fraksiyona non-inferiordur (Category 1 standard).': 'In intermediate-risk prostate cancer, a 20-fraction schedule is non-inferior to 39 fractions (Category 1 standard).',
+  'Intermediate-favorable riskte ADT çoğunlukla is not recommended.': 'In favorable-intermediate risk, androgen deprivation therapy (ADT) is generally not recommended.',
+  'Target: Prostat bezi ve seminal vezikül proksimal 1 cm': 'Target: Prostate gland and proximal 1 cm of seminal vesicles',
+  'Prostate bezi ve seminal vezikul proksimal 1 om': 'Prostate gland and proximal 1 cm of seminal vesicles',
   'Çok Yüksek Riskli veya N1 Prostat Ca': 'Very High-Risk or N1 Prostate Cancer',
   'Çok Yüksek Risk': 'Very High Risk',
   'Çok yüksek risk': 'Very high risk',
@@ -1859,7 +1887,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 2. GÜS / PROSTAT ALT BAŞLIKLARI
   // ==========================================
-  const [gusSubtype, setGusSubtype] = useState<'prostate' | 'bladder' | 'testis' | 'penis'>('prostate');
+  const [gusSubtype, setGusSubtype] = useState<'prostate' | 'bladder' | 'testis' | 'penile'>('prostate');
   const [gleasonPrimary, setGleasonPrimary] = useState<string>('3');
   const [gleasonSecondary, setGleasonSecondary] = useState<string>('4');
   const [psaLevel, setPsaLevel] = useState<string>('8.5');
@@ -3471,7 +3499,7 @@ export default function RadoncoCDSSPage() {
         };
       }
 
-      if (gusSubtype === 'penis') {
+      if (gusSubtype === 'penile') {
         const organPreservation = (selectedT === 'T1' || selectedT === 'T2') && selectedN === 'N0';
         const penileRt: DoseScheme = {
           id: organPreservation ? 'penile-organ-preservation-60' : 'penile-nodal-66',
@@ -4817,9 +4845,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   value={gusSubtype}
                   onChange={e => {
                     const value = e.currentTarget.value;
-                    if (value === 'prostate' || value === 'bladder' || value === 'testis' || value === 'penis') {
+                    if (value === 'prostate' || value === 'bladder' || value === 'testis' || value === 'penile') {
                       setGusSubtype(value);
-                      handleSubsiteChange(`prostate-${value}`);
+                      handleSubsiteChange(value === 'penile' ? 'prostate-penis' : `prostate-${value}`);
                     }
                   }}
                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
@@ -4827,10 +4855,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <option value="prostate">{tText("Prostat")}</option>
                   <option value="bladder">{tText("Mesane")}</option>
                   <option value="testis">{tText("Testis")}</option>
+                  <option value="penile">{lang === 'tr' ? 'Penil Kanser' : 'Penile Cancer'}</option>
                 </select>
                 {gusSubtype === 'prostate' && <span className="font-semibold text-slate-900">{tText("Prostat adenokarsinomu")}</span>}
                 {gusSubtype === 'bladder' && <span className="font-semibold text-slate-900">{tText("Mesane koruyucu trimodal tedavi (TMT)")}</span>}
                 {gusSubtype === 'testis' && <span className="font-semibold text-slate-900">{tText("Testis seminom evrelemesi")}</span>}
+                {gusSubtype === 'penile' && <span className="font-semibold text-slate-900">{lang === 'tr' ? 'Penil kanser evrelemesi' : 'Penile cancer staging'}</span>}
               </div>
             )}
 
@@ -6075,7 +6105,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
       <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
         <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-400">
-          {tText("\n          © 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.\n        ")}</p>
+          {lang === 'tr'
+            ? '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.'
+            : '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® and DEGRO® are registered trademarks of their respective organizations. This system is intended for clinical decision support and educational purposes only.'}</p>
         <div className="flex shrink-0 items-center gap-3">
           <button
             type="button"
