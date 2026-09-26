@@ -36,7 +36,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
+import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 
 // ==========================================
 // 1. TİPLER VE KLİNİK VERİ MODELLERİ
@@ -903,8 +903,22 @@ TNM_DATABASE['bone-sarcoma'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 
 
 export default function RadoncoCDSSPage() {
+  const { isLoaded, user } = useUser();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [lang, setLang] = useState<'tr' | 'en'>('tr');
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
+  const email = user?.primaryEmailAddress?.emailAddress ?? '';
+  const ADMIN_EMAILS = ['harun.pekmezci@sbu.edu.tr', 'ee011126@mail2.gantep.edu.tr'];
+  const emailLower = email.toLowerCase();
+  const isDoctor =
+    ADMIN_EMAILS.includes(emailLower) ||
+    emailLower.endsWith('saglik.gov.tr') ||
+    emailLower.endsWith('.edu.tr') ||
+    emailLower.endsWith('.edu') ||
+    emailLower.endsWith('nhs.net') ||
+    emailLower.endsWith('.ac.uk') ||
+    emailLower.includes('.med.') ||
+    emailLower.includes('.hospital');
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem('radonco-theme');
@@ -929,6 +943,18 @@ export default function RadoncoCDSSPage() {
     mediaQuery.addEventListener('change', handleSystemThemeChange);
     return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
   }, []);
+
+  useEffect(() => {
+    const storedLanguage = window.localStorage.getItem('radonco-lang');
+    if (storedLanguage === 'tr' || storedLanguage === 'en') {
+      setLang(storedLanguage);
+    }
+  }, []);
+
+  const changeLanguage = (nextLanguage: 'tr' | 'en') => {
+    setLang(nextLanguage);
+    window.localStorage.setItem('radonco-lang', nextLanguage);
+  };
 
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
@@ -3460,6 +3486,37 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
       ? `Nodal: ${prescriptionNodalTarget.anatomical}`
       : 'Nodal: Elektif nodal hedef yok');
 
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-6 text-slate-700 font-sans" role="status" aria-live="polite">
+        {lang === 'tr' ? 'Kurumsal erişim doğrulanıyor…' : 'Verifying institutional access…'}
+      </div>
+    );
+  }
+
+  if (user && !isDoctor) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-6 text-slate-900 font-sans">
+        <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-xl text-center">
+          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">!</div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Kurumsal Hekim Erişimi / Institutional Access</h2>
+          <p className="text-xs text-slate-600 leading-relaxed mb-6">
+            RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.
+          </p>
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 mb-6 text-left text-xs font-mono">
+            <div className="text-slate-500">Account: <span className="text-rose-600 font-bold">{email}</span></div>
+            <div className="text-slate-500">Allowed: <span className="text-emerald-700 font-bold">@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk</span></div>
+          </div>
+          <SignOutButton redirectUrl="/sign-in">
+            <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+              Farklı Hesapla Giriş / Sign In with Another Account
+            </button>
+          </SignOutButton>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 flex flex-col font-sans transition-colors">
 
@@ -3473,7 +3530,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
           </div>
           <div>
             <h1 className="text-base font-bold text-[#0f294a]">
-              Radyasyon Onkolojisi Klinik Karar Destek Sistemi
+              {lang === 'tr' ? 'Radyasyon Onkolojisi Klinik Karar Destek Sistemi' : 'Radiation Oncology Clinical Decision Support System'}
             </h1>
           </div>
         </div>
@@ -3487,7 +3544,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             className="flex items-center gap-1.5 text-xs bg-[#0f294a] hover:bg-blue-950 text-white px-3 py-1.5 rounded-lg border border-[#0f294a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <BookOpen className="w-4 h-4 text-amber-700" />
-            📖 Kılavuz İlkeleri
+            📖 {lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}
           </button>
           <button
             type="button"
@@ -3498,6 +3555,24 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
           >
             {theme === 'light' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
           </button>
+          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label="Language">
+            <button
+              type="button"
+              onClick={() => changeLanguage('tr')}
+              aria-pressed={lang === 'tr'}
+              className={`px-2 py-1 rounded ${lang === 'tr' ? 'bg-slate-900 dark:bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+            >
+              TR
+            </button>
+            <button
+              type="button"
+              onClick={() => changeLanguage('en')}
+              aria-pressed={lang === 'en'}
+              className={`px-2 py-1 rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+            >
+              EN
+            </button>
+          </div>
           <Show when="signed-out">
             <SignInButton mode="redirect">
               <button type="button" className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
@@ -3523,19 +3598,19 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
         <div className="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg p-1 shadow-sm mb-4 transition-colors">
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
-          { id: 'thorax', name: 'Toraks (Akciğer)', icon: Wind, color: 'text-sky-700' },
-          { id: 'prostate', name: 'GÜS', icon: Droplets, color: 'text-blue-700' },
-          { id: 'breast', name: 'Meme', icon: CircleDot, color: 'text-pink-700' },
-          { id: 'gis', name: 'GİS (Gastrointestinal)', icon: UtensilsCrossed, color: 'text-orange-700' },
-          { id: 'head-neck', name: 'Baş-Boyun', icon: User, color: 'text-indigo-700' },
-          { id: 'cns', name: 'MSS (Beyin & Omurilik)', icon: Brain, color: 'text-purple-700' },
-          { id: 'gynecology', name: 'Jinekoloji', icon: Sparkles, color: 'text-rose-700' },
-          { id: 'bone-sarcoma', name: 'Kemik & Sarkom', icon: Bone, color: 'text-amber-700' },
-          { id: 'skin', name: 'Cilt (Melanom/BCC/SCC)', icon: Shield, color: 'text-yellow-700' },
-          { id: 'hematologic', name: 'Hematolojik (Lenfoma)', icon: Droplet, color: 'text-red-700' },
-          { id: 'pediatric', name: 'Pediatrik Tümörler', icon: Baby, color: 'text-emerald-700' },
-          { id: 'palliative', name: 'Palyatif Radyoterapi', icon: HandHeart, color: 'text-teal-700' },
-          { id: 'benign', name: 'Benign Hastalıklar', icon: ShieldCheck, color: 'text-emerald-700' },
+          { id: 'thorax', name: 'Toraks (Akciğer)', nameEn: 'Thorax (Lung)', icon: Wind, color: 'text-sky-700' },
+          { id: 'prostate', name: 'GÜS', nameEn: 'GU (Prostate & Bladder)', icon: Droplets, color: 'text-blue-700' },
+          { id: 'breast', name: 'Meme', nameEn: 'Breast', icon: CircleDot, color: 'text-pink-700' },
+          { id: 'gis', name: 'GİS (Gastrointestinal)', nameEn: 'GI (Colorectal & Gastric)', icon: UtensilsCrossed, color: 'text-orange-700' },
+          { id: 'head-neck', name: 'Baş-Boyun', nameEn: 'Head & Neck', icon: User, color: 'text-indigo-700' },
+          { id: 'cns', name: 'MSS (Beyin & Omurilik)', nameEn: 'CNS (Brain & Spine)', icon: Brain, color: 'text-purple-700' },
+          { id: 'gynecology', name: 'Jinekoloji', nameEn: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
+          { id: 'bone-sarcoma', name: 'Kemik & Sarkom', nameEn: 'Bone & Soft Tissue Sarcoma', icon: Bone, color: 'text-amber-700' },
+          { id: 'skin', name: 'Cilt (Melanom/BCC/SCC)', nameEn: 'Skin (Melanoma & NMSC)', icon: Shield, color: 'text-yellow-700' },
+          { id: 'hematologic', name: 'Hematolojik (Lenfoma)', nameEn: 'Hematologic (Lymphoma)', icon: Droplet, color: 'text-red-700' },
+          { id: 'pediatric', name: 'Pediatrik Tümörler', nameEn: 'Pediatric Tumors', icon: Baby, color: 'text-emerald-700' },
+          { id: 'palliative', name: 'Palyatif Radyoterapi', nameEn: 'Palliative RT', icon: HandHeart, color: 'text-teal-700' },
+          { id: 'benign', name: 'Benign Hastalıklar', nameEn: 'Benign Diseases', icon: ShieldCheck, color: 'text-emerald-700' },
         ].map(item => {
           const Icon = item.icon;
           const isActive = selectedOrgan === item.id;
@@ -3554,7 +3629,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-              {item.name}
+              {lang === 'tr' ? item.name : item.nameEn}
             </button>
           );
         })}
@@ -4926,16 +5001,16 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
               <div className="mb-4">
                 <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-sky-700" />
-                  Hedef Hacimler (Target Volumes)
+                  {lang === 'tr' ? 'HEDEF HACİMLER (TARGET VOLUMES)' : 'TARGET VOLUMES (ICRU 83)'}
                 </h4>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
                     <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200">
                       <tr>
-                        <th className="p-2">Hacim</th>
-                        <th className="p-2">Doz</th>
-                        <th className="p-2">Marjin</th>
-                        <th className="p-2">Anatomik Kapsam</th>
+                        <th className="p-2">{lang === 'tr' ? 'Hacim' : 'Volume'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Doz' : 'Dose'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Marjin' : 'Margin'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Anatomik Kapsam' : 'Anatomic Coverage'}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 text-slate-700">
@@ -4958,16 +5033,16 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
               <div className="mb-4">
                 <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <ShieldAlert className="w-3.5 h-3.5 text-rose-700" aria-hidden="true" />
-                  Kritik Organ (OAR) Kısıtları (QUANTEC / RTOG / EMBRACE)
+                  {lang === 'tr' ? 'KRİTİK ORGAN (OAR) KISITLARI' : 'ORGANS AT RISK (OAR) CONSTRAINTS'}
                 </h4>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
                     <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200">
                       <tr>
-                        <th className="p-2">Organ</th>
-                        <th className="p-2">Metrik</th>
-                        <th className="p-2">Doz Limiti</th>
-                        <th className="p-2">Kılavuz</th>
+                        <th className="p-2">{lang === 'tr' ? 'Organ' : 'Organ'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Metrik' : 'Metric'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Doz Limiti' : 'Dose Limit'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Guideline'}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 text-slate-700">
