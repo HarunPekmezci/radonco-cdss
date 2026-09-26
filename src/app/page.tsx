@@ -2036,6 +2036,15 @@ export default function RadoncoCDSSPage() {
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
+  const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
+    {
+      role: 'assistant',
+      content: 'Merhaba Doktor, ekrandaki aktif hasta verilerini okudum. Bu vakanın fraksiyonasyonu, OAR kısıtları veya kanıt temeli hakkında neyi tartışmak istersiniz?',
+    },
+  ]);
+  const [inputQuery, setInputQuery] = useState<string>('');
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
@@ -4415,6 +4424,48 @@ export default function RadoncoCDSSPage() {
       () => window.alert(lang === 'tr' ? 'Vaka sorusu panoya kopyalanamadı.' : 'The case prompt could not be copied.'),
     );
   };
+  const activeCaseSummary = [
+    `Organ: ${selectedOrgan}`,
+    `Subsite: ${tText(selectedSubsite)}`,
+    `Stage: ${selectedT} ${selectedN} ${selectedM}`,
+    `Decision: ${tText(evaluatedDecision.statusText)}`,
+    `Prescription: ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx (${tText(activeScheme.name)})`,
+    `Technique: ${tText(activeScheme.technique)}`,
+    `Radiobiology: BED ${radiobiology.bed} Gy, EQD2 ${radiobiology.eqd2} Gy, alpha/beta ${radiobiology.ab}`,
+    `OAR constraints: ${activeScheme.oars.map(oar => `${tText(oar.organ)} ${tText(oar.metric)} ${oar.limit}`).join('; ') || 'None listed'}`,
+  ].join('\n');
+
+  const submitAiQuestion = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!inputQuery.trim() || isAiLoading) return;
+
+    const userText = inputQuery.trim();
+    const newHistory = [...chatMessages, { role: 'user' as const, content: userText }];
+    setInputQuery('');
+    setChatMessages(newHistory);
+    setIsAiLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newHistory, activeCaseContext: activeCaseSummary }),
+      });
+      const data = (await response.json()) as { reply?: string };
+      if (!response.ok || !data.reply) {
+        throw new Error(data.reply || 'The AI assistant could not respond.');
+      }
+      setChatMessages([...newHistory, { role: 'assistant', content: data.reply }]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The AI assistant could not respond.';
+      setChatMessages([...newHistory, {
+        role: 'assistant',
+        content: lang === 'tr' ? `Bağlantı hatası: ${message}` : `Connection error: ${message}`,
+      }]);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   // Klinik Rapor Metni Kopyalama
   const clinicalSummaryText = useMemo(() => {
@@ -4616,6 +4667,19 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </button>
           <button
             type="button"
+            onClick={() => setIsAiDockOpen(open => !open)}
+            aria-pressed={isAiDockOpen}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${
+              isAiDockOpen
+                ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
+                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Sparkles className="h-3.5 w-3.5 animate-pulse text-amber-500" aria-hidden="true" />
+            <span>{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
+          </button>
+          <button
+            type="button"
             onClick={toggleTheme}
             aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
             aria-pressed={theme === 'dark'}
@@ -4658,6 +4722,91 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </Show>
         </div>
       </header>
+
+      {isAiDockOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/20"
+          role="presentation"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setIsAiDockOpen(false);
+          }}
+        >
+          <aside
+            className="fixed right-0 top-0 flex h-full w-full flex-col justify-between border-l border-slate-200 bg-white shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 sm:w-[420px]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-dock-title"
+          >
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                  <span id="ai-dock-title" className="text-sm font-bold text-slate-900 dark:text-white">RadOnc AI Copilot</span>
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Gemini 1.5</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAiDockOpen(false)}
+                  aria-label={lang === 'tr' ? 'AI asistanı kapat' : 'Close AI assistant'}
+                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  <XCircle className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="mx-4 mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs dark:border-emerald-800/60 dark:bg-emerald-950/30">
+                <div className="mb-0.5 flex items-center gap-1.5 font-semibold text-emerald-800 dark:text-emerald-300">
+                  <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" aria-hidden="true" />
+                  {lang === 'tr' ? 'Ekran Otomatik Okundu:' : 'Screen Context Active:'}
+                </div>
+                <div className="truncate font-mono text-[11px] text-slate-600 dark:text-slate-300">
+                  {selectedOrgan.toUpperCase()} • {selectedT} {selectedN} {selectedM} • {activeScheme.totalDoseGy} Gy / {activeScheme.fractionCount} fx
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+                {chatMessages.map((message, index) => (
+                  <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl p-3 text-xs leading-relaxed ${
+                      message.role === 'user'
+                        ? 'rounded-tr-none bg-blue-600 text-white'
+                        : 'rounded-tl-none border border-slate-200 bg-slate-100 text-slate-800 dark:border-slate-700/60 dark:bg-slate-800 dark:text-slate-200'
+                    }`}>
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+                {isAiLoading && (
+                  <div className="flex justify-start">
+                    <div className="animate-pulse rounded-2xl rounded-tl-none bg-slate-100 p-3 text-xs text-slate-500 dark:bg-slate-800">
+                      {lang === 'tr' ? 'Klinik kılavuzlar taranıyor...' : 'Analyzing clinical guidelines...'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <form onSubmit={submitAiQuestion} className="flex items-center gap-2 border-t border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+              <input
+                type="text"
+                value={inputQuery}
+                onChange={event => setInputQuery(event.currentTarget.value)}
+                placeholder={lang === 'tr' ? 'Bu hasta hakkında bir soru sorun...' : 'Ask a question about this patient...'}
+                aria-label={lang === 'tr' ? 'AI sorusu' : 'AI question'}
+                className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              />
+              <button
+                type="submit"
+                disabled={isAiLoading || !inputQuery.trim()}
+                aria-label={lang === 'tr' ? 'Soruyu gönder' : 'Send question'}
+                className="rounded-xl bg-blue-600 p-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </form>
+          </aside>
+        </div>
+      )}
 
       {/* ==========================================
           ORGAN SEÇİM ŞERİDİ (12 ORGAN TAM LİSTE)
