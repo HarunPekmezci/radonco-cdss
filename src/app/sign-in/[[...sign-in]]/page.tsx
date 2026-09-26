@@ -4,7 +4,7 @@ import { Radiation, Layers, Zap, Shield } from 'lucide-react';
 export default function SignInPage() {
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-[#060a12] text-slate-100 font-sans selection:bg-blue-600 selection:text-white">
-      {/* SOL PANEL: RADYASYON ONKOLOJİSİ KLİNİK KİMLİK (7 KOLON) */}
+      {/* SOL PANEL: AKADEMİK RADYASYON ONKOLOJİSİ PORTALI (7 KOLON) */}
       <div className="hidden lg:flex lg:col-span-7 relative flex-col justify-between p-12 overflow-hidden border-r border-slate-800/80 bg-gradient-to-br from-[#060a12] via-[#0b1324] to-[#081938]">
         {/* Üst Rozet ve Logo */}
         <div className="relative z-10">
@@ -23,7 +23,7 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Orta Başlık: 2. ALTERNATİF AKADEMİK METİNLER */}
+        {/* 2. ALTERNATİF: AKADEMİK VE KLİNİK METİNLER */}
         <div className="relative z-10 max-w-xl my-auto py-8">
           <h2 className="text-3xl font-extrabold text-white leading-tight mb-2 tracking-tight">
             Radyasyon Onkolojisi <br />
@@ -52,7 +52,7 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Alt Sorumluluk Notu */}
+        {/* Alt Bilgi */}
         <div className="relative z-10 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-800/60 pt-4">
           <span>© 2026 RadOnc CDSS Platformu</span>
           <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-emerald-400" /> Kurumsal Hekim Portalı</span>
@@ -71,25 +71,6 @@ export default function SignInPage() {
             routing="path"
             path="/sign-in"
             signUpUrl="/sign-up"
-            appearance={{
-              variables: {
-                colorPrimary: '#2563eb',
-                colorBackground: '#0d1527',
-                colorText: '#f8fafc',
-                colorTextSecondary: '#94a3b8',
-                colorInputBackground: '#131e36',
-                colorInputText: '#ffffff',
-              },
-              elements: {
-                card: 'border border-slate-800 shadow-2xl bg-[#0d1527]/95 backdrop-blur-xl rounded-2xl w-full',
-                headerTitle: 'text-white text-xl font-bold',
-                headerSubtitle: 'text-slate-400 text-xs',
-                socialButtonsBlockButton: 'bg-[#131e36] border border-slate-700/80 text-white hover:bg-[#1a2947] transition',
-                formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-lg shadow-blue-500/25',
-                formFieldInput: 'border-slate-700 focus:border-blue-500 bg-[#131e36] text-white',
-                footerActionLink: 'text-blue-400 hover:text-blue-300 font-medium',
-              },
-            }}
           />
         </div>
       </div>
