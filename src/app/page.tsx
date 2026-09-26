@@ -3466,8 +3466,30 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
   const prescriptionTarget = selectedOrgan === 'breast' && breastHistology !== 'Malign Filloides Tümörü'
     ? 'Tüm Meme (WBRT)'
     : activeScheme.targetVolumes[0]?.anatomical || 'Klinik hedef hacimler';
-  const prescriptionTargetBadge = evaluatedDecision.targetVolumeBadge || `Hedef: ${prescriptionTarget}`;
-  const prescriptionTechniqueBadge = evaluatedDecision.techniqueBadge || `Teknik & Hareket: ${activeScheme.technique}`;
+  const translatePrescriptionBadge = (badge: string | undefined, fallback: string) => {
+    const value = badge || fallback;
+    if (lang === 'tr') return value;
+    const exactTranslations: Record<string, string> = {
+      'Hedef: 4D-CT tüm solunum hareket hacmi': 'Target: 4D-CT full respiratory motion ITV',
+      'Nodal: Elektif nodal hedef yok': 'Nodal: No elective nodal irradiation',
+      'Teknik & Hareket: SBRT (4D-CT / ITV VMAT)': 'Technique: SBRT (4D-CT / ITV VMAT)',
+      'Teknik: SBRT (4D-CT / ITV VMAT)': 'Technique: SBRT (4D-CT / ITV VMAT)',
+      'Nodal: Uygulanmaz (Benign)': 'Nodal: Not applicable (benign)',
+      'RNI: Elektif Nodal Yapılmaz (DCIS)': 'RNI: No elective nodal irradiation (DCIS)',
+      'RNI: Elektif Nodal Yapılmaz (Filloides)': 'RNI: No elective nodal irradiation (phyllodes)',
+      'RNI: Elektif Nodal Yapılmaz (pN0)': 'RNI: No elective nodal irradiation (pN0)',
+      'RNI: Düzey I-IV + SC Kapsanır': 'RNI: Include levels I-IV and supraclavicular nodes',
+    };
+    if (exactTranslations[value]) return exactTranslations[value];
+    return value
+      .replace(/^Hedef:/, 'Target:')
+      .replace(/^Teknik & Hareket:/, 'Technique:')
+      .replace(/^Teknik:/, 'Technique:')
+      .replace(/^RNI:/, 'RNI:')
+      .replace(/^Nodal:/, 'Nodal:');
+  };
+  const prescriptionTargetBadge = translatePrescriptionBadge(evaluatedDecision.targetVolumeBadge, `Hedef: ${prescriptionTarget}`);
+  const prescriptionTechniqueBadge = translatePrescriptionBadge(evaluatedDecision.techniqueBadge, `Teknik & Hareket: ${activeScheme.technique}`);
   const breastNodalSummary = selectedOrgan === 'breast'
     ? breastHistology === 'Duktal Karsinoma In Situ (DCIS)'
       ? 'RNI: Elektif Nodal Yapılmaz (DCIS)'
@@ -3480,11 +3502,11 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
   const prescriptionNodalTarget = activeScheme.targetVolumes.find(volume =>
     /rni|nodal|neck|supraclav|level|lenf/i.test(`${volume.name} ${volume.anatomical}`)
   );
-  const prescriptionNodalSummary = evaluatedDecision.nodalStatusBadge
-    || breastNodalSummary
+  const prescriptionNodalSummary = translatePrescriptionBadge(evaluatedDecision.nodalStatusBadge,
+    (breastNodalSummary
     || (prescriptionNodalTarget
       ? `Nodal: ${prescriptionNodalTarget.anatomical}`
-      : 'Nodal: Elektif nodal hedef yok');
+      : 'Nodal: Elektif nodal hedef yok')));
 
   if (!isLoaded) {
     return (
@@ -3518,18 +3540,18 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafc] text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 flex flex-col font-sans transition-colors">
+    <div className={`min-h-screen w-full flex flex-col font-sans transition-colors ${theme === 'light' ? 'bg-[#f8fafc] text-slate-800' : 'bg-[#080e1a] text-slate-100'}`}>
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className="w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#131c31]/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors">
+      <header className={`w-full border-b backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors ${theme === 'light' ? 'bg-white/95 border-slate-200 text-slate-900' : 'bg-[#0d1527]/95 border-slate-800 text-white'}`}>
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-700 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             <Radiation className="w-6 h-6" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-[#0f294a]">
+            <h1 className={`text-base font-bold ${theme === 'light' ? 'text-[#0f294a]' : 'text-slate-100'}`}>
               {lang === 'tr' ? 'Radyasyon Onkolojisi Klinik Karar Destek Sistemi' : 'Radiation Oncology Clinical Decision Support System'}
             </h1>
           </div>
@@ -3576,12 +3598,12 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
           <Show when="signed-out">
             <SignInButton mode="redirect">
               <button type="button" className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
-                Giriş yap
+                {lang === 'tr' ? 'Giriş yap' : 'Sign in'}
               </button>
             </SignInButton>
             <SignUpButton mode="redirect">
               <button type="button" className="rounded-md bg-[#0f294a] dark:bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-950 dark:hover:bg-blue-600">
-                Kayıt ol
+                {lang === 'tr' ? 'Kayıt ol' : 'Sign up'}
               </button>
             </SignUpButton>
           </Show>
@@ -3594,8 +3616,8 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
       {/* ==========================================
           ORGAN SEÇİM ŞERİDİ (12 ORGAN TAM LİSTE)
          ========================================== */}
-      <nav className="w-full bg-[#f8fafc] dark:bg-[#0b1120] px-6 py-2 transition-colors">
-        <div className="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg p-1 shadow-sm mb-4 transition-colors">
+      <nav className={`w-full px-6 py-2 transition-colors ${theme === 'light' ? 'bg-[#f8fafc]' : 'bg-[#080e1a]'}`}>
+        <div className={`w-full border rounded-lg p-1 shadow-sm mb-4 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0b1324] border-slate-800'}`}>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
           { id: 'thorax', name: 'Toraks (Akciğer)', nameEn: 'Thorax (Lung)', icon: Wind, color: 'text-sky-700' },
@@ -3625,7 +3647,9 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                     : 'bg-slate-900 dark:bg-blue-600 text-white font-semibold shadow-sm'
                   : item.id === 'benign'
                     ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                    : theme === 'light'
+                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
@@ -3646,17 +3670,17 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
         <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-              <span>Organ & Alt Başlık Seçimi</span>
-              <span className="text-[10px] text-amber-700 font-normal">Kılavuz Tanımlı</span>
+              <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
+              <span className="text-[10px] text-amber-700 font-normal">{lang === 'tr' ? 'Kılavuz Tanımlı' : 'Guideline-defined'}</span>
             </h2>
 
             {/* 1. TORAKS ALT BAŞLIKLARI */}
             {selectedOrgan === 'thorax' && (
               <div className="flex flex-col gap-2.5 text-xs">
                 <div>
-                  <label className="text-slate-600 block mb-1">Toraks Tümör Alt Tipi</label>
+                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Toraks Tümör Alt Tipi' : 'Thorax Subsite'}</label>
                   <select
                     value={thoraxSubtype}
                     onChange={e => {
@@ -3679,7 +3703,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             {selectedOrgan === 'benign' && (
               <div className="flex flex-col gap-2.5 text-xs">
                 <label className="text-slate-600">
-                  Benign hastalık / klinik endikasyon
+                  {lang === 'tr' ? 'Benign hastalık / klinik endikasyon' : 'Benign disease / clinical indication'}
                   <select
                     value={selectedSubsite}
                     onChange={event => {
@@ -3968,22 +3992,22 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
           </div>
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
-          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+          <div className={`rounded-2xl border p-5 flex flex-col gap-3 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
-              Klinik Parametreler & Risk
+              {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
             </h2>
 
             {/* TORAKS: KHDAK PARAMETRELERİ */}
             {selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc' && (
               <div className="flex flex-col gap-3 text-xs">
                 <div>
-                  <label className="text-slate-600 block mb-1">Tümör Yerleşimi (Santralite)</label>
+                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tümör Yerleşimi (Santralite)' : 'Tumor Location (Centrality)'}</label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[
-                      { id: 'Peripheral', label: 'Periferik' },
-                      { id: 'Central', label: 'Santral' },
-                      { id: 'UltraCentral', label: 'Ultrasantral' },
+                      { id: 'Peripheral', label: lang === 'tr' ? 'Periferik' : 'Peripheral' },
+                      { id: 'Central', label: lang === 'tr' ? 'Santral' : 'Central' },
+                      { id: 'UltraCentral', label: lang === 'tr' ? 'Ultrasantral' : 'Ultracentral' },
                     ].map(item => (
                       <button
                         key={item.id}
@@ -4004,7 +4028,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                   </div>
                 </div>
                 <div>
-                  <label className="text-slate-600 block mb-1">Cerrahi / Operabilite Durumu</label>
+                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Cerrahi / Operabilite Durumu' : 'Surgical Operability'}</label>
                   <select
                     value={thoraxSurgeryStatus}
                     onChange={e => {
@@ -4013,10 +4037,10 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                     }}
                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
                   >
-                    <option value="Inoperable">Medikal İnoperabl / Cerrahi Red</option>
-                    <option value="Operable">Medikal Operabl</option>
-                    <option value="Postop_R0">Postoperatif R0 Rezeksiyon</option>
-                    <option value="Postop_R1_R2">Postoperatif R1 / R2 Rezeksiyon</option>
+                    <option value="Inoperable">{lang === 'tr' ? 'Medikal İnoperabl / Cerrahi Red' : 'Medically Inoperable / Declines Surgery'}</option>
+                    <option value="Operable">{lang === 'tr' ? 'Medikal Operabl' : 'Medically Operable'}</option>
+                    <option value="Postop_R0">{lang === 'tr' ? 'Postoperatif R0 Rezeksiyon' : 'Postoperative R0 Resection'}</option>
+                    <option value="Postop_R1_R2">{lang === 'tr' ? 'Postoperatif R1 / R2 Rezeksiyon' : 'Postoperative R1 / R2 Resection'}</option>
                   </select>
                 </div>
               </div>
@@ -4792,20 +4816,22 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
         <section className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  {selectedOrgan === 'benign' ? 'Klinik Durum, Evre ve Zamanlama Kriteri' : 'Kılavuz Tanımlı Açık TNM Tablosu'}
+                  {selectedOrgan === 'benign'
+                    ? (lang === 'tr' ? 'Klinik Durum, Evre ve Zamanlama Kriteri' : 'Clinical Status and Timing Criteria')
+                    : (lang === 'tr' ? 'KILAVUZ TANIMLI AÇIK TNM TABLOSU' : 'GUIDELINE-DEFINED OPEN TNM MATRIX')}
                 </h2>
                 <span className="text-[11px] text-slate-600">
                   {selectedOrgan === 'benign'
-                    ? 'Benign hastalıkta TNM evrelemesi uygulanmaz; klinik durum ve tedavi zamanlamasını seçin.'
-                    : 'Seçili alt başlığa özgü kriterler; tıklayarak anında güncelleyin.'}
+                    ? (lang === 'tr' ? 'Benign hastalıkta TNM evrelemesi uygulanmaz; klinik durum ve tedavi zamanlamasını seçin.' : 'TNM staging does not apply to benign disease; select the clinical status and treatment timing.')
+                    : (lang === 'tr' ? 'Seçili alt başlığa özgü kriterler; tıklayarak anında güncelleyin.' : 'Subsite-specific criteria; click to update instantly.')}
                 </span>
               </div>
               {selectedOrgan === 'benign'
-                ? <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">TNM uygulanmaz</span>
+                ? <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">{lang === 'tr' ? 'TNM uygulanmaz' : 'TNM not applicable'}</span>
                 : <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-sky-700 border border-slate-300">{selectedT} {selectedN} {selectedM}</span>}
             </div>
 
@@ -4837,9 +4863,13 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                 </div>
                 {(selectedSubsite === 'benign-ho' || selectedSubsite === 'benign-keloid') && (
                   <div role="note" className="rounded-md border border-amber-200 bg-amber-50 p-2.5 text-xs leading-relaxed text-amber-900">
-                    <strong>Zamanlama kritik:</strong> {selectedSubsite === 'benign-ho'
-                      ? 'HO profilaksisi preoperatif ilk 4 saatte veya postoperatif ilk 24-48 saatte planlanır; >72 saat sonra etkinlik beklenmez.'
-                      : 'Keloid eksizyonu sonrası RT ilk 24 saat içinde başlatılmalıdır.'}
+                    <strong>{lang === 'tr' ? 'Zamanlama kritik:' : 'Timing is critical:'}</strong> {selectedSubsite === 'benign-ho'
+                        ? lang === 'tr'
+                          ? 'HO profilaksisi preoperatif ilk 4 saatte veya postoperatif ilk 24-48 saatte planlanır; >72 saat sonra etkinlik beklenmez.'
+                          : 'HO prophylaxis is planned within 4 hours preoperatively or 24-48 hours postoperatively; benefit is not expected after 72 hours.'
+                        : lang === 'tr'
+                          ? 'Keloid eksizyonu sonrası RT ilk 24 saat içinde başlatılmalıdır.'
+                          : 'Radiotherapy should begin within 24 hours after keloid excision.'}
                   </div>
                 )}
               </div>
@@ -4848,7 +4878,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             {/* T TABLOSU */}
             <div className="mb-4">
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
-                Primer Tümör (T) Kriterleri
+                {lang === 'tr' ? 'PRİMER TÜMÖR (T) KRİTERLERİ' : 'PRIMARY TUMOR (T) CRITERIA'}
               </span>
               <div className="grid grid-cols-1 gap-1">
                 {currentTNM.T.map(opt => {
@@ -4860,8 +4890,12 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                       onClick={() => handleTnmSelection('T', opt.code)}
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
-                          ? 'bg-blue-50/90 border-blue-600 text-blue-950 font-semibold ring-1 ring-blue-500/20'
-                          : 'bg-[#f1f5f9] border-slate-200/80 text-slate-600 hover:bg-slate-100 hover:text-slate-700'
+                          ? theme === 'light'
+                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
+                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                          : theme === 'light'
+                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>
@@ -4876,7 +4910,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             {/* N TABLOSU */}
             <div className="mb-4">
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
-                Bölgesel Lenf Nodları (N)
+                {lang === 'tr' ? 'BÖLGESEL LENF NODLARI (N)' : 'REGIONAL LYMPH NODES (N)'}
               </span>
               <div className="grid grid-cols-1 gap-1">
                 {currentTNM.N.map(opt => {
@@ -4888,8 +4922,12 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                       onClick={() => handleTnmSelection('N', opt.code)}
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
-                          ? 'bg-blue-50/90 border-blue-600 text-blue-950 font-semibold ring-1 ring-blue-500/20'
-                          : 'bg-[#f1f5f9] border-slate-200/80 text-slate-600 hover:bg-slate-100 hover:text-slate-700'
+                          ? theme === 'light'
+                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
+                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                          : theme === 'light'
+                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>
@@ -4904,7 +4942,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             {/* M TABLOSU */}
             <div>
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
-                Uzak Metastaz (M)
+                {lang === 'tr' ? 'UZAK METASTAZ (M)' : 'DISTANT METASTASIS (M)'}
               </span>
               <div className="grid grid-cols-1 gap-1">
                 {currentTNM.M.map(opt => {
@@ -4916,8 +4954,12 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
                       onClick={() => handleTnmSelection('M', opt.code)}
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
-                          ? 'bg-blue-50/90 border-blue-600 text-blue-950 font-semibold ring-1 ring-blue-500/20'
-                          : 'bg-[#f1f5f9] border-slate-200/80 text-slate-600 hover:bg-slate-100 hover:text-slate-700'
+                          ? theme === 'light'
+                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
+                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                          : theme === 'light'
+                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>
@@ -4937,7 +4979,7 @@ Kanıt ve Kılavuz: ${activeScheme.evidence}`;
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
         <section className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-white dark:bg-[#131c31] border border-slate-200/80 dark:border-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
             <div className={`p-3.5 rounded-md border font-bold text-xs flex items-center justify-between mb-4 transition-colors ${evaluatedDecision.badgeClass}`}>
