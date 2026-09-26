@@ -416,7 +416,7 @@ const TRANSLATION_MAP: Record<string, string> = {
   '60 Gy / 30 fx (cSCC, radiotherapy endikasyonu varsa)': '60 Gy / 30 fx (cSCC, if adjuvant RT indicated)',
   'Primer yatak / lezyon': 'Primary surgical bed / macroscopic lesion',
   'Yüksek riskte IMRT / VMAT': 'IMRT / VMAT or electron beam for high-risk anatomy',
-  'Klinik marjin ve anatomik bariyerlere göre': 'Clinical margin adjusted for anatomic barriers',
+  'Klinik marjin ve anatomik bariyerlere göre': 'Adjusted for anatomic barriers and clinical margins',
   'Eye / Globe Lensi (Yüz ise)': 'Lens of the Eye (Facial lesions)',
   'Kemik / Kıkırdak': 'Bone / Cartilage',
   'Low risk cSCC for cerrahi/izlem önceliklidir; radiotherapy yalnızca clinical endikasyon varsa is considered.': 'Surgery or observation is preferred for low-risk cSCC; adjuvant RT is indicated only for close/positive margins or high-risk features.',
@@ -690,7 +690,6 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Lenf nodu': 'lymph node',
   'lenf nodu': 'lymph node',
   'lenf nodları': 'lymph nodes',
-  'tutulumu': 'involvement',
   'invazyonu': 'invasion',
   'metastazı': 'metastasis',
   'yok': 'absent',
@@ -1014,6 +1013,20 @@ const TRANSLATION_MAP: Record<string, string> = {
   '>7 cm veya mediasten, kalp, büyük damarlar, trakea, omurga invazyonu': '>7 cm or invasion of the mediastinum, heart, great vessels, trachea, or spine',
   'Karşı akciğer nodülü, plevral/perikardiyal efüzyon veya nodül': 'Contralateral lung nodules, malignant pleural or pericardial effusion',
   'Tek bir ekstratorasik organda soliter metastaz (Oligometastatik)': 'Single extrathoracic metastasis in a single organ (Oligometastatic)',
+  'ile limited': 'confined to',
+  'or daha azı': 'or less',
+  'or daha fazlası': 'or more',
+  'kapsülünü aşmış': 'extends beyond capsule',
+  'komşu organ invasion': 'invasion of adjacent structures',
+  'metastasis absent': 'no metastasis',
+  'tutulumu': 'involvement',
+  'tutulumu absent': 'no involvement',
+  'GENELLİKLE NOT REQUIRED': 'GENERALLY NOT REQUIRED',
+  'çoğunlukla is not recommended': 'is generally not recommended',
+  'riskte ADT': 'risk, ADT',
+  'Prostat bezi ve seminal vezikül proksimal 1 cm': 'Prostate gland and proximal 1 cm of seminal vesicles',
+  'Asemptomatik durumda yakın nörolojik ve görüntüleme izlemi gerekir.': 'Close neurological and imaging surveillance is recommended for asymptomatic cases.',
+  'Dozimetrik Güvenlik ve Tolerans Zarfı': 'Dosimetric Safety and Tolerance Envelope',
 };
 
 const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(
@@ -6982,15 +6995,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </div>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center justify-between gap-3 font-bold text-slate-800 dark:text-slate-200">
-                    <span>{prognosticResult.indexName}</span>
-                    <span className="text-right text-blue-600 dark:text-blue-400">{prognosticResult.riskCategory}</span>
+                    <span>{tText(prognosticResult.indexName)}</span>
+                    <span className="text-right text-blue-600 dark:text-blue-400">{tText(prognosticResult.riskCategory)}</span>
                   </div>
                   <div className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                    {prognosticResult.medianSurvivalOrRecurrence}
+                    {tText(prognosticResult.medianSurvivalOrRecurrence)}
                   </div>
                   <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-[11px] font-medium leading-relaxed text-slate-700 dark:border-slate-700/70 dark:bg-slate-800/80 dark:text-slate-300">
                     <strong>{lang === 'tr' ? 'Önerilen Strateji: ' : 'Recommended Strategy: '}</strong>
-                    {prognosticResult.recommendation}
+                    {tText(prognosticResult.recommendation)}
                   </div>
                 </div>
               </div>
@@ -7156,21 +7169,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-4">
               <h3 id="reference-modal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-amber-700" />
-                {tText("\n                Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler\n              ")}</h3>
+                {lang === 'tr' ? 'Radyasyon Onkolojisi CDSS - Kılavuzlar ve Yasal Bilgilendirme' : 'Radiation Oncology CDSS - Guidelines & Legal Framework'}</h3>
               <button
                 onClick={() => setShowGuidelineModal(false)}
-                aria-label="Kılavuz penceresini kapat"
+                aria-label={lang === 'tr' ? 'Kılavuz penceresini kapat' : 'Close guidelines window'}
                 className="text-slate-600 hover:text-slate-900 p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <XCircle className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
-            <div role="tablist" aria-label="Kaynakça modalı sekmeleri" className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700">
+            <div role="tablist" aria-label={lang === 'tr' ? 'Kaynakça modalı sekmeleri' : 'Reference modal tabs'} className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700">
               {([
-                ['guidelines', 'Kılavuzlar & Landmark Çalışmalar'],
-                ['oar', 'OAR Tolerans Standartları'],
-                ['disclaimer', 'Yasal Sorumluluk & Telif'],
+              ['guidelines', lang === 'tr' ? 'Kılavuzlar & Landmark Çalışmalar' : 'Guidelines & Landmark Trials'],
+              ['oar', lang === 'tr' ? 'OAR Tolerans Standartları' : 'OAR Dose Constraints & Standards'],
+              ['disclaimer', lang === 'tr' ? 'Yasal Sorumluluk & Telif' : 'Legal Disclaimer & Copyright'],
               ] as const).map(([tab, label]) => (
                 <button
                   key={tab}
@@ -7199,25 +7212,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             >
               {activeReferenceTab === 'guidelines' && (
                 <>
-                  <p>
-                    {tText("\n                    Klinik kapsam, ")}<strong>{tText("NCCN v1.2025")}</strong>{tText(", ")}<strong>{tText("ASTRO")}</strong> {tText(" ve ")}<strong>{tText("ESTRO")}</strong> {tText(" kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.\n                  ")}</p>
+                  <p>{lang === 'tr'
+                    ? 'Klinik kapsam, NCCN v1.2025, ASTRO ve ESTRO kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.'
+                    : 'Clinical scope is structured in strict alignment with NCCN v1.2025, ASTRO, ESTRO guidelines, and international randomized Phase III clinical trials. Guideline versions and recommendations must be clinically verified against current institutional protocols prior to application.'}</p>
                   <div>
-                    <h4 className="mb-1 font-bold text-amber-700">{tText("Landmark çalışmalar ve klinik başlıklar")}</h4>
+                    <h4 className="mb-1 font-bold text-amber-700">{lang === 'tr' ? 'Landmark çalışmalar ve klinik başlıklar' : 'Landmark Trials and Clinical Topics'}</h4>
                     <ul className="list-disc space-y-1 pl-5">
-                      <li><strong>{tText("Toraks:")}</strong> {tText(" PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).")}</li>
-                      <li><strong>{tText("Meme:")}</strong> {tText(" FAST-Forward (hipofraksiyone adjuvan RT).")}</li>
-                      <li><strong>{tText("GİS:")}</strong> {tText(" RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).")}</li>
-                      <li><strong>{tText("Jinekoloji:")}</strong> {tText(" EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).")}</li>
-                      <li><strong>{tText("MSS:")}</strong> {tText(" Stupp protokolü (glioblastom kemoradyoterapisi).")}</li>
+                      {lang === 'tr' ? <><li><strong>Toraks:</strong> PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).</li><li><strong>Meme:</strong> FAST-Forward (hipofraksiyone adjuvan RT).</li><li><strong>GİS:</strong> RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).</li><li><strong>Jinekoloji:</strong> EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).</li><li><strong>MSS:</strong> Stupp protokolü (glioblastom kemoradyoterapisi).</li></> : <><li>Thorax: PACIFIC (Stage III NSCLC concurrent CRT + durvalumab), Turrisi and CONVERT (SCLC hyperfractionated/conventional CRT), and Lung-ART (PORT indication).</li><li>Breast: FAST-Forward (1-week adjuvant hypofractionation 26 Gy/5 fx), DBCG/BIG (regional nodal irradiation).</li><li>GI: RAPIDO and PRODIGE-23 (total neoadjuvant therapy for LARC), PORTEC-3 (adjuvant chemoradiotherapy for high-risk endometrial cancer).</li><li>Gynecology: EMBRACE II (cervical chemoradiotherapy and 3D MR-IGABT brachytherapy).</li><li>CNS: Stupp protocol (glioblastoma 60 Gy + concurrent/adjuvant TMZ), Perry protocol (elderly hypofractionation).</li></>}
                     </ul>
                   </div>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                    {tText("\n                    NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.\n                  ")}</p>
+                    {lang === 'tr' ? 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.' : 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC®, and DEGRO® are registered trademarks of their respective organizations.'}</p>
                 </>
               )}
               {activeReferenceTab === 'oar' && (
                 <>
-                  <p>{tText("Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.")}</p>
+                  <p>{lang === 'tr' ? 'Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.' : 'Normal tissue dose-volume constraints are derived from QUANTEC (Quantitative Analyses of Normal Tissue Effects in the Clinic), HyTEC (Stereotactic Body Radiotherapy / SRS), and EMBRACE II brachytherapy consensus metrics. Tolerance limits represent safe clinical thresholds and must be individualized per patient anatomy.'}</p>
                   <ul className="list-disc space-y-2 pl-5">
                     <li><strong>{tText("QUANTEC:")}</strong> {tText(" Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.")}</li>
                     <li><strong>{tText("HyTEC:")}</strong> {tText(" Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.")}</li>
@@ -7225,14 +7235,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <li><strong>{tText("EMBRACE II:")}</strong> {tText(" Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.")}</li>
                   </ul>
                   <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900">
-                    {tText("\n                    Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.\n                  ")}</p>
+                    {lang === 'tr' ? 'Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.' : 'This platform is not a standalone treatment prescription. OAR constraints must be checked against the current primary source and institution-approved planning guidelines.'}</p>
                 </>
               )}
               {activeReferenceTab === 'disclaimer' && (
                 <div className="space-y-3">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{tText("Yasal sorumluluk reddi ve telif")}</h4>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{lang === 'tr' ? 'Yasal sorumluluk reddi ve telif' : 'Clinical Disclaimer'}</h4>
                   <p>
-                    {tText("\n                    RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.\n                  ")}</p>
+                    {lang === 'tr' ? 'RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG® ve QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.' : 'RadOnc CDSS is an evidence-based clinical decision-support and educational platform. It does not replace individualized clinical judgment, physician evaluation, or multidisciplinary tumor board (MDT) consensus. Treatment planning and organ-at-risk safety constraints must be validated by the radiation oncologist and medical physicist for each patient.'}</p>
                 </div>
               )}
             </div>
