@@ -1787,6 +1787,48 @@ TNM_DATABASE['cns'] = TNM_DATABASE['cns-mets'];
 TNM_DATABASE['gynecology'] = TNM_DATABASE['gynecology-Serviks'];
 TNM_DATABASE['bone-sarcoma'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 
+const generateCasePrompt = (
+  organ: string,
+  subsite: string,
+  t: string,
+  n: string,
+  m: string,
+  schemeName?: string,
+  totalDose?: string,
+  riskGroup?: string,
+  lang: 'tr' | 'en' = 'tr',
+): string => {
+  if (lang === 'en') {
+    return `Dear Oncology Consultant, I request your expert evaluation of the following radiation oncology case in light of NCCN v1.2025, ASTRO, ESTRO guidelines, and current landmark Phase III randomized clinical trial evidence:
+
+CLINICAL CASE DETAILS:
+- Anatomic Site: ${organ.toUpperCase()} - ${subsite}
+- Staging: ${t} ${n} ${m}
+${riskGroup ? `- Risk Profile / Biomarkers: ${riskGroup}` : ''}
+- Prescribed Regimen: ${totalDose || ''} (${schemeName || ''})
+
+KEY CLINICAL QUESTIONS:
+1. Is the proposed fractionation scheme and radiobiological equivalence (BED / EQD2) optimal for this stage and risk profile?
+2. What are the indications, timing, and evidence levels for concurrent or adjuvant systemic therapy (Chemotherapy, ADT, Immunotherapy)?
+3. What are the critical ICRU 83 target volume (CTV/PTV) margins and QUANTEC/HyTEC organs at risk (OAR) safety constraints to watch out for?
+4. What are the landmark Phase III clinical trials supporting this specific therapeutic strategy?`;
+  }
+
+  return `Sayın Onkoloji Danışmanı, aşağıdaki radyasyon onkolojisi vakasını NCCN v1.2025, ASTRO, ESTRO ve güncel randomize Faz III klinik çalışma kanıtları doğrultusunda değerlendirmenizi rica ediyorum:
+
+KLİNİK VAKA BİLGİLERİ:
+- Anatomik Bölge: ${organ.toUpperCase()} - ${subsite}
+- Evreleme: ${t} ${n} ${m}
+${riskGroup ? `- Risk Grubu / Biyobelirteçler: ${riskGroup}` : ''}
+- Planlanan Reçete: ${totalDose || ''} (${schemeName || ''})
+
+DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
+1. Bu evre ve risk profili için önerilen fraksiyonasyon şeması ve biyolojik eşdeğer doz (BED/EQD2) uygunluğu nedir?
+2. Eşzamanlı veya ardışık sistemik tedavi (Kemoterapi, ADT, İmmünoterapi) endikasyonu ve kanıt düzeyi nedir?
+3. Hedef hacim marjinleri (CTV/PTV) ve ICRU 83 / QUANTEC kritik organ (OAR) toleransları açısından dikkat edilmesi gereken özel riskler nelerdir?
+4. Bu klinik senaryoyu destekleyen güncel landmark Faz III çalışmalar hangileridir?`;
+};
+
 
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
@@ -1992,6 +2034,8 @@ export default function RadoncoCDSSPage() {
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
+  const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
@@ -4343,6 +4387,35 @@ export default function RadoncoCDSSPage() {
     return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
   }, [activeScheme]);
 
+  const casePrompt = useMemo(
+    () =>
+      generateCasePrompt(
+        selectedOrgan,
+        tText(selectedSubsite),
+        selectedT,
+        selectedN,
+        selectedM,
+        tText(activeScheme.name),
+        `${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
+        undefined,
+        lang,
+      ),
+    [activeScheme, lang, selectedM, selectedN, selectedOrgan, selectedSubsite, selectedT],
+  );
+  const copyCasePrompt = () => {
+    if (!navigator.clipboard) {
+      window.alert(lang === 'tr' ? 'Panoya kopyalama desteklenmiyor.' : 'Clipboard access is not supported.');
+      return;
+    }
+    void navigator.clipboard.writeText(casePrompt).then(
+      () => {
+        setCopiedPrompt(true);
+        window.setTimeout(() => setCopiedPrompt(false), 3000);
+      },
+      () => window.alert(lang === 'tr' ? 'Vaka sorusu panoya kopyalanamadı.' : 'The case prompt could not be copied.'),
+    );
+  };
+
   // Klinik Rapor Metni Kopyalama
   const clinicalSummaryText = useMemo(() => {
     const labels = {
@@ -6102,6 +6175,116 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
         </section>
       </main>
+
+      <button
+        type="button"
+        onClick={() => setIsAiOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-2xl shadow-blue-500/30 transition-all hover:scale-105 active:scale-95"
+      >
+        <Sparkles className="h-4 w-4 animate-pulse text-amber-300" aria-hidden="true" />
+        <span>{lang === 'tr' ? 'AI Konsültasyon' : 'AI Consultation'}</span>
+      </button>
+
+      {isAiOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-copilot-title"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setIsAiOpen(false);
+          }}
+        >
+          <div className="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+            <div>
+              <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                  <h3 id="ai-copilot-title" className="text-sm font-bold text-slate-900 dark:text-white">
+                    {lang === 'tr' ? 'Onkoloji AI Danışmanı' : 'Oncology AI Copilot'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAiOpen(false)}
+                  aria-label={lang === 'tr' ? 'AI danışmanını kapat' : 'Close AI copilot'}
+                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  <XCircle className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs dark:border-blue-800/60 dark:bg-blue-950/40">
+                <div className="mb-1 font-semibold text-blue-900 dark:text-blue-300">
+                  {lang === 'tr' ? 'Aktif Vaka Bağlamı:' : 'Active Case Context:'}
+                </div>
+                <div className="font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                  {selectedOrgan.toUpperCase()} • {selectedT} {selectedN} {selectedM} • {tText(activeScheme.name)}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  {lang === 'tr' ? 'Hazırlanan Uzman Konsültasyon Sorusu:' : 'Prepared Expert Case Prompt:'}
+                </label>
+                <div className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:border-slate-700/80 dark:bg-slate-800/60 dark:text-slate-300">
+                  {casePrompt}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    copyCasePrompt();
+                    window.open('https://chatgpt.com', '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl bg-[#10a37f] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#0e8c6d]"
+                >
+                  <span>🟢 {lang === 'tr' ? 'ChatGPT ile Aç' : 'Open in ChatGPT'}</span>
+                  <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    copyCasePrompt();
+                    window.open('https://gemini.google.com', '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl bg-[#1a73e8] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#1557b0]"
+                >
+                  <span>🔵 {lang === 'tr' ? 'Google Gemini ile Aç' : 'Open in Google Gemini'}</span>
+                  <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    copyCasePrompt();
+                    window.open('https://claude.ai', '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex w-full items-center justify-between rounded-xl bg-[#d97706] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#b45309]"
+                >
+                  <span>🟣 {lang === 'tr' ? 'Claude ile Aç' : 'Open in Claude'}</span>
+                  <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={copyCasePrompt}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{copiedPrompt ? (lang === 'tr' ? 'Panoya Kopyalandı!' : 'Copied to Clipboard!') : (lang === 'tr' ? 'Sadece Metni Kopyala' : 'Copy Prompt Only')}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400 dark:border-slate-800">
+              {lang === 'tr'
+                ? 'API anahtarı gerektirmez. Mevcut AI hesabınızda açmadan önce vaka sorusunu panoya kopyalar.'
+                : 'No API key required. The case prompt is copied before opening your existing AI account.'}
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
         <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-400">
