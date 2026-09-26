@@ -1,0 +1,2076 @@
+warning: in the working copy of 'src/app/page.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/app/page.tsx b/src/app/page.tsx[m
+[1mindex cbba8b4..88ae553 100644[m
+[1m--- a/src/app/page.tsx[m
+[1m+++ b/src/app/page.tsx[m
+[36m@@ -57,6 +57,564 @@[m [mexport type OrganId =[m
+   | 'palliative'[m
+   | 'benign';[m
+ [m
+[32m+[m[32mconst TRANSLATION_MAP: Record<string, string> = {[m
+[32m+[m[32m  'Küçük Hücreli Dışı Akciğer Ca (KHDAK)': 'Non-Small Cell Lung Cancer (NSCLC)',[m
+[32m+[m[32m  'Küçük Hücreli Akciğer Ca (KHAK / SCLC)': 'Small Cell Lung Cancer (SCLC)',[m
+[32m+[m[32m  'Küçük Hücreli Akciğer Ca (KHAK)': 'Small Cell Lung Cancer (SCLC)',[m
+[32m+[m[32m  'Timoma & Timik Karsinom': 'Thymoma / Thymic Carcinoma',[m
+[32m+[m[32m  'Malign Plevral Mezotelyoma (MPM)': 'Malignant Pleural Mesothelioma (MPM)',[m
+[32m+[m[32m  'Nazofarenks Karsinomu (NPC)': 'Nasopharyngeal Carcinoma (NPC)',[m
+[32m+[m[32m  'Orofarenks Karsinomu (p16/HPV)': 'Oropharyngeal Carcinoma (p16/HPV)',[m
+[32m+[m[32m  'Larinks Karsinomu (Glottik/Supraglottik)': 'Laryngeal Cancer (Glottic/Supraglottic)',[m
+[32m+[m[32m  'Hipofarenks Karsinomu': 'Hypopharyngeal Carcinoma',[m
+[32m+[m[32m  'Oral Kavite Karsinomu': 'Oral Cavity Carcinoma',[m
+[32m+[m[32m  'Tükürük Bezi Tümörleri': 'Salivary Gland Tumors',[m
+[32m+[m[32m  'Beyin Metastazları': 'Brain Metastases',[m
+[32m+[m[32m  'Beyin Metastazı': 'Brain Metastases',[m
+[32m+[m[32m  'Glioblastom': 'Glioblastoma (GBM)',[m
+[32m+[m[32m  'Menenjiyom': 'Meningioma',[m
+[32m+[m[32m  'Serviks Uteri Karsinomu (Cervix)': 'Cervical Cancer',[m
+[32m+[m[32m  'Endometriyum Karsinomu (Corpus Uteri)': 'Endometrial Cancer',[m
+[32m+[m[32m  'Over & Tuba Uterina Karsinomu': 'Ovarian / Fallopian Tube Cancer',[m
+[32m+[m[32m  'Vajen Karsinomu (Vagina)': 'Vaginal Cancer',[m
+[32m+[m[32m  'Vulva Karsinomu (Vulva)': 'Vulvar Cancer',[m
+[32m+[m[32m  'Yumuşak Doku Sarkomu (YDS / STS)': 'Soft Tissue Sarcoma (STS)',[m
+[32m+[m[32m  'Osteosarkom (Osteosarcoma)': 'Osteosarcoma',[m
+[32m+[m[32m  'Ewing Sarkomu (Ewing Sarcoma)': 'Ewing Sarcoma',[m
+[32m+[m[32m  'Kondrosarkom (Chondrosarcoma)': 'Chondrosarcoma',[m
+[32m+[m[32m  'Kordoma (Sakral / Klivus Chordoma)': 'Chordoma (Sacral / Clival)',[m
+[32m+[m[32m  'Dev Hücreli Kemik Tümörü (GCTB)': 'Giant Cell Tumor of Bone (GCTB)',[m
+[32m+[m[32m  'Melanom': 'Melanoma',[m
+[32m+[m[32m  'Bazal Hücreli Karsinom (BCC)': 'Basal Cell Carcinoma (BCC)',[m
+[32m+[m[32m  'Skuamöz Hücreli Karsinom (SCC)': 'Squamous Cell Carcinoma (SCC)',[m
+[32m+[m[32m  'Hodgkin Lenfoma': 'Hodgkin Lymphoma',[m
+[32m+[m[32m  'Non-Hodgkin Lenfoma': 'Non-Hodgkin Lymphoma',[m
+[32m+[m[32m  'Multipl Miyelom': 'Multiple Myeloma',[m
+[32m+[m[32m  'Kemik Metastazı': 'Bone Metastases',[m
+[32m+[m[32m  'Spinal Kord Basısı': 'Spinal Cord Compression',[m
+[32m+[m[32m  'Palyatif Beyin Metastazı': 'Palliative Brain Metastases',[m
+[32m+[m[32m  'Palyatif Radyoterapi': 'Palliative Radiotherapy',[m
+[32m+[m[32m  'Benign Hastalıklar': 'Benign Diseases',[m
+[32m+[m[32m  'Heterotopik Ossifikasyon': 'Heterotopic Ossification',[m
+[32m+[m[32m  'Heterotopik Ossifikasyon Profilaksisi': 'Heterotopic Ossification Prophylaxis',[m
+[32m+[m[32m  'Keloid Profilaksisi': 'Keloid Prophylaxis',[m
+[32m+[m[32m  'Dupuytren Kontraktürü': 'Dupuytren Contracture',[m
+[32m+[m[32m  'Ledderhose Hastalığı': 'Ledderhose Disease',[m
+[32m+[m[32m  'Jinekomasti Profilaksisi': 'Gynecomastia Prophylaxis',[m
+[32m+[m[32m  'Plantar Fasiit / Kalkaneus Dikeni': 'Plantar Fasciitis / Heel Spur',[m
+[32m+[m[32m  'Tenisçi / Golfçü Dirseği': 'Tennis / Golfer’s Elbow',[m
+[32m+[m[32m  'Omuz Periartriti / İmpingement': 'Shoulder Periarthritis / Impingement',[m
+[32m+[m[32m  'Gonartroz / Koksartroz': 'Gonarthrosis / Coxarthrosis',[m
+[32m+[m[32m  'Graves Orbitopati': 'Graves Orbitopathy',[m
+[32m+[m[32m  'Trigeminal Nevralji (SRS)': 'Trigeminal Neuralgia (SRS)',[m
+[32m+[m[32m  'Trigeminal Nevralji SRS': 'Trigeminal Neuralgia SRS',[m
+[32m+[m[32m  'Vestibüler Schwannom': 'Vestibular Schwannoma',[m
+[32m+[m[32m  'Arteriovenöz Malformasyon (AVM)': 'Arteriovenous Malformation (AVM)',[m
+[32m+[m[32m  'Prostat': 'Prostate',[m
+[32m+[m[32m  'Mesane': 'Bladder',[m
+[32m+[m[32m  'Testis': 'Testis',[m
+[32m+[m[32m  'Prostat Kanseri': 'Prostate Cancer',[m
+[32m+[m[32m  'Mesane Kanseri': 'Bladder Cancer',[m
+[32m+[m[32m  'Meme Kanseri': 'Breast Cancer',[m
+[32m+[m[32m  'Rektum Kanseri': 'Rectal Cancer',[m
+[32m+[m[32m  'Mide Kanseri': 'Gastric Cancer',[m
+[32m+[m[32m  'Pankreas Kanseri': 'Pancreatic Cancer',[m
+[32m+[m[32m  'Özofagus Kanseri': 'Esophageal Cancer',[m
+[32m+[m[32m  'Karaciğer': 'Liver',[m
+[32m+[m[32m  'Nazofarenks': 'Nasopharynx',[m
+[32m+[m[32m  'Orofarenks': 'Oropharynx',[m
+[32m+[m[32m  'Larenks': 'Larynx',[m
+[32m+[m[32m  'Hipofarenks': 'Hypopharynx',[m
+[32m+[m[32m  'Oral Kavite': 'Oral Cavity',[m
+[32m+[m[32m  'Serviks': 'Cervix',[m
+[32m+[m[32m  'Endometriyum': 'Endometrium',[m
+[32m+[m[32m  'Vajen': 'Vagina',[m
+[32m+[m[32m  'Vulva': 'Vulva',[m
+[32m+[m[32m  'Yumuşak Doku Sarkomu': 'Soft Tissue Sarcoma',[m
+[32m+[m[32m  'Osteosarkom': 'Osteosarcoma',[m
+[32m+[m[32m  'Ewing Sarkomu': 'Ewing Sarcoma',[m
+[32m+[m[32m  'Kondrosarkom': 'Chondrosarcoma',[m
+[32m+[m[32m  'Kordoma': 'Chordoma',[m
+[32m+[m[32m  'Periferik erken evre KHDAK (Kategori 1 küratif altın standart, BED10 = 151.2 Gy).': 'Peripheral early-stage NSCLC (Category 1 curative gold standard, BED10 = 151.2 Gy).',[m
+[32m+[m[32m  'Lokal ileri KHDAK; Eşzamanlı Kemo-Radyoterapi (Kategori 1).': 'Locally advanced NSCLC; concurrent chemoradiotherapy (Category 1).',[m
+[32m+[m[32m  'Hedef: 4D-CT tüm solunum hareket hacmi': 'Target: 4D-CT full respiratory motion ITV',[m
+[32m+[m[32m  'Nodal: Elektif nodal hedef yok': 'Nodal: No elective nodal irradiation',[m
+[32m+[m[32m  'Teknik & Hareket: SBRT (4D-CT / ITV VMAT)': 'Technique: SBRT (4D-CT / ITV VMAT)',[m
+[32m+[m[32m  'Teknik: SBRT (4D-CT / ITV VMAT)': 'Technique: SBRT (4D-CT / ITV VMAT)',[m
+[32m+[m[32m  '4D-CT tüm solunum hareket hacmi': '4D-CT full respiratory motion ITV',[m
+[32m+[m[32m  'Set-up ve internal marjin': 'Set-up and internal margin',[m
+[32m+[m[32m  'Primer tümör ve tutulu lenfatikler': 'Primary tumor and involved nodal stations',[m
+[32m+[m[32m  'Elektif nodal CTV': 'Elective nodal CTV',[m
+[32m+[m[32m  'Cerrahi yatak ve marjin': 'Surgical bed and microscopic margin',[m
+[32m+[m[32m  'Bilateral Akciğer': 'Bilateral Lung',[m
+[32m+[m[32m  'Spinal Kord': 'Spinal Cord',[m
+[32m+[m[32m  'Kalp': 'Heart',[m
+[32m+[m[32m  'Özofagus': 'Esophagus',[m
+[32m+[m[32m  'Brakiyal Pleksus': 'Brachial Plexus',[m
+[32m+[m[32m  'Trakea / Ana Bronş': 'Trachea / Main Bronchus',[m
+[32m+[m[32m  'Göz': 'Eye / Globe',[m
+[32m+[m[32m  'Optik Sinir': 'Optic Nerve',[m
+[32m+[m[32m  'Optik Kiazma': 'Optic Chiasm',[m
+[32m+[m[32m  'Beyin Sapı': 'Brainstem',[m
+[32m+[m[32m  'Koklea': 'Cochlea',[m
+[32m+[m[32m  'Parotis': 'Parotid Gland',[m
+[32m+[m[32m  'Submandibular': 'Submandibular Gland',[m
+[32m+[m[32m  'Mide': 'Stomach',[m
+[32m+[m[32m  'Duodenum': 'Duodenum',[m
+[32m+[m[32m  'İnce Bağırsak': 'Small Bowel',[m
+[32m+[m[32m  'Rektum': 'Rectum',[m
+[32m+[m[32m  'Femur Başı': 'Femoral Head',[m
+[32m+[m[32m  'Böbrek': 'Kidney',[m
+[32m+[m[32m  'Cilt': 'Skin',[m
+[32m+[m[32m  'Bölgesel lenf nodu metastazı yok': 'No regional lymph node metastasis',[m
+[32m+[m[32m  'İpsilateral peribronşiyal / hiler lenf nodu tutulumu': 'Ipsilateral peribronchial / hilar lymph node involvement',[m
+[32m+[m[32m  'İpsilateral mediastinal / subkarinal lenf nodu tutulumu': 'Ipsilateral mediastinal / subcarinal lymph node involvement',[m
+[32m+[m[32m  'Kontralateral mediastinal / hiler / supraklavikular lenf nodu': 'Contralateral mediastinal / hilar / supraclavicular lymph node',[m
+[32m+[m[32m  'Uzak metastaz yok': 'No distant metastasis',[m
+[32m+[m[32m  'Uzak metastaz var': 'Distant metastasis present',[m
+[32m+[m[32m  'Tek organ / oligometastaz': 'Single organ / oligometastatic disease',[m
+[32m+[m[32m  'Multipl organ metastazı': 'Multiple organ / widespread metastases',[m
+[32m+[m[32m  'ENDİKE: KÜRATİF': 'INDICATED: CURATIVE',[m
+[32m+[m[32m  'ENDİKE: PALYATİF': 'INDICATED: PALLIATIVE',[m
+[32m+[m[32m  'KONTRENDİKE': 'CONTRAINDICATED',[m
+[32m+[m[32m  'PROTOKOLÜ': 'PROTOCOL',[m
+[32m+[m[32m  'Periferik SBRT': 'Peripheral SBRT',[m
+[32m+[m[32m  'Santral SBRT': 'Central SBRT',[m
+[32m+[m[32m  'Ultrasantral': 'Ultracentral',[m
+[32m+[m[32m  'SBRT Periferik Standart': 'Standard Peripheral SBRT',[m
+[32m+[m[32m  '≤1 cm primer kitle; ana bronş dallarına uzanım yok': '≤1 cm primary tumor; no main bronchus involvement',[m
+[32m+[m[32m  '>1 cm ama ≤2 cm çap; visseral plevra intakt': '>1 cm to ≤2 cm diameter; visceral pleura intact',[m
+[32m+[m[32m  '>2 cm ama ≤3 cm çap; periferik parankimde': '>2 cm to ≤3 cm diameter; in peripheral parenchyma',[m
+[32m+[m[32m  '>3 cm ama ≤4 cm veya ana bronş tutulumu (karina >2 cm)': '>3 cm to ≤4 cm or main bronchus involvement (>2 cm from carina)',[m
+[32m+[m[32m  '>4 cm ama ≤5 cm veya visseral plevra invazyonu': '>4 cm to ≤5 cm or visceral pleura invasion',[m
+[32m+[m[32m  '>5 cm ama ≤7 cm veya göğüs duvarı / frenik sinir tutulumu': '>5 cm to ≤7 cm or chest wall / phrenic nerve involvement',[m
+[32m+[m[32m  '>7 cm veya mediasten, kalp, büyük damarlar, trakea,...': '>7 cm or invasion of the mediastinum, heart, great vessels, or trachea',[m
+[32m+[m[32m  'HEDEF HACİMLER (TARGET VOLUMES)': 'TARGET VOLUMES (ICRU 83)',[m
+[32m+[m[32m  'KRİTİK ORGAN (OAR) KISITLARI': 'ORGANS AT RISK (OAR) CONSTRAINTS',[m
+[32m+[m[32m  'Küçük Hücreli Dışı Akciğer Ca': 'Non-Small Cell Lung Cancer',[m
+[32m+[m[32m  'Küçük Hücreli Akciğer Ca': 'Small Cell Lung Cancer',[m
+[32m+[m[32m  'Medikal İnoperabl / Cerrahi Red': 'Medically Inoperable / Declines Surgery',[m
+[32m+[m[32m  'Medikal Operabl': 'Medically Operable',[m
+[32m+[m[32m  'Postoperatif': 'Postoperative',[m
+[32m+[m[32m  'Preoperatif': 'Preoperative',[m
+[32m+[m[32m  'Uygulanmaz': 'Not applicable',[m
+[32m+[m[32m  'Kılavuz Tanımlı': 'Guideline-defined',[m
+[32m+[m[32m  'Kılavuz': 'Guideline',[m
+[32m+[m[32m  'Kriterleri': 'Criteria',[m
+[32m+[m[32m  'Kriteri': 'Criteria',[m
+[32m+[m[32m  'Primer Tümör': 'Primary Tumor',[m
+[32m+[m[32m  'Bölgesel Lenf Nodları': 'Regional Lymph Nodes',[m
+[32m+[m[32m  'Uzak Metastaz': 'Distant Metastasis',[m
+[32m+[m[32m  'Anatomik Kapsam': 'Anatomic Coverage',[m
+[32m+[m[32m  'Doz Limiti': 'Dose Limit',[m
+[32m+[m[32m  'Marjin': 'Margin',[m
+[32m+[m[32m  'Hacim': 'Volume',[m
+[32m+[m[32m  'Doz': 'Dose',[m
+[32m+[m[32m  'Organ': 'Organ',[m
+[32m+[m[32m  'Metrik': 'Metric',[m
+[32m+[m[32m  'Benign hastalıkta TNM evrelemesi uygulanmaz; klinik durum ve tedavi zamanlamasını seçin.': 'TNM staging does not apply to benign disease; select clinical status and treatment timing.',[m
+[32m+[m[32m  'Seçili alt başlığa özgü kriterler; tıklayarak anında güncelleyin.': 'Subsite-specific criteria; click to update instantly.',[m
+[32m+[m[32m  'Klinik Durum, Evre ve Zamanlama Kriteri': 'Clinical Status and Timing Criteria',[m
+[32m+[m[32m  'TNM uygulanmaz': 'TNM not applicable',[m
+[32m+[m[32m  'Zamanlama kritik:': 'Timing is critical:',[m
+[32m+[m[32m  'HO profilaksisi preoperatif ilk 4 saatte veya postoperatif ilk 24-48 saatte planlanır; >72 saat sonra etkinlik beklenmez.': 'HO prophylaxis is planned within 4 hours preoperatively or 24-48 hours postoperatively; benefit is not expected after 72 hours.',[m
+[32m+[m[32m  'Keloid eksizyonu sonrası RT ilk 24 saat içinde başlatılmalıdır.': 'Radiotherapy should begin within 24 hours after keloid excision.',[m
+[32m+[m[32m  'Jinekolojik Kanser Bölgesi': 'Gynecologic Cancer Site',[m
+[32m+[m[32m  'Sarkom / Kemik Tümör Tipi': 'Sarcoma / Bone Tumor Type',[m
+[32m+[m[32m  'Baş-Boyun Anatomik Bölgesi': 'Head and Neck Subsite',[m
+[32m+[m[32m  'MSS Patolojisi': 'CNS Pathology',[m
+[32m+[m[32m  'Gastrointestinal tümör alt tipi': 'Gastrointestinal Tumor Subsite',[m
+[32m+[m[32m  'GİS Tümör Alt Tipi': 'GI Tumor Subsite',[m
+[32m+[m[32m  'GÜS Alt Tipi': 'GU Subsite',[m
+[32m+[m[32m  'Meme Histopatolojisi': 'Breast Histopathology',[m
+[32m+[m[32m  'Cilt Patolojisi': 'Skin Histology',[m
+[32m+[m[32m  'Hematolojik Tümör': 'Hematologic Tumor',[m
+[32m+[m[32m  'Pediatrik Tümör': 'Pediatric Tumor',[m
+[32m+[m[32m  'Palyatif Onkoloji': 'Palliative Oncology',[m
+[32m+[m[32m  'Ağrılı Kemik / Beyin / Spinal Kord Basısı': 'Painful Bone / Brain / Spinal Cord Compression',[m
+[32m+[m[32m  'Düşük Risk': 'Low Risk',[m
+[32m+[m[32m  'Orta Risk': 'Intermediate Risk',[m
+[32m+[m[32m  'Yüksek Risk': 'High Risk',[m
+[32m+[m[32m  'Yüksek-Orta Risk': 'High-Intermediate Risk',[m
+[32m+[m[32m  'Radyoterapi Amacı': 'Radiotherapy Intent',[m
+[32m+[m[32m  'Klinik Evre / Cerrahi': 'Clinical Stage / Surgery',[m
+[32m+[m[32m  'Radyoterapi Zamanlaması': 'Radiotherapy Timing',[m
+[32m+[m[32m  'Klinik Durum': 'Clinical Status',[m
+[32m+[m[32m  'Lokal Kontrol Modalitesi': 'Local Control Modality',[m
+[32m+[m[32m  'Seminom evresi': 'Seminoma Stage',[m
+[32m+[m[32m  'Menopoz durumu': 'Menopausal Status',[m
+[32m+[m[32m  'Cerrahi Sınır': 'Surgical Margin',[m
+[32m+[m[32m  'Cerrahi': 'Surgery',[m
+[32m+[m[32m  'Maksimal TURBT tamamlandı': 'Maximal TURBT completed',[m
+[32m+[m[32m  'Mesane koruyucu TMT için klinik uygunluk': 'Clinical eligibility for bladder-preserving TMT',[m
+[32m+[m[32m  'Yüksek dereceli stromal aşırı büyüme': 'High-grade stromal overgrowth',[m
+[32m+[m[32m  'Tümör yatağı boostu (10-16 Gy) uygula': 'Apply tumor bed boost (10-16 Gy)',[m
+[32m+[m[32m  'Ağrı': 'Pain',[m
+[32m+[m[32m  'Negatif': 'Negative',[m
+[32m+[m[32m  'Pozitif': 'Positive',[m
+[32m+[m[32m  'Rezeke edilemeyen': 'Unresectable',[m
+[32m+[m[32m  'fraksiyon': 'fraction',[m
+[32m+[m[32m  'fraksiyonda': 'fractions',[m
+[32m+[m[32m  'Evre': 'Stage',[m
+[32m+[m[32m  'yanıt': 'response',[m
+[32m+[m[32m  'Rezidü': 'Residual disease',[m
+[32m+[m[32m  'rezeksiyon': 'resection',[m
+[32m+[m[32m  'Cerrahi Sonrası': 'Postoperative',[m
+[32m+[m[32m  'KRT': 'chemoradiotherapy',[m
+[32m+[m[32m  'RT': 'radiotherapy',[m
+[32m+[m[32m  'İzlem': 'surveillance',[m
+[32m+[m[32m  'Gerekmez': 'Not required',[m
+[32m+[m[32m  'Gerekli': 'Required',[m
+[32m+[m[32m  'Uygula': 'Apply',[m
+[32m+[m[32m  'Uygun': 'Eligible',[m
+[32m+[m[32m  'İnoperabl': 'Inoperable',[m
+[32m+[m[32m  'Lokal İleri': 'Locally Advanced',[m
+[32m+[m[32m  'Definitif': 'Definitive',[m
+[32m+[m[32m  'Adjuvan': 'Adjuvant',[m
+[32m+[m[32m  'Palyatif': 'Palliative',[m
+[32m+[m[32m  'Oligometastatik': 'Oligometastatic',[m
+[32m+[m[32m  'Nüks': 'Recurrence',[m
+[32m+[m[32m  'Kitle': 'Mass',[m
+[32m+[m[32m  'Agri': 'Pain',[m
+[32m+[m[32m  'Kanama': 'Bleeding',[m
+[32m+[m[32m  'Düşük': 'Low',[m
+[32m+[m[32m  'Orta': 'Intermediate',[m
+[32m+[m[32m  'Yüksek': 'High',[m
+[32m+[m[32m  'Santral': 'Central',[m
+[32m+[m[32m  'Periferik': 'Peripheral',[m
+[32m+[m[32m  'Lateralize': 'Lateralized',[m
+[32m+[m[32m  'Bilaterally': 'Bilateral',[m
+[32m+[m[32m  'Bilateral': 'Bilateral',[m
+[32m+[m[32m  'İpsilateral': 'Ipsilateral',[m
+[32m+[m[32m  'Kontralateral': 'Contralateral',[m
+[32m+[m[32m  'Lenf nodu': 'lymph node',[m
+[32m+[m[32m  'lenf nodu': 'lymph node',[m
+[32m+[m[32m  'lenf nodları': 'lymph nodes',[m
+[32m+[m[32m  'tutulumu': 'involvement',[m
+[32m+[m[32m  'invazyonu': 'invasion',[m
+[32m+[m[32m  'metastazı': 'metastasis',[m
+[32m+[m[32m  'yok': 'absent',[m
+[32m+[m[32m  'var': 'present',[m
+[32m+[m[32m  'çap': 'diameter',[m
+[32m+[m[32m  'ama': 'to',[m
+[32m+[m[32m  'veya': 'or',[m
+[32m+[m[32m  'sınır': 'margin',[m
+[32m+[m[32m  'kapsanır': 'included',[m
+[32m+[m[32m  'eklenir': 'is added',[m
+[32m+[m[32m  'önerilir': 'is recommended',[m
+[32m+[m[32m  'önerilmez': 'is not recommended',[m
+[32m+[m[32m  'değerlendirilir': 'is considered',[m
+[32m+[m[32m  'değerlendirme': 'assessment',[m
+[32m+[m[32m  'doz': 'dose',[m
+[32m+[m[32m  'hedef': 'target',[m
+[32m+[m[32m  'saat': 'hours',[m
+[32m+[m[32m  'hafta': 'weeks',[m
+[32m+[m[32m  'gün': 'days',[m
+[32m+[m[32m  'Primer': 'Primary',[m
+[32m+[m[32m  'Tümör': 'Tumor',[m
+[32m+[m[32m  'Tümör yatağı': 'Tumor bed',[m
+[32m+[m[32m  'Yumuşak Doku': 'Soft Tissue',[m
+[32m+[m[32m  'Beyin': 'Brain',[m
+[32m+[m[32m  'Akciğer': 'Lung',[m
+[32m+[m[32m  'Meme': 'Breast',[m
+[32m+[m[32m  'Boyun': 'Neck',[m
+[32m+[m[32m  'Kasık': 'Groin',[m
+[32m+[m[32m  'Pelvik': 'Pelvic',[m
+[32m+[m[32m  'Pelvis': 'Pelvis',[m
+[32m+[m[32m  'Bölgesel': 'Regional',[m
+[32m+[m[32m  'Uzak': 'Distant',[m
+[32m+[m[32m  'hastalık': 'disease',[m
+[32m+[m[32m  'Hastalık': 'Disease',[m
+[32m+[m[32m  'Klinik': 'Clinical',[m
+[32m+[m[32m  'klinik': 'clinical',[m
+[32m+[m[32m  'küratif': 'curative',[m
+[32m+[m[32m  'Küratif': 'Curative',[m
+[32m+[m[32m  'standart': 'standard',[m
+[32m+[m[32m  'Standart': 'Standard',[m
+[32m+[m[32m  'yüksek risk': 'high risk',[m
+[32m+[m[32m  'Yüksek risk': 'High risk',[m
+[32m+[m[32m  'düşük risk': 'low risk',[m
+[32m+[m[32m  'Düşük risk': 'Low risk',[m
+[32m+[m[32m  'negatif': 'negative',[m
+[32m+[m[32m  'pozitif': 'positive',[m
+[32m+[m[32m  'Kurumsal Hekim Erişimi / Institutional Access': 'Institutional Physician Access',[m
+[32m+[m[32m  'RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.': 'RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Only institutional physician email addresses are accepted.',[m
+[32m+[m[32m  'Farklı Hesapla Giriş / Sign In with Another Account': 'Sign In with Another Account',[m
+[32m+[m[32m  'Kılavuz Tanımlı Elektif Boyun Drenaj Rehberi (ESTRO / ASTRO Konsensüsü)': 'Guideline-Defined Elective Neck Irradiation (ESTRO / ASTRO Consensus)',[m
+[32m+[m[32m  'Bilateral Level II-Vb ve retrofaringeal lenf nodları (RPN) kapsanır.': 'Bilateral levels II-Vb and retropharyngeal lymph nodes (RPNs) are included.',[m
+[32m+[m[32m  'Bilateral Level II-IV; orta hat komşuluğu ve bilateral drenaj riski dikkate alınır.': 'Bilateral levels II-IV; consider midline proximity and the risk of bilateral drainage.',[m
+[32m+[m[32m  'Elektif boyun ışınlaması yapılmaz; yalnızca gerçek vokal kordlar hedeflenir.': 'Elective neck irradiation is not given; only the true vocal cords are targeted.',[m
+[32m+[m[32m  'İpsilateral Level I-III; DOI >5 mm ise Level IV eklenir.': 'Ipsilateral levels I-III; include level IV if DOI is >5 mm.',[m
+[32m+[m[32m  'Bilateral Level I-IV kapsanır.': 'Bilateral levels I-IV are included.',[m
+[32m+[m[32m  'Level V eklenmesi ve tutulu nod yatağına 66-70 Gy SIB boost değerlendirilir.': 'Consider adding level V and a 66-70 Gy SIB boost to the involved nodal bed.',[m
+[32m+[m[32m  'Prostat adenokarsinomu': 'Prostate adenocarcinoma',[m
+[32m+[m[32m  'Mesane koruyucu trimodal tedavi (TMT)': 'Bladder-preserving trimodality therapy (TMT)',[m
+[32m+[m[32m  'Testis seminom evrelemesi': 'Testicular seminoma staging',[m
+[32m+[m[32m  'KHAK Klinik Evresi': 'SCLC Clinical Stage',[m
+[32m+[m[32m  'Fraksiyonasyon Rejimi': 'Fractionation Regimen',[m
+[32m+[m[32m  'Klinik Senaryo': 'Clinical Scenario',[m
+[32m+[m[32m  'Endometriyum Risk Grubu (PORTEC)': 'Endometrial Risk Group (PORTEC)',[m
+[32m+[m[32m  'Cerrahi durumu': 'Surgical Status',[m
+[32m+[m[32m  'Larinks klinik senaryosu': 'Laryngeal Clinical Scenario',[m
+[32m+[m[32m  'Orta hattı geçiyor': 'Crosses the midline',[m
+[32m+[m[32m  'Orta hatta uzaklık (cm)': 'Distance from midline (cm)',[m
+[32m+[m[32m  'Tümör çapı (cm)': 'Tumor diameter (cm)',[m
+[32m+[m[32m  'Derin invazyon (DOI, mm)': 'Depth of invasion (DOI, mm)',[m
+[32m+[m[32m  'Ekstranodal yayılım (ENE)': 'Extranodal extension (ENE)',[m
+[32m+[m[32m  'Pozitif cerrahi sınır (R1)': 'Positive surgical margin (R1)',[m
+[32m+[m[32m  'Gleason Skoru': 'Gleason Score',[m
+[32m+[m[32m  'Pozitif biyopsi kor oranı (%)': 'Percentage of Positive Biopsy Cores (%)',[m
+[32m+[m[32m  'Ekstrakapsüler yayılım (ECE)': 'Extracapsular extension (ECE)',[m
+[32m+[m[32m  'Seminal vezikül invazyonu': 'Seminal vesicle invasion',[m
+[32m+[m[32m  'Otomatik NCCN risk grubu: ': 'Automated NCCN risk group: ',[m
+[32m+[m[32m  'En yakın cerrahi marjin (cm)': 'Closest surgical margin (cm)',[m
+[32m+[m[32m  'Histolojik Grade': 'Histologic Grade',[m
+[32m+[m[32m  'Biyobelirteçler sistemik tedavi kararında onkoloji ekibiyle birlikte yorumlanır.': 'Interpret biomarkers in conjunction with the oncology team when making systemic therapy decisions.',[m
+[32m+[m[32m  'Orta Hat Şifti (Herniasyon)': 'Midline Shift (Herniation)',[m
+[32m+[m[32m  'Semptom durumu': 'Symptom Status',[m
+[32m+[m[32m  'Metastaz Sayısı': 'Number of Metastases',[m
+[32m+[m[32m  'Maks Çap (cm)': 'Maximum Diameter (cm)',[m
+[32m+[m[32m  'Cerrahi / rezeksiyon': 'Surgery / Resection',[m
+[32m+[m[32m  'Performans / tedavi uygunluğu': 'Performance Status / Treatment Eligibility',[m
+[32m+[m[32m  'WHO derece': 'WHO Grade',[m
+[32m+[m[32m  'Rezeksiyon derecesi / cerrahi sınır': 'Extent of Resection / Surgical Margin',[m
+[32m+[m[32m  'Simpson derecesi': 'Simpson Grade',[m
+[32m+[m[32m  'Maksimum çap (cm)': 'Maximum Diameter (cm)',[m
+[32m+[m[32m  'Cerrahi marjin / rezektabilite': 'Surgical Margin / Resectability',[m
+[32m+[m[32m  'İnvazyon derinliği (mm)': 'Depth of Invasion (mm)',[m
+[32m+[m[32m  'Perinöral invazyon': 'Perineural Invasion',[m
+[32m+[m[32m  'Kemik tutulumu': 'Bone Involvement',[m
+[32m+[m[32m  'Palyatif fraksiyonasyon': 'Palliative Fractionation',[m
+[32m+[m[32m  'Sistemik tedaviye yanıt': 'Response to Systemic Therapy',[m
+[32m+[m[32m  'Medulloblastom risk grubu': 'Medulloblastoma Risk Group',[m
+[32m+[m[32m  'Wilms evre / histoloji': 'Wilms Tumor Stage / Histology',[m
+[32m+[m[32m  'Yaygın peritoneal yayılım / tüm batın RT endikasyonu': 'Diffuse Peritoneal Spread / Indication for Whole-Abdominal Radiotherapy',[m
+[32m+[m[32m  'Radyobiyolojik Eşdeğerlik': 'Radiobiological Equivalence',[m
+[32m+[m[32m  'Eşlik Eden Sistemik Tedavi:': 'Concomitant Systemic Therapy:',[m
+[32m+[m[32m  'Kanıt ve Kılavuz': 'Evidence and Guidelines',[m
+[32m+[m[32m  'Kılavuz & Kaynakça': 'Guidelines & References',[m
+[32m+[m[32m  'Yasal Sorumluluk Reddi': 'Disclaimer',[m
+[32m+[m[32m  'Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler': 'Radiation Oncology CDSS - References and Legal Information',[m
+[32m+[m[32m  'Landmark çalışmalar ve klinik başlıklar': 'Landmark Trials and Clinical Topics',[m
+[32m+[m[32m  'PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).': 'PACIFIC (stage III NSCLC), Turrisi and CONVERT (SCLC), and Lung-ART (postoperative thoracic radiotherapy).',[m
+[32m+[m[32m  'FAST-Forward (hipofraksiyone adjuvan RT).': 'FAST-Forward (hypofractionated adjuvant radiotherapy).',[m
+[32m+[m[32m  'RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).': 'RAPIDO and PRODIGE-23 (rectal total neoadjuvant therapy), PORTEC-3 (adjuvant chemoradiotherapy for endometrial cancer).',[m
+[32m+[m[32m  'EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).': 'EMBRACE II (cervical chemoradiotherapy and image-guided brachytherapy).',[m
+[32m+[m[32m  'Stupp protokolü (glioblastom kemoradyoterapisi).': 'Stupp protocol (glioblastoma chemoradiotherapy).',[m
+[32m+[m[32m  'Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.': 'Normal tissue dose constraints should be evaluated in the context of fractionation, target volume, concurrent treatment, and patient-specific clinical factors.',[m
+[32m+[m[32m  'Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.': 'Organ- and endpoint-specific reviews summarizing normal-tissue dose-volume effects with conventional fractionation.',[m
+[32m+[m[32m  'Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.': 'Reports synthesizing dose-volume and toxicity evidence for stereotactic radiosurgery and body radiotherapy.',[m
+[32m+[m[32m  'SABR hasta seçimi, planlama ve organ riskindeki doz kısıtları için teknik rehberler.': 'Technical guidance on SABR patient selection, planning, and organ-at-risk dose constraints.',[m
+[32m+[m[32m  'Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.': 'Dose objectives and constraints for image-guided adaptive brachytherapy targets and organs at risk in cervical cancer.',[m
+[32m+[m[32m  'Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.': 'This reference is not a standalone dose prescription for patient planning. Verify OAR constraints against the current primary source for the applicable protocol and institution-approved planning guidance.',[m
+[32m+[m[32m  'Yasal sorumluluk reddi ve telif': 'Disclaimer and Copyright',[m
+[32m+[m[32m  'RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.': 'RadOnc CDSS is an educational and clinical decision-support tool that synthesizes evidence-based radiation oncology literature. It does not replace a physician’s independent clinical judgment or multidisciplinary tumor board (MDT) decisions. Planning constraints must be verified for each patient. NCCN®, ASTRO®, ESTRO®, RTOG®, and QUANTEC® are registered trademarks of their respective organizations; no official sponsorship is implied.',[m
+[32m+[m[32m  'Toraks': 'Thorax',[m
+[32m+[m[32m  'GİS': 'GI',[m
+[32m+[m[32m  'Jinekoloji': 'Gynecology',[m
+[32m+[m[32m  'MSS': 'CNS',[m
+[32m+[m[32m  'Kılavuz İlkeleri': 'Guideline Principles',[m
+[32m+[m[32m  'Kaynakça': 'References',[m
+[32m+[m[32m  'Kurumsal Hekim Portalı': 'Institutional Physician Portal',[m
+[32m+[m[32m  'Giriş yap': 'Sign in',[m
+[32m+[m[32m  'Kayıt ol': 'Sign up',[m
+[32m+[m[32m  'Onkolojik': 'Oncology',[m
+[32m+[m[32m  'KHAK': 'SCLC',[m
+[32m+[m[32m  'KHDAK': 'NSCLC',[m
+[32m+[m[32m  'evre': 'stage',[m
+[32m+[m[32m  'tutulu': 'involved',[m
+[32m+[m[32m  'geç': 'late',[m
+[32m+[m[32m  'Erken': 'Early',[m
+[32m+[m[32m  'erken': 'early',[m
+[32m+[m[32m  'İleri': 'Advanced',[m
+[32m+[m[32m  'ileri': 'advanced',[m
+[32m+[m[32m  'uygun': 'eligible',[m
+[32m+[m[32m  'Uygunsuz': 'Ineligible',[m
+[32m+[m[32m  'dahil': 'including',[m
+[32m+[m[32m  'dışında': 'excluding',[m
+[32m+[m[32m  'sonrası': 'after',[m
+[32m+[m[32m  'öncesi': 'before',[m
+[32m+[m[32m  'için': 'for',[m
+[32m+[m[32m  'olgu': 'case',[m
+[32m+[m[32m  'olguda': 'in cases',[m
+[32m+[m[32m  'hastada': 'in patients',[m
+[32m+[m[32m  'uygulanır': 'is applied',[m
+[32m+[m[32m  'uygulanmaz': 'does not apply',[m
+[32m+[m[32m  'yapılır': 'is performed',[m
+[32m+[m[32m  'yapılmalıdır': 'should be performed',[m
+[32m+[m[32m  'yapılmaz': 'is not performed',[m
+[32m+[m[32m  'planlanır': 'is planned',[m
+[32m+[m[32m  'belirlenmeli': 'should be determined',[m
+[32m+[m[32m  'beklenmez': 'is not expected',[m
+[32m+[m[32m  'yararı': 'benefit',[m
+[32m+[m[32m  'sınırlı': 'limited',[m
+[32m+[m[32m  'dakika': 'minutes',[m
+[32m+[m[32m  'risk grubu': 'risk group',[m
+[32m+[m[32m  'Risk Grubu': 'Risk Group',[m
+[32m+[m[32m  'ENDİKE:': 'INDICATED:',[m
+[32m+[m[32m  'ENDİKE': 'INDICATED',[m
+[32m+[m[32m  'KONTRENDİKE:': 'CONTRAINDICATED:',[m
+[32m+[m[32m  'ÖNERİLMEZ:': 'NOT RECOMMENDED:',[m
+[32m+[m[32m  'RT DEĞERLENDİR': 'CONSIDER RADIOTHERAPY',[m
+[32m+[m[32m  'DEĞERLENDİR': 'CONSIDER',[m
+[32m+[m[32m  'DEĞERLENDİRİLİR': 'IS CONSIDERED',[m
+[32m+[m[32m  'YOK': 'ABSENT',[m
+[32m+[m[32m  'VAR': 'PRESENT',[m
+[32m+[m[32m  'VE': 'AND',[m
+[32m+[m[32m  'VEYA': 'OR',[m
+[32m+[m[32m  'İLE': 'WITH',[m
+[32m+[m[32m  'SONRASI': 'AFTER',[m
+[32m+[m[32m  'ÖNCESİ': 'BEFORE',[m
+[32m+[m[32m  'İÇİN': 'FOR',[m
+[32m+[m[32m  'CERRAHİ': 'SURGERY',[m
+[32m+[m[32m  'CERRAHİSİ': 'SURGERY',[m
+[32m+[m[32m  'POSTOPERATİF': 'POSTOPERATIVE',[m
+[32m+[m[32m  'PREOPERATİF': 'PREOPERATIVE',[m
+[32m+[m[32m  'ADJUVAN': 'ADJUVANT',[m
+[32m+[m[32m  'NEOADJUVAN': 'NEOADJUVANT',[m
+[32m+[m[32m  'EŞZAMANLI': 'CONCURRENT',[m
+[32m+[m[32m  'KEMORADYOTERAPİ': 'CHEMORADIOTHERAPY',[m
+[32m+[m[32m  'KEMOTERAPİ': 'CHEMOTHERAPY',[m
+[32m+[m[32m  'DEFİNİTİF': 'DEFINITIVE',[m
+[32m+[m[32m  'KÜRATİF': 'CURATIVE',[m
+[32m+[m[32m  'PALYATİF': 'PALLIATIVE',[m
+[32m+[m[32m  'LOKAL': 'LOCAL',[m
+[32m+[m[32m  'İLERİ': 'ADVANCED',[m
+[32m+[m[32m  'ERKEN': 'EARLY',[m
+[32m+[m[32m  'YÜKSEK': 'HIGH',[m
+[32m+[m[32m  'DÜŞÜK': 'LOW',[m
+[32m+[m[32m  'RİSK': 'RISK',[m
+[32m+[m[32m  'EVRE': 'STAGE',[m
+[32m+[m[32m  'KLINİK': 'CLINICAL',[m
+[32m+[m[32m  'KLİNİK': 'CLINICAL',[m
+[32m+[m[32m  'DURUM': 'STATUS',[m
+[32m+[m[32m  'UYGUN': 'ELIGIBLE',[m
+[32m+[m[32m  'UYGUNSUZ': 'INELIGIBLE',[m
+[32m+[m[32m  'YARARI': 'BENEFIT',[m
+[32m+[m[32m  'SINIRLI': 'LIMITED',[m
+[32m+[m[32m  'BEKLENMEZ': 'IS NOT EXPECTED',[m
+[32m+[m[32m  'GEREKMEZ': 'NOT REQUIRED',[m
+[32m+[m[32m  'GEREKLİ': 'REQUIRED',[m
+[32m+[m[32m  'İZLEM': 'SURVEILLANCE',[m
+[32m+[m[32m  'SRS': 'SRS',[m
+[32m+[m[32m  'FRAKSİYONASYON': 'FRACTIONATION',[m
+[32m+[m[32m  'DOZU': 'DOSE',[m
+[32m+[m[32m  'DOZ': 'DOSE',[m
+[32m+[m[32m  'MARJİN': 'MARGIN',[m
+[32m+[m[32m  'CERRAHİ SONRASI': 'AFTER SURGERY',[m
+[32m+[m[32m  'LOKAL İLERİ': 'LOCALLY ADVANCED',[m
+[32m+[m[32m  'LOKAL NÜKS': 'LOCAL RECURRENCE',[m
+[32m+[m[32m  'NÜKS': 'RECURRENCE',[m
+[32m+[m[32m  'REZEKE EDİLEMEYEN': 'UNRESECTABLE',[m
+[32m+[m[32m  'İNOPERABL': 'INOPERABLE',[m
+[32m+[m[32m  'AKTİF': 'ACTIVE',[m
+[32m+[m[32m  'İN-AKTİF': 'INACTIVE',[m
+[32m+[m[32m  'FİBROZİS': 'FIBROSIS',[m
+[32m+[m[32m  'SİSTEMİK': 'SYSTEMIC',[m
+[32m+[m[32m  'TEDAVİ': 'TREATMENT',[m
+[32m+[m[32m  'TEDAVİYE': 'TREATMENT',[m
+[32m+[m[32m  'PROFİLAKSİSİ': 'PROPHYLAXIS',[m
+[32m+[m[32m  'ORBİTOPATİSİNDE': 'ORBITOPATHY',[m
+[32m+[m[32m  'KONTRAKTÜR': 'CONTRACTURE',[m
+[32m+[m[32m  'PERSISTAN': 'PERSISTENT',[m
+[32m+[m[32m  'SEMPTOM': 'SYMPTOM',[m
+[32m+[m[32m  'SEMPTOMDA': 'FOR SYMPTOMS',[m
+[32m+[m[32m  'REFRAKTER': 'REFRACTORY',[m
+[32m+[m[32m  'DEJENERATİF': 'DEGENERATIVE',[m
+[32m+[m[32m  'ENFLAMATUAR': 'INFLAMMATORY',[m
+[32m+[m[32m  'DOZ RT': 'DOSE RADIOTHERAPY',[m
+[32m+[m[32m  'HİPOFRAKSİYONE': 'HYPOFRACTIONATED',[m
+[32m+[m[32m  'BRAKİTERAPİSİ': 'BRACHYTHERAPY',[m
+[32m+[m[32m  'KEMORADYOTERAPİSİ': 'CHEMORADIOTHERAPY',[m
+[32m+[m[32m  'GÖRÜNTÜ KILAVUZLU': 'IMAGE-GUIDED',[m
+[32m+[m[32m  'KONSEYDE': 'IN MULTIDISCIPLINARY REVIEW',[m
+[32m+[m[32m  'UZMAN KONSEYİNDE': 'IN A SPECIALIST MULTIDISCIPLINARY REVIEW',[m
+[32m+[m[32m  'SAATTE': 'WITHIN HOURS',[m
+[32m+[m[32m  'HAFTA SONRA': 'WEEKS LATER',[m
+[32m+[m[32m  'STANDARTI': 'STANDARD',[m
+[32m+[m[32m  'STANDART': 'STANDARD',[m
+[32m+[m[32m  'GÜNDE': 'PER DAY',[m
+[32m+[m[32m  'YATAĞI': 'BED',[m
+[32m+[m[32m  'LENF NODU': 'LYMPH NODE',[m
+[32m+[m[32m  'LENF NODLARI': 'LYMPH NODES',[m
+[32m+[m[32m  'METASTAZI': 'METASTASIS',[m
+[32m+[m[32m  'METASTAZ': 'METASTASIS',[m
+[32m+[m[32m  'KARACİĞER': 'LIVER',[m
+[32m+[m[32m  'AKCİĞER': 'LUNG',[m
+[32m+[m[32m  'BEYİN': 'BRAIN',[m
+[32m+[m[32m  'KEMİK': 'BONE',[m
+[32m+[m[32m  'MEME': 'BREAST',[m
+[32m+[m[32m  'SERVİKS': 'CERVIX',[m
+[32m+[m[32m  'ENDOMETRİYUM': 'ENDOMETRIUM',[m
+[32m+[m[32m  'VULVA': 'VULVA',[m
+[32m+[m[32m  'OVER': 'OVARY',[m
+[32m+[m[32m  'HASTALIKTA': 'IN DISEASE',[m
+[32m+[m[32m  'HASTALIĞI': 'DISEASE',[m
+[32m+[m[32m  'HASTALIK': 'DISEASE',[m
+[32m+[m[32m  'YAYILIM': 'SPREAD',[m
+[32m+[m[32m  'TUTULUMU': 'INVOLVEMENT',[m
+[32m+[m[32m  'İNVASİYONU': 'INVASION',[m
+[32m+[m[32m  'BASISI': 'COMPRESSION',[m
+[32m+[m[32m  'DİRENÇLİ': 'REFRACTORY',[m
+[32m+[m[32m  'MEDİKAL': 'MEDICAL',[m
+[32m+[m[32m  'TÜMÖRÜNDE': 'TUMOR',[m
+[32m+[m[32m  'TÜMÖRÜ': 'TUMOR',[m
+[32m+[m[32m  'TÜMÖR': 'TUMOR',[m
+[32m+[m[32m  'KİTLE': 'MASS',[m
+[32m+[m[32m  'YÜKSEK DOZ': 'HIGH-DOSE',[m
+[32m+[m[32m  'ULTRA YÜKSEK DOZ': 'ULTRA-HIGH-DOSE',[m
+[32m+[m[32m  'ESKALASYON': 'ESCALATION',[m
+[32m+[m[32m  'BOOST': 'BOOST',[m
+[32m+[m[32m  'FAYDA BEKLENMEZ': 'NO BENEFIT IS EXPECTED',[m
+[32m+[m[32m  'UYGUN ZAMAN PENCERESİNDE': 'WITHIN THE APPROPRIATE TREATMENT WINDOW',[m
+[32m+[m[32m  'ERKEN BAŞVURU': 'EARLY PRESENTATION',[m
+[32m+[m[32m  'GEÇ BAŞVURU': 'LATE PRESENTATION',[m
+[32m+[m[32m  'TÜM SOLUNUM HAREKET HACMİ': 'FULL RESPIRATORY MOTION VOLUME',[m
+[32m+[m[32m  'HETERO TOPİK OSSİFİKASYON': 'HETEROTOPIC OSSIFICATION',[m
+[32m+[m[32m  'HETEROTOPİK OSSİFİKASYON': 'HETEROTOPIC OSSIFICATION',[m
+[32m+[m[32m  'Menenjiyom (Grade 1 / 2 / 3)': 'Meningioma (Grade 1 / 2 / 3)',[m
+[32m+[m[32m  'Beyin Metastazı (SRS vs WBRT)': 'Brain Metastases (SRS vs WBRT)',[m
+[32m+[m[32m  'Dermatofibrosarkoma Protuberans (DFSP)': 'Dermatofibrosarcoma Protuberans (DFSP)',[m
+[32m+[m[32m  'Rektum Karsinomu (TNT RAPIDO)': 'Rectal Carcinoma (TNT RAPIDO)',[m
+[32m+[m[32m  'Mide / Gastrik Adenokarsinom': 'Gastric Adenocarcinoma',[m
+[32m+[m[32m  'Karaciğer (HCC / Kolanjio SBRT)': 'Liver (HCC / Cholangiocarcinoma SBRT)',[m
+[32m+[m[32m  'Özofagus Karsinomu (CROSS)': 'Esophageal Carcinoma (CROSS)',[m
+[32m+[m[32m  'Pankreas Adenokarsinomu': 'Pancreatic Adenocarcinoma',[m
+[32m+[m[32m  'Anal Kanal Skuamöz Karsinom (Nigro)': 'Anal Canal Squamous Cell Carcinoma (Nigro)',[m
+[32m+[m[32m  'Düşük Risk (Evre IA G1-2, LVSI yok - İzlem)': 'Low Risk (Stage IA G1-2, no LVSI - Surveillance)',[m
+[32m+[m[32m  'Orta Risk (Evre IB G1-2 veya IA G3)': 'Intermediate Risk (Stage IB G1-2 or IA G3)',[m
+[32m+[m[32m  'Yüksek-Orta Risk (PORTEC-2: Yalnızca VCB Brakiterapisi)': 'High-Intermediate Risk (PORTEC-2: Vaginal Cuff Brachytherapy Alone)',[m
+[32m+[m[32m  'Yüksek Risk (Evre III / Seröz / Derin İnvazyon - PORTEC-3 KRT)': 'High Risk (Stage III / Serous / Deep Invasion - PORTEC-3 Chemoradiotherapy)',[m
+[32m+[m[32m  'nsclc': 'Non-Small Cell Lung Cancer',[m
+[32m+[m[32m  'sclc': 'Small Cell Lung Cancer',[m
+[32m+[m[32m  'thymoma': 'Thymoma',[m
+[32m+[m[32m  'mesothelioma': 'Mesothelioma',[m
+[32m+[m[32m  'mets': 'Metastases',[m
+[32m+[m[32m  'gbm': 'Glioblastoma',[m
+[32m+[m[32m  'meningioma': 'Meningioma',[m
+[32m+[m[32m  'prostate': 'Prostate',[m
+[32m+[m[32m  'bladder': 'Bladder',[m
+[32m+[m[32m  'testis': 'Testis',[m
+[32m+[m[32m  'penis': 'Penis',[m
+[32m+[m[32m  'Yumusak_Doku': 'Soft Tissue Sarcoma',[m
+[32m+[m[32m  'Ewing': 'Ewing Sarcoma',[m
+[32m+[m[32m  'GCTB': 'Giant Cell Tumor of Bone',[m
+[32m+[m[32m  'DFSP': 'Dermatofibrosarcoma Protuberans',[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32mconst TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort([m
+[32m+[m[32m  ([left], [right]) => right.length - left.length,[m
+[32m+[m[32m);[m
+[32m+[m[32mconst TRANSLATION_MATCHER = new RegExp([m
+[32m+[m[32m  TRANSLATION_ENTRIES.map(([source]) => {[m
+[32m+[m[32m    const escaped = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');[m
+[32m+[m[32m    return /^[\p{L}\p{N}]+$/u.test(source)[m
+[32m+[m[32m      ? `(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`[m
+[32m+[m[32m      : escaped;[m
+[32m+[m[32m  }).join('|'),[m
+[32m+[m[32m  'gu',[m
+[32m+[m[32m);[m
+[32m+[m
+ const SUBSITES: Partial<Record<OrganId, { id: string; name: string }[]>> = {[m
+   benign: [[m
+     { id: 'benign-ho', name: 'Heterotopik Ossifikasyon' },[m
+[36m@@ -907,6 +1465,13 @@[m [mexport default function RadoncoCDSSPage() {[m
+   const [theme, setTheme] = useState<'light' | 'dark'>('light');[m
+   const [lang, setLang] = useState<'tr' | 'en'>('tr');[m
+   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');[m
+[32m+[m[32m  const tText = (text: string | undefined): string => {[m
+[32m+[m[32m    if (!text) return '';[m
+[32m+[m[32m    if (lang === 'tr') return text;[m
+[32m+[m[32m    if (TRANSLATION_MAP[text]) return TRANSLATION_MAP[text];[m
+[32m+[m
+[32m+[m[32m    return text.replace(TRANSLATION_MATCHER, match => TRANSLATION_MAP[match] ?? match);[m
+[32m+[m[32m  };[m
+   const email = user?.primaryEmailAddress?.emailAddress ?? '';[m
+   const ADMIN_EMAILS = ['harun.pekmezci@sbu.edu.tr', 'ee011126@mail2.gantep.edu.tr'];[m
+   const emailLower = email.toLowerCase();[m
+[36m@@ -3420,35 +3985,79 @@[m [mexport default function RadoncoCDSSPage() {[m
+ [m
+   // Klinik Rapor Metni Kopyalama[m
+   const clinicalSummaryText = useMemo(() => {[m
+[32m+[m[32m    const labels = {[m
+[32m+[m[32m      clinicalSummary: lang === 'tr' ? 'KLİNİK KARAR VE REÇETE ÖZETİ' : 'CLINICAL DECISION AND PRESCRIPTION SUMMARY',[m
+[32m+[m[32m      organSystem: lang === 'tr' ? 'Organ Sistemi' : 'Organ System',[m
+[32m+[m[32m      subsite: lang === 'tr' ? 'Alt Tip' : 'Subsite',[m
+[32m+[m[32m      stage: lang === 'tr' ? 'Evreleme' : 'Stage',[m
+[32m+[m[32m      decision: lang === 'tr' ? 'Karar Durumu' : 'Decision',[m
+[32m+[m[32m      prescription: lang === 'tr' ? 'Önerilen Reçete' : 'Recommended Prescription',[m
+[32m+[m[32m      totalDose: lang === 'tr' ? 'Toplam Doz' : 'Total Dose',[m
+[32m+[m[32m      fraction: lang === 'tr' ? 'Fraksiyon' : 'Fraction',[m
+[32m+[m[32m      technique: lang === 'tr' ? 'Teknik' : 'Technique',[m
+[32m+[m[32m      radiobiology: lang === 'tr' ? 'Radyobiyoloji' : 'Radiobiology',[m
+[32m+[m[32m      oarConstraints: lang === 'tr' ? 'Kritik Organ Kısıtları' : 'Organs-at-Risk Constraints',[m
+[32m+[m[32m      evidence: lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines',[m
+[32m+[m[32m      symptom: lang === 'tr' ? 'semptom' : 'symptoms',[m
+[32m+[m[32m      resection: lang === 'tr' ? 'rezeksiyon' : 'resection',[m
+[32m+[m[32m      nccnRisk: lang === 'tr' ? 'NCCN risk' : 'NCCN risk',[m
+[32m+[m[32m      positiveCores: lang === 'tr' ? 'pozitif kor' : 'positive cores',[m
+[32m+[m[32m      menopause: lang === 'tr' ? 'menopoz' : 'menopausal status',[m
+[32m+[m[32m      margin: lang === 'tr' ? 'marjin' : 'margin',[m
+[32m+[m[32m      depth: lang === 'tr' ? 'derinlik' : 'depth',[m
+[32m+[m[32m      fractionation: lang === 'tr' ? 'fraksiyonasyon' : 'fractionation',[m
+[32m+[m[32m      risk: lang === 'tr' ? 'risk' : 'risk',[m
+[32m+[m[32m      bilateralNeck: lang === 'tr' ? 'bilateral boyun' : 'bilateral neck',[m
+[32m+[m[32m      lateralizedNeck: lang === 'tr' ? 'lateralize boyun' : 'lateralized neck',[m
+[32m+[m[32m      positive: lang === 'tr' ? 'pozitif' : 'positive',[m
+[32m+[m[32m      negative: lang === 'tr' ? 'negatif' : 'negative',[m
+[32m+[m[32m      organ: lang === 'tr' ? 'Organ Sistemi' : 'Organ System',[m
+[32m+[m[32m      fx: 'fx',[m
+[32m+[m[32m    };[m
+[32m+[m[32m    const organNames: Record<OrganId, string> = {[m
+[32m+[m[32m      thorax: 'Thorax',[m
+[32m+[m[32m      prostate: 'Genitourinary',[m
+[32m+[m[32m      breast: 'Breast',[m
+[32m+[m[32m      gis: 'Gastrointestinal',[m
+[32m+[m[32m      'head-neck': 'Head and Neck',[m
+[32m+[m[32m      cns: 'Central Nervous System',[m
+[32m+[m[32m      gynecology: 'Gynecology',[m
+[32m+[m[32m      'bone-sarcoma': 'Bone and Sarcoma',[m
+[32m+[m[32m      skin: 'Skin',[m
+[32m+[m[32m      hematologic: 'Hematologic',[m
+[32m+[m[32m      pediatric: 'Pediatric',[m
+[32m+[m[32m      palliative: 'Palliative',[m
+[32m+[m[32m      benign: 'Benign Conditions',[m
+[32m+[m[32m    };[m
+     let subInfo = '';[m
+[31m-    if (selectedOrgan === 'thorax') subInfo = `Alt Tip: ${thoraxSubtype.toUpperCase()}`;[m
+[31m-    if (selectedOrgan === 'gynecology') subInfo = `Alt Tip: ${gynSite}`;[m
+[31m-    if (selectedOrgan === 'bone-sarcoma') subInfo = `Alt Tip: ${sarcomaSubtype}`;[m
+[31m-    if (selectedOrgan === 'head-neck') subInfo = `Alt Tip: ${hnSubsite}`;[m
+[31m-    if (selectedOrgan === 'head-neck') subInfo += `; ${hnCrossesMidline || (parseFloat(hnDistanceFromMidlineCm) || 0) < 1 ? 'bilateral boyun' : 'lateralize boyun'}; DOI ${hnDoiMm} mm`;[m
+[31m-    if (selectedOrgan === 'cns') subInfo = `Alt Tip: ${cnsSubtype}; semptom: ${cnsSymptoms}; KPS ${cnsKps}; rezeksiyon ${cnsResection}`;[m
+[31m-    if (selectedOrgan === 'gis') subInfo = `Organ: ${gisOrgan}`;[m
+[32m+[m[32m    if (selectedOrgan === 'thorax') subInfo = `${labels.subsite}: ${tText(thoraxSubtype)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'gynecology') subInfo = `${labels.subsite}: ${tText(gynSite)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'bone-sarcoma') subInfo = `${labels.subsite}: ${tText(sarcomaSubtype)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'head-neck') subInfo = `${labels.subsite}: ${tText(hnSubsite)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'head-neck') subInfo += `; ${hnCrossesMidline || (parseFloat(hnDistanceFromMidlineCm) || 0) < 1 ? labels.bilateralNeck : labels.lateralizedNeck}; DOI ${hnDoiMm} mm`;[m
+[32m+[m[32m    if (selectedOrgan === 'cns') subInfo = `${labels.subsite}: ${tText(cnsSubtype)}; ${labels.symptom}: ${tText(cnsSymptoms)}; KPS ${cnsKps}; ${labels.resection}: ${tText(cnsResection)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'gis') subInfo = `${labels.organ}: ${tText(gisOrgan)}`;[m
+     if (selectedOrgan === 'prostate') subInfo = gusSubtype === 'prostate'[m
+[31m-      ? `GÜS: prostat; NCCN risk: ${prostateRiskLabel}; PSA ${psaLevel}; Gleason ${gleasonPrimary}+${gleasonSecondary}; pozitif kor ${positiveCorePercent}%`[m
+[31m-      : `GÜS: ${gusSubtype}`;[m
+[31m-    if (selectedOrgan === 'breast') subInfo = `${breastHistology}; menopoz ${breastMenopause}; ER ${breastER ? '+' : '-'}, PR ${breastPR ? '+' : '-'}, HER2 ${breastHER2 ? '+' : '-'}, Ki-67 ${breastKi67}%, Grade ${breastGrade}`;[m
+[31m-    if (selectedOrgan === 'skin') subInfo = `${skinHistology}; marjin ${skinMargin}; derinlik ${skinDepthMm} mm; PNI ${skinPerineuralInvasion ? 'pozitif' : 'negatif'}`;[m
+[31m-    if (selectedOrgan === 'hematologic') subInfo = `${hematologicSubtype}${hematologicSubtype === 'Myeloma' ? `; fraksiyonasyon ${myelomaFractionation}` : ''}`;[m
+[31m-    if (selectedOrgan === 'pediatric') subInfo = `${pediatricSubtype}${pediatricSubtype === 'Medulloblastom' ? `; risk ${pediatricRisk}` : pediatricSubtype === 'Wilms' ? `; ${wilmsStage}` : ''}`;[m
+[31m-[m
+[31m-    return `KLİNİK KARAR VE REÇETE ÖZETİ (RadOnco CDSS)[m
+[31m-Organ Sistemi: ${selectedOrgan.toUpperCase()} (${subInfo})[m
+[31m-Evreleme: ${selectedT} ${selectedN} ${selectedM}[m
+[31m-Karar Durumu: ${evaluatedDecision.statusText}[m
+[31m-Önerilen Reçete: ${activeScheme.name} [${activeScheme.tag}][m
+[31m-Toplam Doz: ${activeScheme.totalDoseGy} Gy | Fraksiyon: ${activeScheme.fractionCount} fx (${activeScheme.fractionDoseGy} Gy/fx)[m
+[31m-Teknik: ${activeScheme.technique}[m
+[31m-Radyobiyoloji: BED: ${radiobiology.bed} Gy | EQD2: ${radiobiology.eqd2} Gy (α/β = ${radiobiology.ab})[m
+[31m-Kritik Organ Kısıtları:[m
+[31m-${activeScheme.oars.map(o => ` * ${o.organ}: ${o.metric} ${o.limit} (${o.source})`).join('\n')}[m
+[31m-Kanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+[32m+[m[32m      ? `${labels.organ}: ${tText(gusSubtype)}; ${labels.nccnRisk}: ${tText(prostateRiskLabel)}; PSA ${psaLevel}; Gleason ${gleasonPrimary}+${gleasonSecondary}; ${labels.positiveCores} ${positiveCorePercent}%`[m
+[32m+[m[32m      : `${labels.organ}: ${tText(gusSubtype)}`;[m
+[32m+[m[32m    if (selectedOrgan === 'breast') subInfo = `${tText(breastHistology)}; ${labels.menopause} ${tText(breastMenopause)}; ER ${breastER ? '+' : '-'}, PR ${breastPR ? '+' : '-'}, HER2 ${breastHER2 ? '+' : '-'}, Ki-67 ${breastKi67}%, Grade ${breastGrade}`;[m
+[32m+[m[32m    if (selectedOrgan === 'skin') subInfo = `${tText(skinHistology)}; ${labels.margin} ${tText(skinMargin)}; ${labels.depth} ${skinDepthMm} mm; PNI ${skinPerineuralInvasion ? labels.positive : labels.negative}`;[m
+[32m+[m[32m    if (selectedOrgan === 'hematologic') subInfo = `${tText(hematologicSubtype)}${hematologicSubtype === 'Myeloma' ? `; ${labels.fractionation} ${tText(myelomaFractionation)}` : ''}`;[m
+[32m+[m[32m    if (selectedOrgan === 'pediatric') subInfo = `${tText(pediatricSubtype)}${pediatricSubtype === 'Medulloblastom' ? `; ${labels.risk} ${tText(pediatricRisk)}` : pediatricSubtype === 'Wilms' ? `; ${tText(wilmsStage)}` : ''}`;[m
+[32m+[m
+[32m+[m[32m    return `${labels.clinicalSummary} (RadOnco CDSS)[m
+[32m+[m[32m${labels.organSystem}: ${lang === 'tr' ? selectedOrgan.toUpperCase() : organNames[selectedOrgan]} (${subInfo})[m
+[32m+[m[32m${labels.stage}: ${selectedT} ${selectedN} ${selectedM}[m
+[32m+[m[32m${labels.decision}: ${tText(evaluatedDecision.statusText)}[m
+[32m+[m[32m${labels.prescription}: ${tText(activeScheme.name)} [${tText(activeScheme.tag)}][m
+[32m+[m[32m${labels.totalDose}: ${activeScheme.totalDoseGy} Gy | ${labels.fraction}: ${activeScheme.fractionCount} ${labels.fx} (${activeScheme.fractionDoseGy} Gy/${labels.fx})[m
+[32m+[m[32m${labels.technique}: ${tText(activeScheme.technique)}[m
+[32m+[m[32m${labels.radiobiology}: BED: ${radiobiology.bed} Gy | EQD2: ${radiobiology.eqd2} Gy (α/β = ${radiobiology.ab})[m
+[32m+[m[32m${labels.oarConstraints}:[m
+[32m+[m[32m${activeScheme.oars.map(o => ` * ${tText(o.organ)}: ${tText(o.metric)} ${o.limit} (${tText(o.source)})`).join('\n')}[m
+[32m+[m[32m${labels.evidence}: ${tText(activeScheme.evidence)}`;[m
+   }, [[m
+[31m-    selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype,[m
+[32m+[m[32m    lang, selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype,[m
+     selectedT, selectedN, selectedM, evaluatedDecision, activeScheme, radiobiology,[m
+     hnCrossesMidline, hnDistanceFromMidlineCm, hnDoiMm, cnsSymptoms, cnsKps, cnsResection,[m
+     prostateRiskLabel, psaLevel, gleasonPrimary, gleasonSecondary, positiveCorePercent,[m
+[36m@@ -3520,19 +4129,17 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+     return ([m
+       <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-6 text-slate-900 font-sans">[m
+         <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-xl text-center">[m
+[31m-          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">!</div>[m
+[31m-          <h2 className="text-xl font-bold text-slate-900 mb-2">Kurumsal Hekim Erişimi / Institutional Access</h2>[m
+[32m+[m[32m          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">{tText("!")}</div>[m
+[32m+[m[32m          <h2 className="text-xl font-bold text-slate-900 mb-2">{tText("Kurumsal Hekim Erişimi / Institutional Access")}</h2>[m
+           <p className="text-xs text-slate-600 leading-relaxed mb-6">[m
+[31m-            RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.[m
+[31m-          </p>[m
+[32m+[m[32m            {tText("\n            RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.\n          ")}</p>[m
+           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 mb-6 text-left text-xs font-mono">[m
+[31m-            <div className="text-slate-500">Account: <span className="text-rose-600 font-bold">{email}</span></div>[m
+[31m-            <div className="text-slate-500">Allowed: <span className="text-emerald-700 font-bold">@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk</span></div>[m
+[32m+[m[32m            <div className="text-slate-500">{tText("Account: ")}<span className="text-rose-600 font-bold">{email}</span></div>[m
+[32m+[m[32m            <div className="text-slate-500">{tText("Allowed: ")}<span className="text-emerald-700 font-bold">{tText("@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk")}</span></div>[m
+           </div>[m
+           <SignOutButton redirectUrl="/sign-in">[m
+             <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">[m
+[31m-              Farklı Hesapla Giriş / Sign In with Another Account[m
+[31m-            </button>[m
+[32m+[m[32m              {tText("\n              Farklı Hesapla Giriş / Sign In with Another Account\n            ")}</button>[m
+           </SignOutButton>[m
+         </div>[m
+       </div>[m
+[36m@@ -3566,7 +4173,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             className="flex items-center gap-1.5 text-xs bg-[#0f294a] hover:bg-blue-950 text-white px-3 py-1.5 rounded-lg border border-[#0f294a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"[m
+           >[m
+             <BookOpen className="w-4 h-4 text-amber-700" />[m
+[31m-            📖 {lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}[m
+[32m+[m[32m            {tText("\n            📖 ")}{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}[m
+           </button>[m
+           <button[m
+             type="button"[m
+[36m@@ -3584,16 +4191,14 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               aria-pressed={lang === 'tr'}[m
+               className={`px-2 py-1 rounded ${lang === 'tr' ? 'bg-slate-900 dark:bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}[m
+             >[m
+[31m-              TR[m
+[31m-            </button>[m
+[32m+[m[32m              {tText("\n              TR\n            ")}</button>[m
+             <button[m
+               type="button"[m
+               onClick={() => changeLanguage('en')}[m
+               aria-pressed={lang === 'en'}[m
+               className={`px-2 py-1 rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}[m
+             >[m
+[31m-              EN[m
+[31m-            </button>[m
+[32m+[m[32m              {tText("\n              EN\n            ")}</button>[m
+           </div>[m
+           <Show when="signed-out">[m
+             <SignInButton mode="redirect">[m
+[36m@@ -3691,10 +4296,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="nsclc">Küçük Hücreli Dışı Akciğer Ca (KHDAK)</option>[m
+[31m-                    <option value="sclc">Küçük Hücreli Akciğer Ca (KHAK / SCLC)</option>[m
+[31m-                    <option value="thymoma">Timoma & Timik Karsinom</option>[m
+[31m-                    <option value="mesothelioma">Malign Plevral Mezotelyoma (MPM)</option>[m
+[32m+[m[32m                    <option value="nsclc">{tText("Küçük Hücreli Dışı Akciğer Ca (KHDAK)")}</option>[m
+[32m+[m[32m                    <option value="sclc">{tText("Küçük Hücreli Akciğer Ca (KHAK / SCLC)")}</option>[m
+[32m+[m[32m                    <option value="thymoma">{tText("Timoma & Timik Karsinom")}</option>[m
+[32m+[m[32m                    <option value="mesothelioma">{tText("Malign Plevral Mezotelyoma (MPM)")}</option>[m
+                   </select>[m
+                 </div>[m
+               </div>[m
+[36m@@ -3717,7 +4322,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2.5 font-semibold text-slate-900"[m
+                   >[m
+                     {SUBSITES.benign?.map(subsite => ([m
+[31m-                      <option key={subsite.id} value={subsite.id}>{subsite.name}</option>[m
+[32m+[m[32m                      <option key={subsite.id} value={subsite.id}>{tText(subsite.name)}</option>[m
+                     ))}[m
+                   </select>[m
+                 </label>[m
+[36m@@ -3728,7 +4333,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'gynecology' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Jinekolojik Kanser Bölgesi</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Jinekolojik Kanser Bölgesi")}</label>[m
+                   <select[m
+                     value={gynSite}[m
+                     onChange={e => {[m
+[36m@@ -3739,11 +4344,11 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="Serviks">Serviks Uteri Karsinomu (Cervix)</option>[m
+[31m-                    <option value="Endometriyum">Endometriyum Karsinomu (Corpus Uteri)</option>[m
+[31m-                    <option value="Over_Tuba">Over & Tuba Uterina Karsinomu</option>[m
+[31m-                    <option value="Vajen">Vajen Karsinomu (Vagina)</option>[m
+[31m-                    <option value="Vulva">Vulva Karsinomu (Vulva)</option>[m
+[32m+[m[32m                    <option value="Serviks">{tText("Serviks Uteri Karsinomu (Cervix)")}</option>[m
+[32m+[m[32m                    <option value="Endometriyum">{tText("Endometriyum Karsinomu (Corpus Uteri)")}</option>[m
+[32m+[m[32m                    <option value="Over_Tuba">{tText("Over & Tuba Uterina Karsinomu")}</option>[m
+[32m+[m[32m                    <option value="Vajen">{tText("Vajen Karsinomu (Vagina)")}</option>[m
+[32m+[m[32m                    <option value="Vulva">{tText("Vulva Karsinomu (Vulva)")}</option>[m
+                   </select>[m
+                 </div>[m
+               </div>[m
+[36m@@ -3753,7 +4358,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'bone-sarcoma' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Sarkom / Kemik Tümör Tipi</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Sarkom / Kemik Tümör Tipi")}</label>[m
+                   <select[m
+                     value={sarcomaSubtype}[m
+                     onChange={e => {[m
+[36m@@ -3764,13 +4369,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="Yumusak_Doku">Yumuşak Doku Sarkomu (YDS / STS)</option>[m
+[31m-                    <option value="Osteosarkom">Osteosarkom (Osteosarcoma)</option>[m
+[31m-                    <option value="Ewing">Ewing Sarkomu (Ewing Sarcoma)</option>[m
+[31m-                    <option value="Kondrosarkom">Kondrosarkom (Chondrosarcoma)</option>[m
+[31m-                    <option value="Kordoma">Kordoma (Sakral / Klivus Chordoma)</option>[m
+[31m-                    <option value="GCTB">Dev Hücreli Kemik Tümörü (GCTB)</option>[m
+[31m-                    <option value="DFSP">Dermatofibrosarkoma Protuberans (DFSP)</option>[m
+[32m+[m[32m                    <option value="Yumusak_Doku">{tText("Yumuşak Doku Sarkomu (YDS / STS)")}</option>[m
+[32m+[m[32m                    <option value="Osteosarkom">{tText("Osteosarkom (Osteosarcoma)")}</option>[m
+[32m+[m[32m                    <option value="Ewing">{tText("Ewing Sarkomu (Ewing Sarcoma)")}</option>[m
+[32m+[m[32m                    <option value="Kondrosarkom">{tText("Kondrosarkom (Chondrosarcoma)")}</option>[m
+[32m+[m[32m                    <option value="Kordoma">{tText("Kordoma (Sakral / Klivus Chordoma)")}</option>[m
+[32m+[m[32m                    <option value="GCTB">{tText("Dev Hücreli Kemik Tümörü (GCTB)")}</option>[m
+[32m+[m[32m                    <option value="DFSP">{tText("Dermatofibrosarkoma Protuberans (DFSP)")}</option>[m
+                   </select>[m
+                 </div>[m
+               </div>[m
+[36m@@ -3780,7 +4385,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'head-neck' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Baş-Boyun Anatomik Bölgesi</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Baş-Boyun Anatomik Bölgesi")}</label>[m
+                   <select[m
+                     value={hnSubsite}[m
+                     onChange={e => {[m
+[36m@@ -3791,25 +4396,24 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="nasopharynx">Nazofarenks Karsinomu (NPC)</option>[m
+[31m-                    <option value="oropharynx">Orofarenks Karsinomu (p16/HPV)</option>[m
+[31m-                    <option value="larynx">Larinks Karsinomu (Glottik/Supraglottik)</option>[m
+[31m-                    <option value="hypopharynx">Hipofarenks Karsinomu</option>[m
+[31m-                    <option value="oral-cavity">Oral Kavite Karsinomu</option>[m
+[31m-                    <option value="salivary">Tükürük Bezi Tümörleri</option>[m
+[32m+[m[32m                    <option value="nasopharynx">{tText("Nazofarenks Karsinomu (NPC)")}</option>[m
+[32m+[m[32m                    <option value="oropharynx">{tText("Orofarenks Karsinomu (p16/HPV)")}</option>[m
+[32m+[m[32m                    <option value="larynx">{tText("Larinks Karsinomu (Glottik/Supraglottik)")}</option>[m
+[32m+[m[32m                    <option value="hypopharynx">{tText("Hipofarenks Karsinomu")}</option>[m
+[32m+[m[32m                    <option value="oral-cavity">{tText("Oral Kavite Karsinomu")}</option>[m
+[32m+[m[32m                    <option value="salivary">{tText("Tükürük Bezi Tümörleri")}</option>[m
+                   </select>[m
+                 </div>[m
+                 <details className="rounded-md border border-slate-200/80 bg-[#f1f5f9] p-3">[m
+                   <summary className="cursor-pointer list-none text-xs font-semibold text-[#0f294a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">[m
+[31m-                    📖 Kılavuz Tanımlı Elektif Boyun Drenaj Rehberi (ESTRO / ASTRO Konsensüsü)[m
+[31m-                  </summary>[m
+[32m+[m[32m                    {tText("\n                    📖 Kılavuz Tanımlı Elektif Boyun Drenaj Rehberi (ESTRO / ASTRO Konsensüsü)\n                  ")}</summary>[m
+                   <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-700">[m
+[31m-                    <li><strong>Nazofarenks:</strong> Bilateral Level II-Vb ve retrofaringeal lenf nodları (RPN) kapsanır.</li>[m
+[31m-                    <li><strong>Orofarenks / Hipofarenks / Supraglottik:</strong> Bilateral Level II-IV; orta hat komşuluğu ve bilateral drenaj riski dikkate alınır.</li>[m
+[31m-                    <li><strong>Erken glottik (T1-T2 N0):</strong> Elektif boyun ışınlaması yapılmaz; yalnızca gerçek vokal kordlar hedeflenir.</li>[m
+[31m-                    <li><strong>Oral kavite, lateralize (&gt;1 cm):</strong> İpsilateral Level I-III; DOI &gt;5 mm ise Level IV eklenir.</li>[m
+[31m-                    <li><strong>Oral kavite, orta hat tutulumu veya &lt;1 cm:</strong> Bilateral Level I-IV kapsanır.</li>[m
+[31m-                    <li><strong>ENE+ veya N2-N3:</strong> Level V eklenmesi ve tutulu nod yatağına 66-70 Gy SIB boost değerlendirilir.</li>[m
+[32m+[m[32m                    <li><strong>{tText("Nazofarenks:")}</strong> {tText(" Bilateral Level II-Vb ve retrofaringeal lenf nodları (RPN) kapsanır.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("Orofarenks / Hipofarenks / Supraglottik:")}</strong> {tText(" Bilateral Level II-IV; orta hat komşuluğu ve bilateral drenaj riski dikkate alınır.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("Erken glottik (T1-T2 N0):")}</strong> {tText(" Elektif boyun ışınlaması yapılmaz; yalnızca gerçek vokal kordlar hedeflenir.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("Oral kavite, lateralize (>1 cm):")}</strong> {tText(" İpsilateral Level I-III; DOI >5 mm ise Level IV eklenir.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("Oral kavite, orta hat tutulumu veya <1 cm:")}</strong> {tText(" Bilateral Level I-IV kapsanır.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("ENE+ veya N2-N3:")}</strong> {tText(" Level V eklenmesi ve tutulu nod yatağına 66-70 Gy SIB boost değerlendirilir.")}</li>[m
+                   </ul>[m
+                 </details>[m
+               </div>[m
+[36m@@ -3819,7 +4423,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'cns' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">MSS Patolojisi</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("MSS Patolojisi")}</label>[m
+                   <select[m
+                     value={cnsSubtype}[m
+                     onChange={e => {[m
+[36m@@ -3830,9 +4434,9 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="mets">Beyin Metastazı (SRS vs WBRT)</option>[m
+[31m-                    <option value="gbm">Glioblastom (GBM, WHO Grade 4)</option>[m
+[31m-                    <option value="meningioma">Menenjiyom (Grade 1 / 2 / 3)</option>[m
+[32m+[m[32m                    <option value="mets">{tText("Beyin Metastazı (SRS vs WBRT)")}</option>[m
+[32m+[m[32m                    <option value="gbm">{tText("Glioblastom (GBM, WHO Grade 4)")}</option>[m
+[32m+[m[32m                    <option value="meningioma">{tText("Menenjiyom (Grade 1 / 2 / 3)")}</option>[m
+                   </select>[m
+                 </div>[m
+               </div>[m
+[36m@@ -3842,7 +4446,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'gis' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Primer GİS Organı</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Primer GİS Organı")}</label>[m
+                   <select[m
+                     value={gisOrgan}[m
+                     onChange={e => {[m
+[36m@@ -3853,12 +4457,12 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                   >[m
+[31m-                    <option value="Rektum">Rektum Karsinomu (TNT RAPIDO)</option>[m
+[31m-                    <option value="Mide">Mide / Gastrik Adenokarsinom</option>[m
+[31m-                    <option value="Karaciger">Karaciğer (HCC / Kolanjio SBRT)</option>[m
+[31m-                    <option value="Ozofagus">Özofagus Karsinomu (CROSS)</option>[m
+[31m-                    <option value="Pankreas">Pankreas Adenokarsinomu</option>[m
+[31m-                    <option value="Anal">Anal Kanal Skuamöz Karsinom (Nigro)</option>[m
+[32m+[m[32m                    <option value="Rektum">{tText("Rektum Karsinomu (TNT RAPIDO)")}</option>[m
+[32m+[m[32m                    <option value="Mide">{tText("Mide / Gastrik Adenokarsinom")}</option>[m
+[32m+[m[32m                    <option value="Karaciger">{tText("Karaciğer (HCC / Kolanjio SBRT)")}</option>[m
+[32m+[m[32m                    <option value="Ozofagus">{tText("Özofagus Karsinomu (CROSS)")}</option>[m
+[32m+[m[32m                    <option value="Pankreas">{tText("Pankreas Adenokarsinomu")}</option>[m
+[32m+[m[32m                    <option value="Anal">{tText("Anal Kanal Skuamöz Karsinom (Nigro)")}</option>[m
+                   </select>[m
+                 </div>[m
+               </div>[m
+[36m@@ -3867,7 +4471,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* 7. PROSTAT / GÜS */}[m
+             {selectedOrgan === 'prostate' && ([m
+               <div className="flex flex-col gap-2 text-xs">[m
+[31m-                <label className="text-slate-600">GÜS Anatomik Alt Bölgesi</label>[m
+[32m+[m[32m                <label className="text-slate-600">{tText("GÜS Anatomik Alt Bölgesi")}</label>[m
+                 <select[m
+                   value={gusSubtype}[m
+                   onChange={e => {[m
+[36m@@ -3879,20 +4483,20 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"[m
+                 >[m
+[31m-                  <option value="prostate">Prostat</option>[m
+[31m-                  <option value="bladder">Mesane</option>[m
+[31m-                  <option value="testis">Testis</option>[m
+[32m+[m[32m                  <option value="prostate">{tText("Prostat")}</option>[m
+[32m+[m[32m                  <option value="bladder">{tText("Mesane")}</option>[m
+[32m+[m[32m                  <option value="testis">{tText("Testis")}</option>[m
+                 </select>[m
+[31m-                {gusSubtype === 'prostate' && <span className="font-semibold text-slate-900">Prostat adenokarsinomu</span>}[m
+[31m-                {gusSubtype === 'bladder' && <span className="font-semibold text-slate-900">Mesane koruyucu trimodal tedavi (TMT)</span>}[m
+[31m-                {gusSubtype === 'testis' && <span className="font-semibold text-slate-900">Testis seminom evrelemesi</span>}[m
+[32m+[m[32m                {gusSubtype === 'prostate' && <span className="font-semibold text-slate-900">{tText("Prostat adenokarsinomu")}</span>}[m
+[32m+[m[32m                {gusSubtype === 'bladder' && <span className="font-semibold text-slate-900">{tText("Mesane koruyucu trimodal tedavi (TMT)")}</span>}[m
+[32m+[m[32m                {gusSubtype === 'testis' && <span className="font-semibold text-slate-900">{tText("Testis seminom evrelemesi")}</span>}[m
+               </div>[m
+             )}[m
+ [m
+             {/* 8. MEME */}[m
+             {selectedOrgan === 'breast' && ([m
+               <div className="flex flex-col gap-1.5 text-xs">[m
+[31m-                <label className="text-slate-600">Meme Histopatolojisi</label>[m
+[32m+[m[32m                <label className="text-slate-600">{tText("Meme Histopatolojisi")}</label>[m
+                 <select[m
+                   value={breastHistology}[m
+                   onChange={e => {[m
+[36m@@ -3904,11 +4508,11 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="İnvaziv Duktal Karsinom (İDK)">İnvaziv Duktal Karsinom (İDK)</option>[m
+[31m-                  <option value="İnvaziv Lobüler Karsinom (İLK)">İnvaziv Lobüler Karsinom (İLK)</option>[m
+[31m-                  <option value="Duktal Karsinoma In Situ (DCIS)">Duktal Karsinoma In Situ (DCIS)</option>[m
+[31m-                  <option value="Malign Filloides Tümörü">Malign Filloides Tümörü</option>[m
+[31m-                  <option value="Metaplastik Karsinom">Metaplastik Karsinom</option>[m
+[32m+[m[32m                  <option value="İnvaziv Duktal Karsinom (İDK)">{tText("İnvaziv Duktal Karsinom (İDK)")}</option>[m
+[32m+[m[32m                  <option value="İnvaziv Lobüler Karsinom (İLK)">{tText("İnvaziv Lobüler Karsinom (İLK)")}</option>[m
+[32m+[m[32m                  <option value="Duktal Karsinoma In Situ (DCIS)">{tText("Duktal Karsinoma In Situ (DCIS)")}</option>[m
+[32m+[m[32m                  <option value="Malign Filloides Tümörü">{tText("Malign Filloides Tümörü")}</option>[m
+[32m+[m[32m                  <option value="Metaplastik Karsinom">{tText("Metaplastik Karsinom")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -3916,7 +4520,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* 9. CİLT */}[m
+             {selectedOrgan === 'skin' && ([m
+               <div className="flex flex-col gap-1.5 text-xs">[m
+[31m-                <label className="text-slate-600">Cilt Patolojisi</label>[m
+[32m+[m[32m                <label className="text-slate-600">{tText("Cilt Patolojisi")}</label>[m
+                 <select[m
+                   value={skinHistology}[m
+                   onChange={e => {[m
+[36m@@ -3928,10 +4532,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="SCC">Kutanöz Skuamöz Hücreli Karsinom (cSCC)</option>[m
+[31m-                  <option value="BCC">Bazal Hücreli Karsinom (BCC)</option>[m
+[31m-                  <option value="Melanom">Malign Melanom</option>[m
+[31m-                  <option value="Merkel">Merkel Hücreli Karsinom</option>[m
+[32m+[m[32m                  <option value="SCC">{tText("Kutanöz Skuamöz Hücreli Karsinom (cSCC)")}</option>[m
+[32m+[m[32m                  <option value="BCC">{tText("Bazal Hücreli Karsinom (BCC)")}</option>[m
+[32m+[m[32m                  <option value="Melanom">{tText("Malign Melanom")}</option>[m
+[32m+[m[32m                  <option value="Merkel">{tText("Merkel Hücreli Karsinom")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -3939,7 +4543,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* 10. HEMATOLOJİK */}[m
+             {selectedOrgan === 'hematologic' && ([m
+               <div className="flex flex-col gap-2 text-xs">[m
+[31m-                <label className="text-slate-600">Hematolojik Tümör</label>[m
+[32m+[m[32m                <label className="text-slate-600">{tText("Hematolojik Tümör")}</label>[m
+                 <select[m
+                   value={hematologicSubtype}[m
+                   onChange={e => {[m
+[36m@@ -3951,10 +4555,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Hodgkin">Hodgkin Lenfoma</option>[m
+[31m-                  <option value="DLBCL">Diffüz Büyük B Hücreli Lenfoma (DLBCL)</option>[m
+[31m-                  <option value="Plasmacytoma">Soliter Plazmasitom</option>[m
+[31m-                  <option value="Myeloma">Multiple Miyelom</option>[m
+[32m+[m[32m                  <option value="Hodgkin">{tText("Hodgkin Lenfoma")}</option>[m
+[32m+[m[32m                  <option value="DLBCL">{tText("Diffüz Büyük B Hücreli Lenfoma (DLBCL)")}</option>[m
+[32m+[m[32m                  <option value="Plasmacytoma">{tText("Soliter Plazmasitom")}</option>[m
+[32m+[m[32m                  <option value="Myeloma">{tText("Multiple Miyelom")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -3962,7 +4566,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* 11. PEDİATRİK */}[m
+             {selectedOrgan === 'pediatric' && ([m
+               <div className="flex flex-col gap-2 text-xs">[m
+[31m-                <label className="text-slate-600">Pediatrik Tümör</label>[m
+[32m+[m[32m                <label className="text-slate-600">{tText("Pediatrik Tümör")}</label>[m
+                 <select[m
+                   value={pediatricSubtype}[m
+                   onChange={e => {[m
+[36m@@ -3974,10 +4578,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Medulloblastom">Medulloblastom</option>[m
+[31m-                  <option value="Wilms">Wilms Tümörü</option>[m
+[31m-                  <option value="Neuroblastom">Nöroblastom</option>[m
+[31m-                  <option value="Ewing">Pediatrik Ewing Sarkomu</option>[m
+[32m+[m[32m                  <option value="Medulloblastom">{tText("Medulloblastom")}</option>[m
+[32m+[m[32m                  <option value="Wilms">{tText("Wilms Tümörü")}</option>[m
+[32m+[m[32m                  <option value="Neuroblastom">{tText("Nöroblastom")}</option>[m
+[32m+[m[32m                  <option value="Ewing">{tText("Pediatrik Ewing Sarkomu")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -3985,8 +4589,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* 12. PALYATİF */}[m
+             {selectedOrgan === 'palliative' && ([m
+               <div className="p-3 bg-[#f1f5f9] rounded-md border border-slate-200/80 text-xs">[m
+[31m-                <span className="text-[11px] text-slate-600 block mb-1">Palyatif Onkoloji</span>[m
+[31m-                <span className="font-semibold text-slate-900">Ağrılı Kemik / Beyin / Spinal Kord Basısı</span>[m
+[32m+[m[32m                <span className="text-[11px] text-slate-600 block mb-1">{tText("Palyatif Onkoloji")}</span>[m
+[32m+[m[32m                <span className="font-semibold text-slate-900">{tText("Ağrılı Kemik / Beyin / Spinal Kord Basısı")}</span>[m
+               </div>[m
+             )}[m
+           </div>[m
+[36m@@ -4022,7 +4626,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'[m
+                         }`}[m
+                       >[m
+[31m-                        {item.label}[m
+[32m+[m[32m                        {tText(item.label)}[m
+                       </button>[m
+                     ))}[m
+                   </div>[m
+[36m@@ -4050,7 +4654,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'thorax' && thoraxSubtype === 'sclc' && ([m
+               <div className="flex flex-col gap-3 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">KHAK Klinik Evresi</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("KHAK Klinik Evresi")}</label>[m
+                   <div className="grid grid-cols-2 gap-1.5">[m
+                     {[[m
+                       { id: 'Sinirli', label: 'Sınırlı Evre (LS-SCLC)' },[m
+[36m@@ -4069,14 +4673,14 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'[m
+                         }`}[m
+                       >[m
+[31m-                        {item.label}[m
+[32m+[m[32m                        {tText(item.label)}[m
+                       </button>[m
+                     ))}[m
+                   </div>[m
+                 </div>[m
+                 {sclcStage === 'Sinirli' && ([m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Fraksiyonasyon Rejimi</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Fraksiyonasyon Rejimi")}</label>[m
+                     <select[m
+                       value={sclcTiming}[m
+                       onChange={e => {[m
+[36m@@ -4085,8 +4689,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                       }}[m
+                       className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                     >[m
+[31m-                      <option value="Erken_BID_45Gy">45 Gy / 30 fx (Günde 2x1.5 Gy - Turrisi Altın Standart)</option>[m
+[31m-                      <option value="Standart_QD_60Gy">60 Gy / 30 fx (Günde tek 2.0 Gy - CONVERT)</option>[m
+[32m+[m[32m                      <option value="Erken_BID_45Gy">{tText("45 Gy / 30 fx (Günde 2x1.5 Gy - Turrisi Altın Standart)")}</option>[m
+[32m+[m[32m                      <option value="Standart_QD_60Gy">{tText("60 Gy / 30 fx (Günde tek 2.0 Gy - CONVERT)")}</option>[m
+                     </select>[m
+                   </div>[m
+                 )}[m
+[36m@@ -4096,7 +4700,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* JİNEKOLOJİ: SERVİKS PARAMETRELERİ */}[m
+             {selectedOrgan === 'gynecology' && gynSite === 'Serviks' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Klinik Senaryo</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Klinik Senaryo")}</label>[m
+                 <select[m
+                   value={cervixScenario}[m
+                   onChange={e => {[m
+[36m@@ -4105,9 +4709,9 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Definitif_KRT">Definitif KRT + 3D IGABT (Lokal İleri)</option>[m
+[31m-                  <option value="Adjuvan_Peters">Cerrahi Sonrası Yüksek Risk (Peters: R1/LN+/Parametrium)</option>[m
+[31m-                  <option value="Adjuvan_Sedlis">Cerrahi Sonrası Orta Risk (Sedlis: LVSI/Derin İnvazyon)</option>[m
+[32m+[m[32m                  <option value="Definitif_KRT">{tText("Definitif KRT + 3D IGABT (Lokal İleri)")}</option>[m
+[32m+[m[32m                  <option value="Adjuvan_Peters">{tText("Cerrahi Sonrası Yüksek Risk (Peters: R1/LN+/Parametrium)")}</option>[m
+[32m+[m[32m                  <option value="Adjuvan_Sedlis">{tText("Cerrahi Sonrası Orta Risk (Sedlis: LVSI/Derin İnvazyon)")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4115,7 +4719,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* JİNEKOLOJİ: ENDOMETRİYUM PARAMETRELERİ */}[m
+             {selectedOrgan === 'gynecology' && gynSite === 'Endometriyum' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Endometriyum Risk Grubu (PORTEC)</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Endometriyum Risk Grubu (PORTEC)")}</label>[m
+                 <select[m
+                   value={endoRisk}[m
+                   onChange={e => {[m
+[36m@@ -4124,10 +4728,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-medium"[m
+                 >[m
+[31m-                  <option value="Low">Düşük Risk (Evre IA G1-2, LVSI yok - İzlem)</option>[m
+[31m-                  <option value="Intermediate">Orta Risk (Evre IB G1-2 veya IA G3)</option>[m
+[31m-                  <option value="High_Intermediate">Yüksek-Orta Risk (PORTEC-2: Yalnızca VCB Brakiterapisi)</option>[m
+[31m-                  <option value="High">Yüksek Risk (Evre III / Seröz / Derin İnvazyon - PORTEC-3 KRT)</option>[m
+[32m+[m[32m                  <option value="Low">{tText("Düşük Risk (Evre IA G1-2, LVSI yok - İzlem)")}</option>[m
+[32m+[m[32m                  <option value="Intermediate">{tText("Orta Risk (Evre IB G1-2 veya IA G3)")}</option>[m
+[32m+[m[32m                  <option value="High_Intermediate">{tText("Yüksek-Orta Risk (PORTEC-2: Yalnızca VCB Brakiterapisi)")}</option>[m
+[32m+[m[32m                  <option value="High">{tText("Yüksek Risk (Evre III / Seröz / Derin İnvazyon - PORTEC-3 KRT)")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4135,7 +4739,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* JİNEKOLOJİ: OVER & TUBA PARAMETRELERİ */}[m
+             {selectedOrgan === 'gynecology' && gynSite === 'Over_Tuba' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Radyoterapi Amacı</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Radyoterapi Amacı")}</label>[m
+                 <select[m
+                   value={ovaryScenario}[m
+                   onChange={e => {[m
+[36m@@ -4144,8 +4748,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Oligometastatik_SBRT">Oligometastatik Nüks SBRT (1-3 odak ablasyonu)</option>[m
+[31m-                  <option value="Palyatif_Kitle_Agri">Palyatif Pelvik Kitle / Hemostaz RT</option>[m
+[32m+[m[32m                  <option value="Oligometastatik_SBRT">{tText("Oligometastatik Nüks SBRT (1-3 odak ablasyonu)")}</option>[m
+[32m+[m[32m                  <option value="Palyatif_Kitle_Agri">{tText("Palyatif Pelvik Kitle / Hemostaz RT")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4153,7 +4757,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* JİNEKOLOJİ: VULVA PARAMETRELERİ */}[m
+             {selectedOrgan === 'gynecology' && gynSite === 'Vulva' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Klinik Evre / Cerrahi</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Klinik Evre / Cerrahi")}</label>[m
+                 <select[m
+                   value={vulvaScenario}[m
+                   onChange={e => {[m
+[36m@@ -4162,8 +4766,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Adjuvan_Cerrahi_Sonrasi">Cerrahi Sonrası Adjuvan (&lt;8 mm sınır veya Kasık LN+ / ENE)</option>[m
+[31m-                  <option value="Inoperabl_Lokal_Ileri">İnoperabl / Lokal İleri Definitif KRT</option>[m
+[32m+[m[32m                  <option value="Adjuvan_Cerrahi_Sonrasi">{tText("Cerrahi Sonrası Adjuvan (<8 mm sınır veya Kasık LN+ / ENE)")}</option>[m
+[32m+[m[32m                  <option value="Inoperabl_Lokal_Ileri">{tText("İnoperabl / Lokal İleri Definitif KRT")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4171,7 +4775,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* KEMİK & SARKOM: YDS PARAMETRELERİ */}[m
+             {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Yumusak_Doku' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Radyoterapi Zamanlaması</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Radyoterapi Zamanlaması")}</label>[m
+                 <div className="grid grid-cols-2 gap-1.5">[m
+                   {[[m
+                     { id: 'Preop', label: 'Preoperatif 50 Gy' },[m
+[36m@@ -4190,7 +4794,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                           : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'[m
+                       }`}[m
+                     >[m
+[31m-                      {item.label}[m
+[32m+[m[32m                      {tText(item.label)}[m
+                     </button>[m
+                   ))}[m
+                 </div>[m
+[36m@@ -4200,7 +4804,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* KEMİK & SARKOM: OSTEOSARKOM PARAMETRELERİ */}[m
+             {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Osteosarkom' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Klinik Durum</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Klinik Durum")}</label>[m
+                 <select[m
+                   value={osteoScenario}[m
+                   onChange={e => {[m
+[36m@@ -4209,9 +4813,9 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Marjin_Pozitif_R1_R2">R1/R2 Rezeksiyon (Yüksek Doz Eskalasyonu 70 Gy)</option>[m
+[31m-                  <option value="Inoperabl_Aksiyel_Pelvis">İnoperabl Aksiyel/Pelvis (Partikül/IMRT 70+ Gy)</option>[m
+[31m-                  <option value="Cerrahi_R0_Takip">R0 Cerrahi Tam Rezeksiyon (RT Gerekmez - İzlem)</option>[m
+[32m+[m[32m                  <option value="Marjin_Pozitif_R1_R2">{tText("R1/R2 Rezeksiyon (Yüksek Doz Eskalasyonu 70 Gy)")}</option>[m
+[32m+[m[32m                  <option value="Inoperabl_Aksiyel_Pelvis">{tText("İnoperabl Aksiyel/Pelvis (Partikül/IMRT 70+ Gy)")}</option>[m
+[32m+[m[32m                  <option value="Cerrahi_R0_Takip">{tText("R0 Cerrahi Tam Rezeksiyon (RT Gerekmez - İzlem)")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4219,7 +4823,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* KEMİK & SARKOM: EWING SARKOMU PARAMETRELERİ */}[m
+             {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Ewing' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+[31m-                <label className="text-slate-600 block mb-1">Lokal Kontrol Modalitesi</label>[m
+[32m+[m[32m                <label className="text-slate-600 block mb-1">{tText("Lokal Kontrol Modalitesi")}</label>[m
+                 <select[m
+                   value={ewingIntent}[m
+                   onChange={e => {[m
+[36m@@ -4228,15 +4832,14 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Definitif_RT">Definitif RT (Cerrahi Yapılamayan / Organ Koruma - 55.8 Gy)</option>[m
+[31m-                  <option value="Postop_R1">Postoperatif R1 Cerrahi Sınır (45-50.4 Gy Adjuvan RT)</option>[m
+[32m+[m[32m                  <option value="Definitif_RT">{tText("Definitif RT (Cerrahi Yapılamayan / Organ Koruma - 55.8 Gy)")}</option>[m
+[32m+[m[32m                  <option value="Postop_R1">{tText("Postoperatif R1 Cerrahi Sınır (45-50.4 Gy Adjuvan RT)")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+             {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'DFSP' && ([m
+               <label className="text-slate-600 text-xs">[m
+[31m-                Cerrahi durumu[m
+[31m-                <select[m
+[32m+[m[32m                {tText("\n                Cerrahi durumu\n                ")}<select[m
+                   value={dfspStatus}[m
+                   onChange={e => {[m
+                     const value = e.currentTarget.value;[m
+[36m@@ -4244,9 +4847,9 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="mt-1 bg-white border border-slate-300 rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="R0">R0 rezeksiyon</option>[m
+[31m-                  <option value="R1">R1 pozitif marjin</option>[m
+[31m-                  <option value="Unresectable">Rezeke edilemeyen</option>[m
+[32m+[m[32m                  <option value="R0">{tText("R0 rezeksiyon")}</option>[m
+[32m+[m[32m                  <option value="R1">{tText("R1 pozitif marjin")}</option>[m
+[32m+[m[32m                  <option value="Unresectable">{tText("Rezeke edilemeyen")}</option>[m
+                 </select>[m
+               </label>[m
+             )}[m
+[36m@@ -4255,7 +4858,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               <div className="space-y-2 text-xs">[m
+                 {hnSubsite === 'larynx' && ([m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Larinks klinik senaryosu</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Larinks klinik senaryosu")}</label>[m
+                     <select[m
+                       value={hnLarynxSubsite}[m
+                       onChange={e => {[m
+[36m@@ -4269,39 +4872,33 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                       }}[m
+                       className="bg-white border border-slate-300 rounded-lg p-2 text-slate-900 w-full"[m
+                     >[m
+[31m-                      <option value="Erken_Glottik_T1_T2">Erken glottik T1-T2 N0 (yalnız vokal kord, 63 Gy/28 fx)</option>[m
+[31m-                      <option value="Lokal_Ileri_T3_T4">Lokal ileri supraglottik/glottik T3-T4</option>[m
+[32m+[m[32m                      <option value="Erken_Glottik_T1_T2">{tText("Erken glottik T1-T2 N0 (yalnız vokal kord, 63 Gy/28 fx)")}</option>[m
+[32m+[m[32m                      <option value="Lokal_Ileri_T3_T4">{tText("Lokal ileri supraglottik/glottik T3-T4")}</option>[m
+                     </select>[m
+                   </div>[m
+                 )}[m
+                 <div className="grid grid-cols-2 gap-2">[m
+                   <label className="flex items-center gap-2 text-slate-700">[m
+                     <input type="checkbox" checked={hnCrossesMidline} onChange={e => setHnCrossesMidline(e.currentTarget.checked)} />[m
+[31m-                    Orta hattı geçiyor[m
+[31m-                  </label>[m
+[32m+[m[32m                    {tText("\n                    Orta hattı geçiyor\n                  ")}</label>[m
+                   <label className="text-slate-600">[m
+[31m-                    Orta hatta uzaklık (cm)[m
+[31m-                    <input type="number" min="0" step="0.1" value={hnDistanceFromMidlineCm} onChange={e => setHnDistanceFromMidlineCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                    {tText("\n                    Orta hatta uzaklık (cm)\n                    ")}<input type="number" min="0" step="0.1" value={hnDistanceFromMidlineCm} onChange={e => setHnDistanceFromMidlineCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+                   </label>[m
+                   <label className="text-slate-600">[m
+[31m-                    Tümör çapı (cm)[m
+[31m-                    <input type="number" min="0" step="0.1" value={hnTumorSizeCm} onChange={e => setHnTumorSizeCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                    {tText("\n                    Tümör çapı (cm)\n                    ")}<input type="number" min="0" step="0.1" value={hnTumorSizeCm} onChange={e => setHnTumorSizeCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+                   </label>[m
+                   <label className="text-slate-600">[m
+[31m-                    Derin invazyon (DOI, mm)[m
+[31m-                    <input type="number" min="0" step="0.1" value={hnDoiMm} onChange={e => setHnDoiMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                    {tText("\n                    Derin invazyon (DOI, mm)\n                    ")}<input type="number" min="0" step="0.1" value={hnDoiMm} onChange={e => setHnDoiMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+                   </label>[m
+                 </div>[m
+                 {hnSubsite === 'oral-cavity' && ([m
+                   <div className="grid grid-cols-2 gap-2">[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={hnENE} onChange={e => setHnENE(e.currentTarget.checked)} />[m
+[31m-                      Ekstranodal yayılım (ENE)[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Ekstranodal yayılım (ENE)\n                    ")}</label>[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={hnPositiveMargin} onChange={e => setHnPositiveMargin(e.currentTarget.checked)} />[m
+[31m-                      Pozitif cerrahi sınır (R1)[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Pozitif cerrahi sınır (R1)\n                    ")}</label>[m
+                   </div>[m
+                 )}[m
+               </div>[m
+[36m@@ -4312,7 +4909,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div className="grid grid-cols-2 gap-2">[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Gleason Skoru</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Gleason Skoru")}</label>[m
+                     <div className="flex gap-1 items-center">[m
+                       <input[m
+                         type="number"[m
+[36m@@ -4322,7 +4919,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                         onChange={e => setGleasonPrimary(e.target.value)}[m
+                         className="bg-white border border-slate-300 rounded-lg p-1.5 text-center w-12 text-slate-900"[m
+                       />[m
+[31m-                      <span className="text-slate-500">+</span>[m
+[32m+[m[32m                      <span className="text-slate-500">{tText("+")}</span>[m
+                       <input[m
+                         type="number"[m
+                         min="1"[m
+[36m@@ -4334,7 +4931,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     </div>[m
+                   </div>[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">PSA (ng/mL)</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("PSA (ng/mL)")}</label>[m
+                     <input[m
+                       type="number"[m
+                       min="0"[m
+[36m@@ -4345,7 +4942,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   </div>[m
+                 </div>[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Pozitif biyopsi kor oranı (%)</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Pozitif biyopsi kor oranı (%)")}</label>[m
+                   <input[m
+                     type="number"[m
+                     min="0"[m
+[36m@@ -4362,19 +4959,17 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     onClick={() => setHasECE(value => !value)}[m
+                     className={`rounded-lg border p-2 ${hasECE ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-300 text-slate-600'}`}[m
+                   >[m
+[31m-                    Ekstrakapsüler yayılım (ECE)[m
+[31m-                  </button>[m
+[32m+[m[32m                    {tText("\n                    Ekstrakapsüler yayılım (ECE)\n                  ")}</button>[m
+                   <button[m
+                     type="button"[m
+                     aria-pressed={hasSVI}[m
+                     onClick={() => setHasSVI(value => !value)}[m
+                     className={`rounded-lg border p-2 ${hasSVI ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-300 text-slate-600'}`}[m
+                   >[m
+[31m-                    Seminal vezikül invazyonu[m
+[31m-                  </button>[m
+[32m+[m[32m                    {tText("\n                    Seminal vezikül invazyonu\n                  ")}</button>[m
+                 </div>[m
+                 <div className="rounded-lg border border-sky-300 bg-blue-50 p-2 font-semibold text-blue-900">[m
+[31m-                  Otomatik NCCN risk grubu: {prostateRiskLabel}[m
+[32m+[m[32m                  {tText("\n                  Otomatik NCCN risk grubu: ")}{prostateRiskLabel}[m
+                 </div>[m
+               </div>[m
+             )}[m
+[36m@@ -4383,18 +4978,16 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               <div className="space-y-2 text-xs">[m
+                 <label className="flex items-center gap-2 text-slate-700">[m
+                   <input type="checkbox" checked={bladderTurbtComplete} onChange={e => setBladderTurbtComplete(e.currentTarget.checked)} />[m
+[31m-                  Maksimal TURBT tamamlandı[m
+[31m-                </label>[m
+[32m+[m[32m                  {tText("\n                  Maksimal TURBT tamamlandı\n                ")}</label>[m
+                 <label className="flex items-center gap-2 text-slate-700">[m
+                   <input type="checkbox" checked={bladderTmtSuitable} onChange={e => setBladderTmtSuitable(e.currentTarget.checked)} />[m
+[31m-                  Mesane koruyucu TMT için klinik uygunluk[m
+[31m-                </label>[m
+[32m+[m[32m                  {tText("\n                  Mesane koruyucu TMT için klinik uygunluk\n                ")}</label>[m
+               </div>[m
+             )}[m
+ [m
+             {selectedOrgan === 'prostate' && gusSubtype === 'testis' && ([m
+               <div className="space-y-2 text-xs">[m
+[31m-                <label className="text-slate-600 block">Seminom evresi</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("Seminom evresi")}</label>[m
+                 <select[m
+                   value={selectedT}[m
+                   onChange={e => {[m
+[36m@@ -4407,9 +5000,9 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-lg p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="I">Evre I</option>[m
+[31m-                  <option value="IIA">Evre IIA</option>[m
+[31m-                  <option value="IIB">Evre IIB</option>[m
+[32m+[m[32m                  <option value="I">{tText("Evre I")}</option>[m
+[32m+[m[32m                  <option value="IIA">{tText("Evre IIA")}</option>[m
+[32m+[m[32m                  <option value="IIB">{tText("Evre IIB")}</option>[m
+                 </select>[m
+               </div>[m
+             )}[m
+[36m@@ -4418,7 +5011,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'breast' && ([m
+               <div className="flex flex-col gap-2 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Menopoz durumu</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Menopoz durumu")}</label>[m
+                   <div role="group" aria-label="Menopoz durumu" className="grid grid-cols-2 gap-1.5">[m
+                     {(['Premenopozal', 'Postmenopozal'] as const).map(value => ([m
+                       <button[m
+[36m@@ -4439,7 +5032,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                 </div>[m
+                 <div className="grid grid-cols-2 gap-2">[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Cerrahi</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Cerrahi")}</label>[m
+                     <select[m
+                       value={breastSurgery}[m
+                       onChange={e => {[m
+[36m@@ -4448,12 +5041,12 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                       }}[m
+                       className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                     >[m
+[31m-                      <option value="MKC">MKC (Lumpektomi)</option>[m
+[31m-                      <option value="Mastektomi">Mastektomi</option>[m
+[32m+[m[32m                      <option value="MKC">{tText("MKC (Lumpektomi)")}</option>[m
+[32m+[m[32m                      <option value="Mastektomi">{tText("Mastektomi")}</option>[m
+                     </select>[m
+                   </div>[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Cerrahi Sınır</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Cerrahi Sınır")}</label>[m
+                     <select[m
+                       value={breastMargin}[m
+                       onChange={e => {[m
+[36m@@ -4462,15 +5055,15 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                       }}[m
+                       className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                     >[m
+[31m-                      <option value="Negatif">Negatif (≥2 mm)</option>[m
+[31m-                      <option value="Yakin">Yakın (&lt;2 mm)</option>[m
+[31m-                      <option value="Pozitif">Pozitif (R1)</option>[m
+[32m+[m[32m                      <option value="Negatif">{tText("Negatif (≥2 mm)")}</option>[m
+[32m+[m[32m                      <option value="Yakin">{tText("Yakın (<2 mm)")}</option>[m
+[32m+[m[32m                      <option value="Pozitif">{tText("Pozitif (R1)")}</option>[m
+                     </select>[m
+                   </div>[m
+                 </div>[m
+                 {breastHistology === 'Malign Filloides Tümörü' ? ([m
+                   <div className="space-y-2">[m
+[31m-                    <label className="text-slate-600 block">En yakın cerrahi marjin (cm)</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block">{tText("En yakın cerrahi marjin (cm)")}</label>[m
+                     <input[m
+                       type="number"[m
+                       min="0"[m
+[36m@@ -4481,15 +5074,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     />[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={phyllodesHighGrade} onChange={e => setPhyllodesHighGrade(e.currentTarget.checked)} />[m
+[31m-                      Yüksek dereceli stromal aşırı büyüme[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Yüksek dereceli stromal aşırı büyüme\n                    ")}</label>[m
+                   </div>[m
+                 ) : ([m
+                   <>[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={breastBoost} onChange={e => setBreastBoost(e.currentTarget.checked)} />[m
+[31m-                      Tümör yatağı boostu (10-16 Gy) uygula[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Tümör yatağı boostu (10-16 Gy) uygula\n                    ")}</label>[m
+                     <div className="grid grid-cols-2 gap-2">[m
+                       {[[m
+                         { label: 'ER', value: breastER, setter: setBreastER },[m
+[36m@@ -4530,15 +5121,14 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                                   : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'[m
+                               }`}[m
+                             >[m
+[31m-                              Ki-67 {option.label}[m
+[32m+[m[32m                              {tText("\n                              Ki-67 ")}{tText(option.label)}[m
+                             </button>[m
+                           );[m
+                         })}[m
+                       </div>[m
+                     </div>[m
+                     <label className="block text-slate-600">[m
+[31m-                      Histolojik Grade[m
+[31m-                      <select[m
+[32m+[m[32m                      {tText("\n                      Histolojik Grade\n                      ")}<select[m
+                         value={breastGrade}[m
+                         onChange={e => {[m
+                           const value = parseOption(e.currentTarget.value, ['1', '2', '3'] as const);[m
+[36m@@ -4546,14 +5136,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                         }}[m
+                         className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900"[m
+                       >[m
+[31m-                        <option value="1">Grade 1</option>[m
+[31m-                        <option value="2">Grade 2</option>[m
+[31m-                        <option value="3">Grade 3</option>[m
+[32m+[m[32m                        <option value="1">{tText("Grade 1")}</option>[m
+[32m+[m[32m                        <option value="2">{tText("Grade 2")}</option>[m
+[32m+[m[32m                        <option value="3">{tText("Grade 3")}</option>[m
+                       </select>[m
+                     </label>[m
+                     <p className="text-[11px] text-slate-500">[m
+[31m-                      Biyobelirteçler sistemik tedavi kararında onkoloji ekibiyle birlikte yorumlanır.[m
+[31m-                    </p>[m
+[32m+[m[32m                      {tText("\n                      Biyobelirteçler sistemik tedavi kararında onkoloji ekibiyle birlikte yorumlanır.\n                    ")}</p>[m
+                   </>[m
+                 )}[m
+               </div>[m
+[36m@@ -4563,7 +5152,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'cns' && cnsSubtype === 'mets' && ([m
+               <div className="flex flex-col gap-2.5 text-xs">[m
+                 <div>[m
+[31m-                  <label className="text-slate-600 block mb-1">Orta Hat Şifti (Herniasyon)</label>[m
+[32m+[m[32m                  <label className="text-slate-600 block mb-1">{tText("Orta Hat Şifti (Herniasyon)")}</label>[m
+                   <select[m
+                     value={cnsMidlineShift}[m
+                     onChange={e => {[m
+[36m@@ -4572,14 +5161,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                   >[m
+[31m-                    <option value="Yok">Şift yok</option>[m
+[31m-                    <option value="<5mm">Hafif şift (&lt;5 mm)</option>[m
+[31m-                    <option value=">=5mm">Kritik Şift (≥5 mm - Acil Dekompresyon)</option>[m
+[32m+[m[32m                    <option value="Yok">{tText("Şift yok")}</option>[m
+[32m+[m[32m                    <option value="<5mm">{tText("Hafif şift (<5 mm)")}</option>[m
+[32m+[m[32m                    <option value=">=5mm">{tText('Kritik Şift (≥5 mm - Acil Dekompresyon)')}</option>[m
+                   </select>[m
+                 </div>[m
+                 <label className="text-slate-600">[m
+[31m-                  Semptom durumu[m
+[31m-                  <select[m
+[32m+[m[32m                  {tText("\n                  Semptom durumu\n                  ")}<select[m
+                     value={cnsSymptoms}[m
+                     onChange={e => {[m
+                       const value = e.currentTarget.value;[m
+[36m@@ -4587,13 +5175,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="mt-1 bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                   >[m
+[31m-                    <option value="Asimptomatik">Asemptomatik</option>[m
+[31m-                    <option value="Semptomatik">Semptomatik (ödem / defisit / kitle etkisi)</option>[m
+[32m+[m[32m                    <option value="Asimptomatik">{tText("Asemptomatik")}</option>[m
+[32m+[m[32m                    <option value="Semptomatik">{tText("Semptomatik (ödem / defisit / kitle etkisi)")}</option>[m
+                   </select>[m
+                 </label>[m
+                 <div className="grid grid-cols-2 gap-2">[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Metastaz Sayısı</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Metastaz Sayısı")}</label>[m
+                     <input[m
+                       type="number"[m
+                       min="1"[m
+[36m@@ -4603,7 +5191,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     />[m
+                   </div>[m
+                   <div>[m
+[31m-                    <label className="text-slate-600 block mb-1">Maks Çap (cm)</label>[m
+[32m+[m[32m                    <label className="text-slate-600 block mb-1">{tText("Maks Çap (cm)")}</label>[m
+                     <input[m
+                       type="number"[m
+                       min="0"[m
+[36m@@ -4615,8 +5203,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   </div>[m
+                 </div>[m
+                 <label className="text-slate-600">[m
+[31m-                  Cerrahi / rezeksiyon[m
+[31m-                  <select[m
+[32m+[m[32m                  {tText("\n                  Cerrahi / rezeksiyon\n                  ")}<select[m
+                     value={cnsResection}[m
+                     onChange={e => {[m
+                       const value = e.currentTarget.value;[m
+[36m@@ -4624,21 +5211,20 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="mt-1 bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                   >[m
+[31m-                    <option value="Yok">Cerrahi yok</option>[m
+[31m-                    <option value="GTR">Gross total rezeksiyon (GTR)</option>[m
+[31m-                    <option value="STR">Subtotal rezeksiyon (STR)</option>[m
+[31m-                    <option value="Biyopsi">Biyopsi</option>[m
+[32m+[m[32m                    <option value="Yok">{tText("Cerrahi yok")}</option>[m
+[32m+[m[32m                    <option value="GTR">{tText("Gross total rezeksiyon (GTR)")}</option>[m
+[32m+[m[32m                    <option value="STR">{tText("Subtotal rezeksiyon (STR)")}</option>[m
+[32m+[m[32m                    <option value="Biyopsi">{tText("Biyopsi")}</option>[m
+                   </select>[m
+                 </label>[m
+                 <label className="text-slate-600">[m
+[31m-                  KPS[m
+[31m-                  <input type="number" min="0" max="100" step="10" value={cnsKps} onChange={e => setCnsKps(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                  {tText("\n                  KPS\n                  ")}<input type="number" min="0" max="100" step="10" value={cnsKps} onChange={e => setCnsKps(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />[m
+                 </label>[m
+               </div>[m
+             )}[m
+             {selectedOrgan === 'cns' && cnsSubtype === 'gbm' && ([m
+               <div className="space-y-2 text-xs">[m
+[31m-                <label className="text-slate-600 block">Performans / tedavi uygunluğu</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("Performans / tedavi uygunluğu")}</label>[m
+                 <select[m
+                   value={gbmPerformance}[m
+                   onChange={e => {[m
+[36m@@ -4647,17 +5233,17 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Iyi_ECOG_0_1">İyi performans (ECOG 0-1): Stupp</option>[m
+[31m-                  <option value="Duskun_Yasli">Yaşlı / düşkün: Perry hipofraksiyone KRT</option>[m
+[32m+[m[32m                  <option value="Iyi_ECOG_0_1">{tText("İyi performans (ECOG 0-1): Stupp")}</option>[m
+[32m+[m[32m                  <option value="Duskun_Yasli">{tText("Yaşlı / düşkün: Perry hipofraksiyone KRT")}</option>[m
+                 </select>[m
+[31m-                <label className="text-slate-600">KPS: {cnsKps}[m
+[32m+[m[32m                <label className="text-slate-600">{tText("KPS: ")}{cnsKps}[m
+                   <input type="range" min="0" max="100" step="10" value={cnsKps} onChange={e => setCnsKps(e.currentTarget.value)} className="block w-full" />[m
+                 </label>[m
+               </div>[m
+             )}[m
+             {selectedOrgan === 'cns' && cnsSubtype === 'meningioma' && ([m
+               <div className="space-y-2 text-xs">[m
+[31m-                <label className="text-slate-600 block">WHO derece</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("WHO derece")}</label>[m
+                 <select[m
+                   value={meningiomaGrade}[m
+                   onChange={e => {[m
+[36m@@ -4667,11 +5253,11 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Grade_1">WHO Grade 1</option>[m
+[31m-                  <option value="Grade_2">WHO Grade 2</option>[m
+[31m-                  <option value="Grade_3">WHO Grade 3</option>[m
+[32m+[m[32m                  <option value="Grade_1">{tText("WHO Grade 1")}</option>[m
+[32m+[m[32m                  <option value="Grade_2">{tText("WHO Grade 2")}</option>[m
+[32m+[m[32m                  <option value="Grade_3">{tText("WHO Grade 3")}</option>[m
+                 </select>[m
+[31m-                <label className="text-slate-600 block">Rezeksiyon derecesi / cerrahi sınır</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("Rezeksiyon derecesi / cerrahi sınır")}</label>[m
+                 <select[m
+                   value={cnsResection}[m
+                   onChange={e => {[m
+[36m@@ -4680,12 +5266,12 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Yok">Cerrahi yapılmadı</option>[m
+[31m-                  <option value="GTR">Gross total rezeksiyon (GTR)</option>[m
+[31m-                  <option value="STR">Subtotal rezeksiyon (STR)</option>[m
+[31m-                  <option value="Biyopsi">Biyopsi</option>[m
+[32m+[m[32m                  <option value="Yok">{tText("Cerrahi yapılmadı")}</option>[m
+[32m+[m[32m                  <option value="GTR">{tText("Gross total rezeksiyon (GTR)")}</option>[m
+[32m+[m[32m                  <option value="STR">{tText("Subtotal rezeksiyon (STR)")}</option>[m
+[32m+[m[32m                  <option value="Biyopsi">{tText("Biyopsi")}</option>[m
+                 </select>[m
+[31m-                <label className="text-slate-600 block">Simpson derecesi</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("Simpson derecesi")}</label>[m
+                 <select[m
+                   value={meningiomaSimpson}[m
+                   onChange={e => {[m
+[36m@@ -4694,17 +5280,16 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="I-III">Simpson I-III (GTR)</option>[m
+[31m-                  <option value="IV-V">Simpson IV-V (STR / rezidü)</option>[m
+[32m+[m[32m                  <option value="I-III">{tText("Simpson I-III (GTR)")}</option>[m
+[32m+[m[32m                  <option value="IV-V">{tText("Simpson IV-V (STR / rezidü)")}</option>[m
+                 </select>[m
+[31m-                <label className="text-slate-600">Maksimum çap (cm)[m
+[31m-                  <input type="number" min="0" step="0.1" value={cnsMaxDiameter} onChange={e => setCnsMaxDiameter(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                <label className="text-slate-600">{tText("Maksimum çap (cm)\n                  ")}<input type="number" min="0" step="0.1" value={cnsMaxDiameter} onChange={e => setCnsMaxDiameter(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />[m
+                 </label>[m
+               </div>[m
+             )}[m
+             {selectedOrgan === 'skin' && ([m
+               <div className="space-y-2 text-xs">[m
+[31m-                <label className="text-slate-600 block">Cerrahi marjin / rezektabilite</label>[m
+[32m+[m[32m                <label className="text-slate-600 block">{tText("Cerrahi marjin / rezektabilite")}</label>[m
+                 <select[m
+                   value={skinMargin}[m
+                   onChange={e => {[m
+[36m@@ -4713,31 +5298,27 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Negatif">Negatif marjin</option>[m
+[31m-                  <option value="Pozitif">Pozitif marjin (R1)</option>[m
+[31m-                  <option value="Rezeke_Edilemez">Rezeke edilemeyen</option>[m
+[32m+[m[32m                  <option value="Negatif">{tText("Negatif marjin")}</option>[m
+[32m+[m[32m                  <option value="Pozitif">{tText("Pozitif marjin (R1)")}</option>[m
+[32m+[m[32m                  <option value="Rezeke_Edilemez">{tText("Rezeke edilemeyen")}</option>[m
+                 </select>[m
+                 {skinHistology === 'SCC' && ([m
+                   <>[m
+[31m-                    <label className="text-slate-600 block">İnvazyon derinliği (mm)[m
+[31m-                      <input type="number" min="0" step="0.1" value={skinDepthMm} onChange={e => setSkinDepthMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+[32m+[m[32m                    <label className="text-slate-600 block">{tText("İnvazyon derinliği (mm)\n                      ")}<input type="number" min="0" step="0.1" value={skinDepthMm} onChange={e => setSkinDepthMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />[m
+                     </label>[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={skinPerineuralInvasion} onChange={e => setSkinPerineuralInvasion(e.currentTarget.checked)} />[m
+[31m-                      Perinöral invazyon[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Perinöral invazyon\n                    ")}</label>[m
+                     <label className="flex items-center gap-2 text-slate-700">[m
+                       <input type="checkbox" checked={skinBoneInvasion} onChange={e => setSkinBoneInvasion(e.currentTarget.checked)} />[m
+[31m-                      Kemik tutulumu[m
+[31m-                    </label>[m
+[32m+[m[32m                      {tText("\n                      Kemik tutulumu\n                    ")}</label>[m
+                   </>[m
+                 )}[m
+               </div>[m
+             )}[m
+             {selectedOrgan === 'hematologic' && hematologicSubtype === 'Myeloma' && ([m
+               <label className="text-slate-600 text-xs">[m
+[31m-                Palyatif fraksiyonasyon[m
+[31m-                <select[m
+[32m+[m[32m                {tText("\n                Palyatif fraksiyonasyon\n                ")}<select[m
+                   value={myelomaFractionation}[m
+                   onChange={e => {[m
+                     const value = e.currentTarget.value;[m
+[36m@@ -4745,16 +5326,15 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="mt-1 bg-white border border-slate-300 rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="TekFx">8 Gy / 1 fraksiyon</option>[m
+[31m-                  <option value="20Gy">20 Gy / 5 fraksiyon</option>[m
+[31m-                  <option value="30Gy">30 Gy / 10 fraksiyon</option>[m
+[32m+[m[32m                  <option value="TekFx">{tText("8 Gy / 1 fraksiyon")}</option>[m
+[32m+[m[32m                  <option value="20Gy">{tText("20 Gy / 5 fraksiyon")}</option>[m
+[32m+[m[32m                  <option value="30Gy">{tText("30 Gy / 10 fraksiyon")}</option>[m
+                 </select>[m
+               </label>[m
+             )}[m
+             {selectedOrgan === 'hematologic' && (hematologicSubtype === 'Hodgkin' || hematologicSubtype === 'DLBCL') && ([m
+               <label className="text-slate-600 text-xs">[m
+[31m-                Sistemik tedaviye yanıt[m
+[31m-                <select[m
+[32m+[m[32m                {tText("\n                Sistemik tedaviye yanıt\n                ")}<select[m
+                   value={lymphomaResponse}[m
+                   onChange={e => {[m
+                     const value = e.currentTarget.value;[m
+[36m@@ -4762,15 +5342,14 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="mt-1 bg-white border border-slate-300 rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Tam_Yanit">Tam yanıt</option>[m
+[31m-                  <option value="Parsiyel_Rezidü">Parsiyel yanıt / rezidü</option>[m
+[32m+[m[32m                  <option value="Tam_Yanit">{tText("Tam yanıt")}</option>[m
+[32m+[m[32m                  <option value="Parsiyel_Rezidü">{tText("Parsiyel yanıt / rezidü")}</option>[m
+                 </select>[m
+               </label>[m
+             )}[m
+             {selectedOrgan === 'pediatric' && pediatricSubtype === 'Medulloblastom' && ([m
+               <label className="text-slate-600 text-xs">[m
+[31m-                Medulloblastom risk grubu[m
+[31m-                <select[m
+[32m+[m[32m                {tText("\n                Medulloblastom risk grubu\n                ")}<select[m
+                   value={pediatricRisk}[m
+                   onChange={e => {[m
+                     const value = e.currentTarget.value;[m
+[36m@@ -4779,16 +5358,15 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                   }}[m
+                   className="mt-1 bg-white border border-slate-300 rounded-md p-2.5 text-slate-900 w-full"[m
+                 >[m
+[31m-                  <option value="Standart">Standart risk (CSI 23.4 Gy)</option>[m
+[31m-                  <option value="Yuksek">Yüksek risk (CSI 36 Gy)</option>[m
+[32m+[m[32m                  <option value="Standart">{tText("Standart risk (CSI 23.4 Gy)")}</option>[m
+[32m+[m[32m                  <option value="Yuksek">{tText("Yüksek risk (CSI 36 Gy)")}</option>[m
+                 </select>[m
+               </label>[m
+             )}[m
+             {selectedOrgan === 'pediatric' && pediatricSubtype === 'Wilms' && ([m
+               <div className="space-y-2">[m
+                 <label className="text-slate-600 text-xs block">[m
+[31m-                  Wilms evre / histoloji[m
+[31m-                  <select[m
+[32m+[m[32m                  {tText("\n                  Wilms evre / histoloji\n                  ")}<select[m
+                     value={wilmsStage}[m
+                     onChange={e => {[m
+                       const value = e.currentTarget.value;[m
+[36m@@ -4799,14 +5377,13 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     }}[m
+                     className="mt-1 bg-white border border-slate-300 rounded-md p-2.5 text-slate-900 w-full"[m
+                   >[m
+[31m-                    <option value="Evre_I_II">Evre I-II, uygun histoloji</option>[m
+[31m-                    <option value="Evre_III_Anaplazi">Evre III veya anaplazi</option>[m
+[32m+[m[32m                    <option value="Evre_I_II">{tText("Evre I-II, uygun histoloji")}</option>[m
+[32m+[m[32m                    <option value="Evre_III_Anaplazi">{tText("Evre III veya anaplazi")}</option>[m
+                   </select>[m
+                 </label>[m
+                 <label className="flex items-center gap-2 text-slate-700 text-xs">[m
+                   <input type="checkbox" checked={wilmsWholeAbdomen} onChange={e => setWilmsWholeAbdomen(e.currentTarget.checked)} />[m
+[31m-                  Yaygın peritoneal yayılım / tüm batın RT endikasyonu[m
+[31m-                </label>[m
+[32m+[m[32m                  {tText("\n                  Yaygın peritoneal yayılım / tüm batın RT endikasyonu\n                ")}</label>[m
+               </div>[m
+             )}[m
+           </div>[m
+[36m@@ -4838,7 +5415,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {selectedOrgan === 'benign' ? ([m
+               <div className="space-y-3">[m
+                 <p className="text-xs font-semibold text-slate-700">[m
+[31m-                  {SUBSITES.benign?.find(subsite => subsite.id === selectedSubsite)?.name}[m
+[32m+[m[32m                  {tText(SUBSITES.benign?.find(subsite => subsite.id === selectedSubsite)?.name)}[m
+                 </p>[m
+                 <div className="grid grid-cols-1 gap-2">[m
+                   {(BENIGN_CLINICAL_OPTIONS[selectedSubsite] || []).map(option => {[m
+[36m@@ -4855,7 +5432,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'border-slate-200/80 bg-slate-50/70 text-slate-700 hover:bg-slate-100'[m
+                         }`}[m
+                       >[m
+[31m-                        {option.label}[m
+[32m+[m[32m                        {tText(option.label)}[m
+                         {isSelected && <Check className="h-4 w-4 text-emerald-700" aria-hidden="true" />}[m
+                       </button>[m
+                     );[m
+[36m@@ -4898,8 +5475,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'[m
+                       }`}[m
+                     >[m
+[31m-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>[m
+[31m-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{opt.criterion}</span>[m
+[32m+[m[32m                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>[m
+[32m+[m[32m                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>[m
+                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}[m
+                     </button>[m
+                   );[m
+[36m@@ -4930,8 +5507,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'[m
+                       }`}[m
+                     >[m
+[31m-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>[m
+[31m-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{opt.criterion}</span>[m
+[32m+[m[32m                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>[m
+[32m+[m[32m                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>[m
+                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}[m
+                     </button>[m
+                   );[m
+[36m@@ -4962,8 +5539,8 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                             : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'[m
+                       }`}[m
+                     >[m
+[31m-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{opt.label}</span>[m
+[31m-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{opt.criterion}</span>[m
+[32m+[m[32m                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>[m
+[32m+[m[32m                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>[m
+                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}[m
+                     </button>[m
+                   );[m
+[36m@@ -4985,10 +5562,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             <div className={`p-3.5 rounded-md border font-bold text-xs flex items-center justify-between mb-4 transition-colors ${evaluatedDecision.badgeClass}`}>[m
+               <span className="flex items-center gap-2">[m
+                 <span className="h-2.5 w-2.5 rounded bg-current" aria-hidden="true" />[m
+[31m-                {evaluatedDecision.statusText}[m
+[32m+[m[32m                {tText(evaluatedDecision.statusText)}[m
+               </span>[m
+               <span className="text-[11px] font-normal opacity-80">[m
+[31m-                {activeScheme.tag}[m
+[32m+[m[32m                {tText(activeScheme.tag)}[m
+               </span>[m
+             </div>[m
+ [m
+[36m@@ -5005,8 +5582,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                         : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'[m
+                     }`}[m
+                   >[m
+[31m-                    {sch.tag} ({sch.totalDoseGy} Gy)[m
+[31m-                  </button>[m
+[32m+[m[32m                    {tText(sch.tag)} {tText(" (")}{sch.totalDoseGy} {tText(" Gy)\n                  ")}</button>[m
+                 ))}[m
+               </div>[m
+             )}[m
+[36m@@ -5016,11 +5592,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               <div className="flex items-center justify-between mb-2">[m
+                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">[m
+                   <Radiation className="w-4 h-4 text-amber-700" />[m
+[31m-                  {activeScheme.name}[m
+[32m+[m[32m                  {tText(activeScheme.name)}[m
+                 </h3>[m
+                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-emerald-700 border border-slate-300">[m
+[31m-                  {activeScheme.totalDoseGy} Gy / {activeScheme.fractionCount} fx[m
+[31m-                </span>[m
+[32m+[m[32m                  {activeScheme.totalDoseGy} {tText(" Gy / ")}{activeScheme.fractionCount} {tText(" fx\n                ")}</span>[m
+               </div>[m
+               <div className="flex flex-wrap gap-1.5 mt-2 mb-2.5" aria-label="Reçete özeti">[m
+                 <span className="rounded border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">[m
+[36m@@ -5034,7 +5609,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                 </span>[m
+               </div>[m
+               <p className="text-xs text-slate-700 mb-2 leading-relaxed">[m
+[31m-                {activeScheme.indication}[m
+[32m+[m[32m                {tText(activeScheme.indication)}[m
+               </p>[m
+             </div>[m
+ [m
+[36m@@ -5058,10 +5633,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     <tbody className="divide-y divide-slate-200 text-slate-700">[m
+                       {activeScheme.targetVolumes.map((tv, idx) => ([m
+                         <tr key={idx} className="hover:bg-slate-100">[m
+[31m-                          <td className="p-2 font-bold text-slate-900">{tv.name}</td>[m
+[31m-                          <td className="p-2 text-emerald-700 font-mono">{tv.doseGy} Gy</td>[m
+[32m+[m[32m                          <td className="p-2 font-bold text-slate-900">{tText(tv.name)}</td>[m
+[32m+[m[32m                          <td className="p-2 text-emerald-700 font-mono">{tv.doseGy} {tText(" Gy")}</td>[m
+                           <td className="p-2 font-mono text-amber-800">{tv.marginMm}</td>[m
+[31m-                          <td className="p-2 text-[11px] text-slate-600">{tv.anatomical}</td>[m
+[32m+[m[32m                          <td className="p-2 text-[11px] text-slate-600">{tText(tv.anatomical)}</td>[m
+                         </tr>[m
+                       ))}[m
+                     </tbody>[m
+[36m@@ -5090,10 +5665,10 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+                     <tbody className="divide-y divide-slate-200 text-slate-700">[m
+                       {activeScheme.oars.map((oar, idx) => ([m
+                         <tr key={idx} className="hover:bg-slate-100">[m
+[31m-                          <td className="p-2 font-medium text-slate-900">{oar.organ}</td>[m
+[31m-                          <td className="p-2 font-mono text-slate-600">{oar.metric}</td>[m
+[32m+[m[32m                          <td className="p-2 font-medium text-slate-900">{tText(oar.organ)}</td>[m
+[32m+[m[32m                          <td className="p-2 font-mono text-slate-600">{tText(oar.metric)}</td>[m
+                           <td className="p-2 font-mono text-rose-700 font-bold">{oar.limit}</td>[m
+[31m-                          <td className="p-2 text-[10px] text-slate-500">{oar.source}</td>[m
+[32m+[m[32m                          <td className="p-2 text-[10px] text-slate-500">{tText(oar.source)}</td>[m
+                         </tr>[m
+                       ))}[m
+                     </tbody>[m
+[36m@@ -5105,25 +5680,24 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}[m
+             <div className="bg-[#f1f5f9] border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs">[m
+               <div>[m
+[31m-                <span className="text-[11px] text-slate-600 block">Radyobiyolojik Eşdeğerlik</span>[m
+[32m+[m[32m                <span className="text-[11px] text-slate-600 block">{tText("Radyobiyolojik Eşdeğerlik")}</span>[m
+                 <span className="font-bold text-slate-700">[m
+[31m-                  α/β = {radiobiology.ab} Gy | BED: <span className="text-amber-700">{radiobiology.bed} Gy</span> | EQD2: <span className="text-emerald-700">{radiobiology.eqd2} Gy</span>[m
+[32m+[m[32m                  {tText("\n                  α/β = ")}{radiobiology.ab} {tText(" Gy | BED: ")}<span className="text-amber-700">{radiobiology.bed} {tText(" Gy")}</span> {tText(" | EQD2: ")}<span className="text-emerald-700">{radiobiology.eqd2} {tText(" Gy")}</span>[m
+                 </span>[m
+               </div>[m
+               <div className="text-[11px] text-slate-500 text-right">[m
+[31m-                Linear-Quadratic Model[m
+[31m-              </div>[m
+[32m+[m[32m                {tText("\n                Linear-Quadratic Model\n              ")}</div>[m
+             </div>[m
+ [m
+             {/* SİSTEMİK TEDAVİ VE KANIT */}[m
+             {activeScheme.systemicTherapy && ([m
+               <div className="p-2.5 rounded-md bg-indigo-50 border border-indigo-300 text-indigo-800 text-xs mb-3">[m
+[31m-                <span className="font-bold block mb-0.5">💊 Eşlik Eden Sistemik Tedavi:</span>[m
+[31m-                {activeScheme.systemicTherapy}[m
+[32m+[m[32m                <span className="font-bold block mb-0.5">{tText("💊 Eşlik Eden Sistemik Tedavi:")}</span>[m
+[32m+[m[32m                {tText(activeScheme.systemicTherapy)}[m
+               </div>[m
+             )}[m
+             <div className="text-[11px] text-slate-600 italic mb-4">[m
+[31m-              📚 Kanıt ve Kılavuz: {activeScheme.evidence}[m
+[32m+[m[32m              {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{tText(activeScheme.evidence)}[m
+             </div>[m
+ [m
+             {/* KOPYALANABİLİR RAPOR PANELİ */}[m
+[36m@@ -5142,8 +5716,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+ [m
+       <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">[m
+         <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-400">[m
+[31m-          © 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.[m
+[31m-        </p>[m
+[32m+[m[32m          {tText("\n          © 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.\n        ")}</p>[m
+         <div className="flex shrink-0 items-center gap-3">[m
+           <button[m
+             type="button"[m
+[36m@@ -5153,8 +5726,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             }}[m
+             className="whitespace-nowrap text-[11px] font-semibold text-blue-800 dark:text-blue-300 hover:underline"[m
+           >[m
+[31m-            📚 Kılavuz &amp; Kaynakça[m
+[31m-          </button>[m
+[32m+[m[32m            {tText("\n            📚 Kılavuz & Kaynakça\n          ")}</button>[m
+           <button[m
+             type="button"[m
+             onClick={() => {[m
+[36m@@ -5163,8 +5735,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             }}[m
+             className="whitespace-nowrap text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:underline"[m
+           >[m
+[31m-            ⚖️ Yasal Sorumluluk Reddi[m
+[31m-          </button>[m
+[32m+[m[32m            {tText("\n            ⚖️ Yasal Sorumluluk Reddi\n          ")}</button>[m
+         </div>[m
+       </footer>[m
+ [m
+[36m@@ -5182,8 +5753,7 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+             <div className="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-4">[m
+               <h3 id="reference-modal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">[m
+                 <BookOpen className="w-5 h-5 text-amber-700" />[m
+[31m-                Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler[m
+[31m-              </h3>[m
+[32m+[m[32m                {tText("\n                Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler\n              ")}</h3>[m
+               <button[m
+                 onClick={() => setShowGuidelineModal(false)}[m
+                 aria-label="Kılavuz penceresini kapat"[m
+[36m@@ -5227,43 +5797,39 @@[m [mKanıt ve Kılavuz: ${activeScheme.evidence}`;[m
+               {activeReferenceTab === 'guidelines' && ([m
+                 <>[m
+                   <p>[m
+[31m-                    Klinik kapsam, <strong>NCCN v1.2025</strong>, <strong>ASTRO</strong> ve <strong>ESTRO</strong> kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.[m
+[31m-                  </p>[m
+[32m+[m[32m                    {tText("\n                    Klinik kapsam, ")}<strong>{tText("NCCN v1.2025")}</strong>{tText(", ")}<strong>{tText("ASTRO")}</strong> {tText(" ve ")}<strong>{tText("ESTRO")}</strong> {tText(" kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.\n                  ")}</p>[m
+                   <div>[m
+[31m-                    <h4 className="mb-1 font-bold text-amber-700">Landmark çalışmalar ve klinik başlıklar</h4>[m
+[32m+[m[32m                    <h4 className="mb-1 font-bold text-amber-700">{tText("Landmark çalışmalar ve klinik başlıklar")}</h4>[m
+                     <ul className="list-disc space-y-1 pl-5">[m
+[31m-                      <li><strong>Toraks:</strong> PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).</li>[m
+[31m-                      <li><strong>Meme:</strong> FAST-Forward (hipofraksiyone adjuvan RT).</li>[m
+[31m-                      <li><strong>GİS:</strong> RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).</li>[m
+[31m-                      <li><strong>Jinekoloji:</strong> EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).</li>[m
+[31m-                      <li><strong>MSS:</strong> Stupp protokolü (glioblastom kemoradyoterapisi).</li>[m
+[32m+[m[32m                      <li><strong>{tText("Toraks:")}</strong> {tText(" PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).")}</li>[m
+[32m+[m[32m                      <li><strong>{tText("Meme:")}</strong> {tText(" FAST-Forward (hipofraksiyone adjuvan RT).")}</li>[m
+[32m+[m[32m                      <li><strong>{tText("GİS:")}</strong> {tText(" RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).")}</li>[m
+[32m+[m[32m                      <li><strong>{tText("Jinekoloji:")}</strong> {tText(" EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).")}</li>[m
+[32m+[m[32m                      <li><strong>{tText("MSS:")}</strong> {tText(" Stupp protokolü (glioblastom kemoradyoterapisi).")}</li>[m
+                     </ul>[m
+                   </div>[m
+                   <p className="text-[11px] text-slate-600 dark:text-slate-400">[m
+[31m-                    NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.[m
+[31m-                  </p>[m
+[32m+[m[32m                    {tText("\n                    NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.\n                  ")}</p>[m
+                 </>[m
+               )}[m
+               {activeReferenceTab === 'oar' && ([m
+                 <>[m
+[31m-                  <p>Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.</p>[m
+[32m+[m[32m                  <p>{tText("Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.")}</p>[m
+                   <ul className="list-disc space-y-2 pl-5">[m
+[31m-                    <li><strong>QUANTEC:</strong> Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.</li>[m
+[31m-                    <li><strong>HyTEC:</strong> Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.</li>[m
+[31m-                    <li><strong>UK SABR Consortium:</strong> SABR hasta seçimi, planlama ve organ riskindeki doz kısıtları için teknik rehberler.</li>[m
+[31m-                    <li><strong>EMBRACE II:</strong> Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.</li>[m
+[32m+[m[32m                    <li><strong>{tText("QUANTEC:")}</strong> {tText(" Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("HyTEC:")}</strong> {tText(" Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("UK SABR Consortium:")}</strong> {tText(" SABR hasta seçimi, planlama ve organ riskindeki doz kısıtları için teknik rehberler.")}</li>[m
+[32m+[m[32m                    <li><strong>{tText("EMBRACE II:")}</strong> {tText(" Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.")}</li>[m
+                   </ul>[m
+                   <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900">[m
+[31m-                    Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.[m
+[31m-                  </p>[m
+[32m+[m[32m                    {tText("\n                    Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.\n                  ")}</p>[m
+                 </>[m
+               )}[m
+               {activeReferenceTab === 'disclaimer' && ([m
+                 <div className="space-y-3">[m
+[31m-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Yasal sorumluluk reddi ve telif</h4>[m
+[32m+[m[32m                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{tText("Yasal sorumluluk reddi ve telif")}</h4>[m
+                   <p>[m
+[31m-                    RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.[m
+[31m-                  </p>[m
+[32m+[m[32m                    {tText("\n                    RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.\n                  ")}</p>[m
+                 </div>[m
+               )}[m
+             </div>[m
