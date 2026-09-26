@@ -118,12 +118,12 @@ const getAdaptiveEContour = (
         return target(
           'https://econtour.org/cases/',
           'eContour: Lokal İleri KHDAK & Mediasten Atlası',
-          'eContour: Locally Advanced NSCLC & Mediastinal Nodes',
+          'eContour: Locally Advanced NSCLC & Mediastinal Stations',
         );
       }
       return target(
         'https://econtour.org/cases/',
-        'eContour: Akciğer SBRT (4D-CT / ITV) Atlası',
+        'eContour: Akciğer SBRT (4D-CT / ITV Hacim Kapsamı)',
         'eContour: Lung SBRT (4D-CT / ITV Target Volume)',
       );
     }
@@ -349,6 +349,19 @@ const getAdaptiveEContour = (
 };
 
 const TRANSLATION_MAP: Record<string, string> = {
+  'GÜS Anatomik Alt Bölgesi': 'GU Anatomic Subsite',
+  'INDICATED: HIGH RISK PROSTAT ESKALE radiotherapy + 2 YIL ADT': 'INDICATED: HIGH-RISK PROSTATE DOSE-ESCALATED RT + 2 YEARS ADT',
+  '78 Gy / 39 fx or 60 Gy / 20 fx + 18-36 Ay ADT': '78 Gy / 39 fx or 60 Gy / 20 fx + 18-36 Months ADT',
+  'Target: Prostat ve seminal veziküller': 'Target: Prostate and seminal vesicles',
+  'Nodal: Risk temelli elektif pelvik lenfatik alanlar': 'Nodal: Risk-based elective pelvic nodal volumes',
+  'Very High riskli lokalize prostat kanserinde dose eskalasyonu ve uzun dönem hormonoterapi multidisipliner olarak is considered.': 'In very high-risk localized prostate cancer, dose escalation and long-term ADT are recommended.',
+  'Prostate ve seminal veziküller': 'Prostate and seminal vesicles',
+  'Risk temelli elektif pelvik lenfatik alanlar': 'Risk-based elective pelvic nodal volumes',
+  '18-36 ay androjen deprivasyon tedavisi (ADT); elektif pelvik nodal radiotherapy (46-50 Gy) risk ve nodal değerlendirmeyle is planned.': '18-36 months of androgen deprivation therapy (ADT); elective pelvic nodal radiotherapy (46-50 Gy) is planned based on risk evaluation.',
+  'Bölge dışı uzak lymph node metastazları': 'Distant extra-pelvic lymph node metastases',
+  'Kemik metastasis (aksiyel/apandiküler iskelet)': 'Bone metastases (axial / appendicular skeleton)',
+  'Visseral organ metastazları (akciğer, karaciğer vb.)': 'Visceral organ metastases (lung, liver, etc.)',
+  'Ilımlı Hipofraksiyonasyon': 'Moderate Hypofractionation',
   'Muayenede palpe edilemeyen; PSA yüksekliği biyopsisinde saptanan': 'Non-palpable tumor identified clinically; detected by elevated PSA biopsy',
   'Palpabl tümör; bir lobun yarısı or daha azı ile limited': 'Palpable tumor confined to half of one lobe or less',
   'Palpabl tümör; bir lobun yarısından fazlasına uzanmış': 'Palpable tumor involving more than half of one lobe',
@@ -366,7 +379,7 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Çok Yüksek Riskli veya N1 Prostat Ca': 'Very High-Risk or N1 Prostate Cancer',
   'Çok Yüksek Risk': 'Very High Risk',
   'Çok yüksek risk': 'Very high risk',
-  'Çok Yüksek': 'Very High',
+  'Çok Yüksek': 'Very High Risk',
   'Çok yüksek': 'Very high',
   'Yüksek-Orta Risk': 'High-Intermediate Risk',
   'Yüksek Orta Risk': 'High-Intermediate Risk',
@@ -2034,9 +2047,12 @@ export default function RadoncoCDSSPage() {
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
+  const [selectedRegimen, setSelectedRegimen] = useState<'sbrt' | 'moderate' | 'sib' | 'conventional'>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
+  const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
+  const [copiedContext, setCopiedContext] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
     {
       role: 'assistant',
@@ -4380,10 +4396,49 @@ export default function RadoncoCDSSPage() {
   ]);
 
   // Aktif Şema
-  const activeScheme = useMemo(() => {
+  const baseActiveScheme = useMemo(() => {
     const list = evaluatedDecision.alternativeSchemes;
     return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
   }, [evaluatedDecision, selectedSchemeId]);
+
+  const activeScheme = useMemo(() => {
+    const regimenByOrgan: Partial<Record<OrganId, Record<typeof selectedRegimen, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
+      prostate: {
+        sbrt: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5 },
+        moderate: { name: 'Moderate Hypofractionation (CHHiP / PROFIT)', totalDoseGy: 60, fractionCount: 20, fractionDoseGy: 3, alphaBeta: 1.5 },
+        sib: { name: 'SIB Boost: Pelvis 46 Gy + Prostate 70 Gy', totalDoseGy: 70, fractionCount: 28, fractionDoseGy: 2.5, alphaBeta: 1.5 },
+        conventional: { name: 'Conventional Prostate RT', totalDoseGy: 78, fractionCount: 39, fractionDoseGy: 2, alphaBeta: 1.5 },
+      },
+      thorax: {
+        sbrt: { name: 'Lung SBRT (54 Gy / 3 fx)', totalDoseGy: 54, fractionCount: 3, fractionDoseGy: 18, alphaBeta: 10 },
+        moderate: { name: 'Lung Hypofractionation (50 Gy / 5 fx)', totalDoseGy: 50, fractionCount: 5, fractionDoseGy: 10, alphaBeta: 10 },
+        sib: { name: 'Concurrent Chemoradiotherapy (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+        conventional: { name: 'Conventional Thoracic RT (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+      },
+      breast: {
+        sbrt: { name: 'Ultra-Hypofractionation (FAST-Forward)', totalDoseGy: 26, fractionCount: 5, fractionDoseGy: 5.2, alphaBeta: 4 },
+        moderate: { name: 'Moderate Hypofractionation (40.05 Gy / 15 fx)', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
+        sib: { name: 'SIB Boost (40.05 Gy + simultaneous boost)', totalDoseGy: 48, fractionCount: 15, fractionDoseGy: 3.2, alphaBeta: 4 },
+        conventional: { name: 'Conventional Breast RT (50 Gy / 25 fx)', totalDoseGy: 50, fractionCount: 25, fractionDoseGy: 2, alphaBeta: 4 },
+      },
+    };
+    const regimen = regimenByOrgan[selectedOrgan]?.[selectedRegimen];
+    if (!regimen) return baseActiveScheme;
+    return {
+      ...baseActiveScheme,
+      id: `${baseActiveScheme.id}-${selectedRegimen}`,
+      name: regimen.name,
+      tag: regimen.name,
+      totalDoseGy: regimen.totalDoseGy,
+      fractionCount: regimen.fractionCount,
+      fractionDoseGy: regimen.fractionDoseGy,
+      alphaBeta: regimen.alphaBeta,
+      targetVolumes: baseActiveScheme.targetVolumes.map(volume => ({
+        ...volume,
+        doseGy: regimen.totalDoseGy,
+      })),
+    };
+  }, [baseActiveScheme, selectedOrgan, selectedRegimen]);
 
   // Canlı Radyobiyoloji Hesabı
   const radiobiology = useMemo(() => {
@@ -4434,6 +4489,31 @@ export default function RadoncoCDSSPage() {
     `Radiobiology: BED ${radiobiology.bed} Gy, EQD2 ${radiobiology.eqd2} Gy, alpha/beta ${radiobiology.ab}`,
     `OAR constraints: ${activeScheme.oars.map(oar => `${tText(oar.organ)} ${tText(oar.metric)} ${oar.limit}`).join('; ') || 'None listed'}`,
   ].join('\n');
+  const copyCaseContext = () => {
+    const prompt = `${casePrompt}\n\nPlease answer as a consultant reviewing this active case.`;
+    if (!navigator.clipboard) {
+      window.alert(lang === 'tr' ? 'Panoya kopyalama desteklenmiyor.' : 'Clipboard access is not supported.');
+      return false;
+    }
+    void navigator.clipboard.writeText(prompt).then(
+      () => {
+        setCopiedContext(true);
+        window.setTimeout(() => setCopiedContext(false), 3000);
+      },
+      () => window.alert(lang === 'tr' ? 'Vaka bağlamı panoya kopyalanamadı.' : 'The case context could not be copied.'),
+    );
+    return true;
+  };
+  const openSelectedAi = () => {
+    const aiUrls = {
+      gemini: 'https://gemini.google.com',
+      chatgpt: 'https://chatgpt.com',
+      claude: 'https://claude.ai',
+    };
+    if (copyCaseContext()) {
+      window.open(aiUrls[activeAiTab], 'ai_dock', 'width=480,height=900,left=1400');
+    }
+  };
 
   const submitAiQuestion = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -4742,7 +4822,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-blue-600" aria-hidden="true" />
                   <span id="ai-dock-title" className="text-sm font-bold text-slate-900 dark:text-white">RadOnc AI Copilot</span>
-                  <span className="rounded-full bg-blue-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Gemini 1.5</span>
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">No API Key</span>
                 </div>
                 <button
                   type="button"
@@ -4764,46 +4844,62 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </div>
               </div>
 
-              <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
-                {chatMessages.map((message, index) => (
-                  <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl p-3 text-xs leading-relaxed ${
-                      message.role === 'user'
-                        ? 'rounded-tr-none bg-blue-600 text-white'
-                        : 'rounded-tl-none border border-slate-200 bg-slate-100 text-slate-800 dark:border-slate-700/60 dark:bg-slate-800 dark:text-slate-200'
-                    }`}>
-                      {message.content}
-                    </div>
-                  </div>
+              <div className="flex gap-1 border-b border-slate-100 p-4 pb-0 dark:border-slate-800">
+                {([
+                  ['gemini', '🔵 Google Gemini'],
+                  ['chatgpt', '🟢 ChatGPT'],
+                  ['claude', '🟣 Claude'],
+                ] as const).map(([tab, label]) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveAiTab(tab)}
+                    className={`rounded-t-lg px-3 py-2 text-xs font-semibold ${
+                      activeAiTab === tab
+                        ? 'border border-b-0 border-slate-200 bg-white text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                    }`}
+                  >
+                    {label}
+                  </button>
                 ))}
-                {isAiLoading && (
-                  <div className="flex justify-start">
-                    <div className="animate-pulse rounded-2xl rounded-tl-none bg-slate-100 p-3 text-xs text-slate-500 dark:bg-slate-800">
-                      {lang === 'tr' ? 'Klinik kılavuzlar taranıyor...' : 'Analyzing clinical guidelines...'}
-                    </div>
-                  </div>
-                )}
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4">
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  {lang === 'tr' ? 'Vaka Sorusu Önizleme' : 'Case Question Preview'}
+                </label>
+                <textarea
+                  readOnly
+                  value={casePrompt}
+                  className="h-64 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+                />
+                <button
+                  type="button"
+                  onClick={copyCaseContext}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-700"
+                >
+                  {activeAiTab === 'gemini' ? '🔵' : activeAiTab === 'chatgpt' ? '🟢' : '🟣'}
+                  {lang === 'tr' ? 'Hesabınla Aç & Sor ↗' : 'Open & Ask with Your Account ↗'}
+                </button>
+                <button
+                  type="button"
+                  onClick={openSelectedAi}
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                  {copiedContext
+                    ? (lang === 'tr' ? 'Panoya Kopyalandı!' : 'Copied to Clipboard!')
+                    : (lang === 'tr' ? 'Vaka Sorusunu Kopyala' : 'Copy Case Question')}
+                </button>
               </div>
             </div>
 
-            <form onSubmit={submitAiQuestion} className="flex items-center gap-2 border-t border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-              <input
-                type="text"
-                value={inputQuery}
-                onChange={event => setInputQuery(event.currentTarget.value)}
-                placeholder={lang === 'tr' ? 'Bu hasta hakkında bir soru sorun...' : 'Ask a question about this patient...'}
-                aria-label={lang === 'tr' ? 'AI sorusu' : 'AI question'}
-                className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-              />
-              <button
-                type="submit"
-                disabled={isAiLoading || !inputQuery.trim()}
-                aria-label={lang === 'tr' ? 'Soruyu gönder' : 'Send question'}
-                className="rounded-xl bg-blue-600 p-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
-              >
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </form>
+            <div className="border-t border-slate-100 p-3 text-center text-[11px] text-slate-400 dark:border-slate-800">
+              {lang === 'tr'
+                ? 'API anahtarı gerekmez; vaka sorusu kendi hesabınızla açılan AI platformuna aktarılır.'
+                : 'No API key required; the case question is copied before opening the AI platform.'}
+            </div>
           </aside>
         </div>
       )}
@@ -6161,6 +6257,38 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.tag)}
               </span>
             </div>
+
+            {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
+              <div className="mb-4">
+                <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                  {lang === 'tr' ? 'FRAKSİYONASYON FELSEFESİ' : 'FRACTIONATION PHILOSOPHY'}
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                  {(['sbrt', 'moderate', 'sib', 'conventional'] as const).map(regimen => {
+                    const labels = {
+                      sbrt: lang === 'tr' ? 'Ultra-Hipo / SBRT' : 'Ultra-Hypo / SBRT',
+                      moderate: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate Hypo',
+                      sib: 'SIB Boost',
+                      conventional: lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
+                    };
+                    return (
+                      <button
+                        key={regimen}
+                        type="button"
+                        onClick={() => setSelectedRegimen(regimen)}
+                        className={`rounded-lg border px-2 py-2 text-[11px] font-semibold transition ${
+                          selectedRegimen === regimen
+                            ? 'border-blue-500 bg-blue-50 text-blue-900 ring-1 ring-blue-500 dark:bg-blue-950/50 dark:text-blue-100'
+                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                        }`}
+                      >
+                        {labels[regimen]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* ALTERNATİF PROTOKOL SEKMELERİ */}
             {evaluatedDecision.alternativeSchemes.length > 1 && (
