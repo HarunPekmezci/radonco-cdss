@@ -57,6 +57,283 @@ export type OrganId =
   | 'palliative'
   | 'benign';
 
+interface EContourTarget {
+  url: string;
+  label_tr: string;
+  label_en: string;
+}
+
+const getAdaptiveEContour = (
+  organ: OrganId,
+  subsite: string,
+  t: string,
+  n: string,
+  m: string,
+  riskCategory?: string,
+  surgeryStatus?: string,
+): EContourTarget => {
+  const normalizedSubsite = subsite.toLocaleLowerCase('tr');
+  const normalizedSurgery = surgeryStatus?.toLocaleLowerCase('tr') ?? '';
+  const normalizedRisk = riskCategory?.toLocaleLowerCase('tr') ?? '';
+  const isHighRisk = /yüksek|high|unfavorable|unfavourable|çok yüksek/.test(normalizedRisk);
+  const target = (url: string, label_tr: string, label_en: string): EContourTarget => ({
+    url,
+    label_tr,
+    label_en,
+  });
+
+  if (organ === 'prostate' && normalizedSubsite.includes('bladder')) {
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Mesane Koruyucu KRT & Pelvik Lenfatikler',
+      'eContour: Bladder-Preserving CRT & Pelvic Nodes',
+    );
+  }
+
+  if (organ === 'prostate' && normalizedSubsite.includes('prostate')) {
+    if (normalizedSurgery.includes('postop') || normalizedSurgery.includes('prostatektomi')) {
+      return target(
+        'https://econtour.org/cases/34',
+        'eContour: RTOG Prostatik Yatak (Fossa) Atlası',
+        'eContour: RTOG Prostate Bed (Fossa) Atlas',
+      );
+    }
+    if (t.startsWith('T3') || t.startsWith('T4') || n.startsWith('N1') || isHighRisk) {
+      return target(
+        'https://econtour.org/cases/34',
+        'eContour: Yüksek Risk Prostat + Pelvik Lenfatikler',
+        'eContour: High-Risk Prostate + Pelvic Nodes',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/34',
+      'eContour: İntakt Prostat Bezi (SBRT/Hipofraksiyon)',
+      'eContour: Intact Prostate Gland Atlas',
+    );
+  }
+
+  if (organ === 'thorax') {
+    if (normalizedSubsite.includes('sclc') || normalizedSubsite.includes('khak')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Sınırlı Evre KHAK Torasik KRT & PCI',
+        'eContour: Limited SCLC Thoracic CRT & PCI',
+      );
+    }
+    if (normalizedSubsite.includes('thymoma') || normalizedSubsite.includes('timoma')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Timoma Masaoka Cerrahi Yatak PORT',
+        'eContour: Thymoma Post-op Bed (PORT) Atlas',
+      );
+    }
+    if (n === 'N2' || n === 'N3' || t === 'T3' || t === 'T4') {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Lokal İleri KHDAK & IASLC Mediastinal Nodal İstasyonlar',
+        'eContour: Locally Advanced NSCLC & Mediastinal Stations',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Akciğer SBRT (4D-CT / ITV Hacim Kapsamı)',
+      'eContour: Lung SBRT (4D-CT / ITV Target Volume)',
+    );
+  }
+
+  if (organ === 'breast') {
+    if (n === 'N2' || n === 'N3' || normalizedSurgery.includes('mastektomi')) {
+      return target(
+        'https://econtour.org/cases/74',
+        'eContour: Göğüs Duvarı + Aksilla & Supraklavikular (RNI)',
+        'eContour: Chest Wall + Regional Nodal Irradiation (RNI)',
+      );
+    }
+    return target(
+      'https://econtour.org/hypofrac',
+      'eContour: Tüm Meme (WBRT) & Kavite Boost Atlası',
+      'eContour: Whole Breast & Tumor Bed Cavity Atlas',
+    );
+  }
+
+  if (organ === 'gis') {
+    if (normalizedSubsite.includes('rektum') || normalizedSubsite.includes('rectal')) {
+      return target(
+        'https://econtour.org/cases/11',
+        'eContour: Preoperatif Rektum & Pelvik Mezorektum Atlası',
+        'eContour: Preoperative Rectal & Pelvic Mesorectum',
+      );
+    }
+    if (normalizedSubsite.includes('mide') || normalizedSubsite.includes('gastric')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Adjuvan Mide Cerrahi Yatak & Nodal Kapsam',
+        'eContour: Adjuvant Gastric Bed & Nodal Stations',
+      );
+    }
+    if (normalizedSubsite.includes('karaciger') || normalizedSubsite.includes('karaciğer') || normalizedSubsite.includes('liver')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Karaciğer Primer/Metastaz SBRT Atlası',
+        'eContour: Liver SBRT & Normal Tissue Envelope',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Gastrointestinal Tümör Konturlama Atlası',
+      'eContour: Gastrointestinal Contouring Atlas',
+    );
+  }
+
+  if (organ === 'head-neck') {
+    if (normalizedSubsite.includes('nasopharynx') || normalizedSubsite.includes('nazofarenks')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Nazofarenks & Retrofarengeal / Kafa Tabanı Kapsamı',
+        'eContour: Nasopharynx & Retropharyngeal / Skull Base',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Baş-Boyun Bilateral Servikal Boyun Düzeyleri (I-VII)',
+      'eContour: Head & Neck Bilateral Neck Levels (I-VII)',
+    );
+  }
+
+  if (organ === 'cns') {
+    if (normalizedSubsite.includes('gbm') || normalizedSubsite.includes('glioblastom')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Glioblastom (GBM) Stupp T1+Gd / FLAIR CTV Atlası',
+        'eContour: Glioblastoma (GBM) Stupp T1+Gd / FLAIR CTV',
+      );
+    }
+    if (normalizedSubsite.includes('meningioma') || normalizedSubsite.includes('menenj')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Menenjiom SRS / Fraksiyone SRT Hedef Hacmi',
+        'eContour: Meningioma SRS / FSRT Target Volume',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Beyin Metastazları Tek/Oligo SRS Atlası',
+      'eContour: Brain Metastases SRS / HA-WBRT Atlas',
+    );
+  }
+
+  if (organ === 'gynecology') {
+    if (normalizedSubsite.includes('endometriyum') || normalizedSubsite.includes('endometrial')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Endometriyum PORTEC-2 VCB & Pelvik EBRT',
+        'eContour: Endometrial PORTEC-2 VCB & Pelvic EBRT',
+      );
+    }
+    if (normalizedSubsite.includes('vulva') || normalizedSubsite.includes('vulvar')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Vulva GROINSS-V Kasık & Pelvik Lenfatikler',
+        'eContour: Vulva GROINSS-V Inguinal & Pelvic Nodes',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: EMBRACE II Serviks Pelvik EBRT & MR-IGABT',
+      'eContour: EMBRACE II Cervix Pelvic EBRT & MR-IGABT',
+    );
+  }
+
+  if (organ === 'bone-sarcoma') {
+    if (normalizedSubsite.includes('ewing') || normalizedSubsite.includes('osteosarkom')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Kemik Sarkomları (Pre-KT Kemik Tutulum Hacmi)',
+        'eContour: Bone Sarcoma (Pre-chemo Bone Extent CTV)',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Yumuşak Doku Sarkomu Preop 50 Gy & Cilt Şeridi',
+      'eContour: Soft Tissue Sarcoma Preop 50 Gy & Skin Sparing',
+    );
+  }
+
+  if (organ === 'skin') {
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Kutanöz Melanom / NMSC Marjin ve Nodal Atlası',
+      'eContour: Cutaneous Melanoma / NMSC Margin & Nodal Atlas',
+    );
+  }
+
+  if (organ === 'hematologic') {
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Lenfoma ILROG Tutulu Alan (ISRT / INRT) Atlası',
+      'eContour: Lymphoma ILROG Involved-Site RT (ISRT/INRT)',
+    );
+  }
+
+  if (organ === 'pediatric') {
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Pediatrik Medulloblastom (CSI) & Wilms Atlası',
+      'eContour: Pediatric Medulloblastoma (CSI) & Wilms Atlas',
+    );
+  }
+
+  if (organ === 'palliative') {
+    if (normalizedSubsite.includes('spinal') || normalizedSubsite.includes('kord')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Spinal Kord Basısı Acil Dekompresif KRT',
+        'eContour: Spinal Cord Compression Emergency RT',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Kemik Metastazları Omurga/Femur SBRT & 3D',
+      'eContour: Bone Metastases Spine/Femur SBRT & 3D',
+    );
+  }
+
+  if (organ === 'benign') {
+    if (normalizedSubsite.includes('ho') || normalizedSubsite.includes('heterotopik')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Heterotopik Ossifikasyon Kalça Periartiküler',
+        'eContour: Heterotopic Ossification Periarticular Soft Tissue',
+      );
+    }
+    if (normalizedSubsite.includes('keloid')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Keloid Cerrahi Eksizyon Yatağı (<24h)',
+        'eContour: Keloid Excision Bed Superficial Target (<24h)',
+      );
+    }
+    if (normalizedSubsite.includes('dupuytren')) {
+      return target(
+        'https://econtour.org/cases/',
+        'eContour: Dupuytren Palmar Aponöroz Nodül & Kordon',
+        'eContour: Dupuytren Palmar Aponeurosis Cord & Nodule',
+      );
+    }
+    return target(
+      'https://econtour.org/cases/',
+      'eContour: Dejeneratif Kas-İskelet Düşük Doz RT Hedefi',
+      'eContour: Degenerative Musculoskeletal Low-Dose RT',
+    );
+  }
+
+  return target(
+    'https://econtour.org/cases/',
+    'eContour: İnteraktif 3D Konturlama Atlası',
+    'eContour: Interactive 3D Contouring Atlas',
+  );
+};
+
 const TRANSLATION_MAP: Record<string, string> = {
   'Küçük Hücreli Dışı Akciğer Ca (KHDAK)': 'Non-Small Cell Lung Cancer (NSCLC)',
   'Küçük Hücreli Akciğer Ca (KHAK / SCLC)': 'Small Cell Lung Cancer (SCLC)',
@@ -1696,6 +1973,35 @@ export default function RadoncoCDSSPage() {
     if (intermediateFactors === 0) return 'Düşük';
     return primary >= 4 || cores >= 50 || intermediateFactors > 1 ? 'Orta-Unfavorable' : 'Orta-Favorable';
   }, [gleasonPrimary, gleasonSecondary, psaLevel, positiveCorePercent, selectedN, selectedT, hasSVI, hasECE]);
+
+  const eContourSubsite = [
+    currentTnmKey,
+    selectedOrgan === 'palliative' ? palliativeIntent : '',
+    selectedOrgan === 'benign' ? selectedSubsite : '',
+  ].filter(Boolean).join(' ');
+  const eContourRiskCategory = selectedOrgan === 'prostate'
+    ? prostateRiskLabel
+    : selectedOrgan === 'gynecology' && gynSite === 'Endometriyum'
+      ? endoRisk
+      : selectedOrgan === 'breast' && (selectedN === 'N2' || selectedN === 'N3')
+        ? 'high'
+        : undefined;
+  const eContourSurgeryStatus = selectedOrgan === 'thorax'
+    ? thoraxSurgeryStatus
+    : selectedOrgan === 'breast'
+      ? breastSurgery
+      : selectedOrgan === 'bone-sarcoma'
+        ? sarcomaSurgery
+        : undefined;
+  const eContour = getAdaptiveEContour(
+    selectedOrgan,
+    eContourSubsite,
+    selectedT,
+    selectedN,
+    selectedM,
+    eContourRiskCategory,
+    eContourSurgeryStatus,
+  );
 
   // Organ Değişimi
   const handleOrganChange = (newOrgan: OrganId) => {
@@ -4063,7 +4369,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     prostateRiskLabel, psaLevel, gleasonPrimary, gleasonSecondary, positiveCorePercent,
     breastHistology, breastMenopause, breastER, breastPR, breastHER2, breastKi67, breastGrade, breastBoost,
     skinHistology, skinMargin, skinDepthMm, skinPerineuralInvasion, hematologicSubtype,
-    myelomaFractionation, pediatricSubtype, pediatricRisk, wilmsStage,
+    myelomaFractionation, pediatricSubtype, pediatricRisk, wilmsStage, tText,
   ]);
 
   const copyToClipboard = () => {
@@ -5616,10 +5922,24 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             {/* HEDEF HACİMLER VE MARJİNLER */}
             {activeScheme.targetVolumes.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-sky-700" />
-                  {lang === 'tr' ? 'HEDEF HACİMLER (TARGET VOLUMES)' : 'TARGET VOLUMES (ICRU 83)'}
-                </h4>
+                <div className="flex min-w-0 items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2 mb-2">
+                  <h4 className="flex min-w-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                    <Layers className="w-3.5 h-3.5 shrink-0 text-sky-700" />
+                    <span>{lang === 'tr' ? 'HEDEF HACİMLER (ICRU 83)' : 'TARGET VOLUMES (ICRU 83)'}</span>
+                  </h4>
+                  <a
+                    href={eContour.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex max-w-[65%] shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 shadow-sm transition-all hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60"
+                    title={lang === 'tr' ? 'eContour.org üzerinde bu vakanın 3D interaktif çizimini aç' : 'Open 3D interactive contouring case on eContour.org'}
+                    aria-label={lang === 'tr' ? eContour.label_tr : eContour.label_en}
+                  >
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 transition-transform group-hover:scale-125" aria-hidden="true" />
+                    <span className="truncate">{lang === 'tr' ? eContour.label_tr : eContour.label_en}</span>
+                    <span className="text-[10px] opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
+                  </a>
+                </div>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
                     <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200">
