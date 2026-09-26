@@ -34,7 +34,8 @@ import {
   ChevronRight,
   Info,
   Sun,
-  Moon
+  Moon,
+  TrendingUp,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 
@@ -349,6 +350,79 @@ const getAdaptiveEContour = (
 };
 
 const TRANSLATION_MAP: Record<string, string> = {
+  'İnvaziv Duktal Karsinom (İDK)': 'Invasive Ductal Carcinoma (IDC)',
+  'İnvaziv Lobüler Karsinom (İLK)': 'Invasive Lobular Carcinoma (ILC)',
+  'Duktal Karsinoma İn Situ (DCIS)': 'Ductal Carcinoma In Situ (DCIS)',
+  'Malign Filloides Tümörü': 'Malignant Phyllodes Tumor',
+  'Metaplastik Karsinom': 'Metaplastic Carcinoma',
+  'MKC (Lumpektomi)': 'BCS (Lumpectomy)',
+  'Negatif (≥2 mm)': 'Negative (≥2 mm)',
+  'Mikroinvazyon; en büyük odak ≤0.1 cm (1 mm)': 'Microinvasion; largest focus ≤0.1 cm (1 mm)',
+  '>5 cm primer meme kitlesi': '>5 cm primary breast tumor',
+  'Göğüs duvarı fiksasyonu, cilt ülserasyonu or enflamatuar karsinom': 'Chest wall fixation, skin ulceration, or inflammatory carcinoma',
+  'Aksiller lymph node metastasis absent': 'No regional axillary lymph node metastasis',
+  '1-3 ipsilateral hareketli Level I-II aksiller lymph node': '1-3 ipsilateral mobile Level I-II axillary lymph nodes',
+  '4-9 aksiller lymph node or fikse konglomere kitle': '4-9 axillary lymph nodes or matted conglomerate nodal mass',
+  '≥10 aksiller nod or supraklavikuler / internal mammar lymph node': '≥10 axillary nodes or supraclavicular / internal mammary involvement',
+  'Kemik, akciğer, karaciğer or beyin uzak metastasis': 'Distant metastasis (bone, lung, liver, or brain)',
+  'Cilt altı 5 mm': 'Subcutaneous 5 mm',
+  'Tüm meme parankimi': 'Whole breast parenchyma',
+  'Kavite ve klipsler': 'Lumpectomy cavity and surgical clips',
+  'Tüm meme ışınlaması; nodal risk durumuna göre RNI eklenmez. Menopoz: Postmenopozal. ER positive, PR positive, HER2 negative, Ki-67 18%, Grade 2. 40 Gy/15 fx eşdeğer standard seçenektir.': 'Whole breast irradiation; RNI not indicated based on nodal status. Postmenopausal, ER+, PR+, HER2-, Ki-67 18%, Grade 2. 40 Gy/15 fx is an equivalent standard.',
+  'Adjuvant sistemik tedavi multidisipliner kararla belirlenir.': 'Adjuvant systemic therapy is guided by multidisciplinary tumor board.',
+  'Nasopharynx or orofarenks/burun boşluğu ile limited': 'Confined to nasopharynx, or extending to oropharynx or nasal cavity',
+  'Parafaringeal alana uzanım': 'Extension into parapharyngeal space',
+  'Kafatası tabanı, servikal vertebra, pterigoid kemik invasion': 'Invasion of skull base, cervical vertebra, or pterygoid structures',
+  'İntrakraniyal uzanım, kraniyal sinir involvement, hipofarinks, orbita': 'Intracranial extension, cranial nerve involvement, hypopharynx, or orbit',
+  'Unilateral servikal (≤6 cm) or bilateral retrofaringeal lymph node': 'Unilateral cervical lymph node (≤6 cm) or bilateral retropharyngeal lymph nodes',
+  'Bilateral servikal lymph node (≤6 cm, klavikula üstü)': 'Bilateral cervical lymph nodes (≤6 cm, above supraclavicular fossa)',
+  '>6 cm lymph node or supraklavikuler fossa involvement': 'Lymph node >6 cm or extension into supraclavicular fossa',
+  'Distant metastaz mevcut': 'Distant metastasis present',
+  '70 / 60 / 54 Gy - 33 fx (3 Kademeli Standard SIB Kemoradyoterapi)': '70 / 60 / 54 Gy - 33 fx (3-Dose Level SIB Chemoradiotherapy)',
+  'Primer kitle ve makroskopik tutulu lenf nodları': 'Primary gross disease and macroscopic involved lymph nodes',
+  'VMAT / IMRT (Eşzamanlı Entegre Boost)': 'VMAT / IMRT (Simultaneous Integrated Boost - SIB)',
+  'Yüksek risk nodlar': 'High-risk nodal stations',
+  'Primary komşuluğu ve involved nod istasyonu': 'Primary tumor bed and adjacent involved nodal stations',
+  'Bilateral boyun': 'Bilateral elective neck',
+  'Bilateral Level II-V + retrofaringeal lymph nodes (RPN)': 'Bilateral Levels II-V + retropharyngeal lymph nodes (RPN)',
+  'Parotid Gland Bezi (Contralateral)': 'Contralateral Parotid Gland',
+  'Kserostomi koruması': 'Xerostomia sparing',
+  'Eşzamanlı Sisplatin (100 mg/m2 days 1, 22, 43 or 40 mg/m2 haftalık)': 'Concurrent Cisplatin (100 mg/m² q3w or 40 mg/m² weekly)',
+  'Şift absent': 'No midline shift',
+  'Asemptomatik': 'Asymptomatic',
+  'Surgery absent': 'No prior surgical resection',
+  'Soliter N0 M1': 'Solitary Brain Met (N0 M1)',
+  'Tek Odak ≤2 cm soliter metastatik lezyon': 'Single focus: ≤2 cm solitary metastatic lesion',
+  '2-4 Odak Oligometastatic intrakraniyal lezyonlar (diameter ≤3-4 cm)': '2-4 Foci: Oligometastatic intracranial lesions (diameter ≤3-4 cm)',
+  '>4 Odak / Yaygın Çoklu intrakranial metastazlar or yaygın ödem/kitle etkisi': '>4 Foci / Widespread multiple metastases or significant edema/mass effect',
+  'Primary tümör bölgesel lymph node negative': 'Primary tumor regional lymph nodes negative',
+  'Primary tümör bölgesel lymph node positive': 'Primary tumor regional lymph nodes positive',
+  'Parankimal intrakraniyal beyin metastasis': 'Parenchymal intracranial brain metastasis',
+  '24 Gy / 1 fx (Tek Fraksiyon SRS)': '24 Gy / 1 fx (Single-Fraction SRS)',
+  'MR T1 kontrast tutan lezyon': 'Contrast-enhancing lesion on T1-weighted MRI',
+  'Stereotaktik Radyocerrahi (SRS - Gamma Knife / CyberKnife / VMAT)': 'Stereotactic Radiosurgery (SRS - Gamma Knife / CyberKnife / VMAT)',
+  '1-4 odakta tek başına SRS; hasta performansı (KPS 90) ve sistemik disease kontrolüyle birlikte is considered. Asemptomatik durumda yakın nörolojik ve görüntüleme izlemi gerekir.': 'Upfront SRS alone for 1-4 metastases considering patient performance (KPS 90) and systemic control. Close surveillance with serial MRI is required.',
+  'Sub-milimetrik set-up zarfı': 'Sub-millimeter set-up safety margin',
+  'Kutanöz Skuamöz Hücreli Karsinom (cSCC)': 'Cutaneous Squamous Cell Carcinoma (cSCC)',
+  'Negative marjin': 'Negative margin',
+  '≤2 cm diameter; high risk özelliği absent': '≤2 cm diameter; no high-risk features',
+  '>4 cm or derin invazyon (>6 mm) or kemik korteks erozyonu': '>4 cm or deep invasion (>6 mm) or bone cortex erosion',
+  'Aksiyel kemik or kafatası tabanı derin invasion': 'Axial skeleton or skull base deep invasion',
+  'Regional lymph node involvement absent': 'No regional lymph node metastasis',
+  '1 lymph node metastasis (≤3 cm)': 'Single lymph node metastasis (≤3 cm)',
+  'Çoklu lymph node or >3 cm kitle': 'Multiple lymph nodes or >3 cm nodal mass',
+  'Distant visseral organ metastazları': 'Distant visceral organ metastases',
+  'LOW RISK cSCC: SURGERY / SURVEILLANCE; radiotherapy YALNIZCA ENDİKASYON VARSA': 'LOW-RISK cSCC: SURGERY / SURVEILLANCE; RT ONLY IF HIGH-RISK FEATURES',
+  '60 Gy / 30 fx (cSCC, radiotherapy endikasyonu varsa)': '60 Gy / 30 fx (cSCC, if adjuvant RT indicated)',
+  'Primer yatak / lezyon': 'Primary surgical bed / macroscopic lesion',
+  'Yüksek riskte IMRT / VMAT': 'IMRT / VMAT or electron beam for high-risk anatomy',
+  'Klinik marjin ve anatomik bariyerlere göre': 'Clinical margin adjusted for anatomic barriers',
+  'Eye / Globe Lensi (Yüz ise)': 'Lens of the Eye (Facial lesions)',
+  'Kemik / Kıkırdak': 'Bone / Cartilage',
+  'Low risk cSCC for cerrahi/izlem önceliklidir; radiotherapy yalnızca clinical endikasyon varsa is considered.': 'Surgery or observation is preferred for low-risk cSCC; adjuvant RT is indicated only for close/positive margins or high-risk features.',
+  'İnsidental TURP materyalinde tümör ≤%5': 'Incidental histologic finding in ≤5% of resected tissue',
+  'İnsidental TURP materyalinde tümör >%5': 'Incidental histologic finding in >5% of resected tissue',
+  'Muayenede palpe edilemeyen; PSA yüksekliği biyopsisinde saptanan': 'Tumor identified by needle biopsy (elevated PSA), non-palpable',
   'GÜS Anatomik Alt Bölgesi': 'GU Anatomic Subsite',
   'INDICATED: HIGH RISK PROSTAT ESKALE radiotherapy + 2 YIL ADT': 'INDICATED: HIGH-RISK PROSTATE DOSE-ESCALATED RT + 2 YEARS ADT',
   '78 Gy / 39 fx or 60 Gy / 20 fx + 18-36 Ay ADT': '78 Gy / 39 fx or 60 Gy / 20 fx + 18-36 Months ADT',
@@ -362,7 +436,6 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Kemik metastasis (aksiyel/apandiküler iskelet)': 'Bone metastases (axial / appendicular skeleton)',
   'Visseral organ metastazları (akciğer, karaciğer vb.)': 'Visceral organ metastases (lung, liver, etc.)',
   'Ilımlı Hipofraksiyonasyon': 'Moderate Hypofractionation',
-  'Muayenede palpe edilemeyen; PSA yüksekliği biyopsisinde saptanan': 'Non-palpable tumor identified clinically; detected by elevated PSA biopsy',
   'Palpabl tümör; bir lobun yarısı or daha azı ile limited': 'Palpable tumor confined to half of one lobe or less',
   'Palpabl tümör; bir lobun yarısından fazlasına uzanmış': 'Palpable tumor involving more than half of one lobe',
   'Bilateral her iki prostat lobunu tutan kitle': 'Tumor involving both lobes bilaterally',
@@ -1079,6 +1152,150 @@ export interface EvaluatedDecision {
   techniqueBadge?: string;
 }
 
+export interface PrognosticResult {
+  indexName: string;
+  score: string | number;
+  riskCategory: string;
+  medianSurvivalOrRecurrence: string;
+  recommendation: string;
+}
+
+export const calculatePrognosticIndex = (
+  organ: string,
+  subsite: string,
+  t: string,
+  n: string,
+  m: string,
+  extraParams: {
+    kps?: number;
+    age?: number;
+    psa?: number;
+    gleasonPrimary?: number;
+    gleasonSecondary?: number;
+    positiveCorePercent?: number;
+    packYears?: number;
+    hpvStatus?: 'positive' | 'negative';
+    grade?: number;
+    tumorSizeCm?: number;
+    ldhElevated?: boolean;
+    ecog?: number;
+  },
+): PrognosticResult | null => {
+  const age = extraParams.age || 65;
+  const kps = extraParams.kps || 80;
+
+  if (organ === 'cns' && (subsite.includes('mets') || m.includes('M1'))) {
+    let gpa = 0;
+    if (age < 50) gpa += 1;
+    else if (age <= 59) gpa += 0.5;
+    if (kps >= 90) gpa += 1;
+    else if (kps >= 70) gpa += 0.5;
+    gpa += 1;
+
+    let riskCategory = 'Kötü Prognoz (GPA 0-1.0)';
+    let medianSurvivalOrRecurrence = 'Median OS: ~3-5 ay';
+    let recommendation = 'WBRT veya Best Supportive Care değerlendirilebilir.';
+    if (gpa >= 3.5) {
+      riskCategory = 'Mükemmel Prognoz (GPA 3.5-4.0)';
+      medianSurvivalOrRecurrence = 'Median OS: ~14-25 ay';
+      recommendation = 'Agresif Lokal Tedavi: Tek başına SRS / Fraksiyone SRT (Kategori 1).';
+    } else if (gpa >= 2.5) {
+      riskCategory = 'İyi-Orta Prognoz (GPA 2.5-3.0)';
+      medianSurvivalOrRecurrence = 'Median OS: ~8-12 ay';
+      recommendation = 'Stereotaktik Radyocerrahi (SRS) veya Hipokampus Korumalı WBRT.';
+    }
+    return {
+      indexName: 'Diagnosis-Specific GPA (DS-GPA)',
+      score: `${gpa.toFixed(1)} / 4.0`,
+      riskCategory,
+      medianSurvivalOrRecurrence,
+      recommendation,
+    };
+  }
+
+  if (organ === 'prostate') {
+    let capra = 0;
+    const psa = extraParams.psa || 8.5;
+    const g1 = extraParams.gleasonPrimary || 3;
+    const g2 = extraParams.gleasonSecondary || 4;
+    const gleasonSum = g1 + g2;
+    if (psa > 20) capra += 3;
+    else if (psa >= 10) capra += 2;
+    else if (psa >= 6) capra += 1;
+    if (gleasonSum >= 8 || g1 >= 4) capra += 3;
+    else if (gleasonSum === 7) capra += 1;
+    if (t.startsWith('T3') || t.startsWith('T4')) capra += 1;
+
+    let riskCategory = 'Düşük Risk (CAPRA 0-2)';
+    let medianSurvivalOrRecurrence = '5 yıllık biyokimyasal nükssüzlük: ~85-90%';
+    let recommendation = 'Aktif İzlem veya Tek Başına SBRT / Ilımlı Hipofraksiyonasyon (ADT gerekmez).';
+    if (capra >= 6) {
+      riskCategory = 'Yüksek / Çok Yüksek Risk (CAPRA 6-10)';
+      medianSurvivalOrRecurrence = '5 yıllık biyokimyasal nükssüzlük: ~35-50%';
+      recommendation = 'Doz Eskalasyonu (78-80 Gy veya SIB) + 18-36 Ay Uzun Dönem ADT + Elektif Pelvik Nodal RT.';
+    } else if (capra >= 3) {
+      riskCategory = 'Orta Risk (CAPRA 3-5)';
+      medianSurvivalOrRecurrence = '5 yıllık biyokimyasal nükssüzlük: ~70-75%';
+      recommendation = 'Ilımlı Hipofraksiyon (60 Gy / 20 fx) veya SBRT (36.25 Gy) ± 4-6 Ay Kısa Dönem ADT.';
+    }
+    return {
+      indexName: 'UCSF CAPRA Skoru & NCCN Risk Modeli',
+      score: `${capra} / 10`,
+      riskCategory,
+      medianSurvivalOrRecurrence,
+      recommendation,
+    };
+  }
+
+  if (organ === 'breast') {
+    const sizeCm = extraParams.tumorSizeCm || (t === 'T1a' ? 0.5 : t === 'T1b' ? 1 : t === 'T1c' ? 1.8 : t === 'T2' ? 3 : 5.5);
+    const nodeScore = n === 'N0' ? 1 : n === 'N1' ? 2 : 3;
+    const gradeScore = extraParams.grade || 2;
+    const npi = (0.2 * sizeCm) + nodeScore + gradeScore;
+    let riskCategory = 'İyi Prognoz (NPI ≤ 3.4)';
+    let medianSurvivalOrRecurrence = '10 yıllık sağkalım: ~83-88%';
+    let recommendation = 'Standart Adjuvan WBRT (FAST-Forward 26 Gy/5 fx). Nodal ışınlama (RNI) gerekmez.';
+    if (npi > 5.4) {
+      riskCategory = 'Kötü Prognoz (NPI > 5.4)';
+      medianSurvivalOrRecurrence = '10 yıllık sağkalım: ~13-35%';
+      recommendation = 'Kapsamlı Bölgesel Nodal Işınlama (RNI Düzey I-IV + Supraklavikular) + Sistemik KT/Hedefe Yönelik Tedavi.';
+    } else if (npi > 3.4) {
+      riskCategory = 'Orta Prognoz (NPI 3.41 - 5.4)';
+      medianSurvivalOrRecurrence = '10 yıllık sağkalım: ~53-70%';
+      recommendation = 'Tüm Meme RT + Risk faktörlerine göre Tümör Yatağı Boost (10-16 Gy) ve Endokrin Tedavi.';
+    }
+    return {
+      indexName: 'Nottingham Prognostic Index (NPI)',
+      score: npi.toFixed(2),
+      riskCategory,
+      medianSurvivalOrRecurrence,
+      recommendation,
+    };
+  }
+
+  if (organ === 'palliative' || subsite.includes('Spinal')) {
+    let tokuhashi = 3;
+    if (kps >= 80) tokuhashi += 2;
+    else if (kps >= 50) tokuhashi += 1;
+    let riskCategory = 'Orta/İyi Prognoz (Tokuhashi ≥ 9)';
+    let medianSurvivalOrRecurrence = 'Beklenen Yaşam Süresi: > 6-12 ay';
+    let recommendation = 'Omurga Stereotaktik Beden Radyoterapisi (Spine SBRT: 16-24 Gy tek fx veya 24-30 Gy / 3-5 fx).';
+    if (tokuhashi < 9) {
+      riskCategory = 'Kısa Yaşam Beklentisi (Tokuhashi < 9)';
+      medianSurvivalOrRecurrence = 'Beklenen Yaşam Süresi: < 6 ay';
+      recommendation = 'Hızlı Ağrı Palyasyonu: Tek Fraksiyon 8 Gy veya 20 Gy / 5 fx Konvansiyonel Dekompresyon.';
+    }
+    return {
+      indexName: 'Modifiye Tokuhashi & Tomita Spinal İndeksi',
+      score: `${tokuhashi} / 15`,
+      riskCategory,
+      medianSurvivalOrRecurrence,
+      recommendation,
+    };
+  }
+  return null;
+};
+
 function parseOption<T extends string>(value: string, options: readonly T[]): T | undefined {
   return options.find(option => option === value);
 }
@@ -1492,6 +1709,8 @@ const TNM_DATABASE: Record<string, { T: TNMOption[]; N: TNMOption[]; M: TNMOptio
   // --- GÜS: Prostat ---
   'prostate-prostate': {
     T: [
+      { code: 'T1a', label: 'T1a', criterion: 'İnsidental TURP materyalinde tümör ≤%5' },
+      { code: 'T1b', label: 'T1b', criterion: 'İnsidental TURP materyalinde tümör >%5' },
       { code: 'T1c', label: 'T1c', criterion: 'Muayenede palpe edilemeyen; PSA yüksekliği biyopsisinde saptanan' },
       { code: 'T2a', label: 'T2a', criterion: 'Palpabl tümör; bir lobun yarısı veya daha azı ile sınırlı' },
       { code: 'T2b', label: 'T2b', criterion: 'Palpabl tümör; bir lobun yarısından fazlasına uzanmış' },
@@ -4451,6 +4670,38 @@ export default function RadoncoCDSSPage() {
     return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
   }, [activeScheme]);
 
+  const prognosticResult = useMemo(
+    () => calculatePrognosticIndex(
+      selectedOrgan,
+      selectedSubsite || (selectedOrgan === 'cns' ? cnsSubtype : ''),
+      selectedT,
+      selectedN,
+      selectedM,
+      {
+        kps: Number.parseInt(cnsKps, 10),
+        psa: Number.parseFloat(psaLevel),
+        gleasonPrimary: Number.parseInt(gleasonPrimary, 10),
+        gleasonSecondary: Number.parseInt(gleasonSecondary, 10),
+        positiveCorePercent: Number.parseFloat(positiveCorePercent),
+        grade: Number.parseInt(breastGrade, 10),
+      },
+    ),
+    [
+      breastGrade,
+      cnsKps,
+      cnsSubtype,
+      gleasonPrimary,
+      gleasonSecondary,
+      positiveCorePercent,
+      psaLevel,
+      selectedM,
+      selectedN,
+      selectedOrgan,
+      selectedSubsite,
+      selectedT,
+    ],
+  );
+
   const casePrompt = useMemo(
     () =>
       generateCasePrompt(
@@ -4503,6 +4754,11 @@ export default function RadoncoCDSSPage() {
       () => window.alert(lang === 'tr' ? 'Vaka bağlamı panoya kopyalanamadı.' : 'The case context could not be copied.'),
     );
     return true;
+  };
+  const getAiUrl = () => {
+    if (activeAiTab === 'gemini') return 'https://gemini.google.com';
+    if (activeAiTab === 'chatgpt') return 'https://chatgpt.com';
+    return 'https://claude.ai';
   };
   const openSelectedAi = () => {
     const aiUrls = {
@@ -4874,14 +5130,16 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   value={casePrompt}
                   className="h-64 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
                 />
-                <button
-                  type="button"
+                <a
+                  href={getAiUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={copyCaseContext}
                   className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-700"
                 >
                   {activeAiTab === 'gemini' ? '🔵' : activeAiTab === 'chatgpt' ? '🟢' : '🟣'}
                   {lang === 'tr' ? 'Hesabınla Aç & Sor ↗' : 'Open & Ask with Your Account ↗'}
-                </button>
+                </a>
                 <button
                   type="button"
                   onClick={openSelectedAi}
@@ -4912,9 +5170,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
-          { id: 'prostate', name_tr: 'GÜS', name_en: 'GU', icon: Droplets, color: 'text-blue-700' },
+          { id: 'prostate', name_tr: 'GÜS', name_en: 'GUS', icon: Droplets, color: 'text-blue-700' },
           { id: 'breast', name_tr: 'Meme', name_en: 'Breast', icon: CircleDot, color: 'text-pink-700' },
-          { id: 'gis', name_tr: 'GİS', name_en: 'GI', icon: UtensilsCrossed, color: 'text-orange-700' },
+          { id: 'gis', name_tr: 'GİS', name_en: 'GİS', icon: UtensilsCrossed, color: 'text-orange-700' },
           { id: 'head-neck', name_tr: 'Baş-Boyun', name_en: 'Head & Neck', icon: User, color: 'text-indigo-700' },
           { id: 'cns', name_tr: 'MSS', name_en: 'CNS', icon: Brain, color: 'text-purple-700' },
           { id: 'gynecology', name_tr: 'Jinekoloji', name_en: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
@@ -6263,26 +6521,57 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   {lang === 'tr' ? 'FRAKSİYONASYON FELSEFESİ' : 'FRACTIONATION PHILOSOPHY'}
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                   {(['sbrt', 'moderate', 'sib', 'conventional'] as const).map(regimen => {
-                    const labels = {
-                      sbrt: lang === 'tr' ? 'Ultra-Hipo / SBRT' : 'Ultra-Hypo / SBRT',
-                      moderate: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate Hypo',
-                      sib: 'SIB Boost',
-                      conventional: lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
+                    const cards = {
+                      sbrt: {
+                        title: lang === 'tr' ? 'Ultra-Hipo' : 'Ultra-Hypo',
+                        badge: '1-5 fx',
+                        detail: 'SBRT / Stereotactic',
+                        active: 'bg-gradient-to-br from-indigo-600 to-purple-600',
+                        hover: 'hover:border-purple-300',
+                      },
+                      moderate: {
+                        title: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate',
+                        badge: '15-20 fx',
+                        detail: 'Hypofractionated',
+                        active: 'bg-gradient-to-br from-blue-600 to-cyan-600',
+                        hover: 'hover:border-blue-300',
+                      },
+                      sib: {
+                        title: 'SIB Boost',
+                        badge: lang === 'tr' ? 'Entegre' : 'Integrated',
+                        detail: 'Simultaneous Boost',
+                        active: 'bg-gradient-to-br from-emerald-600 to-teal-600',
+                        hover: 'hover:border-emerald-300',
+                      },
+                      conventional: {
+                        title: lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
+                        badge: '35-40 fx',
+                        detail: '1.8 - 2.0 Gy / fx',
+                        active: 'bg-gradient-to-br from-slate-700 to-slate-900',
+                        hover: 'hover:border-slate-400',
+                      },
                     };
+                    const card = cards[regimen];
                     return (
                       <button
                         key={regimen}
                         type="button"
                         onClick={() => setSelectedRegimen(regimen)}
-                        className={`rounded-lg border px-2 py-2 text-[11px] font-semibold transition ${
+                        className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
                           selectedRegimen === regimen
-                            ? 'border-blue-500 bg-blue-50 text-blue-900 ring-1 ring-blue-500 dark:bg-blue-950/50 dark:text-blue-100'
-                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            ? `${card.active} border-transparent text-white shadow-md`
+                            : `border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 ${card.hover}`
                         }`}
                       >
-                        {labels[regimen]}
+                        <div className="mb-1 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-xs font-bold">
+                            {regimen === 'sbrt' ? '⚡' : regimen === 'moderate' ? '🎯' : regimen === 'sib' ? '🧬' : '🛡️'} {card.title}
+                          </span>
+                          <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-black/20">{card.badge}</span>
+                        </div>
+                        <div className="text-[10px] opacity-80">{card.detail}</div>
                       </button>
                     );
                   })}
@@ -6435,6 +6724,35 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{tText(activeScheme.evidence)}
             </div>
 
+            {prognosticResult && (
+              <div className="mt-4 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 shadow-sm dark:border-blue-800/60 dark:from-slate-800/60 dark:to-slate-900/60">
+                <div className="mb-2.5 flex items-center justify-between border-b border-blue-100 pb-2 dark:border-slate-700">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      {lang === 'tr' ? 'Otomatik Prognostik İndeks' : 'Automated Prognostic Index'}
+                    </span>
+                  </div>
+                  <span className="rounded bg-blue-100 px-2 py-0.5 font-mono text-[11px] font-bold text-blue-800 dark:bg-blue-900/60 dark:text-blue-200">
+                    {prognosticResult.score}
+                  </span>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between gap-3 font-bold text-slate-800 dark:text-slate-200">
+                    <span>{prognosticResult.indexName}</span>
+                    <span className="text-right text-blue-600 dark:text-blue-400">{prognosticResult.riskCategory}</span>
+                  </div>
+                  <div className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                    {prognosticResult.medianSurvivalOrRecurrence}
+                  </div>
+                  <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-[11px] font-medium leading-relaxed text-slate-700 dark:border-slate-700/70 dark:bg-slate-800/80 dark:text-slate-300">
+                    <strong>{lang === 'tr' ? 'Önerilen Strateji: ' : 'Recommended Strategy: '}</strong>
+                    {prognosticResult.recommendation}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* KOPYALANABİLİR RAPOR PANELİ */}
             <div className="pt-3 border-t border-slate-200/80 flex justify-end">
               <button
@@ -6452,15 +6770,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
         </section>
       </main>
-
-      <button
-        type="button"
-        onClick={() => setIsAiOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-2xl shadow-blue-500/30 transition-all hover:scale-105 active:scale-95"
-      >
-        <Sparkles className="h-4 w-4 animate-pulse text-amber-300" aria-hidden="true" />
-        <span>{lang === 'tr' ? 'AI Konsültasyon' : 'AI Consultation'}</span>
-      </button>
 
       {isAiOpen && (
         <div

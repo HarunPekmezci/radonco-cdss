@@ -110,3 +110,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Hide Clerk promotional footer and branding text in the account popover. */
+.cl-userButtonPopoverFooter,
+.cl-footerAction,
+.cl-internal-b3fm6y {
+  display: none !important;
+}
