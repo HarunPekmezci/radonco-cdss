@@ -36,8 +36,6 @@ import {
   ChevronRight,
   ChevronDown,
   Info,
-  Sun,
-  Moon,
   TrendingUp,
   Download,
 } from 'lucide-react';
@@ -2795,7 +2793,6 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [lang, setLang] = useState<'tr' | 'en'>(() => {
     if (typeof window === 'undefined') return 'en';
     const saved = window.localStorage.getItem('radonco-lang');
@@ -2823,27 +2820,7 @@ export default function RadoncoCDSSPage() {
     emailLower.includes('.hospital');
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem('radonco-theme');
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const applyTheme = (nextTheme: 'light' | 'dark') => {
-      setTheme(nextTheme);
-      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
-    };
-
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      applyTheme(storedTheme);
-    } else {
-      applyTheme(mediaQuery.matches ? 'dark' : 'light');
-    }
-
-    const handleSystemThemeChange = (event: MediaQueryListEvent) => {
-      if (!window.localStorage.getItem('radonco-theme')) {
-        applyTheme(event.matches ? 'dark' : 'light');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
-    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    document.documentElement.classList.add('dark');
   }, []);
 
   useEffect(() => {
@@ -2856,13 +2833,6 @@ export default function RadoncoCDSSPage() {
   const changeLanguage = (nextLanguage: 'tr' | 'en') => {
     setLang(nextLanguage);
     window.localStorage.setItem('radonco-lang', nextLanguage);
-  };
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    document.documentElement.classList.toggle('dark', nextTheme === 'dark');
-    window.localStorage.setItem('radonco-theme', nextTheme);
   };
 
   // ==========================================
@@ -6101,7 +6071,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   if (user && !isDoctor) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 dark:bg-[#070b14] p-6 text-slate-900 dark:text-slate-100 font-sans">
-        <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-xl text-center">
+        <div className="w-full max-w-md rounded-2xl bg-[#0c1322] border border-slate-800 p-8 shadow-xl text-center">
           <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">{tText("!")}</div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">{tText("Kurumsal Hekim Erişimi / Institutional Access")}</h2>
           <p className="text-xs text-slate-600 leading-relaxed mb-6">
@@ -6130,14 +6100,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           : 'dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300';
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen w-full bg-[#0a0f1d] text-slate-100 flex flex-col font-sans">
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-[#080d1a]/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+      <header className="w-full border-b border-slate-800 bg-[#080d1a]/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400">
+          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
             <Radiation className="w-6 h-6 animate-pulse" aria-hidden="true" />
           </div>
           <div>
@@ -6153,7 +6123,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               setActiveReferenceTab('guidelines');
               setShowGuidelineModal(true);
             }}
-            className="flex items-center gap-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-100 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <BookOpen className="w-4 h-4 text-amber-700" />
             {tText("\n            📖 ")}{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}
@@ -6164,7 +6134,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               onClick={() => setIsAiDropdownOpen(open => !open)}
               aria-expanded={isAiDropdownOpen}
               aria-haspopup="menu"
-              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700/60"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700"
             >
               {selectedAi ? (
                 <>
@@ -6182,7 +6152,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
             {isAiDropdownOpen && (
               <div
-                className="absolute right-0 z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                className="absolute right-0 z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 py-1.5 shadow-xl"
                 role="menu"
                 aria-label={lang === 'tr' ? 'Yapay zeka platformları' : 'AI platforms'}
               >
@@ -6226,16 +6196,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === 'light' ? 'Koyu temaya geç' : 'Açık temaya geç'}
-            aria-pressed={theme === 'dark'}
-            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-500 dark:text-blue-400 transition-colors"
-          >
-            {theme === 'light' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
-          </button>
-          <div className="flex items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
+          <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
             <button
               type="button"
               onClick={() => changeLanguage('en')}
@@ -6255,7 +6216,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
           <Show when="signed-out">
             <SignInButton mode="redirect">
-              <button type="button" className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
+              <button type="button" className="rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700">
                 {lang === 'tr' ? 'Giriş yap' : 'Sign in'}
               </button>
             </SignInButton>
@@ -6381,7 +6342,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           SOL DİKEY ORGAN NAVİGASYONU
          ========================================== */}
-      <nav className="w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-white dark:bg-[#0c1322] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm transition-colors">
+      <nav className="w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-sm">
         <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
           {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
         </div>
@@ -6417,8 +6378,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       : 'bg-blue-600 text-white font-bold shadow-md'
                     : item.id === 'benign'
                       ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                      : theme === 'light'
-                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium'
                 }`}
               >
@@ -6456,7 +6415,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 min-w-0 overflow-x-hidden bg-slate-100 p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 dark:bg-[#070b14]">
+      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
@@ -6490,7 +6449,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span>{lang === 'tr' ? 'Rapor Yapıştır & Otomatik Evrele' : 'Paste Report & Auto-Stage'}</span>
             </button>
           </div>
-          {false && <div className="rounded-2xl bg-white dark:bg-[#0c1322] border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          {false && <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-5 shadow-sm">
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
               <span className="text-[10px] text-amber-700 font-normal">{lang === 'tr' ? 'Kılavuz Tanımlı' : 'Guideline-defined'}</span>
@@ -6852,7 +6811,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>}
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
-          <div className="rounded-2xl bg-white dark:bg-[#0c1322] border border-slate-200 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-3">
+          <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-5 shadow-sm flex flex-col gap-3">
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
               {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
@@ -7649,7 +7608,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
         <section className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-          <div className="rounded-2xl bg-white dark:bg-[#0c1322] border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+          <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-4 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -7724,16 +7683,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       onClick={() => handleTnmSelection('T', opt.code)}
                       className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs flex items-center justify-between ${breastHistology === 'İnflamatuar Meme Kanseri (IBC)' && opt.code !== 'T4d' ? 'cursor-not-allowed opacity-45' : ''} ${
                         isSel
-                          ? theme === 'light'
-                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
-                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
-                          : theme === 'light'
-                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
-                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
+                          ? 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800/80'
                       }`}
                     >
-                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">{tText(opt.label)}</span>
-                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
+                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-800 text-slate-300 border border-slate-700">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-medium text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-white shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7756,16 +7711,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       onClick={() => handleTnmSelection('N', opt.code)}
                       className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs flex items-center justify-between ${
                         isSel
-                          ? theme === 'light'
-                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
-                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
-                          : theme === 'light'
-                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
-                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
+                          ? 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
+                          : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800/80'
                       }`}
                     >
-                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">{tText(opt.label)}</span>
-                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
+                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-800 text-slate-300 border border-slate-700">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-medium text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-white shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7788,16 +7739,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       onClick={() => handleTnmSelection('M', opt.code)}
                       className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs flex items-center justify-between ${
                         isSel
-                          ? theme === 'light'
-                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
-                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
-                          : theme === 'light'
-                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
-                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
+                          ? 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
+                          : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800/80'
                       }`}
                     >
-                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">{tText(opt.label)}</span>
-                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
+                      <span className="px-2 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-800 text-slate-300 border border-slate-700">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-medium text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-white shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7813,7 +7760,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
         <section className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="rounded-2xl bg-white dark:bg-[#0c1322] border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-5 shadow-sm">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
             <div className={`p-3.5 rounded-md border font-bold text-xs flex items-center justify-between mb-4 transition-colors ${evaluatedDecision.badgeClass} ${statusDarkClass}`}>
@@ -7872,7 +7819,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
                           selectedRegimen === regimen
                             ? `${card.active} border-transparent text-white shadow-md`
-                            : `border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 ${card.hover}`
+                            : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
                         }`}
                       >
                         <div className="mb-1 flex items-center justify-between">
@@ -7899,7 +7846,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors border ${
                       activeScheme.id === sch.id
                         ? 'bg-amber-50 text-amber-800 border-amber-300'
-                        : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                        : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80'
                     }`}
                   >
                     {tText(sch.tag)} {tText(" (")}{sch.totalDoseGy} {tText(" Gy)\n                  ")}</button>
@@ -8121,7 +8068,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             if (event.target === event.currentTarget) setIsAiOpen(false);
           }}
         >
-          <div className="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0c1322]">
+          <div className="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-slate-800 bg-[#0c1322] p-6 shadow-2xl">
             <div>
               <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                 <div className="flex items-center gap-2">
@@ -8214,7 +8161,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
       {isReportModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0c1322]">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-[#0c1322] p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-blue-600" aria-hidden="true" />
@@ -8349,7 +8296,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
       )}
 
-      <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
+      <footer className="min-h-10 w-full border-t border-slate-800 bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
         <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-200">
           {lang === 'tr'
             ? '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.'
@@ -8385,7 +8332,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             role="dialog"
             aria-modal="true"
             aria-labelledby="reference-modal-title"
-            className="bg-white dark:bg-[#131c31] border border-slate-300 dark:border-slate-700 rounded-lg max-w-3xl w-full p-6 text-xs text-slate-700 dark:text-slate-200 max-h-[85vh] overflow-y-auto"
+            className="bg-[#131c31] border border-slate-700 rounded-lg max-w-3xl w-full p-6 text-xs text-slate-200 max-h-[85vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-4">
               <h3 id="reference-modal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
