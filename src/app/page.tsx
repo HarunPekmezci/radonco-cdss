@@ -5507,12 +5507,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-[#080e1a] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
         <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
         <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
           {lang === 'tr' ? 'Kurumsal Kimlik Bilgileri Doğrulanıyor...' : 'Verifying Institutional Credentials...'}
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <div className="text-xs text-slate-500 dark:text-slate-200 mt-1">
           {lang === 'tr' ? 'Verifying institutional credentials' : 'Kurumsal hekim doğrulaması yapılıyor'}
         </div>
       </div>
@@ -5541,12 +5541,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   }
 
   return (
-    <div className={`min-h-screen w-full flex flex-col font-sans transition-colors ${theme === 'light' ? 'bg-[#f8fafc] text-slate-800' : 'bg-[#080e1a] text-slate-100'}`}>
+    <div className={`min-h-screen w-full flex flex-col font-sans transition-colors ${theme === 'light' ? 'bg-[#f8fafc] text-slate-800' : 'bg-[#070b14] text-slate-100'}`}>
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className={`w-full border-b backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors ${theme === 'light' ? 'bg-white/95 border-slate-200 text-slate-900' : 'bg-[#0d1527]/95 border-slate-800 text-white'}`}>
+      <header className={`w-full border-b backdrop-blur-md px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors ${theme === 'light' ? 'bg-white/95 border-slate-200 text-slate-900' : 'bg-[#0c1322]/95 border-slate-800/90 text-white'}`}>
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-700 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
             <Radiation className="w-6 h-6" aria-hidden="true" />
@@ -5791,8 +5791,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           ORGAN SEÇİM ŞERİDİ (12 ORGAN TAM LİSTE)
          ========================================== */}
-      <nav className={`w-full px-6 py-2 transition-colors ${theme === 'light' ? 'bg-[#f8fafc]' : 'bg-[#080e1a]'}`}>
-        <div className={`w-full border rounded-lg p-1 shadow-sm mb-4 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0b1324] border-slate-800'}`}>
+      <nav className={`w-full px-6 py-2 transition-colors ${theme === 'light' ? 'bg-[#f8fafc]' : 'bg-[#070b14]'}`}>
+        <div className={`w-full border rounded-lg p-1 shadow-sm mb-4 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e1628] border-slate-800/90'}`}>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
         {[
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
@@ -5825,7 +5825,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
                     : theme === 'light'
                       ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
@@ -5840,7 +5840,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 p-5 grid grid-cols-12 gap-5 max-w-[1920px] w-full mx-auto">
+      <main className="flex-1 bg-[#f8fafc] p-5 grid grid-cols-12 gap-5 max-w-[1920px] w-full mx-auto dark:bg-[#070b14]">
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
@@ -5858,7 +5858,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {lang === 'tr' ? 'Patoloji / MR / PET' : 'Pathology / MRI / PET'}
               </span>
             </div>
-            <p className="mb-2.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="mb-2.5 text-[11px] text-slate-500 dark:text-slate-200">
               {lang === 'tr' ? 'Rapor metnini yapıştırarak hastanın evresini ve tedavi şemasını otomatik doldurun.' : 'Paste pathology or imaging report to auto-extract TNM stage and protocol.'}
             </p>
             <button
@@ -5874,7 +5874,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span>{lang === 'tr' ? 'Rapor Yapıştır & Otomatik Evrele' : 'Paste Report & Auto-Stage'}</span>
             </button>
           </div>
-          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 text-slate-200 shadow-xl'}`}>
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
               <span className="text-[10px] text-amber-700 font-normal">{lang === 'tr' ? 'Kılavuz Tanımlı' : 'Guideline-defined'}</span>
@@ -6197,7 +6197,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
-          <div className={`rounded-2xl border p-5 flex flex-col gap-3 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 flex flex-col gap-3 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 shadow-xl text-slate-200'}`}>
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
               {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
@@ -6994,7 +6994,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
         <section className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 shadow-xl text-slate-200'}`}>
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -7058,7 +7058,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 {lang === 'tr' ? 'PRİMER TÜMÖR (T) KRİTERLERİ' : 'PRIMARY TUMOR (T) CRITERIA'}
               </span>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="grid grid-cols-1 gap-1 max-h-[min(55vh,520px)] overflow-y-auto pr-1.5 scrollbar-thin">
                 {currentTNM.T.map(opt => {
                   const isSel = selectedT === opt.code;
                   return (
@@ -7070,14 +7070,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         isSel
                           ? theme === 'light'
                             ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
                           : theme === 'light'
                             ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7090,7 +7090,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 {lang === 'tr' ? 'BÖLGESEL LENF NODLARI (N)' : 'REGIONAL LYMPH NODES (N)'}
               </span>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="grid grid-cols-1 gap-1 max-h-[min(55vh,520px)] overflow-y-auto pr-1.5 scrollbar-thin">
                 {currentTNM.N.map(opt => {
                   const isSel = selectedN === opt.code;
                   return (
@@ -7102,14 +7102,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         isSel
                           ? theme === 'light'
                             ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
                           : theme === 'light'
                             ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7122,7 +7122,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 {lang === 'tr' ? 'UZAK METASTAZ (M)' : 'DISTANT METASTASIS (M)'}
               </span>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="grid grid-cols-1 gap-1 max-h-[min(55vh,520px)] overflow-y-auto pr-1.5 scrollbar-thin">
                 {currentTNM.M.map(opt => {
                   const isSel = selectedM === opt.code;
                   return (
@@ -7134,14 +7134,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         isSel
                           ? theme === 'light'
                             ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/50 border-blue-500 text-blue-200'
+                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
                           : theme === 'light'
                             ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-slate-800/40 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7157,7 +7157,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
         <section className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
+          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 shadow-xl text-slate-200'}`}>
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
             <div className={`p-3.5 rounded-md border font-bold text-xs flex items-center justify-between mb-4 transition-colors ${evaluatedDecision.badgeClass}`}>
@@ -7300,7 +7300,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </div>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
-                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200">
+                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Hacim' : 'Volume'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Doz' : 'Dose'}</th>
@@ -7308,13 +7308,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <th className="p-2">{lang === 'tr' ? 'Anatomik Kapsam' : 'Anatomic Coverage'}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700">
+                    <tbody className="divide-y divide-slate-200 text-slate-700 dark:divide-slate-700/60 dark:text-slate-100">
                       {activeScheme.targetVolumes.map((tv, idx) => (
-                        <tr key={idx} className="hover:bg-slate-100">
-                          <td className="p-2 font-bold text-slate-900">{tText(tv.name)}</td>
-                          <td className="p-2 text-emerald-700 font-mono">{tv.doseGy} {tText(" Gy")}</td>
-                          <td className="p-2 font-mono text-amber-800">{tv.marginMm}</td>
-                          <td className="p-2 text-[11px] text-slate-600">{tText(tv.anatomical)}</td>
+                        <tr key={idx} className="hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                          <td className="p-2 font-bold text-slate-900 dark:text-slate-100">{tText(tv.name)}</td>
+                          <td className="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">{tv.doseGy} {tText(" Gy")}</td>
+                          <td className="p-2 font-mono text-amber-800 dark:text-amber-300">{tv.marginMm}</td>
+                          <td className="p-2 text-[11px] text-slate-600 dark:text-slate-100">{tText(tv.anatomical)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -7332,7 +7332,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </h4>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
-                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200">
+                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Organ' : 'Organ'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Metrik' : 'Metric'}</th>
@@ -7340,13 +7340,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Guideline'}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700">
+                    <tbody className="divide-y divide-slate-200 text-slate-700 dark:divide-slate-700/60 dark:text-slate-100">
                       {activeScheme.oars.map((oar, idx) => (
-                        <tr key={idx} className="hover:bg-slate-100">
-                          <td className="p-2 font-medium text-slate-900">{tText(oar.organ)}</td>
-                          <td className="p-2 font-mono text-slate-600">{tText(oar.metric)}</td>
-                          <td className="p-2 font-mono text-rose-700 font-bold">{oar.limit}</td>
-                          <td className="p-2 text-[10px] text-slate-500">{tText(oar.source)}</td>
+                        <tr key={idx} className="hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                          <td className="p-2 font-medium text-slate-900 dark:text-slate-100">{tText(oar.organ)}</td>
+                          <td className="p-2 font-mono text-slate-600 dark:text-slate-100">{tText(oar.metric)}</td>
+                          <td className="p-2 font-mono font-bold text-rose-700 dark:text-rose-400">{oar.limit}</td>
+                          <td className="p-2 text-[10px] text-slate-500 dark:text-slate-200">{tText(oar.source)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -7379,7 +7379,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </div>
 
             {prognosticResult && (
-              <div className="mt-4 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 shadow-sm dark:border-blue-800/60 dark:from-slate-800/60 dark:to-slate-900/60">
+              <div className="mt-4 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 shadow-sm dark:border-blue-900/60 dark:bg-[#0f192d] dark:from-[#0f192d] dark:to-[#0f192d]">
                 <div className="mb-2.5 flex items-center justify-between border-b border-blue-100 pb-2 dark:border-slate-700">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-blue-600" aria-hidden="true" />
@@ -7396,21 +7396,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <span>{tText(prognosticResult.indexName)}</span>
                     <span className="text-right text-blue-600 dark:text-blue-400">{tText(prognosticResult.riskCategory)}</span>
                   </div>
-                  <div className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="font-mono text-[11px] text-slate-500 dark:text-slate-200">
                     {tText(prognosticResult.medianSurvivalOrRecurrence)}
                   </div>
-                  <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-[11px] font-medium leading-relaxed text-slate-700 dark:border-slate-700/70 dark:bg-slate-800/80 dark:text-slate-300">
+                  <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-[11px] font-medium leading-relaxed text-slate-700 dark:border-slate-700/80 dark:bg-[#090f1b] dark:text-slate-200">
                     <strong>{lang === 'tr' ? 'Önerilen Strateji: ' : 'Recommended Strategy: '}</strong>
                     {tText(prognosticResult.recommendation)}
                   </div>
                   <div className="mt-2.5 overflow-hidden rounded-xl border border-slate-200/70 dark:border-slate-700/70">
-                    <div className="border-b border-slate-200/70 bg-slate-50/80 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:border-slate-700/70 dark:bg-slate-800/70 dark:text-slate-400">
+                    <div className="border-b border-slate-200/70 bg-slate-50/80 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 dark:border-slate-700/70 dark:bg-slate-800/70 dark:text-slate-300">
                       {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
                     </div>
-                    <div className="divide-y divide-slate-200/70 dark:divide-slate-700/70">
+                    <div className="divide-y divide-slate-200/70 dark:divide-slate-700/60">
                       {prognosticResult.criteria.map(criterion => (
-                        <div key={`${criterion.label_en}-${criterion.value}`} className="flex items-center justify-between gap-3 px-2.5 py-1.5 text-[10px]">
-                          <span className="text-slate-500 dark:text-slate-400">{lang === 'tr' ? criterion.label_tr : criterion.label_en}</span>
+                        <div key={`${criterion.label_en}-${criterion.value}`} className="flex items-center justify-between gap-3 bg-white px-2.5 py-1.5 text-[10px] dark:bg-[#15223c]">
+                          <span className="text-slate-600 dark:text-slate-200">{lang === 'tr' ? criterion.label_tr : criterion.label_en}</span>
                           <span className="text-right font-mono font-semibold text-slate-700 dark:text-slate-200">
                             {tText(criterion.value)}
                             {criterion.points && <span className="ml-1 text-blue-600 dark:text-blue-400">[{criterion.points}]</span>}
@@ -7474,7 +7474,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="mb-1 font-semibold text-blue-900 dark:text-blue-300">
                   {lang === 'tr' ? 'Aktif Vaka Bağlamı:' : 'Active Case Context:'}
                 </div>
-                <div className="font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                <div className="font-mono text-[11px] text-slate-600 dark:text-slate-200">
                   {selectedOrgan.toUpperCase()} • {selectedT} {selectedN} {selectedM} • {tText(activeScheme.name)}
                 </div>
               </div>
@@ -7680,7 +7680,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       )}
 
       <footer className="min-h-10 w-full border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
-        <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-200">
           {lang === 'tr'
             ? '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.'
             : '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® and DEGRO® are registered trademarks of their respective organizations. This system is intended for clinical decision support and educational purposes only.'}</p>
@@ -7772,7 +7772,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       {lang === 'tr' ? <><li><strong>Toraks:</strong> PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).</li><li><strong>Meme:</strong> FAST-Forward (hipofraksiyone adjuvan RT).</li><li><strong>GİS:</strong> RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).</li><li><strong>Jinekoloji:</strong> EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).</li><li><strong>MSS:</strong> Stupp protokolü (glioblastom kemoradyoterapisi).</li></> : <><li>Thorax: PACIFIC (Stage III NSCLC concurrent CRT + durvalumab), Turrisi and CONVERT (SCLC hyperfractionated/conventional CRT), and Lung-ART (PORT indication).</li><li>Breast: FAST-Forward (1-week adjuvant hypofractionation 26 Gy/5 fx), DBCG/BIG (regional nodal irradiation).</li><li>GI: RAPIDO and PRODIGE-23 (total neoadjuvant therapy for LARC), PORTEC-3 (adjuvant chemoradiotherapy for high-risk endometrial cancer).</li><li>Gynecology: EMBRACE II (cervical chemoradiotherapy and 3D MR-IGABT brachytherapy).</li><li>CNS: Stupp protocol (glioblastoma 60 Gy + concurrent/adjuvant TMZ), Perry protocol (elderly hypofractionation).</li></>}
                     </ul>
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-200">
                     {lang === 'tr' ? 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.' : 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC®, and DEGRO® are registered trademarks of their respective organizations.'}</p>
                 </>
               )}
