@@ -60,7 +60,7 @@ export default function SignInPage() {
   return (
     <div className={`min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative ${lang === 'en' ? 'en-mode' : 'tr-mode'}`}>
       
-      {/* TÜM DOĞRULAMA, BUTON VE OTP KUTULARINI AYARLAYAN KONTRAST STİLİ */}
+      {/* BUTON METNİ, E-POSTA VE 6 AYRI OTP KUTUSU STİLLERİ */}
       <style dangerouslySetInnerHTML={{
         __html: `
           /* İngilizce buton metni */
@@ -94,28 +94,17 @@ export default function SignInPage() {
             color: #60a5fa !important;
           }
 
-          /* 6 HANELİ DOĞRULAMA KODU (OTP) KUTUCUKLARI */
-          .cl-otpCodeFieldInput,
-          input[data-otp-input],
-          .cl-otpCodeField input {
-            background-color: #131f33 !important;
-            border: 1.5px solid #334155 !important;
+          /* 6 AYRI OTP DOĞRULAMA KUTUSUNU NETLEŞTİREN DOĞRU KURAL */
+          .cl-otpCodeFieldInputs div,
+          .cl-otpCodeFieldInputs span,
+          .cl-otpCodeField [class*="segment"],
+          .cl-otpCodeField [class*="digit"] {
+            background-color: #16253d !important;
+            border: 1.5px solid #475569 !important;
+            border-radius: 0.75rem !important;
             color: #ffffff !important;
             font-weight: 700 !important;
-            font-size: 1.25rem !important;
-            border-radius: 0.75rem !important;
-            transition: all 0.2s ease !important;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-            text-align: center !important;
-          }
-
-          .cl-otpCodeFieldInput:focus,
-          input[data-otp-input]:focus,
-          .cl-otpCodeField input:focus {
-            border-color: #3b82f6 !important;
-            background-color: #1a2a44 !important;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
-            outline: none !important;
           }
 
           /* KOD TEKRAR GÖNDER LİNKİ (RESEND) */
@@ -123,9 +112,6 @@ export default function SignInPage() {
           button[data-localization-key*="resend"] {
             color: #60a5fa !important;
             font-weight: 600 !important;
-          }
-          .cl-formResendCodeLink:hover {
-            color: #93c5fd !important;
           }
 
           /* ŞİFRE SIFIRLAMA METOT BUTONLARI */
@@ -348,7 +334,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (YÜKSEK KONTRASTLI CLERK KARTI)
+          2. SAĞ SÜTUN (ŞIK KOYU TEMA CLERK GİRİŞ KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -384,13 +370,9 @@ export default function SignInPage() {
                 headerTitle: '!text-white font-bold text-lg text-center',
                 headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
                 
-                // Kimlik bilgisi rozeti
                 identityPreview: '!bg-[#131f33]/80 !border !border-slate-700/80 !rounded-xl !py-2 !px-3.5 mb-3 flex items-center justify-between',
                 identityPreviewText: '!text-white !font-bold text-sm',
                 identityPreviewEditButton: '!text-blue-400 hover:!text-blue-300',
-
-                // OTP Kod Kutuları
-                otpCodeFieldInput: '!bg-[#131f33] !border-slate-600 !text-white !font-bold text-xl rounded-xl text-center',
 
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
