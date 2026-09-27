@@ -54,6 +54,9 @@ export type OrganId =
   | 'head-neck'
   | 'cns'
   | 'gynecology'
+  | 'bone'
+  | 'sarcoma'
+  /** @deprecated Kept for report compatibility; use bone or sarcoma. */
   | 'bone-sarcoma'
   | 'skin'
   | 'hematologic'
@@ -1206,11 +1209,20 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'prostate-prostate', name_tr: 'Prostat Adenokarsinomu', name_en: 'Prostate Adenocarcinoma' },
     { id: 'prostate-bladder', name_tr: 'Mesane Kanseri', name_en: 'Bladder Cancer' },
     { id: 'prostate-penile', name_tr: 'Penil Kanser', name_en: 'Penile Cancer' },
+    { id: 'prostate-testis', name_tr: 'Testis Kanseri (Seminom)', name_en: 'Testicular Seminoma' },
   ],
-  breast: [{ id: 'breast-breast', name_tr: 'Meme Karsinomu', name_en: 'Breast Carcinoma' }],
+  breast: [
+    { id: 'breast-idc', name_tr: 'İnvaziv Duktal Karsinom (İDK)', name_en: 'Invasive Ductal (IDC)' },
+    { id: 'breast-ilc', name_tr: 'İnvaziv Lobüler Karsinom (İLK)', name_en: 'Invasive Lobular (ILC)' },
+    { id: 'breast-dcis', name_tr: 'Duktal Karsinoma İn Situ (DCIS)', name_en: 'Ductal Carcinoma In Situ' },
+    { id: 'breast-inflammatory', name_tr: 'İnflamatuar Meme Kanseri', name_en: 'Inflammatory Breast Ca' },
+    { id: 'breast-phyllodes', name_tr: 'Malign Filloides Tümörü', name_en: 'Malignant Phyllodes' },
+    { id: 'breast-metaplastic', name_tr: 'Metaplastik Karsinom', name_en: 'Metaplastic Carcinoma' },
+  ],
   gis: [
     { id: 'gis-Rektum', name_tr: 'Rektum Kanseri', name_en: 'Rectal Cancer' },
     { id: 'gis-Mide', name_tr: 'Mide Kanseri', name_en: 'Gastric Cancer' },
+    { id: 'gis-anus', name_tr: 'Anal Kanal Kanseri (Nigro)', name_en: 'Anal Canal Cancer' },
     { id: 'gis-Karaciger', name_tr: 'Karaciğer (HCC/SBRT)', name_en: 'Liver Cancer' },
     { id: 'gis-Pankreas', name_tr: 'Pankreas Kanseri', name_en: 'Pancreatic Cancer' },
     { id: 'gis-Ozofagus', name_tr: 'Özofagus Kanseri', name_en: 'Esophageal Cancer' },
@@ -1220,9 +1232,10 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'head-neck-oropharynx', name_tr: 'Orofarenks (OPC)', name_en: 'Oropharynx (OPC)' },
     { id: 'head-neck-larynx', name_tr: 'Larenks Kanseri', name_en: 'Larynx Cancer' },
     { id: 'head-neck-oral-cavity', name_tr: 'Oral Kavite', name_en: 'Oral Cavity' },
+    { id: 'head-neck-salivary', name_tr: 'Tükürük Bezi Kanserleri', name_en: 'Salivary Gland Cancer' },
   ],
   cns: [
-    { id: 'cns-gbm', name_tr: 'Glioblastom (GBM)', name_en: 'Glioblastoma (GBM)' },
+    { id: 'cns-glioma', name_tr: 'Glial Tümörler (WHO Grade 1-4)', name_en: 'Gliomas (WHO Grade 1-4)' },
     { id: 'cns-mets', name_tr: 'Beyin Metastazları', name_en: 'Brain Metastases' },
     { id: 'cns-meningioma', name_tr: 'Menenjiom', name_en: 'Meningioma' },
   ],
@@ -1231,34 +1244,62 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'gynecology-Endometriyum', name_tr: 'Endometriyum Kanseri', name_en: 'Endometrial Cancer' },
     { id: 'gynecology-Vulva', name_tr: 'Vulva Kanseri', name_en: 'Vulvar Cancer' },
     { id: 'gynecology-Vajen', name_tr: 'Vajen Kanseri', name_en: 'Vaginal Cancer' },
+    { id: 'gynecology-ovary', name_tr: 'Over & Fallop Tüpü Kanseri', name_en: 'Ovarian Cancer' },
+    { id: 'gynecology-choriocarcinoma', name_tr: 'Koryokarsinom / GTN', name_en: 'Choriocarcinoma / GTN' },
   ],
   'bone-sarcoma': [
     { id: 'bone-sarcoma-Yumusak_Doku', name_tr: 'Yumuşak Doku Sarkomu', name_en: 'Soft Tissue Sarcoma' },
     { id: 'bone-sarcoma-Osteosarkom', name_tr: 'Osteosarkom', name_en: 'Osteosarcoma' },
     { id: 'bone-sarcoma-Ewing', name_tr: 'Ewing Sarkomu', name_en: 'Ewing Sarcoma' },
   ],
+  bone: [
+    { id: 'bone-osteosarcoma', name_tr: 'Osteosarkom', name_en: 'Osteosarcoma' },
+    { id: 'bone-ewing', name_tr: 'Ewing Sarkomu', name_en: 'Ewing Sarcoma' },
+    { id: 'bone-chondrosarcoma', name_tr: 'Kondrosarkom', name_en: 'Chondrosarcoma' },
+    { id: 'bone-chordoma', name_tr: 'Kordoma (Sakral / Kafa Tabanı)', name_en: 'Chordoma' },
+    { id: 'bone-gctb', name_tr: 'Dev Hücreli Kemik Tümörü (GCTB)', name_en: 'Giant Cell Tumor of Bone' },
+  ],
+  sarcoma: [
+    { id: 'sarcoma-extremity', name_tr: 'Ekstremite / Gövde YDS', name_en: 'Extremity Soft Tissue Sarcoma' },
+    { id: 'sarcoma-retroperitoneal', name_tr: 'Retroperitoneal Sarkom', name_en: 'Retroperitoneal Sarcoma' },
+    { id: 'sarcoma-rhabdomyosarcoma', name_tr: 'Rhabdomyosarkom', name_en: 'Rhabdomyosarcoma' },
+    { id: 'sarcoma-liposarcoma', name_tr: 'Liposarkom / Leyomiyosarkom', name_en: 'Liposarcoma / LMS' },
+  ],
   skin: [
     { id: 'skin-scc', name_tr: 'Skuamöz Hücreli Karsinom (cSCC)', name_en: 'Cutaneous SCC' },
     { id: 'skin-bcc', name_tr: 'Bazal Hücreli Karsinom (BCC)', name_en: 'Basal Cell Ca' },
     { id: 'skin-melanom', name_tr: 'Kutanöz Melanom', name_en: 'Cutaneous Melanoma' },
+    { id: 'skin-merkel', name_tr: 'Merkel Hücreli Karsinom (MCC)', name_en: 'Merkel Cell Carcinoma' },
+    { id: 'skin-mycosis', name_tr: 'Mikozis Fungoides', name_en: 'Mycosis Fungoides / CTCL' },
+    { id: 'skin-kaposi', name_tr: 'Kaposi Sarkomu', name_en: 'Kaposi Sarcoma' },
   ],
   hematologic: [
     { id: 'hematologic-hodgkin', name_tr: 'Hodgkin Lenfoma (ISRT)', name_en: 'Hodgkin Lymphoma' },
     { id: 'hematologic-non-hodgkin', name_tr: 'Non-Hodgkin Lenfoma', name_en: 'Non-Hodgkin Lymphoma' },
+    { id: 'hematologic-myeloma', name_tr: 'Multipl Miyelom / Plazmositom', name_en: 'Multiple Myeloma / Plasmacytoma' },
+    { id: 'hematologic-all', name_tr: 'Akut Lenfoblastik Lösemi', name_en: 'ALL (Cranial/TBI)' },
+    { id: 'hematologic-cll', name_tr: 'KLL (Palyatif Dalak / Nodal)', name_en: 'CLL (Splenic/Nodal RT)' },
   ],
   pediatric: [
     { id: 'pediatric-medulloblastoma', name_tr: 'Medulloblastom (CSI)', name_en: 'Medulloblastoma' },
     { id: 'pediatric-wilms', name_tr: 'Wilms Tümörü', name_en: 'Wilms Tumor' },
+    { id: 'pediatric-neuroblastoma', name_tr: 'Nöroblastom', name_en: 'Neuroblastoma' },
+    { id: 'pediatric-ewing', name_tr: 'Pediatrik Ewing Sarkomu', name_en: 'Pediatric Ewing Sarcoma' },
+    { id: 'pediatric-rhabdo', name_tr: 'Pediatrik Rhabdomyosarkom', name_en: 'Pediatric Rhabdomyosarcoma' },
   ],
   palliative: [
     { id: 'palliative-bone', name_tr: 'Kemik Metastazı Palyasyonu', name_en: 'Bone Metastases' },
     { id: 'palliative-cord', name_tr: 'Spinal Kord Basısı', name_en: 'Spinal Cord Compression' },
+    { id: 'palliative-brain', name_tr: 'Beyin Metastazları', name_en: 'Whole Brain RT' },
+    { id: 'palliative-bleeding', name_tr: 'Kanamalı / Obstrüktif Tümör', name_en: 'Hemostatic / Obstructive RT' },
   ],
   benign: [
     { id: 'benign-ho', name_tr: 'Heterotopik Ossifikasyon', name_en: 'Heterotopic Ossification' },
     { id: 'benign-keloid', name_tr: 'Keloid Profilaksisi', name_en: 'Keloid Prophylaxis' },
     { id: 'benign-dupuytren', name_tr: 'Dupuytren Kontraktürü', name_en: 'Dupuytren Contracture' },
     { id: 'benign-topuk-dikeni', name_tr: 'Topuk Dikeni (Plantar Fasiit)', name_en: 'Plantar Fasciitis' },
+    { id: 'benign-pituitary', name_tr: 'Hipofiz Adenomu', name_en: 'Pituitary Adenoma' },
+    { id: 'benign-gynecomastia', name_tr: 'Jinekomasti Profilaksisi', name_en: 'Gynecomastia Prophylaxis' },
   ],
 };
 
@@ -2608,6 +2649,25 @@ TNM_DATABASE['skin-SCC'] = TNM_DATABASE.skin;
 TNM_DATABASE['skin-Melanom'] = TNM_DATABASE.skin;
 TNM_DATABASE['skin-Merkel'] = TNM_DATABASE.skin;
 TNM_DATABASE['bone-sarcoma-DFSP'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
+TNM_DATABASE['prostate-testis'] = TNM_DATABASE['prostate-testis'] || TNM_DATABASE['prostate'];
+TNM_DATABASE['gis-anus'] = TNM_DATABASE['gis-anus'] || TNM_DATABASE['gis-Rektum'];
+TNM_DATABASE['head-neck-salivary'] = TNM_DATABASE['head-neck-salivary'] || TNM_DATABASE['head-neck-nasopharynx'];
+TNM_DATABASE['cns-glioma'] = TNM_DATABASE['cns-glioma'] || TNM_DATABASE['cns-gbm'];
+TNM_DATABASE['skin-merkel'] = TNM_DATABASE['skin-merkel'] || TNM_DATABASE.skin;
+TNM_DATABASE['hematologic-myeloma'] = TNM_DATABASE['hematologic-myeloma'] || TNM_DATABASE['hematologic-Myeloma'];
+TNM_DATABASE['bone'] = TNM_DATABASE['bone'] || TNM_DATABASE['bone-sarcoma-Osteosarkom'];
+TNM_DATABASE['sarcoma'] = TNM_DATABASE['sarcoma'] || TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
+for (const key of [
+  'breast-idc', 'breast-ilc', 'breast-inflammatory', 'breast-metaplastic',
+  'gynecology-ovary', 'gynecology-choriocarcinoma', 'hematologic-all', 'hematologic-cll',
+  'pediatric-rhabdo', 'pediatric-ewing', 'palliative-brain', 'palliative-bleeding',
+  'skin-mycosis', 'skin-kaposi', 'benign-pituitary', 'benign-gynecomastia',
+  'sarcoma-extremity', 'sarcoma-retroperitoneal', 'sarcoma-rhabdomyosarcoma', 'sarcoma-liposarcoma',
+  'bone-osteosarcoma', 'bone-ewing', 'bone-chondrosarcoma', 'bone-chordoma', 'bone-gctb',
+]) {
+  const organ = key.split('-')[0];
+  TNM_DATABASE[key] = TNM_DATABASE[key] || TNM_DATABASE[organ] || TNM_DATABASE['thorax-nsclc'];
+}
 
 // Fallback atamaları
 TNM_DATABASE['thorax'] = TNM_DATABASE['thorax-nsclc'];
@@ -2890,8 +2950,11 @@ export default function RadoncoCDSSPage() {
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
+    if (selectedSubsite && TNM_DATABASE[selectedSubsite]) return selectedSubsite;
     if (selectedOrgan === 'thorax') return `thorax-${thoraxSubtype}`;
     if (selectedOrgan === 'gynecology') return `gynecology-${gynSite}`;
+    if (selectedOrgan === 'bone') return `bone-sarcoma-${sarcomaSubtype}`;
+    if (selectedOrgan === 'sarcoma') return `bone-sarcoma-${sarcomaSubtype}`;
     if (selectedOrgan === 'bone-sarcoma') return `bone-sarcoma-${sarcomaSubtype}`;
     if (selectedOrgan === 'head-neck') return `head-neck-${hnSubsite}`;
     if (selectedOrgan === 'cns') return `cns-${cnsSubtype}`;
@@ -2906,7 +2969,7 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'hematologic') return `hematologic-${hematologicSubtype}`;
     if (selectedOrgan === 'pediatric') return `pediatric-${pediatricSubtype}`;
     return selectedOrgan;
-  }, [selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
+  }, [selectedOrgan, selectedSubsite, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
 
   const currentTNM = TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
   const prostateRiskLabel = useMemo(() => {
@@ -2955,10 +3018,12 @@ export default function RadoncoCDSSPage() {
   // Organ Değişimi
   const handleOrganChange = (newOrgan: OrganId) => {
     setSelectedOrgan(newOrgan);
+    setSelectedSubsite('');
     setSelectedSchemeId('');
     let key = newOrgan as string;
     if (newOrgan === 'thorax') key = `thorax-${thoraxSubtype}`;
     if (newOrgan === 'gynecology') key = `gynecology-${gynSite}`;
+    if (newOrgan === 'bone' || newOrgan === 'sarcoma') key = `bone-sarcoma-${sarcomaSubtype}`;
     if (newOrgan === 'bone-sarcoma') key = `bone-sarcoma-${sarcomaSubtype}`;
     if (newOrgan === 'head-neck') key = `head-neck-${hnSubsite}`;
     if (newOrgan === 'cns') key = `cns-${cnsSubtype}`;
@@ -2979,10 +3044,10 @@ export default function RadoncoCDSSPage() {
   const handleSubsiteChange = (subKey: string) => {
     const [organ, subtype] = subKey.split('-');
     if (organ === 'thorax' && ['nsclc', 'sclc', 'thymoma', 'mesothelioma'].includes(subtype)) setThoraxSubtype(subtype as typeof thoraxSubtype);
-    if (organ === 'prostate' && ['prostate', 'bladder', 'penile'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
+    if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
     if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
-    if (organ === 'head' && subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
-    if (organ === 'cns' && ['gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype as typeof cnsSubtype);
+    if (subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
+    if (organ === 'cns' && ['glioma', 'gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype === 'glioma' ? 'gbm' : subtype as typeof cnsSubtype);
     if (organ === 'gynecology' && ['Serviks', 'Endometriyum', 'Vulva', 'Vajen'].includes(subtype)) setGynSite(subtype as typeof gynSite);
     if (subKey.startsWith('bone-sarcoma-') && ['Yumusak_Doku', 'Osteosarkom', 'Ewing'].includes(subKey.replace('bone-sarcoma-', ''))) setSarcomaSubtype(subKey.replace('bone-sarcoma-', '') as typeof sarcomaSubtype);
     if (organ === 'skin' && ['scc', 'bcc', 'melanom'].includes(subtype)) setSkinHistology(subtype === 'scc' ? 'SCC' : subtype === 'bcc' ? 'BCC' : 'Melanom');
@@ -5492,6 +5557,8 @@ export default function RadoncoCDSSPage() {
       'head-neck': 'Head and Neck',
       cns: 'Central Nervous System',
       gynecology: 'Gynecology',
+      bone: 'Bone Tumors',
+      sarcoma: 'Soft Tissue Sarcomas',
       'bone-sarcoma': 'Bone and Sarcoma',
       skin: 'Skin',
       hematologic: 'Hematologic',
@@ -5502,7 +5569,7 @@ export default function RadoncoCDSSPage() {
     let subInfo = '';
     if (selectedOrgan === 'thorax') subInfo = `${labels.subsite}: ${tText(thoraxSubtype)}`;
     if (selectedOrgan === 'gynecology') subInfo = `${labels.subsite}: ${tText(gynSite)}`;
-    if (selectedOrgan === 'bone-sarcoma') subInfo = `${labels.subsite}: ${tText(sarcomaSubtype)}`;
+    if (selectedOrgan === 'bone' || selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma') subInfo = `${labels.subsite}: ${tText(sarcomaSubtype)}`;
     if (selectedOrgan === 'head-neck') subInfo = `${labels.subsite}: ${tText(hnSubsite)}`;
     if (selectedOrgan === 'head-neck') subInfo += `; ${hnCrossesMidline || (parseFloat(hnDistanceFromMidlineCm) || 0) < 1 ? labels.bilateralNeck : labels.lateralizedNeck}; DOI ${hnDoiMm} mm`;
     if (selectedOrgan === 'cns') subInfo = `${labels.subsite}: ${tText(cnsSubtype)}; ${labels.symptom}: ${tText(cnsSymptoms)}; KPS ${cnsKps}; ${labels.resection}: ${tText(cnsResection)}`;
@@ -5887,7 +5954,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           { id: 'head-neck', name_tr: 'Baş-Boyun', name_en: 'Head & Neck', icon: User, color: 'text-indigo-700' },
           { id: 'cns', name_tr: 'MSS', name_en: 'CNS', icon: Brain, color: 'text-purple-700' },
           { id: 'gynecology', name_tr: 'Jinekoloji', name_en: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
-          { id: 'bone-sarcoma', name_tr: 'Kemik & Sarkom', name_en: 'Bone & Sarcoma', icon: Bone, color: 'text-amber-700' },
+          { id: 'bone', name_tr: 'Kemik Tümörleri', name_en: 'Bone Tumors', icon: Bone, color: 'text-amber-700' },
+          { id: 'sarcoma', name_tr: 'Yumuşak Doku Sarkomları', name_en: 'Soft Tissue Sarcomas', icon: Bone, color: 'text-orange-700' },
           { id: 'skin', name_tr: 'Cilt', name_en: 'Skin', icon: Shield, color: 'text-yellow-700' },
           { id: 'hematologic', name_tr: 'Hematolojik', name_en: 'Hematologic', icon: Droplet, color: 'text-red-700' },
           { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric', icon: Baby, color: 'text-emerald-700' },
