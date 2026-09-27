@@ -7184,7 +7184,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <option value="Wilms">{tText("Wilms Tümörü")}</option>
                   <option value="Neuroblastom">{tText("Nöroblastom")}</option>
                   <option value="Ewing">{tText("Pediatrik Ewing Sarkomu")}</option>
-                </select>
+         a       </select>
               </div>
             )}
 
@@ -7204,11 +7204,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
           {currentHistologies.length > 0 && (
             <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2">
                 <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patolojik Histoloji / Biyolojik Alt Tip' : 'Pathologic Histology / Biologic Subtype'}
+                  <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patoloji' : 'Pathology'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">{lang === 'tr' ? 'Dinamik Reçete Motoru' : 'Dynamic Prescription Engine'}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {currentHistologies.map(h => (
@@ -8333,13 +8332,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
             {/* SEÇİLİ DOZ ŞEMASI KARTI */}
             <div className="bg-[#111c2e] border border-slate-700/80 text-slate-200 rounded-xl p-4 shadow-md mb-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2">
                 <h3 className="text-amber-300 font-bold text-sm flex items-center gap-2">
                   <Radiation className="w-4 h-4 text-amber-300" />
                   {tText(activeScheme.name)}
                 </h3>
-                <span className="bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono font-bold px-2.5 py-1 rounded-lg text-xs">
-                  {activeScheme.totalDoseGy} {tText(" Gy / ")}{activeScheme.fractionCount} {tText(" fx\n                ")}</span>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-2 mb-2.5" aria-label="Reçete özeti">
                 <span className="bg-[#090e17] border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium">
