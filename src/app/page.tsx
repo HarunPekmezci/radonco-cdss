@@ -33,6 +33,8 @@ import {
   XCircle,
   Activity,
   Layers,
+  Menu,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   Info,
@@ -2840,6 +2842,9 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   const [selectedOrgan, setSelectedOrgan] = useState<OrganId>('thorax');
   const [openCategories, setOpenCategories] = useState<string[]>(['thorax']);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [activeMobilePanel, setActiveMobilePanel] = useState<'parameters' | 'tnm' | 'prescription'>('parameters');
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
@@ -3071,6 +3076,7 @@ export default function RadoncoCDSSPage() {
 
   // Organ Değişimi
   const handleOrganChange = (newOrgan: OrganId) => {
+    setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
     setSelectedSubsite('');
     setSelectedSchemeId('');
@@ -3124,6 +3130,7 @@ export default function RadoncoCDSSPage() {
     if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
     if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
     setSelectedSubsite(subKey);
+    setIsMobileDrawerOpen(false);
     const firstClinicalOption = BENIGN_CLINICAL_OPTIONS[subKey]?.[0];
     if (firstClinicalOption) setBenignClinicalStatus(firstClinicalOption.value);
     setSelectedSchemeId('');
@@ -6135,19 +6142,27 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className="w-full border-b border-slate-800 bg-[#080d1a]/95 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
+      <header className="w-full border-b border-slate-800 bg-[#080d1a]/95 backdrop-blur px-3 py-2.5 sm:px-6 sm:py-3 flex items-center justify-between sticky top-0 z-50">
+        <div className="min-w-0 flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            aria-label={lang === 'tr' ? 'Anatomik menüyü aç' : 'Open anatomic menu'}
+            onClick={() => setIsMobileDrawerOpen(true)}
+            className="rounded-lg border border-slate-700 bg-slate-800 p-2 text-slate-200 transition hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+          >
+            <Menu className="h-4 w-4" aria-hidden="true" />
+          </button>
           <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
             <Radiation className="w-6 h-6 animate-pulse" aria-hidden="true" />
           </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-900 dark:text-white">
+          <div className="min-w-0">
+            <h1 className="truncate text-xs font-bold text-slate-900 dark:text-white sm:text-base">
               {lang === 'tr' ? 'Radyasyon Onkolojisi Klinik Karar Destek Sistemi' : 'Radiation Oncology Clinical Decision Support System'}
             </h1>
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <button
             onClick={() => {
               setActiveReferenceTab('guidelines');
@@ -6372,9 +6387,35 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           SOL DİKEY ORGAN NAVİGASYONU
          ========================================== */}
-      <nav className="w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-sm">
-        <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
+      {isMobileDrawerOpen && (
+        <button
+          type="button"
+          aria-label={lang === 'tr' ? 'Menüyü kapat' : 'Close menu'}
+          onClick={() => setIsMobileDrawerOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+        />
+      )}
+      <nav className={`${isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
+        <div className="mb-3 flex items-center justify-between px-2">
+          <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300`}>
           {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
+          </span>
+          <button
+            type="button"
+            aria-label={isSidebarCollapsed ? (lang === 'tr' ? 'Menüyü genişlet' : 'Expand menu') : (lang === 'tr' ? 'Menüyü daralt' : 'Collapse menu')}
+            onClick={() => setIsSidebarCollapsed(value => !value)}
+            className="hidden rounded-md p-1 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:block"
+          >
+            {isSidebarCollapsed ? <ChevronRight className="h-4 w-4" aria-hidden="true" /> : <ChevronLeft className="h-4 w-4" aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            aria-label={lang === 'tr' ? 'Menüyü kapat' : 'Close menu'}
+            onClick={() => setIsMobileDrawerOpen(false)}
+            className="rounded-md p-1 text-slate-400 transition hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
         <div className="flex flex-col gap-1">
         {[
@@ -6404,7 +6445,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   if (!isActive) handleOrganChange(item.id as OrganId);
                   toggleCategory(item.id);
                 }}
-                className={`rounded-xl py-2.5 px-3 text-xs flex items-center gap-2.5 transition-all w-full text-left ${
+                className={`rounded-xl py-1.5 px-2 text-[11px] flex items-center gap-2 transition-all w-full text-left ${
                   isActive
                     ? item.id === 'benign'
                       ? 'bg-emerald-600 text-white font-bold shadow-md'
@@ -6415,10 +6456,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-                <span>{displayName}</span>
-                <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${openCategories.includes(item.id) ? 'rotate-180' : ''}`} aria-hidden="true" />
+                <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{displayName}</span>
+                <ChevronDown className={`${isSidebarCollapsed ? 'lg:hidden' : ''} ml-auto h-3.5 w-3.5 transition-transform ${openCategories.includes(item.id) ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
-              {openCategories.includes(item.id) && (
+              {openCategories.includes(item.id) && !isSidebarCollapsed && (
                 <div className="ml-4 flex flex-col gap-1 border-l-2 border-blue-500/40 py-1 pl-4">
                   {ORGAN_TREE[item.id as OrganId].map(sub => {
                     const isSubsiteActive = selectedSubsite === sub.id || currentTnmKey === sub.id;
@@ -6448,12 +6489,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
+        <div className="col-span-12 grid grid-cols-3 gap-1 rounded-xl border border-slate-700 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+          {[
+            { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
+            { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
+            { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={activeMobilePanel === tab.id}
+              onClick={() => setActiveMobilePanel(tab.id)}
+              className={`rounded-lg px-1.5 py-2 text-[10px] font-semibold leading-tight transition-colors sm:text-xs ${
+                activeMobilePanel === tab.id
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
-        <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+        <aside className={`col-span-12 lg:col-span-3 flex flex-col gap-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -6906,8 +6969,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </span>
                   <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                     {[
-                      { value: 'thymoma' as const, label: lang === 'tr' ? 'Timoma (WHO Tip A, AB, B1, B2, B3)' : 'Thymoma (WHO Types A, AB, B1, B2, B3)' },
-                      { value: 'thymic-carcinoma' as const, label: lang === 'tr' ? 'Timik Karsinom (Tip C / Agresif)' : 'Thymic Carcinoma (Type C / Aggressive)' },
+                      { value: 'thymoma' as const, label: lang === 'tr' ? 'Timoma · WHO A–B3' : 'Thymoma · WHO A–B3' },
+                      { value: 'thymic-carcinoma' as const, label: lang === 'tr' ? 'Timik Karsinom · Tip C' : 'Thymic Carcinoma · Type C' },
                     ].map(option => (
                       <button
                         key={option.value}
@@ -7699,7 +7762,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
-        <section className="col-span-12 lg:col-span-4 flex flex-col gap-4">
+        <section className={`col-span-12 lg:col-span-4 flex flex-col gap-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-4 shadow-xl shadow-black/40">
             <div className="flex items-center justify-between pb-3 border-b border-slate-700/80 mb-3">
               <div>
@@ -7851,7 +7914,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
-        <section className="col-span-12 lg:col-span-5 flex flex-col gap-4">
+        <section className={`col-span-12 lg:col-span-5 flex flex-col gap-4 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
