@@ -1305,9 +1305,17 @@ export interface PrognosticResult {
   riskCategory: string;
   medianSurvivalOrRecurrence: string;
   recommendation: string;
+  criteria: PrognosticCriterion[];
 }
 
-export const calculatePrognosticIndex = (
+export interface PrognosticCriterion {
+  label_tr: string;
+  label_en: string;
+  value: string;
+  points?: string;
+}
+
+const calculatePrognosticIndexBase = (
   organ: string,
   subsite: string,
   t: string,
@@ -1326,8 +1334,13 @@ export const calculatePrognosticIndex = (
     tumorSizeCm?: number;
     ldhElevated?: boolean;
     ecog?: number;
+    centrality?: 'Peripheral' | 'Central' | 'Ultracentral';
+    er?: boolean;
+    pr?: boolean;
+    her2?: boolean;
+    ki67?: number;
   },
-): PrognosticResult | null => {
+): Omit<PrognosticResult, 'criteria'> | null => {
   const age = extraParams.age || 65;
   const kps = extraParams.kps || 80;
   const isM1 = m.startsWith('M1');
@@ -1684,6 +1697,134 @@ export const calculatePrognosticIndex = (
     };
   }
   return null;
+};
+
+export const calculatePrognosticIndex = (
+  organ: string,
+  subsite: string,
+  t: string,
+  n: string,
+  m: string,
+  extraParams: {
+    kps?: number;
+    age?: number;
+    psa?: number;
+    gleasonPrimary?: number;
+    gleasonSecondary?: number;
+    positiveCorePercent?: number;
+    packYears?: number;
+    hpvStatus?: 'positive' | 'negative';
+    grade?: number;
+    tumorSizeCm?: number;
+    ldhElevated?: boolean;
+    ecog?: number;
+    centrality?: 'Peripheral' | 'Central' | 'Ultracentral';
+    er?: boolean;
+    pr?: boolean;
+    her2?: boolean;
+    ki67?: number;
+  },
+): PrognosticResult | null => {
+  const result = calculatePrognosticIndexBase(organ, subsite, t, n, m, extraParams);
+  if (!result) return null;
+
+  const age = extraParams.age || 65;
+  const kps = extraParams.kps || 80;
+  const psa = extraParams.psa || 8.5;
+  const g1 = extraParams.gleasonPrimary || 3;
+  const g2 = extraParams.gleasonSecondary || 4;
+  const gleasonSum = g1 + g2;
+  const isM1 = m.startsWith('M1');
+  const isNodalPositive = /^N[1-3]/.test(n);
+  const criteria: PrognosticCriterion[] = [];
+  const add = (label_tr: string, label_en: string, value: string, points?: string) => {
+    criteria.push({ label_tr, label_en, value, ...(points ? { points } : {}) });
+  };
+
+  if (organ === 'thorax') {
+    add('Primer Tümör (T)', 'Primary Tumor (T)', t || 'T?');
+    add('Mediastinal Nodal (N)', 'Mediastinal Nodal (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('Tümör Santralitesi', 'Centrality', extraParams.centrality || 'Peripheral');
+    add('Operabilite', 'Operability', isM1 ? 'Sistemik Aday' : n === 'N2' ? 'Medikal İnoperabl' : 'Cerrahi / SBRT Adayı');
+  } else if (organ === 'prostate' || subsite.includes('penile')) {
+    if (subsite.includes('penile')) {
+      add('Primer T Evresi', 'Primary T Stage', t || 'T?');
+      add('İnguinal Nodal (N)', 'Inguinal Nodes (N)', n || 'N0');
+      add('Metastaz (M)', 'Metastasis (M)', m || 'M0');
+      add('Klinik Risk', 'Clinical Risk', isNodalPositive ? 'Yüksek Nodal Risk' : 'Lokalize');
+    } else {
+      add('PSA Düzeyi', 'PSA Level', `${psa} ng/mL`, psa >= 20 ? '+3' : psa >= 10 ? '+2' : psa >= 6 ? '+1' : '0');
+      add('Gleason Skoru', 'Gleason Score', `${g1}+${g2}=${gleasonSum}`, gleasonSum >= 8 ? '+3' : gleasonSum === 7 ? '+1' : '0');
+      add('Klinik T', 'Clinical T', t || 'T?', /^T[34]/.test(t) ? '+1' : '0');
+      add('Nodal / Met', 'N / M Status', `${n || 'N0'} ${m || 'M0'}`);
+      add('Pozitif Kor (%)', 'Positive Cores', `%${extraParams.positiveCorePercent || 35}`);
+    }
+  } else if (organ === 'breast') {
+    const sizeCm = extraParams.tumorSizeCm || (t === 'T1a' ? 0.5 : t === 'T1b' ? 1 : t === 'T1c' ? 1.8 : 3);
+    const grade = extraParams.grade || 2;
+    add('Tümör Çapı', 'Tumor Size', `${sizeCm} cm`, `0.2 × ${sizeCm} = ${(0.2 * sizeCm).toFixed(2)}`);
+    add('Nodal Durum', 'Nodal Status', n || 'N0', n === 'N0' ? '1 Puan' : '2-3 Puan');
+    add('Histolojik Grade', 'Grade', `Grade ${grade}`, `${grade} Puan`);
+    add('Reseptör Durumu', 'Receptors', `${extraParams.er ? 'ER+' : 'ER-'} ${extraParams.pr ? 'PR+' : 'PR-'} ${extraParams.her2 ? 'HER2+' : 'HER2-'}`);
+    add('Ki-67 İndeksi', 'Ki-67 Index', extraParams.ki67 === undefined ? 'Düşük/Orta' : `%${extraParams.ki67}`);
+  } else if (organ === 'gis') {
+    add('Primer T Evresi', 'Primary T Stage', t || 'T?');
+    add('Bölgesel Nodal (N)', 'Regional Nodal (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('CRM / Fasiyal Risk', 'CRM Threat', /^T[34]/.test(t) || isNodalPositive ? 'Yüksek Risk (CRM Tehdidi)' : 'Düşük Risk');
+    add('LARC Statüsü', 'LARC Status', isM1 ? 'Evre IV Metastatik' : /^T3/.test(t) || isNodalPositive ? 'Lokal İleri (TNT Adayı)' : 'Erken Evre');
+  } else if (organ === 'head-neck') {
+    add('Primer Kitle (T)', 'Primary Tumor (T)', t || 'T?');
+    add('Servikal Nodal (N)', 'Cervical Nodal (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('p16 / HPV Durumu', 'p16 / HPV Status', extraParams.hpvStatus === 'positive' ? 'p16 Pozitif (İyi Prognoz)' : 'p16 Negatif / Standart');
+    add('Nodal Risk Düzeyi', 'Nodal Risk Tier', isNodalPositive ? 'Bilateral Elektif Boyun Zorunlu' : 'Seçilmiş Nodal Alan');
+  } else if (organ === 'cns') {
+    add('Hasta Yaşı', 'Age', `${age}`, age < 50 ? '1.0' : age <= 59 ? '0.5' : '0');
+    add('Karnofsky (KPS)', 'KPS', `${kps}`, kps >= 90 ? '1.0' : kps >= 70 ? '0.5' : '0');
+    add('Lezyon Sayısı', 'Metastases Count', '1 Odak (Soliter)', '1.0');
+    add('Ekstrakraniyal Kontrol', 'Extracranial Control', 'Kontrollü', '1.0');
+  } else if (organ === 'gynecology') {
+    add('Primer FIGO / T', 'Primary FIGO / T', t || 'T?');
+    add('Pelvik Nodal (N)', 'Pelvic Nodal (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('Pelvik Kapsam', 'Pelvic Extent', isNodalPositive ? 'Bölgesel Nodal Pozitif' : 'Lokal Pelvis Sınırlı');
+    add('Brakiterapi Uyumu', 'Brachytherapy Eligibility', '3D MR-IGABT Adayı');
+  } else if (organ === 'bone-sarcoma') {
+    add('Tümör Boyutu (T)', 'Tumor Size (T)', t || 'T?');
+    add('Bölgesel Nodal (N)', 'Regional Nodal (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('FNCLCC Grade', 'Histologic Grade', 'Grade 2-3 (Yüksek Dereceli)');
+    add('Fasyal Kompartman', 'Fascial Depth', 'Derin İntramüsküler');
+  } else if (organ === 'skin') {
+    add('Tümör Çapı / T', 'Tumor Diameter / T', t || 'T?');
+    add('Nodal Durum (N)', 'Nodal Status (N)', n || 'N0');
+    add('Uzak Metastaz (M)', 'Distant Metastasis (M)', m || 'M0');
+    add('Yüksek Risk Özellikleri', 'High-Risk Features', 'Perinöral İnvazyon / Derin İnvazyon Yok');
+    add('Cerrahi Sınır', 'Surgical Margin', 'R0 Negatif');
+  } else if (organ === 'hematologic') {
+    add('Ann Arbor Evresi', 'Ann Arbor Stage', isM1 ? 'Evre IV' : isNodalPositive ? 'Evre II-III' : 'Evre I');
+    add('Hasta Yaşı', 'Age', `${age}`, age > 60 ? '+1' : '0');
+    add('Serum LDH Düzeyi', 'Serum LDH', extraParams.ldhElevated ? 'Yüksek' : 'Normal', extraParams.ldhElevated ? '+1' : '0');
+    add('ECOG Performansı', 'ECOG Performance Status', kps >= 80 ? 'ECOG 0-1' : 'ECOG 2+', kps >= 80 ? '0' : '+1');
+    add('Ekstranodal Tutulum', 'Extranodal Sites', '≤1 Odak', '0');
+  } else if (organ === 'pediatric') {
+    add('Hasta Yaşı', 'Age Category', '≥3 Yaş (CSI Adayı)');
+    add('Rezeksiyon Rezidüsü', 'Resection Residual', '<1.5 cm² (Standart Risk)');
+    add('BOS / Nöroaksiyel Yayılım', 'Neuraxis Seeding', 'M0 (Negatif)');
+    add('Moleküler Risk', 'Molecular Risk Tier', 'Standart Risk');
+  } else if (organ === 'palliative') {
+    add('Karnofsky (KPS)', 'KPS', `${kps}`);
+    add('Metastaz Durumu', 'Metastatic Status', isM1 ? 'M1' : 'M0');
+    add('Spinal Tedavi Adaylığı', 'Spinal Treatment Candidacy', kps >= 70 ? 'SBRT / Cerrahi değerlendirmesi' : 'Palyatif RT');
+  } else {
+    add('T Evresi', 'T Stage', t || 'T?');
+    add('N Evresi', 'N Stage', n || 'N0');
+    add('M Evresi', 'M Stage', m || 'M0');
+  }
+
+  return { ...result, criteria };
 };
 
 function parseOption<T extends string>(value: string, options: readonly T[]): T | undefined {
@@ -5082,6 +5223,10 @@ export default function RadoncoCDSSPage() {
         gleasonSecondary: Number.parseInt(gleasonSecondary, 10),
         positiveCorePercent: Number.parseFloat(positiveCorePercent),
         grade: Number.parseInt(breastGrade, 10),
+        er: breastER,
+        pr: breastPR,
+        her2: breastHER2,
+        ki67: Number.parseFloat(breastKi67),
       },
     ),
     [
@@ -7257,6 +7402,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/80 p-2.5 text-[11px] font-medium leading-relaxed text-slate-700 dark:border-slate-700/70 dark:bg-slate-800/80 dark:text-slate-300">
                     <strong>{lang === 'tr' ? 'Önerilen Strateji: ' : 'Recommended Strategy: '}</strong>
                     {tText(prognosticResult.recommendation)}
+                  </div>
+                  <div className="mt-2.5 overflow-hidden rounded-xl border border-slate-200/70 dark:border-slate-700/70">
+                    <div className="border-b border-slate-200/70 bg-slate-50/80 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:border-slate-700/70 dark:bg-slate-800/70 dark:text-slate-400">
+                      {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
+                    </div>
+                    <div className="divide-y divide-slate-200/70 dark:divide-slate-700/70">
+                      {prognosticResult.criteria.map(criterion => (
+                        <div key={`${criterion.label_en}-${criterion.value}`} className="flex items-center justify-between gap-3 px-2.5 py-1.5 text-[10px]">
+                          <span className="text-slate-500 dark:text-slate-400">{lang === 'tr' ? criterion.label_tr : criterion.label_en}</span>
+                          <span className="text-right font-mono font-semibold text-slate-700 dark:text-slate-200">
+                            {tText(criterion.value)}
+                            {criterion.points && <span className="ml-1 text-blue-600 dark:text-blue-400">[{criterion.points}]</span>}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
