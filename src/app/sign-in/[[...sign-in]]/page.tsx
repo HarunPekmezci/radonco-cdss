@@ -60,9 +60,10 @@ export default function SignInPage() {
   return (
     <div className={`min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative ${lang === 'en' ? 'en-mode' : 'tr-mode'}`}>
       
-      {/* REACT'I ASLA ÇÖKERTMEYEN GÜVENLİ VE TEK KATMANLI BUTON STİLİ */}
+      {/* KONTRAST VE OKUNABİLİRLİK CSS KURALLARI */}
       <style dangerouslySetInnerHTML={{
         __html: `
+          /* İngilizce buton metni */
           .en-mode .cl-formButtonPrimary {
             color: transparent !important;
             position: relative !important;
@@ -81,6 +82,49 @@ export default function SignInPage() {
             font-size: 0.875rem;
             font-weight: 600;
             pointer-events: none;
+          }
+
+          /* ŞİFRE EKRANI: Kalemin yanındaki e-posta metnini parlat */
+          .cl-identityPreviewText {
+            color: #f8fafc !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+          }
+          .cl-identityPreviewEditButtonIcon {
+            color: #60a5fa !important;
+          }
+
+          /* ŞİFRE SIFIRLAMA EKRANI: "Email code to..." butonunu ve metnini pırıl pırıl yap */
+          .cl-alternativeMethodsBlockButton,
+          button[data-localization-key*="alternativeMethods"] {
+            background-color: #131f33 !important;
+            border: 1px solid #334155 !important;
+            border-radius: 0.75rem !important;
+            padding: 0.75rem 1rem !important;
+            transition: all 0.2s ease !important;
+          }
+          .cl-alternativeMethodsBlockButton:hover {
+            background-color: #1c2c47 !important;
+            border-color: #60a5fa !important;
+          }
+          .cl-alternativeMethodsBlockButtonText,
+          .cl-alternativeMethodsBlockButton span,
+          .cl-alternativeMethodsBlockButton p {
+            color: #f8fafc !important; /* Bembeyaz ve net */
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+          }
+          .cl-alternativeMethodsBlockButton svg,
+          .cl-alternativeMethodsBlockButtonIcon {
+            color: #60a5fa !important; /* Canlı mavi ikon */
+          }
+          .cl-backLink,
+          .cl-formHeaderBackLink {
+            color: #60a5fa !important;
+            font-weight: 500 !important;
+          }
+          .cl-backLink:hover {
+            color: #93c5fd !important;
           }
         `
       }} />
@@ -115,7 +159,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (HERO + PARÇACIKLI DVH KONSOLU)
+          1. SOL SÜTUN (HERO + DVH KONSOLU)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -225,7 +269,6 @@ export default function SignInPage() {
                   className="drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]"
                 />
 
-                {/* Dinamik Parçacık Akışı */}
                 <circle r="3" fill="#38bdf8" filter="url(#neonGlow)">
                   <animateMotion path="M 0 10 L 260 10 Q 295 12 315 70 T 330 105" dur="3.8s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0;1;1;0.8;0" dur="3.8s" repeatCount="indefinite" />
@@ -282,7 +325,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (ASLA ÇÖKMEYEN KOYU TEMA CLERK KARTI)
+          2. SAĞ SÜTUN (ŞIK KOYU TEMA CLERK GİRİŞ KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -318,6 +361,14 @@ export default function SignInPage() {
                 headerTitle: '!text-white font-bold text-lg text-center',
                 headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
                 
+                identityPreview: '!bg-[#131f33]/70 !border !border-slate-700/60 !rounded-xl !py-1.5 !px-3 mb-2 flex items-center justify-between',
+                identityPreviewText: '!text-slate-100 !font-semibold text-sm',
+                identityPreviewEditButton: '!text-blue-400 hover:!text-blue-300',
+
+                // ŞİFRE SIFIRLAMA METOT BUTONU
+                alternativeMethodsBlockButton: '!bg-[#131f33] !border !border-slate-700 !text-slate-100 hover:!bg-[#1c2c47] rounded-xl py-2.5 px-3.5',
+                alternativeMethodsBlockButtonText: '!text-slate-100 !font-semibold text-xs',
+
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
