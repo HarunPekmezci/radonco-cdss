@@ -1,5 +1,6 @@
 import { SignIn } from '@clerk/nextjs';
-import { Radiation, ShieldCheck, Activity } from 'lucide-react';
+import Link from 'next/link';
+import { Radiation, ShieldCheck, Activity, UserPlus } from 'lucide-react';
 
 export default function SignInPage() {
   return (
@@ -38,7 +39,7 @@ export default function SignInPage() {
             Klinik evreleme, fraksiyonasyon felsefesi ve ICRU 83 / QUANTEC dozimetrik güvenlik kısıtları.
           </p>
 
-          {/* Doz Eğrisi (DVH Eğrisi Görseli) */}
+          {/* Doz-Hacim Eğrisi (DVH Görseli) */}
           <div className="mt-8 p-5 rounded-2xl bg-[#0e1726]/80 border border-slate-800 shadow-lg">
             <div className="flex justify-between items-center text-xs text-slate-400 mb-3 font-mono">
               <span className="flex items-center gap-1.5 text-blue-400 font-bold">
@@ -46,7 +47,6 @@ export default function SignInPage() {
               </span>
               <span className="text-emerald-400">OAR Toleransı: Güvenli</span>
             </div>
-            {/* SVG Doz-Hacim Eğrisi */}
             <svg viewBox="0 0 300 60" className="w-full h-14 overflow-visible">
               <path
                 d="M 0 10 Q 180 12 220 18 T 260 55 L 300 58"
@@ -78,7 +78,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (MASAÜSTÜNDE SAĞDA, MOBİLDE TAM EKRAN ORTADA)
+          2. SAĞ SÜTUN (GİRİŞ FORMU & KAYIT OL BUTONU)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -91,37 +91,42 @@ export default function SignInPage() {
           <span className="text-xs text-slate-400 mt-0.5">Klinik Karar Destek Sistemi</span>
         </div>
 
-        {/* Clerk Giriş Kartı */}
-        <div className="w-full max-w-[420px] flex justify-center">
+        {/* Giriş Kartı */}
+        <div className="w-full max-w-[420px] flex flex-col items-center">
           <SignIn
             appearance={{
               elements: {
-                // GOOGLE BUTONUNU VE "OR" AYIRICISINI ZORLA YOK ET
                 socialButtons: '!hidden',
                 socialButtonsBlockButton: '!hidden',
                 socialButtonsProviderIcon: '!hidden',
                 socialButtonsIconButton: '!hidden',
                 dividerRow: '!hidden',
                 dividerText: '!hidden',
-                
-                // CLERK LOGOSUNU GİZLE
                 footer: '!hidden',
                 footerAction: '!hidden',
 
-                // MODERN KOYU TEMA KARTI
                 card: 'bg-[#0e1726] border border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full',
                 headerTitle: 'text-white font-bold text-lg text-center',
                 headerSubtitle: 'text-slate-400 text-xs text-center mb-4',
                 
-                // İNPUT ALANLARI
                 formFieldLabel: 'text-xs font-semibold text-slate-300',
                 formFieldInput: 'bg-[#131f33] border border-slate-700 text-white rounded-xl py-2.5 px-3.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500',
-                
-                // GİRİŞ BUTONU
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
               },
             }}
           />
+
+          {/* KAYIT OL BAĞLANTISI / BUTONU */}
+          <div className="mt-5 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">
+            <span>Hesabınız yok mu?</span>
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center gap-1 font-bold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Kayıt Olun
+            </Link>
+          </div>
         </div>
 
         <div className="mt-6 text-center text-[11px] text-slate-500">
