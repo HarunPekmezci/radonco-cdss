@@ -1207,10 +1207,10 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'thorax-mesothelioma', name_tr: 'Mezotelyoma', name_en: 'Mesothelioma' },
   ],
   prostate: [
-    { id: 'prostate-prostate', name_tr: 'Prostat Adenokarsinomu', name_en: 'Prostate Adenocarcinoma' },
+    { id: 'prostate-prostate', name_tr: 'Prostat Kanseri', name_en: 'Prostate Adenocarcinoma' },
     { id: 'prostate-bladder', name_tr: 'Mesane Kanseri', name_en: 'Bladder Cancer' },
     { id: 'prostate-penile', name_tr: 'Penil Kanser', name_en: 'Penile Cancer' },
-    { id: 'prostate-testis', name_tr: 'Testis Kanseri (Seminom)', name_en: 'Testicular Seminoma' },
+    { id: 'prostate-testis', name_tr: 'Testis Kanseri', name_en: 'Testicular Seminoma' },
   ],
   breast: [
     { id: 'breast-idc', name_tr: 'İnvaziv Duktal Karsinom (İDK)', name_en: 'Invasive Ductal (IDC)' },
