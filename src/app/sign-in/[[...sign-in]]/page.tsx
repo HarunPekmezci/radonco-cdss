@@ -60,28 +60,31 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative">
       
-      {/* BUTONU DOLGUN VE YAZIYI TAM MERKEZLİ YAPAN STİL */}
+      {/* BUTON METNİNİ TAM PİKSEL MERKEZİNE OTURTAN MATEMATİKSEL STİL */}
       <style dangerouslySetInnerHTML={{
         __html: `
           .cl-formButtonPrimary.en-btn {
-            font-size: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            min-height: 2.75rem !important;
-            height: 2.75rem !important;
-            padding: 0 1rem !important;
+            position: relative !important;
+            color: transparent !important;
           }
+          /* Orijinal metni ve simgeleri görünmez yap ama butonun doğal boyutunu koru */
           .cl-formButtonPrimary.en-btn * {
-            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
           }
+          /* Sign In yazısını butonun tam merkezine oturt */
           .cl-formButtonPrimary.en-btn::after {
             content: "Sign In" !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
             font-size: 0.875rem !important;
             font-weight: 600 !important;
             color: #ffffff !important;
+            white-space: nowrap !important;
             line-height: 1 !important;
-            display: block !important;
+            pointer-events: none !important;
           }
         `
       }} />
@@ -160,7 +163,7 @@ export default function SignInPage() {
                   <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-" /> {t.cordLegend}
+                  <span className="w-2 h-2 rounded-full bg-amber-400" /> {t.cordLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
@@ -295,8 +298,8 @@ export default function SignInPage() {
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 
-                // SABİT 44px (h-11) YÜKSEKLİK VE ORTALANMIŞ BUTON
-                formButtonPrimary: `!h-11 !min-h-[2.75rem] flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
+                // BUTON SINIFLARI
+                formButtonPrimary: `bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
                   lang === 'en' ? 'en-btn' : ''
                 }`,
               },
