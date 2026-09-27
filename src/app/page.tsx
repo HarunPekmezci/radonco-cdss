@@ -28,6 +28,8 @@ import {
   AlertTriangle,
   ShieldAlert,
   CheckCircle2,
+  FileText,
+  UploadCloud,
   XCircle,
   Activity,
   Layers,
@@ -57,6 +59,76 @@ export type OrganId =
   | 'pediatric'
   | 'palliative'
   | 'benign';
+
+interface ParsedReportData {
+  detectedOrgan?: OrganId;
+  detectedSubsite?: string;
+  t?: string;
+  n?: string;
+  m?: string;
+  psa?: string;
+  gleasonPrimary?: number;
+  gleasonSecondary?: number;
+  er?: boolean;
+  pr?: boolean;
+  her2?: boolean;
+  ki67?: number;
+  centrality?: 'Peripheral' | 'Central' | 'Ultracentral';
+  summary: string;
+}
+
+const parseMedicalReport = (text: string): ParsedReportData => {
+  const lower = text.toLocaleLowerCase('tr-TR');
+  const result: ParsedReportData = { summary: '' };
+
+  if (/\b(prostat|prostate|psa|gleason)\b/i.test(text)) {
+    result.detectedOrgan = 'prostate';
+    result.detectedSubsite = 'prostate-prostate';
+  } else if (/(akciğer|lung|bronş|khdak|nsclc)/i.test(text)) {
+    result.detectedOrgan = 'thorax';
+    result.detectedSubsite = 'thorax-nsclc';
+  } else if (/(meme|breast|duktal|mastektomi)/i.test(text)) {
+    result.detectedOrgan = 'breast';
+    result.detectedSubsite = 'breast-breast';
+  } else if (/(rektum|rectal|kolon|mezorekt)/i.test(text)) {
+    result.detectedOrgan = 'gis';
+    result.detectedSubsite = 'gis-Rektum';
+  } else if (/(serviks|cervix|endometriyum)/i.test(text)) {
+    result.detectedOrgan = 'gynecology';
+    result.detectedSubsite = lower.includes('endometriyum') ? 'gynecology-Endometriyum' : 'gynecology-Serviks';
+  } else if (/(glioblastom|gbm|beyin|brain)/i.test(text)) {
+    result.detectedOrgan = 'cns';
+    result.detectedSubsite = 'cns-gbm';
+  }
+
+  const tMatch = text.match(/(?:[cp]?t)\s*([0-4][a-c]?|is|mic)\b/i);
+  const nMatch = text.match(/(?:[cp]?n)\s*([0-3][a-c]?)\b/i);
+  const mMatch = text.match(/(?:[cp]?m)\s*([0-1][a-c]?)\b/i);
+  if (tMatch) result.t = `T${tMatch[1].toUpperCase()}`;
+  if (nMatch) result.n = `N${nMatch[1].toUpperCase()}`;
+  if (mMatch) result.m = `M${mMatch[1].toUpperCase()}`;
+
+  const gleasonMatch = text.match(/gleason\s*(?:skoru?)?\s*[:=]?\s*([3-5])\s*\+\s*([3-5])/i);
+  if (gleasonMatch) {
+    result.gleasonPrimary = Number.parseInt(gleasonMatch[1], 10);
+    result.gleasonSecondary = Number.parseInt(gleasonMatch[2], 10);
+  }
+  const psaMatch = text.match(/psa\s*[:=]?\s*(\d+[.,]?\d*)/i);
+  if (psaMatch) result.psa = psaMatch[1].replace(',', '.');
+
+  result.er = /(er\s*\(\s*\+\s*\)|er\s*pozitif|östrojen\s*pozitif)/i.test(text);
+  result.pr = /(pr\s*\(\s*\+\s*\)|pr\s*pozitif|progesteron\s*pozitif)/i.test(text);
+  result.her2 = /(her2\s*\(\s*\+\s*\)|her2\s*pozitif|her2\s*3\+)/i.test(text);
+  const ki67Match = text.match(/ki[- ]?67\s*[:=]?\s*%?\s*(\d+)/i);
+  if (ki67Match) result.ki67 = Number.parseInt(ki67Match[1], 10);
+
+  if (/ultrasantral|ultracentral/i.test(text)) result.centrality = 'Ultracentral';
+  else if (/santral|central/i.test(text)) result.centrality = 'Central';
+  else if (/periferik|peripheral/i.test(text)) result.centrality = 'Peripheral';
+
+  result.summary = `${result.detectedOrgan?.toUpperCase() || 'TUMOR'} | ${result.t || 'T?'} ${result.n || 'N?'} ${result.m || 'M?'}`;
+  return result;
+};
 
 const AI_PLATFORMS = [
   { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com' },
@@ -2587,6 +2659,9 @@ export default function RadoncoCDSSPage() {
   const [selectedRegimen, setSelectedRegimen] = useState<'sbrt' | 'moderate' | 'sib' | 'conventional'>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [reportInputText, setReportInputText] = useState<string>('');
+  const [parsedData, setParsedData] = useState<ParsedReportData | null>(null);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
   const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
@@ -5598,6 +5673,30 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
         <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+          <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
+            <div className="mb-1.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  {lang === 'tr' ? 'AI Rapor Okuyucu & Evreleme' : 'AI Medical Report Stager'}
+                </span>
+              </div>
+              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
+                {lang === 'tr' ? 'Patoloji / MR / PET' : 'Pathology / MRI / PET'}
+              </span>
+            </div>
+            <p className="mb-2.5 text-[11px] text-slate-500 dark:text-slate-400">
+              {lang === 'tr' ? 'Rapor metnini yapıştırarak hastanın evresini ve tedavi şemasını otomatik doldurun.' : 'Paste pathology or imaging report to auto-extract TNM stage and protocol.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsReportModalOpen(true)}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{lang === 'tr' ? 'Rapor Yapıştır & Otomatik Evrele' : 'Paste Report & Auto-Stage'}</span>
+            </button>
+          </div>
           <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0d172a] border-slate-800 text-slate-200'}`}>
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
@@ -7245,6 +7344,80 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               {lang === 'tr'
                 ? 'API anahtarı gerektirmez. Mevcut AI hesabınızda açmadan önce vaka sorusunu panoya kopyalar.'
                 : 'No API key required. The case prompt is copied before opening your existing AI account.'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {lang === 'tr' ? 'Tıbbi Rapor Analizi & Otomatik Evreleme' : 'Clinical Report Analysis & Auto-Staging'}
+                </h3>
+              </div>
+              <button type="button" onClick={() => setIsReportModalOpen(false)} aria-label={lang === 'tr' ? 'Rapor penceresini kapat' : 'Close report window'} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <XCircle className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+            <textarea
+              rows={6}
+              value={reportInputText}
+              onChange={event => {
+                const value = event.currentTarget.value;
+                setReportInputText(value);
+                setParsedData(value.trim().length > 10 ? parseMedicalReport(value) : null);
+              }}
+              placeholder={lang === 'tr' ? "Örnek: 'Prostat biyopsisinde Gleason 4+3=7, PSA: 14 ng/ml, cT3a, N0, M0...'" : 'Paste pathology, MRI, or PET report text here...'}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200"
+            />
+            {parsedData && (
+              <div className="mb-4 mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs dark:border-emerald-800/60 dark:bg-emerald-950/40">
+                <div className="mb-1.5 flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                  <span>{lang === 'tr' ? 'Tespit Edilen Klinik Veriler:' : 'Extracted Clinical Parameters:'}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-700 dark:text-slate-300">
+                  <div>Organ: <span className="font-bold text-slate-900 dark:text-white">{parsedData.detectedOrgan?.toUpperCase() || '-'}</span></div>
+                  <div>TNM: <span className="font-bold text-blue-600">{parsedData.t || 'T?'} {parsedData.n || 'N?'} {parsedData.m || 'M?'}</span></div>
+                  {parsedData.psa && <div>PSA: <span className="font-bold text-slate-900 dark:text-white">{parsedData.psa} ng/mL</span></div>}
+                  {parsedData.gleasonPrimary && <div>Gleason: <span className="font-bold text-slate-900 dark:text-white">{parsedData.gleasonPrimary}+{parsedData.gleasonSecondary}</span></div>}
+                  {parsedData.ki67 !== undefined && <div>Ki-67: <span className="font-bold text-slate-900 dark:text-white">%{parsedData.ki67}</span></div>}
+                  {parsedData.centrality && <div>Centrality: <span className="font-bold text-slate-900 dark:text-white">{parsedData.centrality}</span></div>}
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+              <button type="button" onClick={() => { setReportInputText(''); setParsedData(null); setIsReportModalOpen(false); }} className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+                {lang === 'tr' ? 'Vazgeç' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                disabled={!parsedData?.detectedOrgan}
+                onClick={() => {
+                  if (!parsedData?.detectedOrgan) return;
+                  setSelectedOrgan(parsedData.detectedOrgan);
+                  if (parsedData.detectedSubsite) {
+                    setSelectedSubsite(parsedData.detectedSubsite);
+                    handleSubsiteChange(parsedData.detectedSubsite);
+                  } else {
+                    handleOrganChange(parsedData.detectedOrgan);
+                  }
+                  if (parsedData.t) setSelectedT(parsedData.t);
+                  if (parsedData.n) setSelectedN(parsedData.n);
+                  if (parsedData.m) setSelectedM(parsedData.m);
+                  if (parsedData.psa) setPsaLevel(parsedData.psa);
+                  if (parsedData.gleasonPrimary !== undefined) setGleasonPrimary(String(parsedData.gleasonPrimary));
+                  if (parsedData.gleasonSecondary !== undefined) setGleasonSecondary(String(parsedData.gleasonSecondary));
+                  setIsReportModalOpen(false);
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {lang === 'tr' ? 'Sisteme Uygula & Otomatik Evrele ➔' : 'Apply to CDSS & Auto-Stage ➔'}
+              </button>
             </div>
           </div>
         </div>
