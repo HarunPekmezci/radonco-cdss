@@ -60,6 +60,24 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative">
       
+      {/* İNGİLİZCE BUTON METNİNİ DİNAMİK YAPAN STİL ENJEKSİYONU */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .cl-formButtonPrimary.en-btn,
+          .cl-formButtonPrimary.en-btn * {
+            font-size: 0 !important;
+          }
+          .cl-formButtonPrimary.en-btn::after {
+            content: "Sign In →" !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            display: inline-block !important;
+            line-height: 1.25rem !important;
+          }
+        `
+      }} />
+
       {/* ==============================================================
           DİL SEÇİCİ (SAĞ ÜST KÖŞE - EN VARSAYILAN)
          ============================================================== */}
@@ -230,7 +248,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (HATASIZ DERLENEN KOYU TEMA CLERK KARTI)
+          2. SAĞ SÜTUN (DİLE GÖRE DİNAMİK BUTONLU CLERK KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -268,7 +286,11 @@ export default function SignInPage() {
                 
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
-                formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
+                
+                // DİL EN İSE en-btn SINIFI İLE "Sign In →" YAPILIR
+                formButtonPrimary: `bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
+                  lang === 'en' ? 'en-btn' : ''
+                }`,
               },
             } as any)}
           />
