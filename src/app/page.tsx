@@ -39,6 +39,7 @@ import {
   Sun,
   Moon,
   TrendingUp,
+  Download,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 
@@ -3004,6 +3005,7 @@ export default function RadoncoCDSSPage() {
   // Modal ve Kopyalama State'leri
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<'sbrt' | 'moderate' | 'sib' | 'conventional'>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
@@ -5916,6 +5918,119 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const exportResearchCohort = () => {
+    const now = new Date();
+    const pad = (value: number) => String(value).padStart(2, '0');
+    const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const dateForFile = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+    const organNames: Record<OrganId, string> = {
+      thorax: 'Akciğer/Toraks',
+      prostate: 'GÜS',
+      breast: 'Meme',
+      gis: 'GİS',
+      'head-neck': 'Baş-Boyun',
+      cns: 'MSS',
+      gynecology: 'Jinekoloji',
+      bone: 'Kemik',
+      sarcoma: 'Yumuşak Doku',
+      'bone-sarcoma': 'Kemik/Sarkom',
+      skin: 'Cilt',
+      hematologic: 'Hematoloji',
+      pediatric: 'Pediatri',
+      palliative: 'Palyatif',
+      benign: 'Benign',
+    };
+    const diagnosis = selectedOrgan === 'breast'
+      ? breastHistology
+      : selectedOrgan === 'cns'
+        ? cnsSubtype === 'gbm' ? 'Glioblastoma' : cnsSubtype === 'glioma' ? `Glial tümör ${gliomaGrade.replace('_', ' ')}` : cnsSubtype
+        : selectedOrgan === 'bone' || selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma'
+          ? sarcomaSubtype
+          : selectedOrgan === 'skin'
+            ? skinHistology
+            : selectedOrgan === 'hematologic'
+              ? hematologicSubtype
+              : selectedSubsite || organNames[selectedOrgan];
+    const biomarkerRisk = [
+      selectedOrgan === 'breast' ? `ER${breastER ? '+' : '-'}, PR${breastPR ? '+' : '-'}, HER2${breastHER2 ? '+' : '-'}, Ki67 %${breastKi67}, Grade ${breastGrade}` : '',
+      selectedOrgan === 'cns' && cnsSubtype === 'glioma' ? [
+        gliomaRiskFactors.age40 ? 'Yaş >=40' : '',
+        gliomaRiskFactors.subtotalResection ? 'STR/Biyopsi' : '',
+        gliomaRiskFactors.largeOrCrossing ? '>=5 cm/orta hat geçişi' : '',
+        gliomaRiskFactors.neurologicSymptoms ? 'Nörolojik defisit/dirençli nöbet' : '',
+        gliomaRiskFactors.molecularHighRisk ? 'IDH-wt/CDKN2A/B yüksek risk' : '',
+      ].filter(Boolean).join('; ') : '',
+      selectedOrgan === 'skin' ? `Marjin ${skinMargin}, derinlik ${skinDepthMm} mm, PNI ${skinPerineuralInvasion ? '+' : '-'}` : '',
+      selectedOrgan === 'cns' ? `KPS ${cnsKps}, ${cnsResection}, ${cnsSymptoms}` : '',
+    ].filter(Boolean).join(' | ');
+    const headers = [
+      'Kayıt_No', 'Tarih_Saat', 'Anatomik_Bolge', 'Tani_Histoloji', 'T_Evresi', 'N_Evresi', 'M_Evresi',
+      'Klinik_Evre', 'Performans_KPS_ECOG', 'Biyobelirtecler_Risk_Faktorleri', 'Prognostik_Indeks_Adi',
+      'Prognostik_Skor', 'Risk_Grubu', 'Beklenen_Sagkalim_Orani', 'Endike_Radyoterapi_Semasi',
+      'Toplam_Doz_Gy', 'Fraksiyon_Sayisi', 'Fraksiyon_Basi_Doz_Gy', 'Teknik', 'Alfa_Beta_Orani',
+      'BED_Gy', 'EQD2_Gy', 'Es_Zamanli_Sistemik_Tedavi',
+    ];
+    type ResearchRow = Record<string, string | number>;
+    let cohort: ResearchRow[] = [];
+    const stored = window.localStorage.getItem('radonco_research_cohort');
+    if (stored) {
+      try {
+        const parsed: unknown = JSON.parse(stored);
+        if (!Array.isArray(parsed) || parsed.some(item => typeof item !== 'object' || item === null)) {
+          throw new Error('Stored research cohort is not an array of objects.');
+        }
+        cohort = parsed as ResearchRow[];
+      } catch (error) {
+        console.error('Research cohort could not be read; starting a new cohort.', error);
+        cohort = [];
+      }
+    }
+    const researchPrognostic = prognosticResult || {
+      indexName: 'Hesaplanmadı',
+      score: '',
+      riskCategory: 'Belirlenmedi',
+      medianSurvivalOrRecurrence: '',
+    };
+    const row: ResearchRow = {
+      Kayıt_No: cohort.length + 1,
+      Tarih_Saat: timestamp,
+      Anatomik_Bolge: organNames[selectedOrgan],
+      Tani_Histoloji: diagnosis,
+      T_Evresi: selectedT,
+      N_Evresi: selectedN,
+      M_Evresi: selectedM,
+      Klinik_Evre: evaluatedDecision.statusText,
+      Performans_KPS_ECOG: `KPS: ${cnsKps} / ECOG: -`,
+      Biyobelirtecler_Risk_Faktorleri: biomarkerRisk,
+      Prognostik_Indeks_Adi: researchPrognostic.indexName,
+      Prognostik_Skor: researchPrognostic.score,
+      Risk_Grubu: researchPrognostic.riskCategory,
+      Beklenen_Sagkalim_Orani: researchPrognostic.medianSurvivalOrRecurrence,
+      Endike_Radyoterapi_Semasi: activeScheme.name,
+      Toplam_Doz_Gy: activeScheme.totalDoseGy,
+      Fraksiyon_Sayisi: activeScheme.fractionCount,
+      Fraksiyon_Basi_Doz_Gy: activeScheme.fractionDoseGy,
+      Teknik: activeScheme.technique,
+      Alfa_Beta_Orani: radiobiology.ab,
+      BED_Gy: radiobiology.bed,
+      EQD2_Gy: radiobiology.eqd2,
+      Es_Zamanli_Sistemik_Tedavi: activeScheme.systemicTherapy || '',
+    };
+    cohort = [...cohort, row];
+    window.localStorage.setItem('radonco_research_cohort', JSON.stringify(cohort));
+    const csvEscape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
+    const csv = `\uFEFF${headers.join(',')}\n${cohort.map(item => headers.map(header => csvEscape(item[header] ?? '')).join(',')).join('\n')}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `radonco_hasta_kohortu_${dateForFile}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setResearchExportNotice(`Hasta araştırma kohortuna eklendi (Toplam: ${cohort.length} hasta). Excel dosyası güncellendi.`);
+    window.setTimeout(() => setResearchExportNotice(''), 5000);
+  };
+
   const prescriptionTarget = selectedOrgan === 'breast' && breastHistology !== 'Malign Filloides Tümörü'
     ? 'Tüm Meme (WBRT)'
     : activeScheme.targetVolumes[0]?.anatomical || 'Klinik hedef hacimler';
@@ -7955,7 +8070,20 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* KOPYALANABİLİR RAPOR PANELİ */}
-            <div className="pt-3 border-t border-slate-200/80 flex justify-end">
+            <div className="pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-end gap-2">
+              {researchExportNotice && (
+                <div role="status" className="mr-auto rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                  {researchExportNotice}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={exportResearchCohort}
+                className="flex items-center gap-2 rounded-md bg-[#107C41] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0b6334] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Database & Download Excel'}</span>
+              </button>
               <button
                 onClick={copyToClipboard}
                 className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
