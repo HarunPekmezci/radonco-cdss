@@ -284,4 +284,13 @@ export default function SignInPage() {
           </div>
 
           {/* Mobilde Alt İmza */}
-          <
+          <div className="lg:hidden mt-6 text-center text-xs text-slate-500 font-medium">
+            Designed by Harun PEKMEZCI, MD
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
