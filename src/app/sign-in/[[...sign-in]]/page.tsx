@@ -72,9 +72,10 @@ export default function SignInPage() {
         </div>
 
         {/* Alt Bilgi */}
-        <div className="text-xs text-slate-500 font-medium">
-          Kayseri Şehir Eğitim ve Araştırma Hastanesi • NCCN v1.2025 Standartları
-        </div>
+{/* SOL ALT İMZA */}
+<div className="text-xs text-slate-400 font-medium tracking-wide">
+  RadOnc CDSS • <span className="text-slate-200 font-semibold">Harun PEKMEZCI, MD</span>
+</div>
       </div>
 
       {/* ==============================================================
