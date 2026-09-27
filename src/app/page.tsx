@@ -7177,6 +7177,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
           </div>}
 
+          {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
+          {currentHistologies.length > 0 && (
+            <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patolojik Histoloji / Biyolojik Alt Tip' : 'Pathologic Histology / Biologic Subtype'}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">{lang === 'tr' ? 'Dinamik Reçete Motoru' : 'Dynamic Prescription Engine'}</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {currentHistologies.map(h => (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => handleHistologySelect(h.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      selectedHistology === h.id
+                        ? 'bg-sky-600 text-white font-semibold shadow-md shadow-sky-600/30 ring-1 ring-sky-400'
+                        : 'bg-[#16253d] text-slate-200 border border-slate-700/80 hover:bg-[#1c3050] hover:text-white'
+                    }`}
+                  >
+                    {tText(h.name)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
           <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-3 shadow-sm flex flex-col gap-2.5 lg:p-5 lg:gap-3">
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -8197,34 +8225,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.tag)}
               </span>
             </div>
-
-            {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
-            {currentHistologies.length > 0 && (
-              <div className="bg-[#111c2e] border border-slate-800 rounded-xl p-3 mb-4 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patolojik Histoloji / Biyolojik Alt Tip' : 'Pathologic Histology / Biologic Subtype'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">{lang === 'tr' ? 'Dinamik Reçete Motoru' : 'Dynamic Prescription Engine'}</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {currentHistologies.map(h => (
-                    <button
-                      key={h.id}
-                      type="button"
-                      onClick={() => handleHistologySelect(h.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        selectedHistology === h.id
-                          ? 'bg-sky-600 text-white font-semibold shadow-md shadow-sky-600/30 ring-1 ring-sky-400'
-                          : 'bg-[#16253d] text-slate-200 border border-slate-700/80 hover:bg-[#1c3050] hover:text-white'
-                      }`}
-                    >
-                      {tText(h.name)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
               <div className="mb-4">
