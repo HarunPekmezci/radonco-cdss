@@ -60,25 +60,28 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative">
       
-      {/* BUTON İÇİNDEKİ GİZLİ ÜÇGEN / SVG İKONLARI TAMAMEN YOK EDEN STİL */}
+      {/* BUTONU DOLGUN VE YAZIYI TAM MERKEZLİ YAPAN STİL */}
       <style dangerouslySetInnerHTML={{
         __html: `
           .cl-formButtonPrimary.en-btn {
-            position: relative !important;
             font-size: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 2.75rem !important;
+            height: 2.75rem !important;
+            padding: 0 1rem !important;
           }
-          /* Butonun içindeki tüm çocuk elemanları (üçgen SVG dahil) gizle */
           .cl-formButtonPrimary.en-btn * {
             display: none !important;
           }
-          /* Yalnızca tertemiz Sign In yazısını göster */
           .cl-formButtonPrimary.en-btn::after {
             content: "Sign In" !important;
             font-size: 0.875rem !important;
             font-weight: 600 !important;
             color: #ffffff !important;
-            display: inline-block !important;
-            line-height: 1.25rem !important;
+            line-height: 1 !important;
+            display: block !important;
           }
         `
       }} />
@@ -292,8 +295,8 @@ export default function SignInPage() {
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 
-                // DİL EN İSE en-btn İLE ARKA PLANDAKİ TÜM İKONLAR/SVG SİLİNİR
-                formButtonPrimary: `bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
+                // SABİT 44px (h-11) YÜKSEKLİK VE ORTALANMIŞ BUTON
+                formButtonPrimary: `!h-11 !min-h-[2.75rem] flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
                   lang === 'en' ? 'en-btn' : ''
                 }`,
               },
