@@ -59,13 +59,66 @@ export type OrganId =
   | 'benign';
 
 const AI_PLATFORMS = [
-  { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com', icon: '🔵' },
-  { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com', icon: '🟢' },
-  { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai', icon: '🟠' },
-  { id: 'notebooklm', name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: '📓' },
-  { id: 'claude', name: 'Claude', url: 'https://claude.ai', icon: '🟣' },
-  { id: 'grok', name: 'Grok', url: 'https://x.ai', icon: '⚪' },
+  { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com' },
+  { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com' },
+  { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai' },
+  { id: 'notebooklm', name: 'NotebookLM', url: 'https://notebooklm.google.com' },
+  { id: 'claude', name: 'Claude', url: 'https://claude.ai' },
+  { id: 'grok', name: 'Grok', url: 'https://x.ai' },
 ] as const;
+
+const AiLogo = ({ id, className = 'h-4 w-4' }: { id: string; className?: string }) => {
+  switch (id) {
+    case 'gemini':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z" fill="url(#gemini-grad)" />
+          <defs>
+            <linearGradient id="gemini-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#4E88FF" />
+              <stop offset="0.5" stopColor="#9B51E0" />
+              <stop offset="1" stopColor="#38BDF8" />
+            </linearGradient>
+          </defs>
+        </svg>
+      );
+    case 'chatgpt':
+      return (
+        <svg className={`${className} text-[#10a37f]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M22.28 10.63a5.56 5.56 0 0 0-.48-4.66 5.76 5.76 0 0 0-5.74-2.82 5.58 5.58 0 0 0-4.32-1.9 5.73 5.73 0 0 0-5.46 3.96 5.6 5.6 0 0 0-3.83 2.76 5.73 5.73 0 0 0 .7 6.37 5.56 5.56 0 0 0 .48 4.66 5.76 5.76 0 0 0 5.74 2.82 5.58 5.58 0 0 0 4.32 1.9 5.73 5.73 0 0 0 5.46-3.96 5.6 5.6 0 0 0 3.83-2.76 5.73 5.73 0 0 0-.7-6.37Zm-8.48 10.87a4.15 4.15 0 0 1-2.6-.92l.14-.08 4.33-2.5a.8.8 0 0 0 .4-.69v-5.26l1.62.94a.07.07 0 0 1 .04.05v4.99a4.2 4.2 0 0 1-3.93 3.47ZM4.7 17.5a4.16 4.16 0 0 1-.5-2.72l.14.09 4.33 2.5a.8.8 0 0 0 .8 0l4.56-2.63v1.87a.08.08 0 0 1-.03.06l-4.32 2.5a4.2 4.2 0 0 1-4.98-1.67ZM3.45 8.92a4.15 4.15 0 0 1 2.1-1.8l-.02.16v5a.8.8 0 0 0 .4.69l4.56 2.63-1.62.94a.08.08 0 0 1-.07 0l-4.32-2.5a4.2 4.2 0 0 1-1.05-5.12Zm13.52 2.66-4.56-2.63 1.62-.94a.08.08 0 0 1 .07 0l4.32 2.5a4.2 4.2 0 0 1-1.05 7.78v-5.02a.8.8 0 0 0-.4-.69ZM20.8 9.22a4.16 4.16 0 0 1 .5 2.72l-.14-.09-4.33-2.5a.8.8 0 0 0-.8 0l-4.56 2.63V10.1a.08.08 0 0 1 .03-.06l4.32-2.5a4.2 4.2 0 0 1 4.98 1.67ZM10.2 6.5a4.15 4.15 0 0 1 2.6.92l-.14.08-4.33 2.5a.8.8 0 0 0-.4.69v5.26l-1.62-.94a.07.07 0 0 1-.04-.05v-4.99A4.2 4.2 0 0 1 10.2 6.5Zm1.8 4.26 2.38 1.37v2.74L12 16.24l-2.38-1.37v-2.74Z" />
+        </svg>
+      );
+    case 'perplexity':
+      return (
+        <svg className={`${className} text-[#22b8cf]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm6 14.3l-6 3.75-6-3.75V8.7l6-3.75 6 3.75v7.6z" />
+          <circle cx="12" cy="12" r="2.5" fill="#f97316" />
+        </svg>
+      );
+    case 'notebooklm':
+      return (
+        <svg className={`${className} text-[#8b5cf6]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M19 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm-1 16H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h11v15z" />
+          <path d="M9 7h8v2H9zm0 4h8v2H9zm0 4h5v2H9z" fill="#a78bfa" />
+        </svg>
+      );
+    case 'claude':
+      return (
+        <svg className={`${className} text-[#d97706]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 3a1 1 0 0 1 1 1v2.5a1 1 0 0 1-2 0V4a1 1 0 0 1 1-1zm0 13.5a1 1 0 0 1 1 1V20a1 1 0 0 1-2 0v-2.5a1 1 0 0 1 1-1zm8-5.5a1 1 0 0 1-1 1h-2.5a1 1 0 0 1 0-2H19a1 1 0 0 1 1 1zm-13.5 0a1 1 0 0 1-1 1H3a1 1 0 0 1 0-2h2.5a1 1 0 0 1 1 1zm12.1-6.1a1 1 0 0 1 0 1.4l-1.8 1.8a1 1 0 0 1-1.4-1.4l1.8-1.8a1 1 0 0 1 1.4 0zm-11.4 11.4a1 1 0 0 1 0 1.4l-1.8 1.8a1 1 0 0 1-1.4-1.4l1.8-1.8a1 1 0 0 1 1.4 0zm11.4 0a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 0 1 1.4-1.4l1.8 1.8a1 1 0 0 1 1.4 0zm-11.4-11.4a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 0 1 1.4-1.4l1.8 1.8a1 1 0 0 1 0 1.4z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      );
+    case 'grok':
+      return (
+        <svg className={`${className} text-slate-900 dark:text-white`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      );
+    default:
+      return <Sparkles className={className} aria-hidden="true" />;
+  }
+};
 
 interface EContourTarget {
   url: string;
@@ -5278,7 +5331,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             >
               {selectedAi ? (
                 <>
-                  <span aria-hidden="true">{selectedAi.icon}</span>
+                  <AiLogo id={selectedAi.id} className="h-4 w-4 shrink-0" />
                   <span>{selectedAi.name}</span>
                 </>
               ) : (
@@ -5326,7 +5379,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
-                        <span aria-hidden="true">{platform.icon}</span>
+                        <AiLogo id={platform.id} className="h-4 w-4 shrink-0" />
                         <span>{platform.name}</span>
                       </span>
                       {isCurrent && <span className="text-xs font-bold text-blue-600 dark:text-blue-400" aria-label={lang === 'tr' ? 'Seçili' : 'Selected'}>✓</span>}
@@ -5424,9 +5477,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
               <div className="flex gap-1 border-b border-slate-100 p-4 pb-0 dark:border-slate-800">
                 {([
-                  ['gemini', '🔵 Google Gemini'],
-                  ['chatgpt', '🟢 ChatGPT'],
-                  ['claude', '🟣 Claude'],
+                  ['gemini', 'Google Gemini'],
+                  ['chatgpt', 'ChatGPT'],
+                  ['claude', 'Claude'],
                 ] as const).map(([tab, label]) => (
                   <button
                     key={tab}
@@ -5438,7 +5491,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
                     }`}
                   >
-                    {label}
+                    <span className="flex items-center gap-1.5">
+                      <AiLogo id={tab} className="h-3.5 w-3.5" />
+                      {label}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -5459,7 +5515,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   onClick={copyCaseContext}
                   className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-700"
                 >
-                  {activeAiTab === 'gemini' ? '🔵' : activeAiTab === 'chatgpt' ? '🟢' : '🟣'}
+                  <AiLogo id={activeAiTab} className="h-4 w-4" />
                   {lang === 'tr' ? 'Hesabınla Aç & Sor ↗' : 'Open & Ask with Your Account ↗'}
                 </a>
                 <button
@@ -7149,7 +7205,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   }}
                   className="flex w-full items-center justify-between rounded-xl bg-[#10a37f] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#0e8c6d]"
                 >
-                  <span>🟢 {lang === 'tr' ? 'ChatGPT ile Aç' : 'Open in ChatGPT'}</span>
+                  <span className="flex items-center gap-1.5"><AiLogo id="chatgpt" className="h-4 w-4" />{lang === 'tr' ? 'ChatGPT ile Aç' : 'Open in ChatGPT'}</span>
                   <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
                 </button>
                 <button
@@ -7160,7 +7216,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   }}
                   className="flex w-full items-center justify-between rounded-xl bg-[#1a73e8] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#1557b0]"
                 >
-                  <span>🔵 {lang === 'tr' ? 'Google Gemini ile Aç' : 'Open in Google Gemini'}</span>
+                  <span className="flex items-center gap-1.5"><AiLogo id="gemini" className="h-4 w-4" />{lang === 'tr' ? 'Google Gemini ile Aç' : 'Open in Google Gemini'}</span>
                   <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
                 </button>
                 <button
@@ -7171,7 +7227,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   }}
                   className="flex w-full items-center justify-between rounded-xl bg-[#d97706] px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#b45309]"
                 >
-                  <span>🟣 {lang === 'tr' ? 'Claude ile Aç' : 'Open in Claude'}</span>
+                  <span className="flex items-center gap-1.5"><AiLogo id="claude" className="h-4 w-4" />{lang === 'tr' ? 'Claude ile Aç' : 'Open in Claude'}</span>
                   <span className="text-[10px] opacity-80">{lang === 'tr' ? 'Panoya Kopyalar ↗' : 'Copies to Clipboard ↗'}</span>
                 </button>
                 <button
