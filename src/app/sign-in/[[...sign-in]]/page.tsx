@@ -30,11 +30,6 @@ export default function SignInPage() {
       noAccount: "Don't have an account?",
       signUp: 'Sign Up',
       mobileSubtitle: 'Clinical Decision Support System',
-      cardTitle: 'Sign in to RadOnc CDSS',
-      cardSubtitle: 'Welcome back! Please sign in to continue',
-      emailLabel: 'Email Address',
-      emailPlaceholder: 'Enter your email address',
-      signInBtn: 'Sign In',
       signature: 'Designed by Harun PEKMEZCI, MD',
     },
     tr: {
@@ -58,11 +53,6 @@ export default function SignInPage() {
       noAccount: 'Hesabınız yok mu?',
       signUp: 'Kayıt Olun',
       mobileSubtitle: 'Klinik Karar Destek Sistemi',
-      cardTitle: "RadOnc CDSS'e Giriş Yap",
-      cardSubtitle: 'Hoş geldiniz! Devam etmek için giriş yapın',
-      emailLabel: 'E-posta Adresi',
-      emailPlaceholder: 'E-posta adresinizi girin',
-      signInBtn: 'Giriş Yap',
       signature: 'Dr. Harun PEKMEZCİ tarafından dizayn edildi',
     }
   }[lang];
@@ -144,7 +134,7 @@ export default function SignInPage() {
                   <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-amber-400" /> {t.cordLegend}
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-" /> {t.cordLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
@@ -240,7 +230,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (KOYU TEMA CLERK KARTI & BİLİNGUAL DESTEK)
+          2. SAĞ SÜTUN (HATASIZ DERLENEN KOYU TEMA CLERK KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -256,17 +246,6 @@ export default function SignInPage() {
         {/* Giriş Kartı */}
         <div className="w-full max-w-[420px] flex flex-col items-center">
           <SignIn
-            localization={({
-              signIn: {
-                start: {
-                  title: t.cardTitle,
-                  subtitle: t.cardSubtitle,
-                },
-              },
-              formFieldLabel__emailAddress: t.emailLabel,
-              formFieldInputPlaceholder__emailAddress: t.emailPlaceholder,
-              formButtonPrimary: t.signInBtn,
-            } as any)}
             appearance={({
               variables: {
                 colorBackground: '#0e1726',
