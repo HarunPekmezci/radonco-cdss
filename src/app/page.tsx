@@ -6143,7 +6143,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
       <header className="w-full border-b border-slate-800 bg-[#080d1a]/95 backdrop-blur px-3 py-2.5 sm:px-6 sm:py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="min-w-0 flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <button
             type="button"
             aria-label={lang === 'tr' ? 'Anatomik menüyü aç' : 'Open anatomic menu'}
@@ -6152,7 +6152,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           >
             <Menu className="h-4 w-4" aria-hidden="true" />
           </button>
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
+          <div className="shrink-0 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
             <Radiation className="w-6 h-6 animate-pulse" aria-hidden="true" />
           </div>
           <div className="min-w-0">
@@ -6162,16 +6162,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <button
             onClick={() => {
               setActiveReferenceTab('guidelines');
               setShowGuidelineModal(true);
             }}
-            className="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-100 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1.5 text-xs text-slate-100 transition-colors hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:px-3"
           >
             <BookOpen className="w-4 h-4 text-amber-700" />
-            {tText("\n            📖 ")}{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}
+            <span aria-hidden="true">📖</span>
+            <span className="hidden sm:inline">{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}</span>
           </button>
           <div className="relative">
             <button
@@ -6179,17 +6180,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               onClick={() => setIsAiDropdownOpen(open => !open)}
               aria-expanded={isAiDropdownOpen}
               aria-haspopup="menu"
-              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700 sm:px-3"
             >
               {selectedAi ? (
                 <>
                   <AiLogo id={selectedAi.id} className="h-4 w-4 shrink-0" />
-                  <span>{selectedAi.name}</span>
+                  <span className="hidden sm:inline">{selectedAi.name}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-3.5 w-3.5 animate-pulse text-blue-500" aria-hidden="true" />
-                  <span>{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
+                  <span className="hidden sm:inline">{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
                 </>
               )}
               <span className="ml-0.5 text-[10px] text-slate-400" aria-hidden="true">▾</span>
@@ -6490,7 +6491,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 grid grid-cols-3 gap-1 rounded-xl border border-slate-700 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+        <div className="col-span-12 mb-4 grid grid-cols-3 gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
           {[
             { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
             { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
@@ -6502,7 +6503,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               role="tab"
               aria-selected={activeMobilePanel === tab.id}
               onClick={() => setActiveMobilePanel(tab.id)}
-              className={`rounded-lg px-1.5 py-2 text-[10px] font-semibold leading-tight transition-colors sm:text-xs ${
+              className={`truncate rounded-lg px-1 py-2 text-center text-xs font-semibold leading-tight transition-all ${
                 activeMobilePanel === tab.id
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-300 hover:bg-slate-800'
