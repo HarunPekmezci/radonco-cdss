@@ -8,7 +8,7 @@ import { Radiation, ShieldCheck, Activity, UserPlus, Globe } from 'lucide-react'
 export default function SignInPage() {
   const [lang, setLang] = useState<'en' | 'tr'>('en');
 
-  // Buton metnini CSS hilesi olmadan doğrudan tertemiz güncelleyen efekt
+  // Buton metnini native DOM ile ortalayan ve dili dinamik yapan efekt
   useEffect(() => {
     const updateButtonText = () => {
       const btn = document.querySelector<HTMLButtonElement>('.cl-formButtonPrimary');
@@ -106,7 +106,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (HERO + DVH KONSOLU)
+          1. SOL SÜTUN (HERO + CANLI ELEKTRON SİMÜLASYONLU DVH)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -136,7 +136,9 @@ export default function SignInPage() {
             {t.title3}
           </h1>
 
-          {/* DOZ-HACİM HİSTOGRAMI (DVH KONSOLU) */}
+          {/* ==============================================================
+              YENİ NESİL CANLI ELEKTRON VE PARÇACIK AKIŞLI DVH KONSOLU
+             ============================================================== */}
           <div className="mt-8 p-5 rounded-3xl bg-[#0e1726]/90 border border-slate-800/90 shadow-2xl backdrop-blur-xl relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -158,6 +160,7 @@ export default function SignInPage() {
               </div>
             </div>
 
+            {/* SVG Çoklu Parçacık Animasyonlu DVH */}
             <div className="relative w-full h-28 my-1">
               <svg viewBox="0 0 400 110" className="w-full h-full overflow-visible">
                 <defs>
@@ -169,8 +172,17 @@ export default function SignInPage() {
                     <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.15" />
                     <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
                   </linearGradient>
+                  {/* Neon Parıltı Filtresi */}
+                  <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                 </defs>
 
+                {/* Grid Hatları */}
                 <line x1="0" y1="25" x2="400" y2="25" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="0" y1="55" x2="400" y2="55" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="0" y1="85" x2="400" y2="85" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
@@ -178,6 +190,7 @@ export default function SignInPage() {
                 <line x1="200" y1="0" x2="200" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="300" y1="0" x2="300" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
 
+                {/* Normal Doku Eğrisi (Yeşil) */}
                 <path
                   d="M 0 45 Q 80 75 160 95 T 320 105 L 400 105"
                   fill="none"
@@ -186,35 +199,90 @@ export default function SignInPage() {
                   strokeDasharray="4 4"
                 />
 
+                {/* Spinal Kord Eğrisi (Amber) */}
                 <path
                   d="M 0 15 Q 110 30 180 85 T 260 105 L 400 105 L 0 105 Z"
                   fill="url(#cordGradient)"
                 />
                 <path
-                  d="M 0 15 Q 110 30 180 85 T 260 105 L 400 105"
+                  id="cordPath"
+                  d="M 0 15 Q 110 30 180 85 T 260 105"
                   fill="none"
                   stroke="#f59e0b"
                   strokeWidth="2"
                 />
 
+                {/* PTV Hedef Kitle (Elektrik Mavisi) */}
                 <path
-                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105 L 400 105 L 0 105 Z"
+                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105 L 0 105 Z"
                   fill="url(#ptvGradient)"
                 />
                 <path
-                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105"
+                  id="ptvPath"
+                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105"
                   fill="none"
                   stroke="#38bdf8"
                   strokeWidth="3"
                   className="drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]"
                 />
 
-                <circle cx="295" cy="18" r="4.5" fill="#38bdf8" className="animate-ping opacity-75" />
-                <circle cx="295" cy="18" r="3" fill="#ffffff" />
+                {/* ==============================================================
+                    CANLI ELEKTRON VE RADYASYON PARÇACIKLARI (DİNAMİK AKIŞ)
+                   ============================================================== */}
+                {/* Elektron 1: PTV Eğrisi Boyunca Süzülen Parlak Mavi Parçacık */}
+                <circle r="3" fill="#38bdf8" filter="url(#neonGlow)">
+                  <animateMotion
+                    path="M 0 10 L 260 10 Q 295 12 315 70 T 330 105"
+                    dur="3.8s"
+                    repeatCount="indefinite"
+                  />
+                  <animate attributeName="opacity" values="0;1;1;0.8;0" dur="3.8s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Elektron 2: Gecikmeli İkinci Mavi Parçacık */}
+                <circle r="2.2" fill="#93c5fd" filter="url(#neonGlow)">
+                  <animateMotion
+                    path="M 0 10 L 260 10 Q 295 12 315 70 T 330 105"
+                    begin="1.9s"
+                    dur="3.8s"
+                    repeatCount="indefinite"
+                  />
+                  <animate attributeName="opacity" values="0;1;1;0.8;0" begin="1.9s" dur="3.8s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Elektron 3: Spinal Kord Eğrisini Tarayan Amber Parçacık */}
+                <circle r="2.5" fill="#fbbf24" filter="url(#neonGlow)">
+                  <animateMotion
+                    path="M 0 15 Q 110 30 180 85 T 260 105"
+                    dur="3.1s"
+                    repeatCount="indefinite"
+                  />
+                  <animate attributeName="opacity" values="0;1;1;0.7;0" dur="3.1s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Farklı Noktalarda Nabız Gibi Parlayan Kuantum Doz Işıltıları */}
+                <circle cx="160" cy="50" r="2.5" fill="#38bdf8">
+                  <animate attributeName="r" values="1;3.5;1" dur="2.4s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.1;0.85;0.1" dur="2.4s" repeatCount="indefinite" />
+                </circle>
+
+                <circle cx="230" cy="28" r="2" fill="#34d399">
+                  <animate attributeName="r" values="1;3;1" dur="1.9s" begin="0.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.1;0.9;0.1" dur="1.9s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+
+                <circle cx="70" cy="38" r="2" fill="#fbbf24">
+                  <animate attributeName="r" values="0.8;2.8;0.8" dur="2.7s" begin="1.4s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.1;0.75;0.1" dur="2.7s" begin="1.4s" repeatCount="indefinite" />
+                </circle>
+
+                {/* D95% Sabit İğne Noktası (Zarif ve Net) */}
+                <circle cx="295" cy="18" r="3" fill="#ffffff" stroke="#38bdf8" strokeWidth="2" />
                 <text x="295" y="8" fill="#38bdf8" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">D95%</text>
               </svg>
             </div>
 
+            {/* Eksen Etiketleri */}
             <div className="flex justify-between text-[10px] text-slate-500 font-mono pt-1.5 border-t border-slate-800/80">
               <span>0 Gy</span>
               <span>30 Gy (Kritik Eşik)</span>
@@ -222,6 +290,7 @@ export default function SignInPage() {
               <span>{t.dmax}</span>
             </div>
 
+            {/* Radyasyon Fiziği İndeksleri */}
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/60 text-center">
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.ciLabel}</span>
@@ -246,7 +315,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (KUSURSUZ TEK KONTURLU CLERK KARTI)
+          2. SAĞ SÜTUN (ŞIK KOYU TEMA CLERK GİRİŞ KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -285,7 +354,7 @@ export default function SignInPage() {
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 
-                // Sade, tek parça mavi buton
+                // Temiz, tek parça ve dolgun mavi buton
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
               },
             } as any)}
