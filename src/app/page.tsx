@@ -1245,7 +1245,6 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'gynecology-Vulva', name_tr: 'Vulva Kanseri', name_en: 'Vulvar Cancer' },
     { id: 'gynecology-Vajen', name_tr: 'Vajen Kanseri', name_en: 'Vaginal Cancer' },
     { id: 'gynecology-ovary', name_tr: 'Over & Fallop Tüpü Kanseri', name_en: 'Ovarian Cancer' },
-    { id: 'gynecology-choriocarcinoma', name_tr: 'Koryokarsinom / GTN', name_en: 'Choriocarcinoma / GTN' },
   ],
   'bone-sarcoma': [
     { id: 'bone-sarcoma-Yumusak_Doku', name_tr: 'Yumuşak Doku Sarkomu', name_en: 'Soft Tissue Sarcoma' },
@@ -1260,7 +1259,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'bone-gctb', name_tr: 'Dev Hücreli Kemik Tümörü (GCTB)', name_en: 'Giant Cell Tumor of Bone' },
   ],
   sarcoma: [
-    { id: 'sarcoma-extremity', name_tr: 'Ekstremite / Gövde YDS', name_en: 'Extremity Soft Tissue Sarcoma' },
+    { id: 'sarcoma-extremity', name_tr: 'Ekstremite / Gövde Yumuşak Doku', name_en: 'Extremity / Trunk Soft Tissue Sarcoma' },
     { id: 'sarcoma-retroperitoneal', name_tr: 'Retroperitoneal Sarkom', name_en: 'Retroperitoneal Sarcoma' },
     { id: 'sarcoma-rhabdomyosarcoma', name_tr: 'Rhabdomyosarkom', name_en: 'Rhabdomyosarcoma' },
     { id: 'sarcoma-liposarcoma', name_tr: 'Liposarkom / Leyomiyosarkom', name_en: 'Liposarcoma / LMS' },
@@ -1315,6 +1314,15 @@ const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]
     { value: 'postop-24h', label: 'Cerrahi sonrası <24 saat' },
     { value: 'postop-48h', label: '24-48 saat arası' },
     { value: 'late', label: '>72 saat - geç başvuru' },
+  ],
+  'benign-gynecomastia': [
+    { value: 'prophylaxis', label: 'Antiandrojen tedavisi öncesi profilaksi' },
+    { value: 'symptomatic', label: 'Ağrılı / yerleşik jinekomasti' },
+  ],
+  'benign-pituitary': [
+    { value: 'functional', label: 'Fonksiyonel adenom' },
+    { value: 'nonfunctional', label: 'Non-fonksiyonel adenom' },
+    { value: 'chiasm-close', label: 'Optik kiazmaya komşu (<2 mm)' },
   ],
   'benign-dupuytren': [
     { value: 'tubiana-n', label: 'Tubiana Evre N (Palmar nodül)' },
@@ -2687,14 +2695,42 @@ TNM_DATABASE['bone-sarcoma-DFSP'] = TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 TNM_DATABASE['prostate-testis'] = TNM_DATABASE['prostate-testis'] || TNM_DATABASE['prostate'];
 TNM_DATABASE['gis-anus'] = TNM_DATABASE['gis-anus'] || TNM_DATABASE['gis-Rektum'];
 TNM_DATABASE['head-neck-salivary'] = TNM_DATABASE['head-neck-salivary'] || TNM_DATABASE['head-neck-nasopharynx'];
-TNM_DATABASE['cns-glioma'] = TNM_DATABASE['cns-glioma'] || TNM_DATABASE['cns-gbm'];
+TNM_DATABASE['cns-glioma'] = {
+  T: [
+    { code: 'Grade-1', label: 'WHO Grade 1', criterion: 'Pilositik astrositom veya düşük dereceli circumscribed gliom' },
+    { code: 'Grade-2', label: 'WHO Grade 2', criterion: 'Düşük dereceli diffüz astrositom veya oligodendrogliom' },
+    { code: 'Grade-3', label: 'WHO Grade 3', criterion: 'Anaplastik astrositom veya anaplastik oligodendrogliom' },
+    { code: 'Grade-4', label: 'WHO Grade 4', criterion: 'Glioblastom veya diğer yüksek dereceli diffüz gliom' },
+  ],
+  N: [{ code: 'N0', label: 'N0', criterion: 'Beyin parankiminde bölgesel lenf nodu evrelemesi uygulanmaz' }],
+  M: [
+    { code: 'M0', label: 'M0', criterion: 'Uzak metastaz saptanmadı' },
+    { code: 'M1', label: 'M1', criterion: 'Leptomeningeal veya uzak ekstrakraniyal yayılım' },
+  ],
+};
+TNM_DATABASE['gynecology-ovary'] = {
+  T: [
+    { code: 'FIGO-I', label: 'FIGO I', criterion: 'Tümör over/fallop tüpü ile sınırlı' },
+    { code: 'FIGO-II', label: 'FIGO II', criterion: 'Pelvise uzanım veya primer peritoneal yayılım' },
+    { code: 'FIGO-III', label: 'FIGO III', criterion: 'Ekstrapelvik peritoneal yayılım ve/veya retroperitoneal nod' },
+    { code: 'FIGO-IV', label: 'FIGO IV', criterion: 'Uzak metastaz veya malign plevral efüzyon' },
+  ],
+  N: [
+    { code: 'N0', label: 'N0', criterion: 'Retroperitoneal lenf nodu metastazı yok' },
+    { code: 'N1', label: 'N1', criterion: 'Retroperitoneal lenf nodu metastazı mevcut' },
+  ],
+  M: [
+    { code: 'M0', label: 'M0', criterion: 'Uzak metastaz yok' },
+    { code: 'M1', label: 'M1', criterion: 'Uzak metastaz mevcut' },
+  ],
+};
 TNM_DATABASE['skin-merkel'] = TNM_DATABASE['skin-merkel'] || TNM_DATABASE.skin;
 TNM_DATABASE['hematologic-myeloma'] = TNM_DATABASE['hematologic-myeloma'] || TNM_DATABASE['hematologic-Myeloma'];
 TNM_DATABASE['bone'] = TNM_DATABASE['bone'] || TNM_DATABASE['bone-sarcoma-Osteosarkom'];
 TNM_DATABASE['sarcoma'] = TNM_DATABASE['sarcoma'] || TNM_DATABASE['bone-sarcoma-Yumusak_Doku'];
 for (const key of [
   'breast-idc', 'breast-ilc', 'breast-inflammatory', 'breast-metaplastic',
-  'gynecology-ovary', 'gynecology-choriocarcinoma', 'hematologic-all', 'hematologic-cll',
+  'gynecology-ovary', 'hematologic-all', 'hematologic-cll',
   'pediatric-rhabdo', 'pediatric-ewing', 'palliative-brain', 'palliative-bleeding',
   'skin-mycosis', 'skin-kaposi', 'benign-pituitary', 'benign-gynecomastia',
   'sarcoma-extremity', 'sarcoma-retroperitoneal', 'sarcoma-rhabdomyosarcoma', 'sarcoma-liposarcoma',
@@ -2759,7 +2795,11 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [lang, setLang] = useState<'tr' | 'en'>('en');
+  const [lang, setLang] = useState<'tr' | 'en'>(() => {
+    if (typeof window === 'undefined') return 'en';
+    const saved = window.localStorage.getItem('radonco-lang');
+    return saved === 'tr' || saved === 'en' ? saved : 'en';
+  });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = (text: string | undefined): string => {
     if (!text) return '';
@@ -2807,10 +2847,7 @@ export default function RadoncoCDSSPage() {
 
   useEffect(() => {
     const saved = window.localStorage.getItem('radonco-lang');
-    if (saved === 'tr' || saved === 'en') {
-      setLang(saved);
-    } else {
-      setLang('en');
+    if (saved !== 'tr' && saved !== 'en') {
       window.localStorage.setItem('radonco-lang', 'en');
     }
   }, []);
@@ -2933,7 +2970,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 8. KEMİK & SARKOM ALT BAŞLIKLARI (YDS, OSTEOSARKOM, EWING, KONDROSARKOM, KORDOMA, GCTB)
   // ==========================================
-  const [sarcomaSubtype, setSarcomaSubtype] = useState<'Yumusak_Doku' | 'Osteosarkom' | 'Ewing' | 'Kondrosarkom' | 'Kordoma' | 'GCTB' | 'DFSP'>('Yumusak_Doku');
+  const [sarcomaSubtype, setSarcomaSubtype] = useState<'Yumusak_Doku' | 'Osteosarkom' | 'Ewing' | 'Kondrosarkom' | 'Kordoma' | 'GCTB' | 'DFSP' | 'Rhabdomyosarkom'>('Yumusak_Doku');
   const [dfspStatus, setDfspStatus] = useState<'R0' | 'R1' | 'Unresectable'>('R1');
   const [sarcomaSurgery, setSarcomaSurgery] = useState<'Preop' | 'Postop_R0' | 'Postop_R1'>('Preop');
   const [osteoScenario, setOsteoScenario] = useState<'Marjin_Pozitif_R1_R2' | 'Inoperabl_Aksiyel_Pelvis' | 'Cerrahi_R0_Takip'>('Marjin_Pozitif_R1_R2');
@@ -3092,7 +3129,15 @@ export default function RadoncoCDSSPage() {
     if (subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
     if (organ === 'cns' && ['glioma', 'gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype as typeof cnsSubtype);
     if (organ === 'gynecology' && ['Serviks', 'Endometriyum', 'Vulva', 'Vajen'].includes(subtype)) setGynSite(subtype as typeof gynSite);
-    if (subKey.startsWith('bone-sarcoma-') && ['Yumusak_Doku', 'Osteosarkom', 'Ewing'].includes(subKey.replace('bone-sarcoma-', ''))) setSarcomaSubtype(subKey.replace('bone-sarcoma-', '') as typeof sarcomaSubtype);
+    if (subKey === 'bone-osteosarcoma') setSarcomaSubtype('Osteosarkom');
+    if (subKey === 'bone-ewing') setSarcomaSubtype('Ewing');
+    if (subKey === 'bone-chondrosarcoma') setSarcomaSubtype('Kondrosarkom');
+    if (subKey === 'bone-chordoma') setSarcomaSubtype('Kordoma');
+    if (subKey === 'bone-gctb') setSarcomaSubtype('GCTB');
+    if (subKey === 'sarcoma-extremity' || subKey === 'sarcoma-retroperitoneal' || subKey === 'sarcoma-liposarcoma') setSarcomaSubtype('Yumusak_Doku');
+    if (subKey === 'sarcoma-rhabdomyosarcoma') setSarcomaSubtype('Rhabdomyosarkom' as typeof sarcomaSubtype);
+    if (subKey === 'sarcoma-dfsp') setSarcomaSubtype('DFSP');
+    if (subKey.startsWith('bone-sarcoma-') && ['Yumusak_Doku', 'Osteosarkom', 'Ewing', 'Kondrosarkom', 'Kordoma', 'GCTB', 'DFSP'].includes(subKey.replace('bone-sarcoma-', ''))) setSarcomaSubtype(subKey.replace('bone-sarcoma-', '') as typeof sarcomaSubtype);
     if (organ === 'skin' && ['scc', 'bcc', 'melanom'].includes(subtype)) setSkinHistology(subtype === 'scc' ? 'SCC' : subtype === 'bcc' ? 'BCC' : 'Melanom');
     if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
     if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
@@ -3101,19 +3146,18 @@ export default function RadoncoCDSSPage() {
     if (firstClinicalOption) setBenignClinicalStatus(firstClinicalOption.value);
     setSelectedSchemeId('');
     const db = TNM_DATABASE[subKey] || TNM_DATABASE[subKey === 'prostate-penile' ? 'prostate-penis' : subKey] || currentTNM;
-    if (db && db.T.length > 0) setSelectedT(db.T[0].code);
+    if (subKey === 'breast-inflammatory') setSelectedT('T4d');
+    else if (db && db.T.length > 0) setSelectedT(db.T[0].code);
     if (db && db.N.length > 0) setSelectedN(db.N[0].code);
     if (db && db.M.length > 0) setSelectedM(db.M[0].code);
   };
 
-  useEffect(() => {
-    if (selectedOrgan === 'breast' && breastHistology === 'İnflamatuar Meme Kanseri (IBC)') {
-      setSelectedT('T4d');
-    }
-  }, [selectedOrgan, breastHistology]);
-
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
     if (axis === 'T') {
+      if (selectedOrgan === 'breast' && breastHistology === 'İnflamatuar Meme Kanseri (IBC)') {
+        setSelectedT('T4d');
+        return;
+      }
       setSelectedT(code);
       if (selectedOrgan === 'cns' && cnsSubtype === 'meningioma') {
         const grade = parseOption(code, ['Grade-1', 'Grade-2', 'Grade-3'] as const);
@@ -3301,6 +3345,41 @@ export default function RadoncoCDSSPage() {
         statusText = 'ENDİKE: VESTİBÜLER SCHWANNOMDA SRS / FSRT DEĞERLENDİR';
         targetVolumeBadge = 'Hedef: Vestibüler Schwannom';
         techniqueBadge = large ? 'Teknik: Fraksiyone Stereotaktik RT' : 'Teknik: SRS';
+      } else if (selectedSubsite === 'benign-gynecomastia') {
+        const symptomatic = benignClinicalStatus === 'symptomatic';
+        primaryScheme = makeScheme(
+          'benign-gynecomastia-12',
+          symptomatic ? '12 Gy / 3 fx (Yerleşik Ağrılı Jinekomasti)' : '10 Gy / 1 fx (Jinekomasti Profilaksisi)',
+          symptomatic ? 12 : 10,
+          symptomatic ? 3 : 1,
+          symptomatic ? 4 : 10,
+          '6-9 MeV elektron; bilateral meme başına bolus',
+          'Prostat kanseri antiandrojen tedavisi öncesi ağrı ve meme büyümesini azaltma; bilateral meme başı ve glandüler doku hedeflenir.',
+          'Bilateral meme başı / glandüler meme dokusu',
+          [{ organ: 'Kalp ve akciğer', metric: 'Doz', limit: 'Minimal doz', source: 'Benign RT konsensüsü' }],
+        );
+        alternativeSchemes = [primaryScheme];
+        statusText = 'ENDİKE: JİNEKOMASTİ PROFİLAKSİSİ / SEMPTOM KONTROLÜ';
+        targetVolumeBadge = 'Hedef: Bilateral Meme Başları';
+        techniqueBadge = 'Teknik: 6-9 MeV Elektron + Bolus';
+      } else if (selectedSubsite === 'benign-pituitary') {
+        const fractionated = benignClinicalStatus === 'chiasm-close';
+        const functional = benignClinicalStatus === 'functional';
+        primaryScheme = makeScheme(
+          fractionated ? 'benign-pituitary-fsrt' : 'benign-pituitary-srs',
+          fractionated ? '45-50.4 Gy / 25-28 fx (Kiazma Komşu Fraksiyone SRT)' : `${functional ? 22 : 13} Gy / 1 fx (${functional ? 'Fonksiyonel' : 'Non-fonksiyonel'} Adenom SRS)`,
+          fractionated ? 50.4 : functional ? 22 : 13,
+          fractionated ? 28 : 1,
+          fractionated ? 1.8 : functional ? 22 : 13,
+          fractionated ? 'Fraksiyone stereotaktik RT' : 'Stereotaktik radyocerrahi',
+          'Hipofiz adenomunda hormon kontrolü ve lokal kontrol için hacim, hormonal alt tip ve optik kiazma mesafesine göre SRS veya fraksiyone SRT.',
+          'Hipofiz adenomu ve rezidü tümör',
+          [{ organ: 'Optik kiazma', metric: 'Dmax', limit: fractionated ? '<54 Gy' : '<8-10 Gy', source: 'QUANTEC / SRS konsensüsü' }],
+        );
+        alternativeSchemes = [primaryScheme];
+        statusText = fractionated ? 'ENDİKE: KİAZMA KOMŞU HİPOFİZ ADENOMUNDA FRAKSİYONE SRT' : 'ENDİKE: HİPOFİZ ADENOMUNDA SRS';
+        targetVolumeBadge = 'Hedef: Hipofiz Adenomu';
+        techniqueBadge = fractionated ? 'Teknik: Fraksiyone SRT' : 'Teknik: SRS';
       } else {
         const highGrade = benignClinicalStatus === 'high-grade';
         primaryScheme = makeScheme(
@@ -3961,7 +4040,7 @@ export default function RadoncoCDSSPage() {
     // ------------------------------------------
     // 3. KEMİK & SARKOM (YDS, OSTEOSARKOM, EWING, KONDROSARKOM, KORDOMA, GCTB)
     // ------------------------------------------
-    if (selectedOrgan === 'bone-sarcoma') {
+    if (selectedOrgan === 'bone' || selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma') {
       if (sarcomaSubtype === 'DFSP') {
         const dfspIndicated = dfspStatus !== 'R0';
         const dfspRt: DoseScheme = {
@@ -4297,11 +4376,11 @@ export default function RadoncoCDSSPage() {
         const riskCount = Object.values(gliomaRiskFactors).filter(Boolean).length;
         const highRisk = gliomaGrade === 'Grade_3' || gliomaGrade === 'Grade_4' || riskCount >= 2 || gliomaRiskFactors.molecularHighRisk;
         const isGbm = gliomaGrade === 'Grade_4';
-        const dose = isGbm ? 60 : highRisk ? 57 : 50.4;
-        const fractions = isGbm ? 30 : highRisk ? 30 : 28;
+        const dose = isGbm ? 60 : gliomaGrade === 'Grade_3' ? 59.4 : highRisk ? 54 : 50.4;
+        const fractions = isGbm ? 30 : gliomaGrade === 'Grade_3' ? 33 : highRisk ? 30 : 28;
         const glioma: DoseScheme = {
           id: isGbm ? 'glioma-stupp-60' : highRisk ? 'glioma-high-risk-57' : 'glioma-low-risk-504',
-          name: isGbm ? '60 Gy / 30 fx + TMZ (Stupp)' : highRisk ? '54-59.4 Gy / 30-33 fx + PCV/TMZ' : '45-54 Gy / 25-30 fx veya İzlem',
+          name: isGbm ? '60 Gy / 30 fx + TMZ (Stupp)' : gliomaGrade === 'Grade_3' ? '59.4-60 Gy / 30-33 fx + TMZ/PCV' : highRisk ? '54 Gy / 30 fx + TMZ/PCV' : '45-54 Gy / 25-30 fx veya İzlem',
           tag: isGbm ? 'WHO Grade 4 / GBM' : highRisk ? 'Yüksek Riskli Gliom' : 'Düşük Riskli Gliom',
           totalDoseGy: dose,
           fractionCount: fractions,
@@ -4814,14 +4893,14 @@ export default function RadoncoCDSSPage() {
       if (breastHistology === 'İnflamatuar Meme Kanseri (IBC)') {
         const inflammatory: DoseScheme = {
           id: 'br-inflammatory-pmrt-50',
-          name: '50 Gy / 25 fx + Kapsamlı RNI (İnflamatuar Meme T4d)',
+          name: 'Neoadjuvan Sistemik Tedavi + Modifiye Radikal Mastektomi Sonrası Kapsamlı Lokoregiyonal RT (50 Gy / 25 fx ± 10 Gy Scar Boost)',
           tag: 'Lokal İleri Yüksek Risk (Evre IIIB/C)',
           totalDoseGy: 50,
           fractionCount: 25,
           fractionDoseGy: 2,
           alphaBeta: 4,
           technique: 'IMRT / VMAT + DIBH',
-          indication: 'Neoadjuvan sistemik tedavi sonrası mastektomi ve adjuvan PMRT; RNI Düzey I-IV, supraklavikuler ve internal mammary chain alanlarını kapsar.',
+          indication: 'Neoadjuvan sistemik tedavi ve modifiye radikal mastektomi sonrası göğüs duvarı, supraklavikuler, internal mammary ve aksiller seviye III alanlarına kapsamlı lokoregiyonal RT; uygun seçilmiş olguda 10 Gy scar boost.',
           targetVolumes: [
             { name: 'CTV_ChestWall', doseGy: 50, marginMm: 'Anatomik', anatomical: 'Mastektomi göğüs duvarı ve cilt altı yüzey' },
             { name: 'CTV_RNI', doseGy: 50, marginMm: 'Anatomik', anatomical: 'Aksilla Level I-IV + supraklavikuler + internal mammary chain' },
@@ -5221,6 +5300,43 @@ export default function RadoncoCDSSPage() {
         };
       }
 
+      if (hematologicSubtype === 'ALL') {
+        const allScheme: DoseScheme = {
+          id: 'all-tbi-12',
+          name: '12 Gy / 6 fx BID (TBI) veya 12-18 Gy Kraniyal Profilaksi',
+          tag: 'ALL - KİT Hazırlığı / CNS Profilaksisi',
+          totalDoseGy: 12,
+          fractionCount: 6,
+          fractionDoseGy: 2,
+          alphaBeta: 10,
+          technique: 'Total Body Irradiation veya risk uyarlı kraniyal RT',
+          indication: 'ALL tedavisinde hematopoietik kök hücre nakli hazırlığında TBI; CNS riski olan hastada profilaktik kraniyal RT hematoloji protokolüyle koordine edilir.',
+          targetVolumes: [{ name: 'CTV_TBI', doseGy: 12, marginMm: 'Tüm vücut', anatomical: 'Total body / kemik iliği' }],
+          oars: [{ organ: 'Akciğer', metric: 'Dmean', limit: 'Akciğer bloklama protokolü', source: 'Hematopoietic transplant protocol' }],
+          systemicTherapy: 'ALL sistemik tedavisi ve KİT protokolü ile birlikte.',
+          evidence: 'EBMT / ALL transplant conditioning guidance',
+        };
+        return { statusText: 'ENDİKE: ALL KİT HAZIRLIĞINDA TBI / CNS RİSKİNE GÖRE KRANİYAL RT', badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-300', primaryScheme: allScheme, alternativeSchemes: [allScheme] };
+      }
+
+      if (hematologicSubtype === 'CLL') {
+        const cllScheme: DoseScheme = {
+          id: 'cll-spleen-6',
+          name: '4-10 Gy / 0.5-1 Gy fx (Dalak Palyasyonu)',
+          tag: 'KLL - Semptomatik Splenomegali',
+          totalDoseGy: 6,
+          fractionCount: 6,
+          fractionDoseGy: 1,
+          alphaBeta: 10,
+          technique: 'Konformal düşük doz dalak RT',
+          indication: 'Semptomatik splenomegali veya lokal nodal KLL progresyonunda düşük doz palyatif RT; hematolojik toksisite için yakın takip.',
+          targetVolumes: [{ name: 'CTV_Spleen', doseGy: 6, marginMm: 'Dalak + günlük görüntüleme marjini', anatomical: 'Dalak ve semptomatik nodal hacim' }],
+          oars: [{ organ: 'Böbrekler', metric: 'Dmean', limit: 'Mümkün olduğunca düşük', source: 'ILROG' }],
+          evidence: 'ILROG low-dose lymphoma guidance',
+        };
+        return { statusText: 'ENDİKE: KLL SEMPTOMATİK SPLENOMEGALİDE DÜŞÜK DOZ RT', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300', primaryScheme: cllScheme, alternativeSchemes: [cllScheme] };
+      }
+
       const isCR = lymphomaResponse === 'Tam_Yanit';
       const dose = isCR ? 20 : 30;
       const lymphomaScheme: DoseScheme = {
@@ -5366,6 +5482,25 @@ export default function RadoncoCDSSPage() {
     // ------------------------------------------
     // 12. PALYATİF BAKIM
     // ------------------------------------------
+    if (selectedOrgan === 'palliative') {
+      const palliativeDose = palliativeIntent === 'Kord_Basisi' ? 20 : palliativeIntent === 'Kanama' ? 14.8 : 8;
+      const palliativeFractions = palliativeIntent === 'Kord_Basisi' ? 5 : palliativeIntent === 'Kanama' ? 4 : 1;
+      const palliativeScheme: DoseScheme = {
+        id: `palliative-${palliativeIntent.toLowerCase()}`,
+        name: palliativeIntent === 'Kord_Basisi' ? '20 Gy / 5 fx (MESCC Acil RT)' : palliativeIntent === 'Kanama' ? 'Quad Shot 14.8 Gy / 4 fx' : '8 Gy / 1 fx (Kemik Metastazı)',
+        tag: 'Palyatif / Acil RT',
+        totalDoseGy: palliativeDose,
+        fractionCount: palliativeFractions,
+        fractionDoseGy: palliativeDose / palliativeFractions,
+        alphaBeta: 10,
+        technique: 'Acil 3D-CRT / IMRT; nöroşirürji ve medikal onkoloji koordinasyonu',
+        indication: palliativeIntent === 'Kord_Basisi' ? 'Metastatik spinal kord basısında cerrahi uygunluk değerlendirmesi sonrası acil dekompresif RT.' : palliativeIntent === 'Kanama' ? 'Kanamalı veya obstrüktif semptomlarda kısa süreli hemostatik Quad Shot.' : 'Ağrılı kemik metastazında ASTRO kategori 1 tek fraksiyon palyasyon.',
+        targetVolumes: [{ name: 'CTV_Palliative', doseGy: palliativeDose, marginMm: 'Semptomatik lezyon ve anatomik yayılım', anatomical: palliativeIntent === 'Kord_Basisi' ? 'Spinal kord basısı / vertebral segment' : palliativeIntent === 'Kanama' ? 'Kanayan veya obstrüktif tümör' : 'Ağrılı kemik metastazı' }],
+        oars: [{ organ: 'Spinal kord', metric: 'Dmax', limit: palliativeIntent === 'Kord_Basisi' ? '< 25 Gy / 5 fx' : 'Fraksiyonasyona göre optimize et', source: 'ASTRO / QUANTEC' }],
+        evidence: 'ASTRO Palliative Radiation Therapy Guideline',
+      };
+      return { statusText: palliativeIntent === 'Kord_Basisi' ? 'ACİL: METASTATİK SPİNAL KORD BASISI' : palliativeIntent === 'Kanama' ? 'ENDİKE: HEMOSTATİK / OBSTRÜKTİF PALYATİF RT' : 'ENDİKE: KEMİK METASTAZI PALYASYONU', badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-300', primaryScheme: palliativeScheme, alternativeSchemes: [palliativeScheme] };
+    }
     const palDose = selectedN === 'TekFx' ? 8 : 20;
     const palFx = palDose === 8 ? 1 : 5;
     const palScheme: DoseScheme = {
@@ -5397,6 +5532,7 @@ export default function RadoncoCDSSPage() {
     selectedT,
     selectedN,
     selectedM,
+    palliativeIntent,
     thoraxSubtype,
     thoraxCentrality,
     thoraxSurgeryStatus,
@@ -6398,7 +6534,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <div className="space-y-2 rounded-lg border border-indigo-200 bg-indigo-50/60 p-2.5 dark:border-indigo-800/70 dark:bg-indigo-950/30">
                     <label className="block text-slate-700 dark:text-slate-200">
                       {tText("WHO histolojik grade")}
-                      <select value={gliomaGrade} onChange={event => setGliomaGrade(event.currentTarget.value as typeof gliomaGrade)} className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900">
+                      <select value={gliomaGrade} onChange={event => { const value = event.currentTarget.value as typeof gliomaGrade; setGliomaGrade(value); setSelectedT(value.replace('_', '-')); }} className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900">
                         <option value="Grade_1">Grade 1</option>
                         <option value="Grade_2">Grade 2</option>
                         <option value="Grade_3">Grade 3</option>
@@ -6537,7 +6673,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   value={hematologicSubtype}
                   onChange={e => {
                     const value = e.currentTarget.value;
-                    if (value === 'Hodgkin' || value === 'DLBCL' || value === 'Plasmacytoma' || value === 'Myeloma') {
+                    if (value === 'Hodgkin' || value === 'DLBCL' || value === 'Plasmacytoma' || value === 'Myeloma' || value === 'ALL' || value === 'CLL') {
                       setHematologicSubtype(value);
                       handleSubsiteChange(`hematologic-${value}`);
                     }
@@ -6548,6 +6684,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <option value="DLBCL">{tText("Diffüz Büyük B Hücreli Lenfoma (DLBCL)")}</option>
                   <option value="Plasmacytoma">{tText("Soliter Plazmasitom")}</option>
                   <option value="Myeloma">{tText("Multiple Miyelom")}</option>
+                  <option value="ALL">{tText("Akut Lenfoblastik Lösemi (ALL)")}</option>
+                  <option value="CLL">{tText("Kronik Lenfositik Lösemi (KLL)")}</option>
                 </select>
               </div>
             )}
@@ -6577,9 +6715,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
             {/* 12. PALYATİF */}
             {selectedOrgan === 'palliative' && (
-              <div className="p-3 bg-[#f1f5f9] rounded-md border border-slate-200/80 text-xs">
-                <span className="text-[11px] text-slate-600 block mb-1">{tText("Palyatif Onkoloji")}</span>
-                <span className="font-semibold text-slate-900">{tText("Ağrılı Kemik / Beyin / Spinal Kord Basısı")}</span>
+              <div className="flex flex-col gap-2 text-xs">
+                <label className="text-slate-600 block mb-1">{tText("Palyatif endikasyon")}</label>
+                <select value={palliativeIntent} onChange={event => setPalliativeIntent(event.currentTarget.value as typeof palliativeIntent)} className="bg-white border border-slate-300 rounded-md p-2.5 text-slate-900">
+                  <option value="Agri">{tText("Ağrılı kemik metastazı")}</option>
+                  <option value="Kord_Basisi">{tText("Spinal kord basısı (MESCC)")}</option>
+                  <option value="Kanama">{tText("Kanama / obstrüksiyon / SVC")}</option>
+                </select>
               </div>
             )}
           </div>}
@@ -6762,7 +6904,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* KEMİK & SARKOM: YDS PARAMETRELERİ */}
-            {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Yumusak_Doku' && (
+            {(selectedOrgan === 'bone' || selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma') && sarcomaSubtype === 'Yumusak_Doku' && (
               <div className="flex flex-col gap-2.5 text-xs">
                 <label className="text-slate-600 block mb-1">{tText("Radyoterapi Zamanlaması")}</label>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -6791,7 +6933,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* KEMİK & SARKOM: OSTEOSARKOM PARAMETRELERİ */}
-            {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Osteosarkom' && (
+            {(selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma') && sarcomaSubtype === 'Osteosarkom' && (
               <div className="flex flex-col gap-2.5 text-xs">
                 <label className="text-slate-600 block mb-1">{tText("Klinik Durum")}</label>
                 <select
@@ -6810,7 +6952,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* KEMİK & SARKOM: EWING SARKOMU PARAMETRELERİ */}
-            {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'Ewing' && (
+            {(selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma') && sarcomaSubtype === 'Ewing' && (
               <div className="flex flex-col gap-2.5 text-xs">
                 <label className="text-slate-600 block mb-1">{tText("Lokal Kontrol Modalitesi")}</label>
                 <select
@@ -6826,7 +6968,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </select>
               </div>
             )}
-            {selectedOrgan === 'bone-sarcoma' && sarcomaSubtype === 'DFSP' && (
+            {(selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma') && sarcomaSubtype === 'DFSP' && (
               <label className="text-slate-600 text-xs">
                 {tText("\n                Cerrahi durumu\n                ")}<select
                   value={dfspStatus}
