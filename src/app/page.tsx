@@ -58,6 +58,15 @@ export type OrganId =
   | 'palliative'
   | 'benign';
 
+const AI_PLATFORMS = [
+  { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com', icon: '🔵' },
+  { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com', icon: '🟢' },
+  { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai', icon: '🟠' },
+  { id: 'notebooklm', name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: '📓' },
+  { id: 'claude', name: 'Claude', url: 'https://claude.ai', icon: '🟣' },
+  { id: 'grok', name: 'Grok', url: 'https://x.ai', icon: '⚪' },
+] as const;
+
 interface EContourTarget {
   url: string;
   label_tr: string;
@@ -2526,6 +2535,8 @@ export default function RadoncoCDSSPage() {
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
+  const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
+  const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
   const [copiedContext, setCopiedContext] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
@@ -5257,19 +5268,74 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <BookOpen className="w-4 h-4 text-amber-700" />
             {tText("\n            📖 ")}{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}
           </button>
-          <button
-            type="button"
-            onClick={() => setIsAiDockOpen(open => !open)}
-            aria-pressed={isAiDockOpen}
-            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${
-              isAiDockOpen
-                ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
-                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
-            }`}
-          >
-            <Sparkles className="h-3.5 w-3.5 animate-pulse text-amber-500" aria-hidden="true" />
-            <span>{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsAiDropdownOpen(open => !open)}
+              aria-expanded={isAiDropdownOpen}
+              aria-haspopup="menu"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700/60"
+            >
+              {selectedAi ? (
+                <>
+                  <span aria-hidden="true">{selectedAi.icon}</span>
+                  <span>{selectedAi.name}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5 animate-pulse text-blue-500" aria-hidden="true" />
+                  <span>{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
+                </>
+              )}
+              <span className="ml-0.5 text-[10px] text-slate-400" aria-hidden="true">▾</span>
+            </button>
+
+            {isAiDropdownOpen && (
+              <div
+                className="absolute right-0 z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+                role="menu"
+                aria-label={lang === 'tr' ? 'Yapay zeka platformları' : 'AI platforms'}
+              >
+                <div className="mb-1 border-b border-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-700/60">
+                  {lang === 'tr' ? 'Yapay Zeka Seçin' : 'Select AI Model'}
+                </div>
+                {AI_PLATFORMS.map(platform => {
+                  const isCurrent = selectedAi?.id === platform.id;
+                  return (
+                    <button
+                      key={platform.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setSelectedAi(platform);
+                        setIsAiDropdownOpen(false);
+                        copyCasePrompt();
+                        const width = 480;
+                        const height = window.screen.availHeight || 900;
+                        const left = Math.max(0, (window.screen.availWidth || 1920) - width);
+                        window.open(
+                          platform.url,
+                          'radonc_ai_dock',
+                          `width=${width},height=${height},left=${left},top=0,menubar=no,status=no`,
+                        );
+                      }}
+                      className={`flex w-full items-center justify-between px-3.5 py-2 text-left text-xs transition ${
+                        isCurrent
+                          ? 'bg-blue-50 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span aria-hidden="true">{platform.icon}</span>
+                        <span>{platform.name}</span>
+                      </span>
+                      {isCurrent && <span className="text-xs font-bold text-blue-600 dark:text-blue-400" aria-label={lang === 'tr' ? 'Seçili' : 'Selected'}>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={toggleTheme}
