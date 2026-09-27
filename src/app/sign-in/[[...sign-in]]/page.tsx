@@ -1,13 +1,82 @@
+'use client';
+
+import React, { useState } from 'react';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Radiation, ShieldCheck, Activity, UserPlus } from 'lucide-react';
+import { Radiation, ShieldCheck, Activity, UserPlus, Globe } from 'lucide-react';
 
 export default function SignInPage() {
+  // Varsayılan dil: İNGİLİZCE (EN)
+  const [lang, setLang] = useState<'en' | 'tr'>('en');
+
+  // Dinamik Metin Sözlüğü
+  const t = {
+    en: {
+      platformSubtitle: 'Clinical Decision Support Platform',
+      badge: 'Authorized Oncology Physicians',
+      title1: 'Radiation Oncology',
+      title2: 'Clinical Decision Support',
+      title3: 'Platform',
+      subtitle: 'Clinical staging, fractionation philosophy, and ICRU 83 / QUANTEC dosimetric safety constraints.',
+      ptv: 'PTV D95% Coverage',
+      oar: 'OAR Tolerance: Safe',
+      rxDose: 'Prescription Dose (EQD2)',
+      dmax: 'Dmax Limit',
+      noAccount: "Don't have an account?",
+      signUp: 'Sign Up',
+      mobileSubtitle: 'Clinical Decision Support System',
+    },
+    tr: {
+      platformSubtitle: 'Klinik Karar Destek Platformu',
+      badge: 'Yetkili Onkoloji Hekimleri İçin',
+      title1: 'Radyasyon Onkolojisi',
+      title2: 'Tedavi Karar Destek',
+      title3: 'Platformu',
+      subtitle: 'Klinik evreleme, fraksiyonasyon felsefesi ve ICRU 83 / QUANTEC dozimetrik güvenlik kısıtları.',
+      ptv: 'PTV D95% Kapsamı',
+      oar: 'OAR Toleransı: Güvenli',
+      rxDose: 'Reçete Dozu (EQD2)',
+      dmax: 'Dmax Limit',
+      noAccount: 'Hesabınız yok mu?',
+      signUp: 'Kayıt Olun',
+      mobileSubtitle: 'Klinik Karar Destek Sistemi',
+    }
+  }[lang];
+
   return (
-    <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans">
+    <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative">
       
       {/* ==============================================================
-          1. SOL SÜTUN (YALNIZCA MASAÜSTÜNDE GÖRÜNÜR - SPLIT HERO EKRANI)
+          DİL SEÇİCİ (SAĞ ÜST KÖŞE - EN VARSAYILAN)
+         ============================================================== */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="flex items-center gap-1 bg-[#0e1726]/90 border border-slate-800 rounded-xl p-1 shadow-xl backdrop-blur-md text-xs font-semibold">
+          <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+          <button
+            onClick={() => setLang('en')}
+            className={`px-2.5 py-1 rounded-lg transition-all ${
+              lang === 'en'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLang('tr')}
+            className={`px-2.5 py-1 rounded-lg transition-all ${
+              lang === 'tr'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            TR
+          </button>
+        </div>
+      </div>
+
+      {/* ==============================================================
+          1. SOL SÜTUN (MASAÜSTÜ HERO EKRANI)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -18,7 +87,7 @@ export default function SignInPage() {
           </div>
           <div>
             <span className="text-lg font-extrabold tracking-tight text-white block">RadOnc CDSS</span>
-            <span className="text-[11px] text-slate-400 font-medium">Klinik Karar Destek Platformu</span>
+            <span className="text-[11px] text-slate-400 font-medium">{t.platformSubtitle}</span>
           </div>
         </div>
 
@@ -26,26 +95,26 @@ export default function SignInPage() {
         <div className="my-auto py-8 max-w-lg">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-semibold text-blue-400 mb-6">
             <ShieldCheck className="w-4 h-4 text-blue-400" />
-            Yetkili Onkoloji Hekimleri İçin
+            {t.badge}
           </div>
           <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-white leading-tight">
-            Radyasyon Onkolojisi <br />
+            {t.title1} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
-              Tedavi Karar Destek
+              {t.title2}
             </span> <br />
-            Platformu
+            {t.title3}
           </h1>
           <p className="text-slate-400 text-sm mt-4 leading-relaxed font-normal">
-            Klinik evreleme, fraksiyonasyon felsefesi ve ICRU 83 / QUANTEC dozimetrik güvenlik kısıtları.
+            {t.subtitle}
           </p>
 
           {/* Doz-Hacim Eğrisi (DVH Görseli) */}
           <div className="mt-8 p-5 rounded-2xl bg-[#0e1726]/80 border border-slate-800 shadow-lg">
             <div className="flex justify-between items-center text-xs text-slate-400 mb-3 font-mono">
               <span className="flex items-center gap-1.5 text-blue-400 font-bold">
-                <Activity className="w-4 h-4" /> PTV D95% Kapsamı
+                <Activity className="w-4 h-4" /> {t.ptv}
               </span>
-              <span className="text-emerald-400">OAR Toleransı: Güvenli</span>
+              <span className="text-emerald-400">{t.oar}</span>
             </div>
             <svg viewBox="0 0 300 60" className="w-full h-14 overflow-visible">
               <path
@@ -65,31 +134,30 @@ export default function SignInPage() {
             </svg>
             <div className="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
               <span>0 Gy</span>
-              <span>Reçete Dozu (EQD2)</span>
-              <span>Dmax Limit</span>
+              <span>{t.rxDose}</span>
+              <span>{t.dmax}</span>
             </div>
           </div>
         </div>
 
-        {/* Alt Bilgi */}
-{/* SOL ALT İMZA */}
-<div className="text-xs text-slate-400 font-medium tracking-wide">
-  RadOnc CDSS • <span className="text-slate-200 font-semibold">Harun PEKMEZCI, MD</span>
-</div>
+        {/* SOL ALT İMZA: EXACT REQUEST */}
+        <div className="text-xs text-slate-400 font-medium tracking-wide">
+          RadOnc CDSS • <span className="text-slate-200 font-semibold">Designed by Harun PEKMEZCI, MD</span>
+        </div>
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (GİRİŞ FORMU & KAYIT OL BUTONU)
+          2. SAĞ SÜTUN (GİRİŞ FORMU & KAYIT BUTONU)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
-        {/* Yalnızca Mobilde Görünen Üst Logo */}
+        {/* Mobilde Üst Logo */}
         <div className="lg:hidden flex flex-col items-center text-center mb-6">
           <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
             <Radiation className="w-7 h-7 animate-pulse" />
           </div>
           <span className="text-xl font-bold text-white tracking-tight">RadOnc CDSS</span>
-          <span className="text-xs text-slate-400 mt-0.5">Klinik Karar Destek Sistemi</span>
+          <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
         </div>
 
         {/* Giriş Kartı */}
@@ -99,10 +167,7 @@ export default function SignInPage() {
               elements: {
                 socialButtons: '!hidden',
                 socialButtonsBlockButton: '!hidden',
-                socialButtonsProviderIcon: '!hidden',
-                socialButtonsIconButton: '!hidden',
                 dividerRow: '!hidden',
-                dividerText: '!hidden',
                 footer: '!hidden',
                 footerAction: '!hidden',
 
@@ -117,19 +182,26 @@ export default function SignInPage() {
             }}
           />
 
-          {/* KAYIT OL BAĞLANTISI / BUTONU */}
+          {/* Kayıt Ol Bağlantısı */}
           <div className="mt-5 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">
-            <span>Hesabınız yok mu?</span>
+            <span>{t.noAccount}</span>
             <Link
               href="/sign-up"
               className="inline-flex items-center gap-1 font-bold text-blue-400 hover:text-blue-300 transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              Kayıt Olun
+              {t.signUp}
             </Link>
           </div>
+
+          {/* Mobilde Alt İmza */}
+          <div className="lg:hidden mt-6 text-center text-xs text-slate-500 font-medium">
+            Designed by Harun PEKMEZCI, MD
+          </div>
         </div>
-       </div>
+
       </div>
+
+    </div>
   );
 }
