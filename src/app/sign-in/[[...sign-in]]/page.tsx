@@ -88,7 +88,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (SADELEŞTİRİLMİŞ HERO + DVH KONSOLU)
+          1. SOL SÜTUN (HERO + DVH KONSOLU)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -132,7 +132,7 @@ export default function SignInPage() {
                   <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-amber-400" /> {t.cordLegend}
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-" /> {t.cordLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
@@ -228,7 +228,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (KESİN OLARAK KOYU TEMA YAPILMIŞ CLERK GİRİŞ KARTI)
+          2. SAĞ SÜTUN (KOYU TEMA CLERK KARTI & AS ANY İLE TYPE FIX)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -241,10 +241,10 @@ export default function SignInPage() {
           <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
         </div>
 
-        {/* GİRİŞ KARTI */}
+        {/* Giriş Kartı */}
         <div className="w-full max-w-[420px] flex flex-col items-center">
           <SignIn
-            appearance={{
+            appearance={({
               variables: {
                 colorBackground: '#0e1726',
                 colorInputBackground: '#131f33',
@@ -268,7 +268,7 @@ export default function SignInPage() {
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
               },
-            }}
+            } as any)}
           />
 
           {/* Kayıt Ol Bağlantısı */}
