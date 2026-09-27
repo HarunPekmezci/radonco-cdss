@@ -34,6 +34,7 @@ import {
   Activity,
   Layers,
   ChevronRight,
+  ChevronDown,
   Info,
   Sun,
   Moon,
@@ -1191,6 +1192,73 @@ const SUBSITES: Partial<Record<OrganId, { id: string; name: string }[]>> = {
     { id: 'benign-trigeminal', name: 'Trigeminal Nevralji (SRS)' },
     { id: 'benign-schwannom', name: 'Vestibüler Schwannom' },
     { id: 'benign-avm', name: 'Arteriovenöz Malformasyon (AVM)' },
+  ],
+};
+
+const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: string }>> = {
+  thorax: [
+    { id: 'thorax-nsclc', name_tr: 'KHDAK (NSCLC)', name_en: 'NSCLC' },
+    { id: 'thorax-sclc', name_tr: 'KHAK (SCLC)', name_en: 'SCLC' },
+    { id: 'thorax-thymoma', name_tr: 'Timoma / Timik', name_en: 'Thymoma' },
+    { id: 'thorax-mesothelioma', name_tr: 'Mezotelyoma', name_en: 'Mesothelioma' },
+  ],
+  prostate: [
+    { id: 'prostate-prostate', name_tr: 'Prostat Adenokarsinomu', name_en: 'Prostate Adenocarcinoma' },
+    { id: 'prostate-bladder', name_tr: 'Mesane Kanseri', name_en: 'Bladder Cancer' },
+    { id: 'prostate-penile', name_tr: 'Penil Kanser', name_en: 'Penile Cancer' },
+  ],
+  breast: [{ id: 'breast-breast', name_tr: 'Meme Karsinomu', name_en: 'Breast Carcinoma' }],
+  gis: [
+    { id: 'gis-Rektum', name_tr: 'Rektum Kanseri', name_en: 'Rectal Cancer' },
+    { id: 'gis-Mide', name_tr: 'Mide Kanseri', name_en: 'Gastric Cancer' },
+    { id: 'gis-Karaciger', name_tr: 'Karaciğer (HCC/SBRT)', name_en: 'Liver Cancer' },
+    { id: 'gis-Pankreas', name_tr: 'Pankreas Kanseri', name_en: 'Pancreatic Cancer' },
+    { id: 'gis-Ozofagus', name_tr: 'Özofagus Kanseri', name_en: 'Esophageal Cancer' },
+  ],
+  'head-neck': [
+    { id: 'head-neck-nasopharynx', name_tr: 'Nazofarenks (NPC)', name_en: 'Nasopharynx (NPC)' },
+    { id: 'head-neck-oropharynx', name_tr: 'Orofarenks (OPC)', name_en: 'Oropharynx (OPC)' },
+    { id: 'head-neck-larynx', name_tr: 'Larenks Kanseri', name_en: 'Larynx Cancer' },
+    { id: 'head-neck-oral-cavity', name_tr: 'Oral Kavite', name_en: 'Oral Cavity' },
+  ],
+  cns: [
+    { id: 'cns-gbm', name_tr: 'Glioblastom (GBM)', name_en: 'Glioblastoma (GBM)' },
+    { id: 'cns-mets', name_tr: 'Beyin Metastazları', name_en: 'Brain Metastases' },
+    { id: 'cns-meningioma', name_tr: 'Menenjiom', name_en: 'Meningioma' },
+  ],
+  gynecology: [
+    { id: 'gynecology-Serviks', name_tr: 'Serviks Kanseri', name_en: 'Cervical Cancer' },
+    { id: 'gynecology-Endometriyum', name_tr: 'Endometriyum Kanseri', name_en: 'Endometrial Cancer' },
+    { id: 'gynecology-Vulva', name_tr: 'Vulva Kanseri', name_en: 'Vulvar Cancer' },
+    { id: 'gynecology-Vajen', name_tr: 'Vajen Kanseri', name_en: 'Vaginal Cancer' },
+  ],
+  'bone-sarcoma': [
+    { id: 'bone-sarcoma-Yumusak_Doku', name_tr: 'Yumuşak Doku Sarkomu', name_en: 'Soft Tissue Sarcoma' },
+    { id: 'bone-sarcoma-Osteosarkom', name_tr: 'Osteosarkom', name_en: 'Osteosarcoma' },
+    { id: 'bone-sarcoma-Ewing', name_tr: 'Ewing Sarkomu', name_en: 'Ewing Sarcoma' },
+  ],
+  skin: [
+    { id: 'skin-scc', name_tr: 'Skuamöz Hücreli Karsinom (cSCC)', name_en: 'Cutaneous SCC' },
+    { id: 'skin-bcc', name_tr: 'Bazal Hücreli Karsinom (BCC)', name_en: 'Basal Cell Ca' },
+    { id: 'skin-melanom', name_tr: 'Kutanöz Melanom', name_en: 'Cutaneous Melanoma' },
+  ],
+  hematologic: [
+    { id: 'hematologic-hodgkin', name_tr: 'Hodgkin Lenfoma (ISRT)', name_en: 'Hodgkin Lymphoma' },
+    { id: 'hematologic-non-hodgkin', name_tr: 'Non-Hodgkin Lenfoma', name_en: 'Non-Hodgkin Lymphoma' },
+  ],
+  pediatric: [
+    { id: 'pediatric-medulloblastoma', name_tr: 'Medulloblastom (CSI)', name_en: 'Medulloblastoma' },
+    { id: 'pediatric-wilms', name_tr: 'Wilms Tümörü', name_en: 'Wilms Tumor' },
+  ],
+  palliative: [
+    { id: 'palliative-bone', name_tr: 'Kemik Metastazı Palyasyonu', name_en: 'Bone Metastases' },
+    { id: 'palliative-cord', name_tr: 'Spinal Kord Basısı', name_en: 'Spinal Cord Compression' },
+  ],
+  benign: [
+    { id: 'benign-ho', name_tr: 'Heterotopik Ossifikasyon', name_en: 'Heterotopic Ossification' },
+    { id: 'benign-keloid', name_tr: 'Keloid Profilaksisi', name_en: 'Keloid Prophylaxis' },
+    { id: 'benign-dupuytren', name_tr: 'Dupuytren Kontraktürü', name_en: 'Dupuytren Contracture' },
+    { id: 'benign-topuk-dikeni', name_tr: 'Topuk Dikeni (Plantar Fasiit)', name_en: 'Plantar Fasciitis' },
   ],
 };
 
@@ -2828,7 +2896,7 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'head-neck') return `head-neck-${hnSubsite}`;
     if (selectedOrgan === 'cns') return `cns-${cnsSubtype}`;
     if (selectedOrgan === 'gis') return `gis-${gisOrgan}`;
-    if (selectedOrgan === 'prostate') return `prostate-${gusSubtype}`;
+    if (selectedOrgan === 'prostate') return gusSubtype === 'penile' ? 'prostate-penis' : `prostate-${gusSubtype}`;
     if (selectedOrgan === 'skin') return `skin-${skinHistology}`;
     if (selectedOrgan === 'breast') {
       if (breastHistology === 'Duktal Karsinoma In Situ (DCIS)') return 'breast-dcis';
@@ -2895,7 +2963,7 @@ export default function RadoncoCDSSPage() {
     if (newOrgan === 'head-neck') key = `head-neck-${hnSubsite}`;
     if (newOrgan === 'cns') key = `cns-${cnsSubtype}`;
     if (newOrgan === 'gis') key = `gis-${gisOrgan}`;
-    if (newOrgan === 'prostate') key = `prostate-${gusSubtype}`;
+    if (newOrgan === 'prostate') key = gusSubtype === 'penile' ? 'prostate-penis' : `prostate-${gusSubtype}`;
     if (newOrgan === 'skin') key = `skin-${skinHistology}`;
     if (newOrgan === 'breast') key = breastHistology === 'Duktal Karsinoma In Situ (DCIS)' ? 'breast-dcis' : breastHistology === 'Malign Filloides Tümörü' ? 'breast-phyllodes' : 'breast-breast';
     if (newOrgan === 'hematologic') key = `hematologic-${hematologicSubtype}`;
@@ -2909,8 +2977,22 @@ export default function RadoncoCDSSPage() {
 
   // Alt Başlık Değişimi
   const handleSubsiteChange = (subKey: string) => {
+    const [organ, subtype] = subKey.split('-');
+    if (organ === 'thorax' && ['nsclc', 'sclc', 'thymoma', 'mesothelioma'].includes(subtype)) setThoraxSubtype(subtype as typeof thoraxSubtype);
+    if (organ === 'prostate' && ['prostate', 'bladder', 'penile'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
+    if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
+    if (organ === 'head' && subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
+    if (organ === 'cns' && ['gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype as typeof cnsSubtype);
+    if (organ === 'gynecology' && ['Serviks', 'Endometriyum', 'Vulva', 'Vajen'].includes(subtype)) setGynSite(subtype as typeof gynSite);
+    if (subKey.startsWith('bone-sarcoma-') && ['Yumusak_Doku', 'Osteosarkom', 'Ewing'].includes(subKey.replace('bone-sarcoma-', ''))) setSarcomaSubtype(subKey.replace('bone-sarcoma-', '') as typeof sarcomaSubtype);
+    if (organ === 'skin' && ['scc', 'bcc', 'melanom'].includes(subtype)) setSkinHistology(subtype === 'scc' ? 'SCC' : subtype === 'bcc' ? 'BCC' : 'Melanom');
+    if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
+    if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
+    setSelectedSubsite(subKey);
+    const firstClinicalOption = BENIGN_CLINICAL_OPTIONS[subKey]?.[0];
+    if (firstClinicalOption) setBenignClinicalStatus(firstClinicalOption.value);
     setSelectedSchemeId('');
-    const db = TNM_DATABASE[subKey] || currentTNM;
+    const db = TNM_DATABASE[subKey] || TNM_DATABASE[subKey === 'prostate-penile' ? 'prostate-penis' : subKey] || currentTNM;
     if (db && db.T.length > 0) setSelectedT(db.T[0].code);
     if (db && db.N.length > 0) setSelectedN(db.N[0].code);
     if (db && db.M.length > 0) setSelectedM(db.M[0].code);
@@ -5816,24 +5898,48 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           const isActive = selectedOrgan === item.id;
           const displayName = lang === 'en' ? item.name_en : item.name_tr;
           return (
-            <button
-              key={item.id}
-              onClick={() => handleOrganChange(item.id as OrganId)}
-              className={`rounded-xl py-2.5 px-3 text-xs flex items-center gap-2.5 transition-all w-full text-left ${
-                isActive
-                  ? item.id === 'benign'
-                    ? 'bg-emerald-600 text-white font-bold shadow-md'
-                    : `${theme === 'light' ? 'bg-slate-900' : 'bg-blue-600'} text-white font-bold shadow-md`
-                  : item.id === 'benign'
-                    ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                    : theme === 'light'
-                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium'
-              }`}
-            >
-              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-              <span>{displayName}</span>
-            </button>
+            <div key={item.id}>
+              <button
+                type="button"
+                onClick={() => handleOrganChange(item.id as OrganId)}
+                className={`rounded-xl py-2.5 px-3 text-xs flex items-center gap-2.5 transition-all w-full text-left ${
+                  isActive
+                    ? item.id === 'benign'
+                      ? 'bg-emerald-600 text-white font-bold shadow-md'
+                      : `${theme === 'light' ? 'bg-slate-900' : 'bg-blue-600'} text-white font-bold shadow-md`
+                    : item.id === 'benign'
+                      ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                      : theme === 'light'
+                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium'
+                }`}
+              >
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
+                <span>{displayName}</span>
+                <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${isActive ? 'rotate-180' : ''}`} aria-hidden="true" />
+              </button>
+              {isActive && (
+                <div className="ml-4 flex flex-col gap-1 border-l-2 border-blue-500/40 py-1 pl-4">
+                  {ORGAN_TREE[item.id as OrganId].map(sub => {
+                    const isSubsiteActive = selectedSubsite === sub.id || currentTnmKey === sub.id;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => handleSubsiteChange(sub.id)}
+                        className={`rounded-lg px-2 py-1.5 text-left text-[11px] leading-tight transition-colors ${
+                          isSubsiteActive
+                            ? 'bg-blue-100 font-bold text-blue-900 dark:bg-blue-950/70 dark:text-blue-100'
+                            : 'font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
+                        }`}
+                      >
+                        {lang === 'tr' ? sub.name_tr : sub.name_en}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
         </div>
@@ -5876,7 +5982,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span>{lang === 'tr' ? 'Rapor Yapıştır & Otomatik Evrele' : 'Paste Report & Auto-Stage'}</span>
             </button>
           </div>
-          <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 text-slate-200 shadow-xl'}`}>
+          {false && <div className={`rounded-2xl border p-5 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 text-slate-200 shadow-xl'}`}>
             <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
               <span className="text-[10px] text-amber-700 font-normal">{lang === 'tr' ? 'Kılavuz Tanımlı' : 'Guideline-defined'}</span>
@@ -6196,7 +6302,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <span className="font-semibold text-slate-900">{tText("Ağrılı Kemik / Beyin / Spinal Kord Basısı")}</span>
               </div>
             )}
-          </div>
+          </div>}
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
           <div className={`rounded-2xl border p-5 flex flex-col gap-3 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'bg-[#0c1424] border-slate-800 shadow-xl text-slate-200'}`}>
