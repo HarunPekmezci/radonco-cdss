@@ -18,7 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      localization={{
+        locale: 'tr-TR',
+        formButtonPrimary: 'Giriş Yap',
+      }}
+    >
       <html lang="tr">
         <body className="antialiased bg-[#f8fafc] text-slate-800">{children}</body>
       </html>

@@ -157,6 +157,21 @@ export default function SignInPage() {
             path="/sign-in"
             signUpUrl="/sign-up"
             appearance={{
+              elements: {
+                footer: 'hidden',
+                footerAction: 'hidden',
+                socialButtons: 'hidden',
+                socialButtonsBlockButton: 'hidden',
+                dividerRow: 'hidden',
+                formButtonPrimary:
+                  'w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700',
+                formFieldInput:
+                  'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400',
+                card:
+                  'rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900',
+                headerTitle: 'text-xl font-bold text-slate-900 dark:text-slate-100',
+                headerSubtitle: 'text-sm text-slate-500 dark:text-slate-400',
+              },
               variables: {
                 colorPrimary: '#2563eb',
                 colorBackground: theme === 'dark' ? '#0f172a' : '#ffffff',
