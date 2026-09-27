@@ -2865,6 +2865,7 @@ export default function RadoncoCDSSPage() {
   const [thymomaStage, setThymomaStage] = useState<'Masaoka_I' | 'Masaoka_II' | 'Masaoka_III' | 'Masaoka_IV'>('Masaoka_II');
   const [thymomaMargin, setThymomaMargin] = useState<'R0' | 'R1' | 'R2'>('R0');
   const [thymicHistology, setThymicHistology] = useState<'thymoma' | 'thymic-carcinoma'>('thymoma');
+  const [nsclcHistology, setNsclcHistology] = useState<'adenocarcinoma' | 'squamous' | 'lcnec'>('adenocarcinoma');
   // Mezotelyoma
   const [mesoIntent, setMesoIntent] = useState<'Palyatif' | 'Hemitorasik_Postop' | 'Dren_Yeri'>('Palyatif');
 
@@ -2880,6 +2881,9 @@ export default function RadoncoCDSSPage() {
   const [positiveCorePercent, setPositiveCorePercent] = useState<string>('35');
   const [bladderTurbtComplete, setBladderTurbtComplete] = useState<boolean>(true);
   const [bladderTmtSuitable, setBladderTmtSuitable] = useState<boolean>(true);
+  const [prostateHistology, setProstateHistology] = useState<'acinar' | 'ductal' | 'nepc'>('acinar');
+  const [testisHistology, setTestisHistology] = useState<'seminoma' | 'nonseminoma'>('seminoma');
+  const [bladderHistology, setBladderHistology] = useState<'urothelial' | 'non-urothelial'>('urothelial');
 
   // ==========================================
   // 3. MEME RİSK FAKTÖRLERİ
@@ -2936,6 +2940,7 @@ export default function RadoncoCDSSPage() {
   const [cnsKps, setCnsKps] = useState<string>('90');
   const [gbmPerformance, setGbmPerformance] = useState<'Iyi_ECOG_0_1' | 'Duskun_Yasli'>('Iyi_ECOG_0_1');
   const [meningiomaGrade, setMeningiomaGrade] = useState<'Grade_1' | 'Grade_2' | 'Grade_3'>('Grade_1');
+  const [gliomaHistology, setGliomaHistology] = useState<'gbm' | 'astrocytoma' | 'oligodendroglioma'>('gbm');
 
   // ==========================================
   // 7. JİNEKOLOJİ ALT BAŞLIKLARI (SERVİKS, ENDOMETRİYUM, OVER, VAJEN, VULVA)
@@ -2954,6 +2959,7 @@ export default function RadoncoCDSSPage() {
   const [sarcomaSurgery, setSarcomaSurgery] = useState<'Preop' | 'Postop_R0' | 'Postop_R1'>('Preop');
   const [osteoScenario, setOsteoScenario] = useState<'Marjin_Pozitif_R1_R2' | 'Inoperabl_Aksiyel_Pelvis' | 'Cerrahi_R0_Takip'>('Marjin_Pozitif_R1_R2');
   const [ewingIntent, setEwingIntent] = useState<'Definitif_RT' | 'Postop_R1'>('Definitif_RT');
+  const [stsHistology, setStsHistology] = useState<'ups' | 'liposarcoma' | 'leiomyosarcoma' | 'synovial'>('ups');
 
   // ==========================================
   // 9. CİLT RİSK FAKTÖRLERİ
@@ -2967,7 +2973,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 10. HEMATOLOJİK
   // ==========================================
-  const [hematologicSubtype, setHematologicSubtype] = useState<'Hodgkin' | 'DLBCL' | 'Plasmacytoma' | 'Myeloma' | 'ALL' | 'CLL'>('Hodgkin');
+  const [hematologicSubtype, setHematologicSubtype] = useState<'Hodgkin' | 'DLBCL' | 'Foliküler' | 'Plasmacytoma' | 'Myeloma' | 'ALL' | 'CLL'>('Hodgkin');
   const [lymphomaResponse, setLymphomaResponse] = useState<'Tam_Yanit' | 'Parsiyel_Rezidü'>('Tam_Yanit');
   const [myelomaFractionation, setMyelomaFractionation] = useState<'TekFx' | '20Gy' | '30Gy'>('TekFx');
 
@@ -3144,6 +3150,166 @@ export default function RadoncoCDSSPage() {
     else if (db && db.T.length > 0) setSelectedT(db.T[0].code);
     if (db && db.N.length > 0) setSelectedN(db.N[0].code);
     if (db && db.M.length > 0) setSelectedM(db.M[0].code);
+  };
+
+  // ==========================================
+  // EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP MATRİSİ
+  // ==========================================
+  const BONE_HISTOLOGY_VALUES = ['Osteosarkom', 'Ewing', 'Kondrosarkom', 'Kordoma', 'GCTB'] as const;
+
+  const currentHistologies: { id: string; name: string }[] = (() => {
+    if (selectedOrgan === 'prostate') {
+      if (gusSubtype === 'prostate') return [
+        { id: 'prostate-acinar', name: 'Asiner Adenokarsinom (Klasik)' },
+        { id: 'prostate-ductal', name: 'Duktal Karsinom (Agresif)' },
+        { id: 'prostate-nepc', name: 'Nöroendokrin / Küçük Hücreli (NEPC)' },
+      ];
+      if (gusSubtype === 'testis') return [
+        { id: 'testis-seminoma', name: 'Seminom (Radyoduyarlı - Paraaortik RT Endike)' },
+        { id: 'testis-nonseminoma', name: 'Non-Seminom (RT Genellikle Endike Değil)' },
+      ];
+      if (gusSubtype === 'bladder') return [
+        { id: 'bladder-urothelial', name: 'Ürotelyal Karsinom (TCC - Trimodalite KRT)' },
+        { id: 'bladder-non-urothelial', name: 'Skuamöz / Adenokarsinom' },
+      ];
+      return [];
+    }
+    if (selectedOrgan === 'thorax') {
+      if (thoraxSubtype === 'nsclc') return [
+        { id: 'nsclc-adenocarcinoma', name: 'Adenokarsinom' },
+        { id: 'nsclc-squamous', name: 'Skuamöz Hücreli Karsinom' },
+        { id: 'nsclc-lcnec', name: 'Büyük Hücreli Nöroendokrin (LCNEC)' },
+      ];
+      if (thoraxSubtype === 'thymoma') return [
+        { id: 'thymoma', name: 'Timoma (WHO Tip A, AB, B1, B2, B3)' },
+        { id: 'thymic-carcinoma', name: 'Timik Karsinom (Tip C / Agresif)' },
+      ];
+      return [];
+    }
+    if (selectedOrgan === 'breast') return [
+      { id: 'breast-nst', name: 'İnvaziv Duktal Karsinom (NST)' },
+      { id: 'breast-ilc', name: 'İnvaziv Lobüler Karsinom (İLK)' },
+      { id: 'breast-tnbc', name: 'Triple Negatif (TNBC)' },
+      { id: 'breast-metaplastic', name: 'Metaplastik Karsinom' },
+    ];
+    if (selectedOrgan === 'cns' && (cnsSubtype === 'glioma' || cnsSubtype === 'gbm')) return [
+      { id: 'glioma-gbm', name: 'Glioblastoma (WHO Grade 4, IDH-wildtype)' },
+      { id: 'glioma-astro', name: 'Astrositom (IDH-mutant, Grade 2-4)' },
+      { id: 'glioma-oligo', name: 'Oligodendrogliom (1p/19q ko-delesyonlu, Grade 2-3)' },
+    ];
+    if (selectedOrgan === 'bone' || (selectedOrgan === 'bone-sarcoma' && (BONE_HISTOLOGY_VALUES as readonly string[]).includes(sarcomaSubtype))) {
+      if (selectedOrgan === 'bone') return [
+        { id: 'bone-Osteosarkom', name: 'Osteosarkom' },
+        { id: 'bone-Ewing', name: 'Ewing Sarkomu' },
+        { id: 'bone-Kondrosarkom', name: 'Kondrosarkom' },
+        { id: 'bone-Kordoma', name: 'Kordoma' },
+        { id: 'bone-GCTB', name: 'GCTB' },
+      ];
+      return [
+        { id: 'bone-Osteosarkom', name: 'Osteosarkom' },
+        { id: 'bone-Ewing', name: 'Ewing Sarkomu' },
+      ];
+    }
+    if (selectedOrgan === 'bone-sarcoma') return [
+      { id: 'sts-ups', name: 'Pleomorfik Sarkom (UPS)' },
+      { id: 'sts-liposarcoma', name: 'Liposarkom' },
+      { id: 'sts-leiomyosarcoma', name: 'Leyomiyosarkom' },
+      { id: 'sts-synovial', name: 'Sinovyal Sarkom' },
+    ];
+    if (selectedOrgan === 'skin') return [
+      { id: 'skin-SCC', name: 'Skuamöz Hücreli (cSCC)' },
+      { id: 'skin-BCC', name: 'Bazal Hücreli (BCC)' },
+      { id: 'skin-Melanom', name: 'Kutanöz Melanom' },
+      { id: 'skin-Merkel', name: 'Merkel Hücreli (MCC)' },
+    ];
+    if (selectedOrgan === 'hematologic') return [
+      { id: 'heme-Hodgkin', name: 'Hodgkin Lenfoma' },
+      { id: 'heme-DLBCL', name: 'DLBCL' },
+      { id: 'heme-Foliküler', name: 'Foliküler Lenfoma' },
+      { id: 'heme-Myeloma', name: 'Multipl Miyelom / Plazmositom' },
+    ];
+    return [];
+  })();
+
+  const selectedHistology: string = (() => {
+    if (selectedOrgan === 'prostate') {
+      if (gusSubtype === 'prostate') return `prostate-${prostateHistology}`;
+      if (gusSubtype === 'testis') return `testis-${testisHistology}`;
+      if (gusSubtype === 'bladder') return `bladder-${bladderHistology}`;
+      return '';
+    }
+    if (selectedOrgan === 'thorax') {
+      if (thoraxSubtype === 'nsclc') return `nsclc-${nsclcHistology}`;
+      if (thoraxSubtype === 'thymoma') return thymicHistology;
+      return '';
+    }
+    if (selectedOrgan === 'breast') {
+      if (breastHistology === 'İnvaziv Duktal Karsinom (İDK)') return 'breast-nst';
+      if (breastHistology === 'İnvaziv Lobüler Karsinom (İLK)') return 'breast-ilc';
+      if (breastHistology === 'Triple Negatif Meme Kanseri (TNBC)') return 'breast-tnbc';
+      if (breastHistology === 'Metaplastik Karsinom') return 'breast-metaplastic';
+      return '';
+    }
+    if (selectedOrgan === 'cns' && (cnsSubtype === 'glioma' || cnsSubtype === 'gbm')) return `glioma-${gliomaHistology}`;
+    if (selectedOrgan === 'bone') return (BONE_HISTOLOGY_VALUES as readonly string[]).includes(sarcomaSubtype) ? `bone-${sarcomaSubtype}` : 'bone-Osteosarkom';
+    if (selectedOrgan === 'bone-sarcoma') return (BONE_HISTOLOGY_VALUES as readonly string[]).includes(sarcomaSubtype) ? `bone-${sarcomaSubtype}` : `sts-${stsHistology}`;
+    if (selectedOrgan === 'skin') return `skin-${skinHistology}`;
+    if (selectedOrgan === 'hematologic') return `heme-${hematologicSubtype}`;
+    return '';
+  })();
+
+  const handleHistologySelect = (id: string) => {
+    if (id.startsWith('prostate-')) setProstateHistology(id.replace('prostate-', '') as typeof prostateHistology);
+    else if (id.startsWith('testis-')) setTestisHistology(id.replace('testis-', '') as typeof testisHistology);
+    else if (id.startsWith('bladder-')) setBladderHistology(id.replace('bladder-', '') as typeof bladderHistology);
+    else if (id.startsWith('nsclc-')) setNsclcHistology(id.replace('nsclc-', '') as typeof nsclcHistology);
+    else if (id === 'thymoma' || id === 'thymic-carcinoma') setThymicHistology(id);
+    else if (id.startsWith('breast-')) {
+      const next = id === 'breast-ilc'
+        ? 'İnvaziv Lobüler Karsinom (İLK)'
+        : id === 'breast-tnbc'
+          ? 'Triple Negatif Meme Kanseri (TNBC)'
+          : id === 'breast-metaplastic'
+            ? 'Metaplastik Karsinom'
+            : 'İnvaziv Duktal Karsinom (İDK)';
+      setBreastHistology(next);
+      handleSubsiteChange('breast-breast');
+      return;
+    }
+    else if (id === 'glioma-gbm') { setGliomaHistology('gbm'); setGliomaGrade('Grade_4'); }
+    else if (id === 'glioma-astro') setGliomaHistology('astrocytoma');
+    else if (id === 'glioma-oligo') { setGliomaHistology('oligodendroglioma'); if (gliomaGrade === 'Grade_4') setGliomaGrade('Grade_3'); }
+    else if (id.startsWith('bone-')) {
+      const boneSubsiteKeys: Record<string, string> = {
+        'bone-Osteosarkom': 'bone-osteosarcoma',
+        'bone-Ewing': 'bone-ewing',
+        'bone-Kondrosarkom': 'bone-chondrosarcoma',
+        'bone-Kordoma': 'bone-chordoma',
+        'bone-GCTB': 'bone-gctb',
+      };
+      handleSubsiteChange(boneSubsiteKeys[id] || 'bone-osteosarcoma');
+      return;
+    }
+    else if (id.startsWith('sts-')) {
+      setStsHistology(id.replace('sts-', '') as typeof stsHistology);
+      handleSubsiteChange('bone-sarcoma-Yumusak_Doku');
+      return;
+    }
+    else if (id.startsWith('skin-')) {
+      const value = id.replace('skin-', '');
+      if (value === 'SCC' || value === 'BCC' || value === 'Melanom' || value === 'Merkel') {
+        setSkinHistology(value);
+        handleSubsiteChange(`skin-${value}`);
+        return;
+      }
+    }
+    else if (id.startsWith('heme-')) {
+      const value = id.replace('heme-', '') as typeof hematologicSubtype;
+      setHematologicSubtype(value);
+      handleSubsiteChange(`hematologic-${value}`);
+      return;
+    }
+    setSelectedSchemeId('');
   };
 
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
@@ -4626,6 +4792,29 @@ export default function RadoncoCDSSPage() {
       }
 
       if (gusSubtype === 'testis') {
+        if (testisHistology === 'nonseminoma') {
+          const nonSeminoma: DoseScheme = {
+            id: 'testis-nonseminoma-no-rt',
+            name: 'Radyoterapi Önerilmez (Kemoterapi / RPLND / İzlem)',
+            tag: '⚠️ Non-Seminom',
+            totalDoseGy: 0,
+            fractionCount: 0,
+            fractionDoseGy: 0,
+            alphaBeta: 10,
+            technique: 'Radyoterapi endike değil',
+            indication: 'Non-seminom germ hücreli tümörlerde adjuvan radyoterapi önerilmez; evreye göre aktif izlem, BEP kemoterapi veya RPLND standart yaklaşımdır. Radyoduyarlılık seminoma göre belirgin düşüktür.',
+            targetVolumes: [],
+            oars: [],
+            systemicTherapy: 'Evre ve risk durumuna göre BEP kemoterapi veya RPLND; multidisipliner üro-onkoloji konseyi kararı.',
+            evidence: 'NCCN Testicular Cancer v1.2025; EAU Guidelines',
+          };
+          return {
+            statusText: 'ENDİKE DEĞİLDİR: NON-SEMİNOMDA RT ÖNERİLMEZ (KEMOTERAPİ / RPLND / İZLEM)',
+            badgeClass: 'bg-amber-950/40 text-amber-300 border-amber-500/40',
+            primaryScheme: nonSeminoma,
+            alternativeSchemes: [nonSeminoma],
+          };
+        }
         const testisStage = selectedT === 'I' ? 'I' : selectedT === 'IIB' ? 'IIB' : 'IIA';
         const isStageI = testisStage === 'I';
         const stageIIDoseGy = testisStage === 'IIB' ? 36 : 30;
@@ -5385,6 +5574,24 @@ export default function RadoncoCDSSPage() {
         return { statusText: 'ENDİKE: KLL SEMPTOMATİK SPLENOMEGALİDE DÜŞÜK DOZ RT', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300', primaryScheme: cllScheme, alternativeSchemes: [cllScheme] };
       }
 
+      if (hematologicSubtype === 'Foliküler') {
+        const flScheme: DoseScheme = {
+          id: 'follicular-isrt-24',
+          name: '24 Gy / 12 fx (Tutulu Alan RT - ISRT)',
+          tag: '🎯 Foliküler Lenfoma ISRT',
+          totalDoseGy: 24,
+          fractionCount: 12,
+          fractionDoseGy: 2,
+          alphaBeta: 10,
+          technique: 'IMRT / VMAT (ISRT Prensipleri)',
+          indication: 'Erken evre foliküler lenfomada 24 Gy tutulu alan radyoterapisi yüksek lokal kontrol sağlar; ileri evre semptomatik hastalıkta düşük doz (2x2 Gy) palyasyon hematoloji konseyiyle değerlendirilir.',
+          targetVolumes: [{ name: 'CTV_ISRT', doseGy: 24, marginMm: 'Pre-KT GTV ile sınırlı', anatomical: 'Tutulu lenf nodu bölgesi' }],
+          oars: [{ organ: 'Komşu OAR', metric: 'Dmean', limit: 'ALARA prensibi', source: 'ILROG' }],
+          evidence: 'ILROG Guidelines; FORT Trial',
+        };
+        return { statusText: 'ENDİKE: FOLİKÜLER LENFOMADA 24 GY TUTULU ALAN RT (ISRT)', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: flScheme, alternativeSchemes: [flScheme] };
+      }
+
       const isCR = lymphomaResponse === 'Tam_Yanit';
       const dose = isCR ? 20 : 30;
       const lymphomaScheme: DoseScheme = {
@@ -5623,6 +5830,7 @@ export default function RadoncoCDSSPage() {
     meningiomaGrade,
     gisOrgan,
     gusSubtype,
+    testisHistology,
     gleasonPrimary,
     gleasonSecondary,
     psaLevel,
@@ -6874,6 +7082,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 >
                   <option value="İnvaziv Duktal Karsinom (İDK)">{tText("İnvaziv Duktal Karsinom (İDK)")}</option>
                   <option value="İnvaziv Lobüler Karsinom (İLK)">{tText("İnvaziv Lobüler Karsinom (İLK)")}</option>
+                  <option value="Triple Negatif Meme Kanseri (TNBC)">{tText("Triple Negatif Meme Kanseri (TNBC)")}</option>
                   <option value="Duktal Karsinoma In Situ (DCIS)">{tText("Duktal Karsinoma In Situ (DCIS)")}</option>
                   <option value="Malign Filloides Tümörü">{tText("Malign Filloides Tümörü")}</option>
                   <option value="Metaplastik Karsinom">{tText("Metaplastik Karsinom")}</option>
@@ -6914,7 +7123,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   value={hematologicSubtype}
                   onChange={e => {
                     const value = e.currentTarget.value;
-                    if (value === 'Hodgkin' || value === 'DLBCL' || value === 'Plasmacytoma' || value === 'Myeloma' || value === 'ALL' || value === 'CLL') {
+                    if (value === 'Hodgkin' || value === 'DLBCL' || value === 'Foliküler' || value === 'Plasmacytoma' || value === 'Myeloma' || value === 'ALL' || value === 'CLL') {
                       setHematologicSubtype(value);
                       handleSubsiteChange(`hematologic-${value}`);
                     }
@@ -6923,6 +7132,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 >
                   <option value="Hodgkin">{tText("Hodgkin Lenfoma")}</option>
                   <option value="DLBCL">{tText("Diffüz Büyük B Hücreli Lenfoma (DLBCL)")}</option>
+                  <option value="Foliküler">{tText("Foliküler Lenfoma")}</option>
                   <option value="Plasmacytoma">{tText("Soliter Plazmasitom")}</option>
                   <option value="Myeloma">{tText("Multiple Miyelom")}</option>
                   <option value="ALL">{tText("Akut Lenfoblastik Lösemi (ALL)")}</option>
@@ -7987,6 +8197,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.tag)}
               </span>
             </div>
+
+            {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
+            {currentHistologies.length > 0 && (
+              <div className="bg-[#111c2e] border border-slate-800 rounded-xl p-3 mb-4 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patolojik Histoloji / Biyolojik Alt Tip' : 'Pathologic Histology / Biologic Subtype'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">{lang === 'tr' ? 'Dinamik Reçete Motoru' : 'Dynamic Prescription Engine'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentHistologies.map(h => (
+                    <button
+                      key={h.id}
+                      type="button"
+                      onClick={() => handleHistologySelect(h.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        selectedHistology === h.id
+                          ? 'bg-sky-600 text-white font-semibold shadow-md shadow-sky-600/30 ring-1 ring-sky-400'
+                          : 'bg-[#16253d] text-slate-200 border border-slate-700/80 hover:bg-[#1c3050] hover:text-white'
+                      }`}
+                    >
+                      {tText(h.name)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
               <div className="mb-4">
