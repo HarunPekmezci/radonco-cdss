@@ -1,19 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Radiation, ShieldCheck, LogIn, Globe } from 'lucide-react';
+import { Radiation, ShieldCheck, LogIn, Globe, AlertCircle, Building2 } from 'lucide-react';
 
 export default function SignUpPage() {
   const [lang, setLang] = useState<'en' | 'tr'>('en');
+
+  // Kayıt sayfasındaki butonu "Sign Up" / "Kayıt Ol" yapan native efekt
+  useEffect(() => {
+    const updateButtonText = () => {
+      const btn = document.querySelector<HTMLButtonElement>('.cl-formButtonPrimary');
+      if (btn) {
+        const expectedText = lang === 'en' ? 'Sign Up' : 'Kayıt Ol';
+        if (btn.innerText !== expectedText) {
+          btn.innerText = expectedText;
+        }
+      }
+    };
+    updateButtonText();
+    const interval = setInterval(updateButtonText, 100);
+    return () => clearInterval(interval);
+  }, [lang]);
 
   const t = {
     en: {
       platformSubtitle: 'Clinical Decision Support System',
       badge: 'Institutional & Academic Registration',
-      title: 'Create Account',
-      subtitle: 'Register with your institutional (.edu / hospital) email to access evidence-based radiation oncology protocols.',
+      institutionalNoticeTitle: 'Institutional Email Required',
+      institutionalNoticeText: 'Please register with your university (.edu, .edu.tr) or verified hospital email. Personal email domains (gmail, yahoo, etc.) are restricted.',
       hasAccount: 'Already have an account?',
       signIn: 'Sign In',
       signature: 'Designed by Harun PEKMEZCI, MD',
@@ -21,8 +37,8 @@ export default function SignUpPage() {
     tr: {
       platformSubtitle: 'Klinik Karar Destek Sistemi',
       badge: 'Kurumsal & Akademik Erişim Kaydı',
-      title: 'Hesap Oluştur',
-      subtitle: 'Kanıta dayalı radyasyon onkolojisi protokollerine erişmek için kurumsal (.edu / hastane) e-postanızla kaydolun.',
+      institutionalNoticeTitle: 'Kurumsal E-Posta Zorunluluğu',
+      institutionalNoticeText: 'Lütfen üniversite (.edu, .edu.tr) veya onaylı hastane e-postanız ile kaydolun. Kişisel e-posta adresleri (gmail, hotmail vb.) onaylanmamaktadır.',
       hasAccount: 'Zaten bir hesabınız var mı?',
       signIn: 'Giriş Yapın',
       signature: 'Dr. Harun PEKMEZCİ tarafından dizayn edildi',
@@ -30,7 +46,7 @@ export default function SignUpPage() {
   }[lang];
 
   return (
-    <div className="min-h-screen w-full bg-[#070b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.15),rgba(255,255,255,0))] text-slate-100 flex flex-col items-center justify-center p-4 font-sans relative">
+    <div className="min-h-screen w-full bg-[#070b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.15),transparent_70%)] text-slate-100 flex flex-col items-center justify-center p-4 font-sans relative">
       
       {/* ==============================================================
           DİL SEÇİCİ (SAĞ ÜST KÖŞE - EN VARSAYILAN)
@@ -64,8 +80,8 @@ export default function SignUpPage() {
       {/* ==============================================================
           ÜST KURUMSAL LOGO VE BAŞLIK
          ============================================================== */}
-      <div className="w-full max-w-[440px] mb-5 flex flex-col items-center text-center">
-        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-3">
+      <div className="w-full max-w-[460px] mb-4 flex flex-col items-center text-center">
+        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
           <Radiation className="w-8 h-8 animate-pulse" />
         </div>
         
@@ -83,9 +99,24 @@ export default function SignUpPage() {
       </div>
 
       {/* ==============================================================
+          KURUMSAL / AKADEMİK E-POSTA ZORUNLULUĞU BİLGİ KUTUSU
+         ============================================================== */}
+      <div className="w-full max-w-[460px] mb-3.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200 flex items-start gap-2.5 text-xs shadow-sm">
+        <Building2 className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+        <div>
+          <span className="font-bold text-amber-300 block mb-0.5">
+            {t.institutionalNoticeTitle}
+          </span>
+          <span className="text-[11px] text-amber-200/90 leading-relaxed block font-medium">
+            {t.institutionalNoticeText}
+          </span>
+        </div>
+      </div>
+
+      {/* ==============================================================
           KOYU TEMA CLERK KAYIT KARTI (SIGN-UP)
          ============================================================== */}
-      <div className="w-full max-w-[440px] flex flex-col items-center">
+      <div className="w-full max-w-[460px] flex flex-col items-center">
         <SignUp
           appearance={({
             variables: {
@@ -128,8 +159,8 @@ export default function SignUpPage() {
         </div>
 
         {/* ALT İMZA */}
-        <div className="mt-6 text-center text-xs text-slate-500 font-medium">
-          {t.signature}
+        <div className="mt-5 text-center text-xs text-slate-400 font-medium">
+          <span className="text-slate-300 font-semibold">{t.signature}</span>
         </div>
       </div>
 
