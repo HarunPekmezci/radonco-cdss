@@ -6770,10 +6770,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <span className="text-xs font-bold text-slate-900 dark:text-white">
                   {lang === 'tr' ? 'AI Rapor Okuyucu & Evreleme' : 'AI Medical Report Stager'}
                 </span>
-              </div>
-              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">
-                {lang === 'tr' ? 'Patoloji / MR / PET' : 'Pathology / MRI / PET'}
-              </span>
             </div>
             <p className="mb-2.5 text-[11px] text-slate-500 dark:text-slate-200">
               {lang === 'tr' ? 'Rapor metnini yapıştırarak hastanın evresini ve tedavi şemasını otomatik doldurun.' : 'Paste pathology or imaging report to auto-extract TNM stage and protocol.'}
@@ -7183,9 +7179,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patolojik Histoloji / Biyolojik Alt Tip' : 'Pathologic Histology / Biologic Subtype'}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono">{lang === 'tr' ? 'Dinamik Reçete Motoru' : 'Dynamic Prescription Engine'}</span>
-              </div>
               <div className="flex flex-wrap gap-1.5">
                 {currentHistologies.map(h => (
                   <button
