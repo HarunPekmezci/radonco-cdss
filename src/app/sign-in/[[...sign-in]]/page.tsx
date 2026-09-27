@@ -60,7 +60,7 @@ export default function SignInPage() {
   return (
     <div className={`min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative ${lang === 'en' ? 'en-mode' : 'tr-mode'}`}>
       
-      {/* KONTRAST VE OKUNABİLİRLİK CSS KURALLARI */}
+      {/* TÜM DOĞRULAMA, BUTON VE OTP KUTULARINI AYARLAYAN KONTRAST STİLİ */}
       <style dangerouslySetInnerHTML={{
         __html: `
           /* İngilizce buton metni */
@@ -84,7 +84,7 @@ export default function SignInPage() {
             pointer-events: none;
           }
 
-          /* ŞİFRE EKRANI: Kalemin yanındaki e-posta metnini parlat */
+          /* E-POSTA KİMLİK METNİ */
           .cl-identityPreviewText {
             color: #f8fafc !important;
             font-weight: 600 !important;
@@ -94,37 +94,60 @@ export default function SignInPage() {
             color: #60a5fa !important;
           }
 
-          /* ŞİFRE SIFIRLAMA EKRANI: "Email code to..." butonunu ve metnini pırıl pırıl yap */
-          .cl-alternativeMethodsBlockButton,
-          button[data-localization-key*="alternativeMethods"] {
+          /* 6 HANELİ DOĞRULAMA KODU (OTP) KUTUCUKLARI */
+          .cl-otpCodeFieldInput,
+          input[data-otp-input],
+          .cl-otpCodeField input {
+            background-color: #131f33 !important;
+            border: 1.5px solid #334155 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 1.25rem !important;
+            border-radius: 0.75rem !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+            text-align: center !important;
+          }
+
+          .cl-otpCodeFieldInput:focus,
+          input[data-otp-input]:focus,
+          .cl-otpCodeField input:focus {
+            border-color: #3b82f6 !important;
+            background-color: #1a2a44 !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
+            outline: none !important;
+          }
+
+          /* KOD TEKRAR GÖNDER LİNKİ (RESEND) */
+          .cl-formResendCodeLink,
+          button[data-localization-key*="resend"] {
+            color: #60a5fa !important;
+            font-weight: 600 !important;
+          }
+          .cl-formResendCodeLink:hover {
+            color: #93c5fd !important;
+          }
+
+          /* ŞİFRE SIFIRLAMA METOT BUTONLARI */
+          .cl-alternativeMethodsBlockButton {
             background-color: #131f33 !important;
             border: 1px solid #334155 !important;
-            border-radius: 0.75rem !important;
-            padding: 0.75rem 1rem !important;
-            transition: all 0.2s ease !important;
           }
-          .cl-alternativeMethodsBlockButton:hover {
-            background-color: #1c2c47 !important;
-            border-color: #60a5fa !important;
-          }
-          .cl-alternativeMethodsBlockButtonText,
-          .cl-alternativeMethodsBlockButton span,
-          .cl-alternativeMethodsBlockButton p {
-            color: #f8fafc !important; /* Bembeyaz ve net */
+          .cl-alternativeMethodsBlockButtonText {
+            color: #f8fafc !important;
             font-weight: 600 !important;
-            font-size: 0.875rem !important;
           }
-          .cl-alternativeMethodsBlockButton svg,
-          .cl-alternativeMethodsBlockButtonIcon {
-            color: #60a5fa !important; /* Canlı mavi ikon */
+
+          /* YENİ CİHAZ DOĞRULAMA UYARI KUTUSU */
+          div[class*="alert"],
+          .cl-alert {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important;
+            color: #fde68a !important;
           }
-          .cl-backLink,
-          .cl-formHeaderBackLink {
-            color: #60a5fa !important;
-            font-weight: 500 !important;
-          }
-          .cl-backLink:hover {
-            color: #93c5fd !important;
+          div[class*="alert"] *,
+          .cl-alert * {
+            color: #fde68a !important;
           }
         `
       }} />
@@ -262,7 +285,7 @@ export default function SignInPage() {
                   fill="url(#ptvGradient)"
                 />
                 <path
-                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105"
+                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105"
                   fill="none"
                   stroke="#38bdf8"
                   strokeWidth="3"
@@ -325,7 +348,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (ŞIK KOYU TEMA CLERK GİRİŞ KARTI)
+          2. SAĞ SÜTUN (YÜKSEK KONTRASTLI CLERK KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -361,13 +384,13 @@ export default function SignInPage() {
                 headerTitle: '!text-white font-bold text-lg text-center',
                 headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
                 
-                identityPreview: '!bg-[#131f33]/70 !border !border-slate-700/60 !rounded-xl !py-1.5 !px-3 mb-2 flex items-center justify-between',
-                identityPreviewText: '!text-slate-100 !font-semibold text-sm',
+                // Kimlik bilgisi rozeti
+                identityPreview: '!bg-[#131f33]/80 !border !border-slate-700/80 !rounded-xl !py-2 !px-3.5 mb-3 flex items-center justify-between',
+                identityPreviewText: '!text-white !font-bold text-sm',
                 identityPreviewEditButton: '!text-blue-400 hover:!text-blue-300',
 
-                // ŞİFRE SIFIRLAMA METOT BUTONU
-                alternativeMethodsBlockButton: '!bg-[#131f33] !border !border-slate-700 !text-slate-100 hover:!bg-[#1c2c47] rounded-xl py-2.5 px-3.5',
-                alternativeMethodsBlockButtonText: '!text-slate-100 !font-semibold text-xs',
+                // OTP Kod Kutuları
+                otpCodeFieldInput: '!bg-[#131f33] !border-slate-600 !text-white !font-bold text-xl rounded-xl text-center',
 
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
