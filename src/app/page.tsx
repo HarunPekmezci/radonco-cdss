@@ -504,9 +504,9 @@ const TRANSLATION_MAP: Record<string, string> = {
   '4-9 aksiller lymph node or fikse konglomere kitle': '4-9 axillary lymph nodes or matted conglomerate nodal mass',
   '≥10 aksiller nod or supraklavikuler / internal mammar lymph node': '≥10 axillary nodes or supraclavicular / internal mammary involvement',
   'Kemik, akciğer, karaciğer or beyin uzak metastasis': 'Distant metastasis (bone, lung, liver, or brain)',
-  'Cilt altı 5 mm': 'Subcutaneous 5 mm',
+  'Cilt altı 5 mm': '5 mm beneath skin',
   'Tüm meme parankimi': 'Whole breast parenchyma',
-  'Kavite ve klipsler': 'Lumpectomy cavity and surgical clips',
+  'Kavite ve klipsler': 'Surgical cavity and titanium clips',
   'Tüm meme ışınlaması; nodal risk durumuna göre RNI eklenmez. Menopoz: Postmenopozal. ER positive, PR positive, HER2 negative, Ki-67 18%, Grade 2. 40 Gy/15 fx eşdeğer standard seçenektir.': 'Whole breast irradiation; RNI not indicated based on nodal status. Postmenopausal, ER+, PR+, HER2-, Ki-67 18%, Grade 2. 40 Gy/15 fx is an equivalent standard.',
   'Adjuvant sistemik tedavi multidisipliner kararla belirlenir.': 'Adjuvant systemic therapy is guided by multidisciplinary tumor board.',
   'Nasopharynx or orofarenks/burun boşluğu ile limited': 'Confined to nasopharynx, or extending to oropharynx or nasal cavity',
@@ -1193,6 +1193,40 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Merkel Hücreli (MCC)': 'Merkel Cell (MCC)',
   'Foliküler Lenfoma': 'Follicular Lymphoma',
   'Multipl Miyelom / Plazmositom': 'Multiple Myeloma / Plasmacytoma',
+  // Meme TNM kriterleri ve dinamik klinik veri çevirileri
+  'Tümör >0.1 cm ama ≤0.5 cm (1-5 mm)': 'Tumor >0.1 cm but ≤0.5 cm (1-5 mm)',
+  'Tümör >0.5 cm ama ≤1.0 cm (5-10 mm)': 'Tumor >0.5 cm but ≤1.0 cm (5-10 mm)',
+  'Tümör >1.0 cm ama ≤2.0 cm (10-20 mm)': 'Tumor >1.0 cm but ≤2.0 cm (10-20 mm)',
+  '>2 cm ama ≤5 cm invaziv kitle': '>2 cm but ≤5 cm invasive mass',
+  'Göğüs duvarı fiksasyonu, cilt ülserasyonu veya enflamatuar karsinom': 'Chest wall fixation, skin ulceration, or inflammatory carcinoma',
+  'Aksiller lenf nodu metastazı yok': 'No axillary lymph node metastasis',
+  '1-3 ipsilateral hareketli Level I-II aksiller lenf nodu': '1-3 ipsilateral mobile Level I-II axillary lymph nodes',
+  '4-9 aksiller lenf nodu veya fikse konglomere kitle': '4-9 axillary lymph nodes or matted/fixed mass',
+  '≥10 aksiller nod veya supraklavikuler / internal mammar lenf nodu': '≥10 axillary nodes or supraclavicular / internal mammary nodes',
+  'Kemik, akciğer, karaciğer veya beyin uzak metastazı': 'Distant metastasis to bone, lung, liver, or brain',
+  'Göğüs duvarı invazyonu (kaburgalar, interkostal kaslar; pektoral kas hariç)': 'Chest wall invasion (ribs, intercostal muscles; excluding pectoralis)',
+  'invaziv kitle': 'invasive mass',
+  // Reçete açıklama ve teknik fragmanları
+  'Tüm Meme (WBRT)': 'Whole Breast (WBRT)',
+  'DIBH Sol Kalp Koruması': 'Deep Inspiration Breath Hold (Left Heart Sparing)',
+  'Tüm meme ışınlaması': 'Whole breast irradiation',
+  'Nodal pozitiflikte bölgesel nodal ışınlama (RNI) ayrıca değerlendirilir.': 'Regional nodal irradiation (RNI) is additionally considered in node-positive disease.',
+  'nodal risk durumuna göre RNI eklenmez.': 'RNI is omitted based on nodal risk.',
+  'Menopoz: ': 'Menopause: ',
+  'eşdeğer standart seçenektir.': 'is an equivalent standard option.',
+  'Tümör çapı >1 cm (T1c); ': 'Tumor size >1 cm (T1c); ',
+  'Genomik risk skoruna göre adjuvan KT / anti-HER2 endikasyonu tartışılsın.': 'Discuss adjuvant CT / anti-HER2 indication per genomic risk score.',
+  'Tümör yatağı boost (10-16 Gy) endikasyonu klinik risk ve yaş ile tartışılsın.': 'Tumor bed boost (10-16 Gy) indication to be discussed per clinical risk and age.',
+  'Premenopozal': 'Premenopausal',
+  'Postmenopozal': 'Postmenopausal',
+  // Hedef hacim marjin ve anatomik kapsam
+  'Kavite + cerrahi klips': 'Surgical cavity + clips',
+  'Tüm meme; nodal alanlar rutin olarak dahil edilmez': 'Whole breast; nodal regions not routinely included',
+  'Uygun hastada 10-16 Gy ek boost': '10-16 Gy sequential/SIB boost in eligible patients',
+  'Uygun risk özelliklerinde 10-16 Gy ek boost': '10-16 Gy sequential/SIB boost in eligible patients',
+  'Nodal durum ve klinik risk doğrultusunda bölgesel nodlar': 'Regional nodes per nodal status and clinical risk',
+  'Risk uyarlanmış': 'Risk-adapted',
+  'Mastektomi skarı ve pektorali kası yüzeyi': 'Mastectomy scar and pectoralis surface',
 };
 
 const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(
@@ -6338,12 +6372,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       'RNI: Düzey I-IV + SC Kapsanır': 'RNI: Include levels I-IV and supraclavicular nodes',
     };
     if (exactTranslations[value]) return exactTranslations[value];
-    return value
+    return tText(value
       .replace(/^Hedef:/, 'Target:')
       .replace(/^Teknik & Hareket:/, 'Technique:')
       .replace(/^Teknik:/, 'Technique:')
-      .replace(/^RNI:/, 'RNI:')
-      .replace(/^Nodal:/, 'Nodal:');
+      .replace(/^Nodal:/, 'Nodal:'));
   };
   const prescriptionTargetBadge = translatePrescriptionBadge(evaluatedDecision.targetVolumeBadge, `Hedef: ${prescriptionTarget}`);
   const prescriptionTechniqueBadge = translatePrescriptionBadge(evaluatedDecision.techniqueBadge, `Teknik & Hareket: ${activeScheme.technique}`);
@@ -8390,7 +8423,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <tr key={idx} className="border-b border-slate-800/80 hover:bg-slate-800/40 transition-colors">
                           <td className="p-2 text-white font-semibold text-xs">{tText(tv.name)}</td>
                           <td className="p-2 text-emerald-400 font-mono font-bold text-xs">{tv.doseGy} {tText(" Gy")}</td>
-                          <td className="p-2 font-mono text-amber-300">{tv.marginMm}</td>
+                          <td className="p-2 font-mono text-amber-300">{tText(tv.marginMm)}</td>
                           <td className="p-2 text-xs text-slate-100">{tText(tv.anatomical)}</td>
                         </tr>
                       ))}
