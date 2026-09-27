@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Radiation, ShieldCheck, Activity, UserPlus, Globe, Award } from 'lucide-react';
+import { Radiation, ShieldCheck, Activity, UserPlus, Globe } from 'lucide-react';
 
 export default function SignInPage() {
   const [lang, setLang] = useState<'en' | 'tr'>('en');
@@ -16,10 +16,18 @@ export default function SignInPage() {
       title2: 'Clinical Decision Support',
       title3: 'Platform',
       subtitle: 'Evidence-based clinical staging, adaptive fractionation, and normal tissue constraints.',
-      ptv: 'PTV D95% Coverage',
-      oar: 'OAR Tolerance: Safe',
-      rxDose: 'Prescription Dose (EQD2)',
-      dmax: 'Dmax Limit',
+      dvhTitle: 'Dose-Volume Histogram (DVH)',
+      ptvLegend: 'PTV (60 Gy)',
+      cordLegend: 'Spinal Cord',
+      oarLegend: 'Normal Tissue',
+      rxDose: '60 Gy (Prescription)',
+      dmax: '66 Gy (Dmax)',
+      ciLabel: 'Conformity (CI)',
+      hiLabel: 'Homogeneity (HI)',
+      giLabel: 'Gradient (GI)',
+      optimal: 'Optimal',
+      target: 'Target',
+      steep: 'Steep Fall-off',
       noAccount: "Don't have an account?",
       signUp: 'Sign Up',
       mobileSubtitle: 'Clinical Decision Support System',
@@ -31,10 +39,18 @@ export default function SignInPage() {
       title2: 'Tedavi Karar Destek',
       title3: 'Platformu',
       subtitle: 'Kanıta dayalı klinik evreleme, fraksiyonasyon felsefesi ve kritik organ güvenlik kısıtları.',
-      ptv: 'PTV D95% Kapsamı',
-      oar: 'OAR Toleransı: Güvenli',
-      rxDose: 'Reçete Dozu (EQD2)',
-      dmax: 'Dmax Limit',
+      dvhTitle: 'Doz-Hacim Histogramı (DVH)',
+      ptvLegend: 'PTV (60 Gy)',
+      cordLegend: 'Spinal Kord',
+      oarLegend: 'Normal Doku',
+      rxDose: '60 Gy (Reçete)',
+      dmax: '66 Gy (Dmax)',
+      ciLabel: 'Konformite (CI)',
+      hiLabel: 'Homojenite (HI)',
+      giLabel: 'Doz Gradyanı (GI)',
+      optimal: 'Optimal',
+      target: 'Hedef',
+      steep: 'Keskin Düşüş',
       noAccount: 'Hesabınız yok mu?',
       signUp: 'Kayıt Olun',
       mobileSubtitle: 'Klinik Karar Destek Sistemi',
@@ -74,7 +90,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (MASAÜSTÜ HERO EKRANI)
+          1. SOL SÜTUN (MASAÜSTÜ HERO & YÜKSEK TEKNOLOJİLİ DVH EKRANI)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -89,9 +105,9 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Orta Başlık & Kılavuz Rozetleri & Dozimetri Grafiği */}
-        <div className="my-auto py-8 max-w-lg">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-semibold text-blue-400 mb-6">
+        {/* Orta Başlık & Kılavuz Rozetleri & Yeni Nesil DVH */}
+        <div className="my-auto py-6 max-w-lg">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-semibold text-blue-400 mb-5">
             <ShieldCheck className="w-4 h-4 text-blue-400" />
             {t.badge}
           </div>
@@ -102,12 +118,12 @@ export default function SignInPage() {
             </span> <br />
             {t.title3}
           </h1>
-          <p className="text-slate-300 text-sm mt-4 leading-relaxed font-normal">
+          <p className="text-slate-300 text-sm mt-3 leading-relaxed font-normal">
             {t.subtitle}
           </p>
 
-          {/* AKADEMİK KILAVUZ STANDARTLARI ROZETLERİ (ICRU / QUANTEC BURADA ŞIKÇA DURUR) */}
-          <div className="flex flex-wrap gap-2 mt-5">
+          {/* Kılavuz Standartları Rozetleri */}
+          <div className="flex flex-wrap gap-2 mt-4">
             {['NCCN v1.2025', 'ASTRO', 'ESTRO', 'ICRU 83/91', 'QUANTEC'].map((badge) => (
               <span
                 key={badge}
@@ -118,34 +134,117 @@ export default function SignInPage() {
             ))}
           </div>
 
-          {/* Doz-Hacim Eğrisi (DVH Görseli) */}
-          <div className="mt-8 p-5 rounded-2xl bg-[#0e1726]/80 border border-slate-800 shadow-xl">
-            <div className="flex justify-between items-center text-xs text-slate-400 mb-3 font-mono">
-              <span className="flex items-center gap-1.5 text-blue-400 font-bold">
-                <Activity className="w-4 h-4" /> {t.ptv}
-              </span>
-              <span className="text-emerald-400 font-semibold">{t.oar}</span>
+          {/* ==============================================================
+              YENİ NESİL İLERİ DÜZEY DOZ-HACİM HİSTOGRAMI (DVH KONSOLU)
+             ============================================================== */}
+          <div className="mt-7 p-5 rounded-3xl bg-[#0e1726]/90 border border-slate-800/90 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            {/* Arka Plan Hafif Mavi Parıltı */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* DVH Başlığı ve Çoklu Doku Lejantı */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2 text-xs">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-sky-400 animate-pulse" />
+                <span className="font-bold text-white tracking-wide">{t.dvhTitle}</span>
+              </div>
+              <div className="flex items-center gap-3 text-[11px] font-mono">
+                <span className="flex items-center gap-1.5 text-sky-400 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
+                </span>
+                <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-" /> {t.cordLegend}
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
+                </span>
+              </div>
             </div>
-            <svg viewBox="0 0 300 60" className="w-full h-14 overflow-visible">
-              <path
-                d="M 0 10 Q 180 12 220 18 T 260 55 L 300 58"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="3"
-                className="drop-shadow-[0_0_10px_rgba(59,130,246,0.7)]"
-              />
-              <path
-                d="M 0 35 Q 120 38 180 48 T 260 56 L 300 58"
-                fill="none"
-                stroke="#64748b"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-            </svg>
-            <div className="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+
+            {/* SVG Gelişmiş Çoklu DVH Eğrisi */}
+            <div className="relative w-full h-28 my-1">
+              <svg viewBox="0 0 400 110" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="ptvGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="cordGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Grid Koordinat Hatları */}
+                <line x1="0" y1="25" x2="400" y2="25" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="0" y1="55" x2="400" y2="55" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="0" y1="85" x2="400" y2="85" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="100" y1="0" x2="100" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="200" y1="0" x2="200" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="300" y1="0" x2="300" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
+
+                {/* Normal Doku (Yeşil Kesikli) */}
+                <path
+                  d="M 0 45 Q 80 75 160 95 T 320 105 L 400 105"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                />
+
+                {/* Spinal Kord (Amber Dolgulu Eğri) */}
+                <path
+                  d="M 0 15 Q 110 30 180 85 T 260 105 L 400 105 L 0 105 Z"
+                  fill="url(#cordGradient)"
+                />
+                <path
+                  d="M 0 15 Q 110 30 180 85 T 260 105 L 400 105"
+                  fill="none"
+                  stroke="#f59e0b"
+                  strokeWidth="2"
+                />
+
+                {/* PTV Hedef Kitle (Elektrik Mavisi, İdeal Dik Eğim) */}
+                <path
+                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105 L 400 105 L 0 105 Z"
+                  fill="url(#ptvGradient)"
+                />
+                <path
+                  d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105"
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth="3"
+                  className="drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]"
+                />
+
+                {/* D95% Kritik Nokta İğnesi (Pulsing Pin) */}
+                <circle cx="295" cy="18" r="4.5" fill="#38bdf8" className="animate-ping opacity-75" />
+                <circle cx="295" cy="18" r="3" fill="#ffffff" />
+                <text x="295" y="8" fill="#38bdf8" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">D95%</text>
+              </svg>
+            </div>
+
+            {/* Eksen Etiketleri */}
+            <div className="flex justify-between text-[10px] text-slate-500 font-mono pt-1.5 border-t border-slate-800/80">
               <span>0 Gy</span>
+              <span>30 Gy (Kritik Eşik)</span>
               <span>{t.rxDose}</span>
               <span>{t.dmax}</span>
+            </div>
+
+            {/* Radyasyon Fiziği İndeksleri (Holy Trinity) */}
+            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/60 text-center">
+              <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block font-mono">{t.ciLabel}</span>
+                <span className="text-xs font-bold font-mono text-emerald-400">0.98 <span className="text-[10px] text-slate-500 font-normal">{t.optimal}</span></span>
+              </div>
+              <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block font-mono">{t.hiLabel}</span>
+                <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-500 font-normal">{t.target}</span></span>
+              </div>
+              <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block font-mono">{t.giLabel}</span>
+                <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-500 font-normal">{t.steep}</span></span>
+              </div>
             </div>
           </div>
         </div>
@@ -170,7 +269,7 @@ export default function SignInPage() {
           <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
         </div>
 
-        {/* Giriş Kartı (Göz Almayan Koyu Cam Şıklığı) */}
+        {/* Giriş Kartı */}
         <div className="w-full max-w-[420px] flex flex-col items-center">
           <SignIn
             appearance={{
@@ -181,7 +280,6 @@ export default function SignInPage() {
                 footer: '!hidden',
                 footerAction: '!hidden',
 
-                // Çiğ beyaz yerine koyu medikal kart:
                 card: 'bg-[#0e1726]/95 border border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
                 headerTitle: 'text-white font-bold text-lg text-center',
                 headerSubtitle: 'text-slate-400 text-xs text-center mb-4',
