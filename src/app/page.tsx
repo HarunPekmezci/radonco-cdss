@@ -6428,7 +6428,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           { id: 'cns', name_tr: 'MSS', name_en: 'CNS', icon: Brain, color: 'text-purple-700' },
           { id: 'gynecology', name_tr: 'Jinekoloji', name_en: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
           { id: 'bone', name_tr: 'Kemik Tümörleri', name_en: 'Bone Tumors', icon: Bone, color: 'text-amber-700' },
-          { id: 'sarcoma', name_tr: 'Yumuşak Doku Sarkomları', name_en: 'Soft Tissue Sarcomas', icon: Bone, color: 'text-orange-700' },
+          { id: 'sarcoma', name_tr: 'Yumuşak Doku', name_en: 'Soft Tissue', icon: Layers, color: 'text-orange-700' },
           { id: 'skin', name_tr: 'Cilt', name_en: 'Skin', icon: Shield, color: 'text-yellow-700' },
           { id: 'hematologic', name_tr: 'Hematolojik', name_en: 'Hematologic', icon: Droplet, color: 'text-red-700' },
           { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric', icon: Baby, color: 'text-emerald-700' },
@@ -6491,7 +6491,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 mb-4 grid grid-cols-3 gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+        <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
           {[
             { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
             { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
@@ -6503,7 +6503,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               role="tab"
               aria-selected={activeMobilePanel === tab.id}
               onClick={() => setActiveMobilePanel(tab.id)}
-              className={`truncate rounded-lg px-1 py-2 text-center text-xs font-semibold leading-tight transition-all ${
+              className={`flex h-9 items-center justify-center truncate rounded-lg px-1 text-center text-xs font-semibold transition-all ${
                 activeMobilePanel === tab.id
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-300 hover:bg-slate-800'
@@ -6517,7 +6517,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
-        <aside className={`col-span-12 lg:col-span-3 flex flex-col gap-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`}>
+        <aside className={`col-span-12 flex flex-col gap-2.5 lg:col-span-3 lg:gap-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -6908,7 +6908,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>}
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
-          <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-5 shadow-sm flex flex-col gap-3">
+          <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-3 shadow-sm flex flex-col gap-2.5 lg:p-5 lg:gap-3">
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
               {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
