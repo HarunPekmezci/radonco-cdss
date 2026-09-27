@@ -6086,7 +6086,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-100 dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
         <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
         <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
           {lang === 'tr' ? 'Kurumsal Kimlik Bilgileri Doğrulanıyor...' : 'Verifying Institutional Credentials...'}
@@ -6100,7 +6100,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
   if (user && !isDoctor) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-6 text-slate-900 font-sans">
+      <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 dark:bg-[#070b14] p-6 text-slate-900 dark:text-slate-100 font-sans">
         <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-xl text-center">
           <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">{tText("!")}</div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">{tText("Kurumsal Hekim Erişimi / Institutional Access")}</h2>
@@ -6111,7 +6111,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="text-slate-500">{tText("Allowed: ")}<span className="text-emerald-700 font-bold">{tText("@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk")}</span></div>
           </div>
           <SignOutButton redirectUrl="/sign-in">
-            <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+            <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
               {tText("\n              Farklı Hesapla Giriş / Sign In with Another Account\n            ")}</button>
           </SignOutButton>
         </div>
@@ -6120,18 +6120,18 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   }
 
   return (
-    <div className={`min-h-screen w-full flex flex-col font-sans transition-colors ${theme === 'light' ? 'bg-[#f8fafc] text-slate-800' : 'bg-[#070b14] text-slate-100'}`}>
+    <div className={`min-h-screen w-full flex flex-col font-sans transition-colors ${theme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-[#070b14] text-slate-100'}`}>
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
          ========================================== */}
-      <header className={`w-full border-b backdrop-blur-md px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors ${theme === 'light' ? 'bg-white/95 border-slate-200 text-slate-900' : 'bg-[#0c1322]/95 border-slate-800/90 text-white'}`}>
+      <header className={`w-full border-b backdrop-blur-md px-6 py-3 flex items-center justify-between sticky top-0 z-50 transition-colors ${theme === 'light' ? 'bg-white/90 border-slate-200 text-slate-900' : 'bg-[#080d1a]/95 border-slate-800 text-slate-100'}`}>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-700 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+          <div className="p-2 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400">
             <Radiation className="w-6 h-6" aria-hidden="true" />
           </div>
           <div>
-            <h1 className={`text-base font-bold ${theme === 'light' ? 'text-[#0f294a]' : 'text-slate-100'}`}>
+            <h1 className={`text-base font-extrabold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
               {lang === 'tr' ? 'Radyasyon Onkolojisi Klinik Karar Destek Sistemi' : 'Radiation Oncology Clinical Decision Support System'}
             </h1>
           </div>
@@ -6143,7 +6143,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               setActiveReferenceTab('guidelines');
               setShowGuidelineModal(true);
             }}
-            className="flex items-center gap-1.5 text-xs bg-[#0f294a] hover:bg-blue-950 text-white px-3 py-1.5 rounded-lg border border-[#0f294a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="flex items-center gap-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <BookOpen className="w-4 h-4 text-amber-700" />
             {tText("\n            📖 ")}{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}
@@ -6225,7 +6225,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           >
             {theme === 'light' ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
           </button>
-          <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
+          <div className="flex items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
             <button
               type="button"
               onClick={() => changeLanguage('en')}
@@ -6238,7 +6238,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               type="button"
               onClick={() => changeLanguage('tr')}
               aria-pressed={lang === 'tr'}
-              className={`px-2 py-1 rounded-md transition ${lang === 'tr' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              className={`px-2 py-1 rounded-md transition ${lang === 'tr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
             >
               TR
             </button>
@@ -6263,14 +6263,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
       {isAiDockOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/20"
+          className="fixed inset-0 z-50 bg-slate-950/20"
           role="presentation"
           onMouseDown={event => {
             if (event.target === event.currentTarget) setIsAiDockOpen(false);
           }}
         >
           <aside
-            className="fixed right-0 top-0 flex h-full w-full flex-col justify-between border-l border-slate-200 bg-white shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 sm:w-[420px]"
+            className="fixed right-0 top-0 flex h-full w-full flex-col justify-between border-l border-slate-200 bg-white shadow-2xl transition-all duration-200 dark:border-slate-800 dark:bg-[#0c1322] sm:w-[420px]"
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-dock-title"
@@ -6314,7 +6314,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     onClick={() => setActiveAiTab(tab)}
                     className={`rounded-t-lg px-3 py-2 text-xs font-semibold ${
                       activeAiTab === tab
-                        ? 'border border-b-0 border-slate-200 bg-white text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300'
+                        ? 'border border-b-0 border-slate-200 bg-white text-blue-700 dark:border-slate-700 dark:bg-[#0c1322] dark:text-blue-300'
                         : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
                     }`}
                   >
@@ -6371,7 +6371,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           SOL DİKEY ORGAN NAVİGASYONU
          ========================================== */}
-      <nav className={`w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-r p-3 transition-colors ${theme === 'light' ? 'bg-white border-slate-200/90' : 'bg-[#0a101f] border-slate-800/90'}`}>
+      <nav className={`w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-r p-3 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#080d1a] border-slate-800/80'}`}>
         <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
           {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
         </div>
@@ -6404,12 +6404,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   isActive
                     ? item.id === 'benign'
                       ? 'bg-emerald-600 text-white font-bold shadow-md'
-                      : `${theme === 'light' ? 'bg-slate-900' : 'bg-blue-600'} text-white font-bold shadow-md`
+                      : 'bg-blue-600 text-white font-bold shadow-md'
                     : item.id === 'benign'
                       ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
                       : theme === 'light'
-                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium'
+                        ? 'text-slate-800 hover:text-slate-900 hover:bg-slate-100 font-bold'
+                      : 'text-slate-200 hover:text-slate-100 hover:bg-slate-800/60 font-bold'
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
@@ -6446,7 +6446,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#f8fafc] p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 dark:bg-[#070b14]">
+      <main className="flex-1 min-w-0 overflow-x-hidden bg-slate-100 p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 dark:bg-[#070b14]">
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
@@ -7715,11 +7715,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${breastHistology === 'İnflamatuar Meme Kanseri (IBC)' && opt.code !== 'T4d' ? 'cursor-not-allowed opacity-45' : ''} ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
+                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
                           : theme === 'light'
-                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
-                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
+                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
+                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7747,11 +7747,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
+                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
                           : theme === 'light'
-                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
-                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
+                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
+                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7779,11 +7779,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                            ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-md ring-1 ring-blue-500'
+                            : 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
                           : theme === 'light'
-                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
-                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
+                            ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-blue-500 hover:bg-slate-100'
+                            : 'bg-[#0c1322]/80 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7869,7 +7869,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           <span className="flex items-center gap-1.5 text-xs font-bold">
                             {regimen === 'sbrt' ? '⚡' : regimen === 'moderate' ? '🎯' : regimen === 'sib' ? '🧬' : '🛡️'} {card.title}
                           </span>
-                          <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-black/20">{card.badge}</span>
+                          <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>
                         </div>
                         <div className="text-[10px] opacity-80">{card.detail}</div>
                       </button>
@@ -7898,7 +7898,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* SEÇİLİ DOZ ŞEMASI KARTI */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3.5 mb-4 dark:bg-slate-900/90 dark:border-slate-800">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3.5 mb-4 dark:bg-[#0c1322]/90 dark:border-slate-800">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Radiation className="w-4 h-4 text-amber-700" />
@@ -7954,13 +7954,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <th className="p-2">{lang === 'tr' ? 'Anatomik Kapsam' : 'Anatomic Coverage'}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700 dark:divide-slate-700/60 dark:text-slate-100">
+                    <tbody className="divide-y divide-slate-200 text-slate-800 dark:divide-slate-800/80 dark:text-slate-200">
                       {activeScheme.targetVolumes.map((tv, idx) => (
                         <tr key={idx} className="hover:bg-slate-100 dark:hover:bg-slate-800/60">
                           <td className="p-2 font-bold text-slate-900 dark:text-slate-100">{tText(tv.name)}</td>
                           <td className="p-2 font-mono font-bold text-emerald-700 dark:text-emerald-400">{tv.doseGy} {tText(" Gy")}</td>
                           <td className="p-2 font-mono text-amber-800 dark:text-amber-300">{tv.marginMm}</td>
-                          <td className="p-2 text-[11px] text-slate-600 dark:text-slate-100">{tText(tv.anatomical)}</td>
+                          <td className="p-2 text-[11px] text-slate-800 dark:text-slate-200">{tText(tv.anatomical)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -7986,13 +7986,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Guideline'}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-slate-700 dark:divide-slate-700/60 dark:text-slate-100">
+                    <tbody className="divide-y divide-slate-200 text-slate-800 dark:divide-slate-800/80 dark:text-slate-200">
                       {activeScheme.oars.map((oar, idx) => (
                         <tr key={idx} className="hover:bg-slate-100 dark:hover:bg-slate-800/60">
                           <td className="p-2 font-medium text-slate-900 dark:text-slate-100">{tText(oar.organ)}</td>
-                          <td className="p-2 font-mono text-slate-600 dark:text-slate-100">{tText(oar.metric)}</td>
+                          <td className="p-2 font-mono text-slate-900 dark:text-slate-200">{tText(oar.metric)}</td>
                           <td className="p-2 font-mono font-bold text-rose-700 dark:text-rose-400">{oar.limit}</td>
-                          <td className="p-2 text-[10px] text-slate-500 dark:text-slate-200">{tText(oar.source)}</td>
+                          <td className="p-2 text-[10px] text-slate-700 dark:text-slate-300">{tText(oar.source)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -8002,7 +8002,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs dark:bg-slate-900/90 dark:border-slate-800">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs dark:bg-[#0c1322]/90 dark:border-slate-800">
               <div>
                 <span className="text-[11px] text-slate-600 block">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
                 <span className="font-bold text-slate-700">
@@ -8029,7 +8029,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="mb-2.5 flex items-center justify-between border-b border-blue-100 pb-2 dark:border-slate-700">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
                       {lang === 'tr' ? 'Otomatik Prognostik İndeks' : 'Automated Prognostic Index'}
                     </span>
                   </div>
@@ -8086,7 +8086,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </button>
               <button
                 onClick={copyToClipboard}
-                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 <span>
@@ -8103,7 +8103,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
       {isAiOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-end bg-slate-950/40 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="ai-copilot-title"
@@ -8111,7 +8111,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             if (event.target === event.currentTarget) setIsAiOpen(false);
           }}
         >
-          <div className="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0c1322]">
             <div>
               <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
                 <div className="flex items-center gap-2">
@@ -8203,8 +8203,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       )}
 
       {isReportModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0c1322]">
             <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-blue-600" aria-hidden="true" />
@@ -8370,7 +8370,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           MODAL: KILAVUZ BİLGİ DOKÜMANI
          ========================================== */}
       {showGuidelineModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div
             role="dialog"
             aria-modal="true"

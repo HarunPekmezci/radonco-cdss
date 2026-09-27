@@ -24,8 +24,8 @@ export default function RootLayout({
         formButtonPrimary: 'Giriş Yap',
       }}
     >
-      <html lang="tr">
-        <body className="antialiased bg-[#f8fafc] text-slate-800">{children}</body>
+      <html lang="tr" className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">
+        <body className="min-h-screen antialiased bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">{children}</body>
       </html>
     </ClerkProvider>
   );
