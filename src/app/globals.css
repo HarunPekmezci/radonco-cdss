@@ -148,3 +148,52 @@ body {
 .cl-internal-b3fm6y {
   display: none !important;
 }
+/* ==========================================================================
+   ENTERPRISE MEDICAL UI POLISH (APPLE / LINEAR / ECLIPSE GRADE)
+   ========================================================================== */
+
+/* 1. Ultra Pürüzsüz Tipografi ve Yazı İşleme */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Kartlara İnce Lüks Kenarlık (Subtle Glow & Elevation) */
+.min-h-screen div[class*="rounded-2xl"],
+.min-h-screen aside,
+.min-h-screen header {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+/* 3. Tablolara (ICRU 83 & OAR) Zarif Satır Vurgusu */
+table tbody tr {
+  transition: background-color 0.15s ease;
+}
+table tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.45) !important;
+}
+
+/* 4. Butonlara Tok Basma Hissi (Micro-interaction) */
+button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:active {
+  transform: scale(0.985);
+}
+
+/* 5. Zarif Koyu Scrollbar (Göz Tırmalamayan İnce Kaydırma Çubuğu) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070b14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

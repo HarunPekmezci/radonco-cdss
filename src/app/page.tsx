@@ -733,7 +733,7 @@ const TRANSLATION_MAP: Record<string, string> = {
   'KRİTİK ORGAN (OAR) KISITLARI': 'ORGANS AT RISK (OAR) CONSTRAINTS',
   'Küçük Hücreli Dışı Akciğer Ca': 'Non-Small Cell Lung Cancer',
   'Küçük Hücreli Akciğer Ca': 'Small Cell Lung Cancer',
-  'Medikal İnoperabl / Cerrahi Red': 'Medically Inoperable / Declines Surgery',
+  'Medikal İnoperabl / Cerrahi Red': 'Medically Inoperable / Surgical Refusal',
   'Medikal Operabl': 'Medically Operable',
   'Postoperatif': 'Postoperative',
   'Preoperatif': 'Preoperative',
@@ -1166,6 +1166,33 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Prostat bezi ve seminal vezikül proksimal 1 cm': 'Prostate gland and proximal 1 cm of seminal vesicles',
   'Asemptomatik durumda yakın nörolojik ve görüntüleme izlemi gerekir.': 'Close neurological and imaging surveillance is recommended for asymptomatic cases.',
   'Dozimetrik Güvenlik ve Tolerans Zarfı': 'Dosimetric Safety and Tolerance Envelope',
+  // Evrensel Histoloji / Alt Tip Seçici isimleri
+  'Asiner Adenokarsinom (Klasik)': 'Acinar Adenocarcinoma (Classic)',
+  'Duktal Karsinom (Agresif)': 'Ductal Carcinoma (Aggressive)',
+  'Nöroendokrin / Küçük Hücreli (NEPC)': 'Neuroendocrine / Small Cell (NEPC)',
+  'Seminom (Radyoduyarlı - Paraaortik RT Endike)': 'Seminoma (Radiosensitive - Para-aortic RT Indicated)',
+  'Non-Seminom (RT Genellikle Endike Değil)': 'Non-Seminoma (RT Generally Not Indicated)',
+  'Ürotelyal Karsinom (TCC - Trimodalite KRT)': 'Urothelial Carcinoma (TCC - Trimodal CRT)',
+  'Skuamöz / Adenokarsinom': 'Squamous / Adenocarcinoma',
+  'Adenokarsinom': 'Adenocarcinoma',
+  'Skuamöz Hücreli Karsinom': 'Squamous Cell Carcinoma',
+  'Büyük Hücreli Nöroendokrin (LCNEC)': 'Large Cell Neuroendocrine (LCNEC)',
+  'Timoma (WHO Tip A, AB, B1, B2, B3)': 'Thymoma (WHO Type A, AB, B1, B2, B3)',
+  'Timik Karsinom (Tip C / Agresif)': 'Thymic Carcinoma (Type C / Aggressive)',
+  'İnvaziv Duktal Karsinom (NST)': 'Invasive Ductal Carcinoma (IDC/NST)',
+  'Triple Negatif (TNBC)': 'Triple Negative (TNBC)',
+  'Astrositom (IDH-mutant, Grade 2-4)': 'Astrocytoma (IDH-mutant, Grade 2-4)',
+  'Oligodendrogliom (1p/19q ko-delesyonlu, Grade 2-3)': 'Oligodendroglioma (1p/19q co-deleted, Grade 2-3)',
+  'Pleomorfik Sarkom (UPS)': 'Undifferentiated Pleomorphic Sarcoma (UPS)',
+  'Liposarkom': 'Liposarcoma',
+  'Leyomiyosarkom': 'Leiomyosarcoma',
+  'Sinovyal Sarkom': 'Synovial Sarcoma',
+  'Skuamöz Hücreli (cSCC)': 'Cutaneous Squamous Cell (cSCC)',
+  'Bazal Hücreli (BCC)': 'Basal Cell (BCC)',
+  'Kutanöz Melanom': 'Cutaneous Melanoma',
+  'Merkel Hücreli (MCC)': 'Merkel Cell (MCC)',
+  'Foliküler Lenfoma': 'Follicular Lymphoma',
+  'Multipl Miyelom / Plazmositom': 'Multiple Myeloma / Plasmacytoma',
 };
 
 const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(
@@ -1207,10 +1234,10 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'thorax-mesothelioma', name_tr: 'Mezotelyoma', name_en: 'Mesothelioma' },
   ],
   prostate: [
-    { id: 'prostate-prostate', name_tr: 'Prostat Kanseri', name_en: 'Prostate Adenocarcinoma' },
+    { id: 'prostate-prostate', name_tr: 'Prostat Kanseri', name_en: 'Prostate Cancer' },
     { id: 'prostate-bladder', name_tr: 'Mesane Kanseri', name_en: 'Bladder Cancer' },
     { id: 'prostate-penile', name_tr: 'Penil Kanser', name_en: 'Penile Cancer' },
-    { id: 'prostate-testis', name_tr: 'Testis Kanseri', name_en: 'Testicular Seminoma' },
+    { id: 'prostate-testis', name_tr: 'Testis Kanseri', name_en: 'Testicular Cancer' },
   ],
   breast: [
     { id: 'breast-idc', name_tr: 'İnvaziv Duktal Karsinom (İDK)', name_en: 'Invasive Ductal (IDC)' },
@@ -6666,19 +6693,19 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <div className="flex flex-col gap-1">
         {[
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
-          { id: 'prostate', name_tr: 'GÜS', name_en: 'GUS', icon: Droplets, color: 'text-blue-700' },
+          { id: 'prostate', name_tr: 'GÜS', name_en: 'Genitourinary (GU)', icon: Droplets, color: 'text-blue-700' },
           { id: 'breast', name_tr: 'Meme', name_en: 'Breast', icon: CircleDot, color: 'text-pink-700' },
-          { id: 'gis', name_tr: 'GİS', name_en: 'GİS', icon: UtensilsCrossed, color: 'text-orange-700' },
+          { id: 'gis', name_tr: 'GİS', name_en: 'Gastrointestinal (GI)', icon: UtensilsCrossed, color: 'text-orange-700' },
           { id: 'head-neck', name_tr: 'Baş-Boyun', name_en: 'Head & Neck', icon: User, color: 'text-indigo-700' },
-          { id: 'cns', name_tr: 'MSS', name_en: 'CNS', icon: Brain, color: 'text-purple-700' },
+          { id: 'cns', name_tr: 'MSS', name_en: 'CNS (Brain & Spine)', icon: Brain, color: 'text-purple-700' },
           { id: 'gynecology', name_tr: 'Jinekoloji', name_en: 'Gynecology', icon: Sparkles, color: 'text-rose-700' },
           { id: 'bone', name_tr: 'Kemik Tümörleri', name_en: 'Bone Tumors', icon: Bone, color: 'text-amber-700' },
           { id: 'sarcoma', name_tr: 'Yumuşak Doku', name_en: 'Soft Tissue', icon: Layers, color: 'text-orange-700' },
-          { id: 'skin', name_tr: 'Cilt', name_en: 'Skin', icon: Shield, color: 'text-yellow-700' },
+          { id: 'skin', name_tr: 'Cilt', name_en: 'Skin Cancers', icon: Shield, color: 'text-yellow-700' },
           { id: 'hematologic', name_tr: 'Hematolojik', name_en: 'Hematologic', icon: Droplet, color: 'text-red-700' },
-          { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric', icon: Baby, color: 'text-emerald-700' },
-          { id: 'palliative', name_tr: 'Palyatif', name_en: 'Palliative', icon: HandHeart, color: 'text-teal-700' },
-          { id: 'benign', name_tr: 'Benign', name_en: 'Benign', icon: ShieldCheck, color: 'text-emerald-700' },
+          { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric Tumors', icon: Baby, color: 'text-emerald-700' },
+          { id: 'palliative', name_tr: 'Palyatif', name_en: 'Palliative RT', icon: HandHeart, color: 'text-teal-700' },
+          { id: 'benign', name_tr: 'Benign', name_en: 'Benign Conditions', icon: ShieldCheck, color: 'text-emerald-700' },
         ].map(item => {
           const Icon = item.icon;
           const isActive = selectedOrgan === item.id;
@@ -7011,12 +7038,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {gisOrgan === 'Karaciger' && (
                   <div>
                     <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management (SBRT)'}
+                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
                     </span>
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                       {[
                         { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath Hold / GTV→PTV' },
+                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
                       ].map(option => (
                         <button
                           key={option.value}
@@ -7213,7 +7240,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             {selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc' && (
               <div className="flex flex-col gap-3 text-xs">
                 <div>
-                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tümör Yerleşimi (Santralite)' : 'Tumor Location (Centrality)'}</label>
+                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tümör Yerleşimi (Santralite)' : 'Tumor Centrality / Location'}</label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[
                       { id: 'Peripheral', label: lang === 'tr' ? 'Periferik' : 'Peripheral' },
@@ -7235,7 +7262,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </div>
                 </div>
                 <div>
-                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Cerrahi / Operabilite Durumu' : 'Surgical Operability'}</label>
+                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Cerrahi / Operabilite Durumu' : 'Surgical / Operability Status'}</label>
                   <select
                     value={thoraxSurgeryStatus}
                     onChange={e => {
@@ -7244,7 +7271,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     }}
                     className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
                   >
-                    <option value="Inoperable">{lang === 'tr' ? 'Medikal İnoperabl / Cerrahi Red' : 'Medically Inoperable / Declines Surgery'}</option>
+                    <option value="Inoperable">{lang === 'tr' ? 'Medikal İnoperabl / Cerrahi Red' : 'Medically Inoperable / Surgical Refusal'}</option>
                     <option value="Operable">{lang === 'tr' ? 'Medikal Operabl' : 'Medically Operable'}</option>
                     <option value="Postop_R0">{lang === 'tr' ? 'Postoperatif R0 Rezeksiyon' : 'Postoperative R0 Resection'}</option>
                     <option value="Postop_R1_R2">{lang === 'tr' ? 'Postoperatif R1 / R2 Rezeksiyon' : 'Postoperative R1 / R2 Resection'}</option>
@@ -7253,12 +7280,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2') && (
                   <div>
                     <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management (SBRT)'}
+                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
                     </span>
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                       {[
                         { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath Hold / GTV→PTV' },
+                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
                       ].map(option => (
                         <button
                           key={option.value}
@@ -8387,10 +8414,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
-                        <th className="p-2">{lang === 'tr' ? 'Organ' : 'Organ'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Kritik Organ' : 'Critical Organ (OAR)'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Metrik' : 'Metric'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Doz Limiti' : 'Dose Limit'}</th>
-                        <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Guideline'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Standard'}</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-100">
@@ -8489,7 +8516,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 className="flex items-center gap-2 rounded-md bg-[#107C41] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0b6334] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
-                <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Database & Download Excel'}</span>
+                <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Cohort & Export Excel'}</span>
               </button>
               <button
                 onClick={copyToClipboard}
