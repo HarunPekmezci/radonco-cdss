@@ -5788,12 +5788,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
       )}
 
+      <div className="flex min-h-0 flex-1">
       {/* ==========================================
-          ORGAN SEÇİM ŞERİDİ (12 ORGAN TAM LİSTE)
+          SOL DİKEY ORGAN NAVİGASYONU
          ========================================== */}
-      <nav className={`w-full px-6 py-2 transition-colors ${theme === 'light' ? 'bg-[#f8fafc]' : 'bg-[#070b14]'}`}>
-        <div className={`w-full border rounded-lg p-1 shadow-sm mb-4 transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e1628] border-slate-800/90'}`}>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 xl:grid-cols-13 items-center divide-x divide-slate-100 dark:divide-slate-700/60">
+      <nav className={`w-56 xl:w-60 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-r p-3 transition-colors ${theme === 'light' ? 'bg-white border-slate-200/90' : 'bg-[#0a101f] border-slate-800/90'}`}>
+        <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300">
+          {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
+        </div>
+        <div className="flex flex-col gap-1">
         {[
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
           { id: 'prostate', name_tr: 'GÜS', name_en: 'GUS', icon: Droplets, color: 'text-blue-700' },
@@ -5816,16 +5819,16 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <button
               key={item.id}
               onClick={() => handleOrganChange(item.id as OrganId)}
-              className={`min-w-0 py-2 px-1 text-xs font-medium text-center flex items-center justify-center gap-1.5 rounded-md transition-colors ${
+              className={`rounded-xl py-2.5 px-3 text-xs flex items-center gap-2.5 transition-all w-full text-left ${
                 isActive
                   ? item.id === 'benign'
-                    ? 'bg-emerald-600 text-white font-semibold shadow-sm'
-                    : 'bg-slate-900 dark:bg-blue-600 text-white font-semibold shadow-sm'
+                    ? 'bg-emerald-600 text-white font-bold shadow-md'
+                    : `${theme === 'light' ? 'bg-slate-900' : 'bg-blue-600'} text-white font-bold shadow-md`
                   : item.id === 'benign'
                     ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
                     : theme === 'light'
-                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium'
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
@@ -5833,14 +5836,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </button>
           );
         })}
-          </div>
         </div>
       </nav>
 
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 bg-[#f8fafc] p-5 grid grid-cols-12 gap-5 max-w-[1920px] w-full mx-auto dark:bg-[#070b14]">
+      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#f8fafc] p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 dark:bg-[#070b14]">
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
@@ -7069,11 +7071,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
+                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
                           : theme === 'light'
-                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
+                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
+                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7101,11 +7103,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
+                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
                           : theme === 'light'
-                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
+                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
+                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7133,11 +7135,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50 border-blue-400 text-blue-900 font-semibold'
-                            : 'bg-blue-950/60 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500'
+                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
                           : theme === 'light'
-                            ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            : 'bg-[#131d33] border-slate-700 text-slate-200 hover:bg-[#192642] hover:text-white'
+                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
+                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
                       }`}
                     >
                       <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
@@ -7440,6 +7442,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
         </section>
       </main>
+      </div>
 
       {isAiOpen && (
         <div
