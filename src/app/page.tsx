@@ -2856,6 +2856,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   const [thoraxSubtype, setThoraxSubtype] = useState<'nsclc' | 'sclc' | 'thymoma' | 'mesothelioma'>('nsclc');
   const [thoraxCentrality, setThoraxCentrality] = useState<'Peripheral' | 'Central' | 'UltraCentral'>('Peripheral');
+  const [breathingMotion, setBreathingMotion] = useState<'4D-CT' | 'DIBH'>('4D-CT');
   const [thoraxSurgeryStatus, setThoraxSurgeryStatus] = useState<'Inoperable' | 'Operable' | 'Postop_R0' | 'Postop_R1_R2'>('Inoperable');
   // KHAK (SCLC)
   const [sclcStage, setSclcStage] = useState<'Sinirli' | 'Yaygin'>('Sinirli');
@@ -3727,6 +3728,19 @@ export default function RadoncoCDSSPage() {
       }
 
       // Erken Evre SBRT
+      const lungSbrtTargets = (doseGy: number) => breathingMotion === 'DIBH'
+        ? [
+            { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: "Derin inspiryum BT'deki primer parankimal kitle" },
+            { name: 'PTV_SBRT', doseGy, marginMm: "GTV + 3-5 mm (Doğrudan GTV'den)", anatomical: 'DIBH altında set-up ve intra-fraksiyon güvenlik marjini' },
+          ]
+        : [
+            { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: 'Parankimal primer kitle (BT/PET füzyonu)' },
+            { name: 'ITV_4D', doseGy, marginMm: 'GTV + 4D solunum fazları zarfı', anatomical: 'Tümörün solunum siklusu boyunca kat ettiği hareket hacmi (MIP)' },
+            { name: 'PTV_SBRT', doseGy, marginMm: 'ITV + 4-5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
+          ];
+      const lungSbrtTechnique = breathingMotion === 'DIBH'
+        ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT (Optik Yüzey Rehberliği) / VMAT'
+        : 'SBRT (4D-CT / ITV tabanlı VMAT)';
       let sbrt: DoseScheme;
       if (thoraxCentrality === 'Central') {
         sbrt = {
@@ -3737,9 +3751,9 @@ export default function RadoncoCDSSPage() {
           fractionCount: 5,
           fractionDoseGy: 10,
           alphaBeta: 10,
-          technique: 'SBRT (Risk-Adapte)',
+          technique: `${lungSbrtTechnique} (Risk-Adapte)`,
           indication: 'PBT ≤2 cm komşu lezyonlar. Fatal hemoptizi ve bronşiyal fistülü önlemek için 5 fraksiyon standardı.',
-          targetVolumes: [{ name: 'PTV_Central', doseGy: 50, marginMm: 'ITV + 4 mm', anatomical: 'Santral PTV' }],
+          targetVolumes: lungSbrtTargets(50),
           oars: [{ organ: 'Proksimal Bronş Ağacı', metric: 'Dmax', limit: '< 50 Gy', source: 'RTOG 0813' }],
           evidence: 'RTOG 0813 (Bezjak et al. JCO 2019)',
         };
@@ -3752,9 +3766,9 @@ export default function RadoncoCDSSPage() {
           fractionCount: 12,
           fractionDoseGy: 5,
           alphaBeta: 10,
-          technique: 'Hipofraksiyone SBRT',
+          technique: `${lungSbrtTechnique} (Hipofraksiyone)`,
           indication: 'Trakea veya özofagus ile direkt temas eden lezyonlar. 3-5 fraksiyonluk ablatif dozlar kontrendikedir.',
-          targetVolumes: [{ name: 'PTV_Ultra', doseGy: 60, marginMm: 'ITV + 3 mm', anatomical: 'Koruyucu PTV' }],
+          targetVolumes: lungSbrtTargets(60),
           oars: [{ organ: 'Ana Bronş / Trakea', metric: 'Dmax', limit: '< 60 Gy', source: 'SUNSET Trial' }],
           evidence: 'SUNSET Trial',
         };
@@ -3767,12 +3781,9 @@ export default function RadoncoCDSSPage() {
           fractionCount: 3,
           fractionDoseGy: 18,
           alphaBeta: 10,
-          technique: 'SBRT (4D-CT / ITV VMAT)',
+          technique: lungSbrtTechnique,
           indication: 'Periferik erken evre KHDAK (Kategori 1 küratif altın standart, BED10 = 151.2 Gy).',
-          targetVolumes: [
-            { name: 'ITV_4D', doseGy: 54, marginMm: '0 mm', anatomical: '4D-CT tüm solunum hareket hacmi' },
-            { name: 'PTV_SBRT', doseGy: 54, marginMm: 'ITV + 4-5 mm', anatomical: 'Set-up ve internal marjin' },
-          ],
+          targetVolumes: lungSbrtTargets(54),
           oars: [
             { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 10-15%', source: 'RTOG 0236' },
             { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0236' },
@@ -4794,7 +4805,11 @@ export default function RadoncoCDSSPage() {
         alphaBeta: 1.5,
         technique: 'SBRT (Fidüsyel / MR Kılavuzluğunda)',
         indication: 'Düşük ve uygun orta risk olgularda 5 fraksiyonda küratif tedavi.',
-        targetVolumes: [{ name: 'PTV_SBRT', doseGy: 36.25, marginMm: '3-4 mm', anatomical: 'Prostat bezi' }],
+        targetVolumes: [
+          { name: 'GTV_Prostate', doseGy: 36.25, marginMm: '0 mm', anatomical: 'Prostat bezi; varsa dominant intraprostatik lezyon (DIL) / nodül boostu' },
+          { name: 'CTV_Prostate', doseGy: 36.25, marginMm: 'Anatomik', anatomical: 'Prostat ± seminal veziküller, risk uyarlamalı' },
+          { name: 'PTV_Prostate', doseGy: 36.25, marginMm: '3-5 mm; rektum yönünde 3 mm', anatomical: 'Günlük IGRT ve prostat hareket güvenlik marjini' },
+        ],
         oars: [{ organ: 'Rektum V36Gy', metric: 'V36Gy', limit: '< 1 cc', source: 'PACE-B' }],
         evidence: 'PACE-B Trial (NEJM 2024)',
       };
@@ -5135,9 +5150,20 @@ export default function RadoncoCDSSPage() {
           fractionCount: 5,
           fractionDoseGy: 10,
           alphaBeta: 10,
-          technique: 'SBRT (Nefes Tutma / 4D-CT VMAT)',
+          technique: breathingMotion === 'DIBH'
+            ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT / VMAT'
+            : 'SBRT (4D-CT / ITV tabanlı VMAT)',
           indication: 'Child-Pugh A inoperabl primer hepatoselüler karsinom (HCC), kolanjiokarsinom veya karaciğer metastazlarında yüksek ablasyon sağlar.',
-          targetVolumes: [{ name: 'GTV', doseGy: 50, marginMm: '0 mm', anatomical: 'Kontrast tutan karaciğer lezyonu' }],
+          targetVolumes: breathingMotion === 'DIBH'
+            ? [
+                { name: 'GTV_Liver', doseGy: 50, marginMm: '0 mm', anatomical: "DIBH BT'de kontrast tutan karaciğer lezyonu" },
+                { name: 'PTV_Liver_SBRT', doseGy: 50, marginMm: "GTV + 3-5 mm (Doğrudan GTV'den)", anatomical: 'DIBH altında set-up ve intra-fraksiyon güvenlik marjini' },
+              ]
+            : [
+                { name: 'GTV_Liver', doseGy: 50, marginMm: '0 mm', anatomical: 'Kontrast tutan karaciğer lezyonu' },
+                { name: 'ITV_4D', doseGy: 50, marginMm: 'GTV + 4D solunum fazları zarfı', anatomical: 'MIP üzerinde tümörün solunum hareket hacmi' },
+                { name: 'PTV_Liver_SBRT', doseGy: 50, marginMm: 'ITV + 4-5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
+              ],
           oars: [
             { organ: 'Sağlam Karaciğer', metric: 'V15Gy', limit: '< 700 cc (en az 700 cc normal karaciğer < 15 Gy almalı)', source: 'QUANTEC' },
             { organ: 'Mide / Duodenum', metric: 'Dmax', limit: '< 30 Gy', source: 'QUANTEC' },
@@ -5517,7 +5543,13 @@ export default function RadoncoCDSSPage() {
         alphaBeta: 10,
         technique: 'Acil 3D-CRT / IMRT; nöroşirürji ve medikal onkoloji koordinasyonu',
         indication: palliativeIntent === 'Kord_Basisi' ? 'Metastatik spinal kord basısında cerrahi uygunluk değerlendirmesi sonrası acil dekompresif RT.' : palliativeIntent === 'Kanama' ? 'Kanamalı veya obstrüktif semptomlarda kısa süreli hemostatik Quad Shot.' : 'Ağrılı kemik metastazında ASTRO kategori 1 tek fraksiyon palyasyon.',
-        targetVolumes: [{ name: 'CTV_Palliative', doseGy: palliativeDose, marginMm: 'Semptomatik lezyon ve anatomik yayılım', anatomical: palliativeIntent === 'Kord_Basisi' ? 'Spinal kord basısı / vertebral segment' : palliativeIntent === 'Kanama' ? 'Kanayan veya obstrüktif tümör' : 'Ağrılı kemik metastazı' }],
+        targetVolumes: palliativeIntent === 'Kord_Basisi'
+          ? [
+              { name: 'GTV_Spine', doseGy: palliativeDose, marginMm: '0 mm', anatomical: 'Makroskopik vertebral metastaz / epidural hastalık' },
+              { name: 'CTV_Spine', doseGy: palliativeDose, marginMm: 'Anatomik', anatomical: 'İlgili vertebral segment ve epidural yayılım' },
+              { name: 'PTV_Spine', doseGy: palliativeDose, marginMm: '1-2 mm (SBRT planında)', anatomical: 'Günlük IGRT ve spinal set-up güvenlik marjini' },
+            ]
+          : [{ name: 'CTV_Palliative', doseGy: palliativeDose, marginMm: 'Semptomatik lezyon ve anatomik yayılım', anatomical: palliativeIntent === 'Kanama' ? 'Kanayan veya obstrüktif tümör' : 'Ağrılı kemik metastazı' }],
         oars: [{ organ: 'Spinal kord', metric: 'Dmax', limit: palliativeIntent === 'Kord_Basisi' ? '< 25 Gy / 5 fx' : 'Fraksiyonasyona göre optimize et', source: 'ASTRO / QUANTEC' }],
         evidence: 'ASTRO Palliative Radiation Therapy Guideline',
       };
@@ -5557,6 +5589,7 @@ export default function RadoncoCDSSPage() {
     palliativeIntent,
     thoraxSubtype,
     thoraxCentrality,
+    breathingMotion,
     thoraxSurgeryStatus,
     sclcStage,
     sclcTiming,
@@ -6770,6 +6803,29 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <option value="Anal">{tText("Anal Kanal Skuamöz Karsinom (Nigro)")}</option>
                   </select>
                 </div>
+                {gisOrgan === 'Karaciger' && (
+                  <div>
+                    <span className="mb-1 block font-semibold text-slate-300">
+                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management (SBRT)'}
+                    </span>
+                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                      {[
+                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
+                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath Hold / GTV→PTV' },
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={breathingMotion === option.value}
+                          onClick={() => setBreathingMotion(option.value)}
+                          className={parameterButtonClass(breathingMotion === option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -6959,6 +7015,29 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <option value="Postop_R1_R2">{lang === 'tr' ? 'Postoperatif R1 / R2 Rezeksiyon' : 'Postoperative R1 / R2 Resection'}</option>
                   </select>
                 </div>
+                {selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2') && (
+                  <div>
+                    <span className="mb-1 block font-semibold text-slate-300">
+                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management (SBRT)'}
+                    </span>
+                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                      {[
+                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
+                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath Hold / GTV→PTV' },
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={breathingMotion === option.value}
+                          onClick={() => setBreathingMotion(option.value)}
+                          className={parameterButtonClass(breathingMotion === option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
