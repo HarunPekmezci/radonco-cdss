@@ -129,12 +129,7 @@ export default function SignInPage() {
             </Link>
           </div>
         </div>
-
-        <div className="mt-6 text-center text-[11px] text-slate-500">
-          🔒 256-Bit Şifreli Altyapı • Yalnızca Yetkili Hekimler İçindir
-        </div>
+       </div>
       </div>
-
-    </div>
   );
 }
