@@ -88,7 +88,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (SADELEŞTİRİLMİŞ GÜÇLÜ HERO + DVH KONSOLU)
+          1. SOL SÜTUN (SADELEŞTİRİLMİŞ HERO + DVH KONSOLU)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -103,7 +103,7 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Ana Başlık (Cümle Kalabalığı Temizlendi, Doğrudan DVH Konsoluna Bağlandı) */}
+        {/* Ana Başlık */}
         <div className="my-auto py-6 max-w-lg">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-semibold text-blue-400 mb-5">
             <ShieldCheck className="w-4 h-4 text-blue-400" />
@@ -118,9 +118,7 @@ export default function SignInPage() {
             {t.title3}
           </h1>
 
-          {/* ==============================================================
-              YENİ NESİL DOZ-HACİM HİSTOGRAMI (DVH KONSOLU)
-             ============================================================== */}
+          {/* DOZ-HACİM HİSTOGRAMI (DVH KONSOLU) */}
           <div className="mt-8 p-5 rounded-3xl bg-[#0e1726]/90 border border-slate-800/90 shadow-2xl backdrop-blur-xl relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -134,7 +132,7 @@ export default function SignInPage() {
                   <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-" /> {t.cordLegend}
+                  <span className="w-2 h-2 rounded-full bg-amber-400" /> {t.cordLegend}
                 </span>
                 <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
@@ -213,4 +211,77 @@ export default function SignInPage() {
               </div>
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.hiLabel}</span>
-                <span className="text-xs font-bold font-mono text-sky-400">1.04 <
+                <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-500 font-normal">{t.target}</span></span>
+              </div>
+              <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block font-mono">{t.giLabel}</span>
+                <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-500 font-normal">{t.steep}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SOL ALT İMZA */}
+        <div className="text-xs text-slate-400 font-medium tracking-wide">
+          RadOnc CDSS • <span className="text-slate-200 font-semibold">Designed by Harun PEKMEZCI, MD</span>
+        </div>
+      </div>
+
+      {/* ==============================================================
+          2. SAĞ SÜTUN (KESİN OLARAK KOYU TEMA YAPILMIŞ CLERK GİRİŞ KARTI)
+         ============================================================== */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
+        
+        {/* Mobilde Üst Logo */}
+        <div className="lg:hidden flex flex-col items-center text-center mb-6">
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
+            <Radiation className="w-7 h-7 animate-pulse" />
+          </div>
+          <span className="text-xl font-bold text-white tracking-tight">RadOnc CDSS</span>
+          <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
+        </div>
+
+        {/* GİRİŞ KARTI */}
+        <div className="w-full max-w-[420px] flex flex-col items-center">
+          <SignIn
+            appearance={{
+              variables: {
+                colorBackground: '#0e1726',
+                colorInputBackground: '#131f33',
+                colorInputText: '#ffffff',
+                colorText: '#ffffff',
+                colorTextSecondary: '#94a3b8',
+                colorPrimary: '#2563eb',
+              },
+              elements: {
+                socialButtons: '!hidden',
+                socialButtonsBlockButton: '!hidden',
+                dividerRow: '!hidden',
+                footer: '!hidden',
+                footerAction: '!hidden',
+
+                card: '!bg-[#0e1726] !border !border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
+                headerTitle: '!text-white font-bold text-lg text-center',
+                headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
+                
+                formFieldLabel: '!text-slate-300 text-xs font-semibold',
+                formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
+                formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
+              },
+            }}
+          />
+
+          {/* Kayıt Ol Bağlantısı */}
+          <div className="mt-5 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">
+            <span>{t.noAccount}</span>
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center gap-1 font-bold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              {t.signUp}
+            </Link>
+          </div>
+
+          {/* Mobilde Alt İmza */}
+          <
