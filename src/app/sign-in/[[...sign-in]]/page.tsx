@@ -15,7 +15,6 @@ export default function SignInPage() {
       title1: 'Radiation Oncology',
       title2: 'Clinical Decision Support',
       title3: 'Platform',
-      subtitle: 'Evidence-based clinical staging, adaptive fractionation, and normal tissue constraints.',
       dvhTitle: 'Dose-Volume Histogram (DVH)',
       ptvLegend: 'PTV (60 Gy)',
       cordLegend: 'Spinal Cord',
@@ -38,7 +37,6 @@ export default function SignInPage() {
       title1: 'Radyasyon Onkolojisi',
       title2: 'Tedavi Karar Destek',
       title3: 'Platformu',
-      subtitle: 'Kanıta dayalı klinik evreleme, fraksiyonasyon felsefesi ve kritik organ güvenlik kısıtları.',
       dvhTitle: 'Doz-Hacim Histogramı (DVH)',
       ptvLegend: 'PTV (60 Gy)',
       cordLegend: 'Spinal Kord',
@@ -90,7 +88,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          1. SOL SÜTUN (MASAÜSTÜ HERO & YÜKSEK TEKNOLOJİLİ DVH EKRANI)
+          1. SOL SÜTUN (SADELEŞTİRİLMİŞ GÜÇLÜ HERO + DVH KONSOLU)
          ============================================================== */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
@@ -105,12 +103,13 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Orta Başlık & Kılavuz Rozetleri & Yeni Nesil DVH */}
+        {/* Ana Başlık (Cümle Kalabalığı Temizlendi, Doğrudan DVH Konsoluna Bağlandı) */}
         <div className="my-auto py-6 max-w-lg">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-semibold text-blue-400 mb-5">
             <ShieldCheck className="w-4 h-4 text-blue-400" />
             {t.badge}
           </div>
+          
           <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-white leading-tight">
             {t.title1} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
@@ -118,30 +117,13 @@ export default function SignInPage() {
             </span> <br />
             {t.title3}
           </h1>
-          <p className="text-slate-300 text-sm mt-3 leading-relaxed font-normal">
-            {t.subtitle}
-          </p>
-
-          {/* Kılavuz Standartları Rozetleri */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {['NCCN v1.2025', 'ASTRO', 'ESTRO', 'ICRU 83/91', 'QUANTEC'].map((badge) => (
-              <span
-                key={badge}
-                className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-slate-800/80 border border-slate-700/80 text-slate-300 tracking-wide"
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
 
           {/* ==============================================================
-              YENİ NESİL İLERİ DÜZEY DOZ-HACİM HİSTOGRAMI (DVH KONSOLU)
+              YENİ NESİL DOZ-HACİM HİSTOGRAMI (DVH KONSOLU)
              ============================================================== */}
-          <div className="mt-7 p-5 rounded-3xl bg-[#0e1726]/90 border border-slate-800/90 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-            {/* Arka Plan Hafif Mavi Parıltı */}
+          <div className="mt-8 p-5 rounded-3xl bg-[#0e1726]/90 border border-slate-800/90 shadow-2xl backdrop-blur-xl relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            {/* DVH Başlığı ve Çoklu Doku Lejantı */}
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2 text-xs">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-sky-400 animate-pulse" />
@@ -160,7 +142,6 @@ export default function SignInPage() {
               </div>
             </div>
 
-            {/* SVG Gelişmiş Çoklu DVH Eğrisi */}
             <div className="relative w-full h-28 my-1">
               <svg viewBox="0 0 400 110" className="w-full h-full overflow-visible">
                 <defs>
@@ -174,7 +155,6 @@ export default function SignInPage() {
                   </linearGradient>
                 </defs>
 
-                {/* Grid Koordinat Hatları */}
                 <line x1="0" y1="25" x2="400" y2="25" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="0" y1="55" x2="400" y2="55" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="0" y1="85" x2="400" y2="85" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
@@ -182,7 +162,6 @@ export default function SignInPage() {
                 <line x1="200" y1="0" x2="200" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
                 <line x1="300" y1="0" x2="300" y2="105" stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
 
-                {/* Normal Doku (Yeşil Kesikli) */}
                 <path
                   d="M 0 45 Q 80 75 160 95 T 320 105 L 400 105"
                   fill="none"
@@ -191,7 +170,6 @@ export default function SignInPage() {
                   strokeDasharray="4 4"
                 />
 
-                {/* Spinal Kord (Amber Dolgulu Eğri) */}
                 <path
                   d="M 0 15 Q 110 30 180 85 T 260 105 L 400 105 L 0 105 Z"
                   fill="url(#cordGradient)"
@@ -203,7 +181,6 @@ export default function SignInPage() {
                   strokeWidth="2"
                 />
 
-                {/* PTV Hedef Kitle (Elektrik Mavisi, İdeal Dik Eğim) */}
                 <path
                   d="M 0 10 L 260 10 Q 295 12 315 70 T 330 105 L 400 105 L 400 105 L 0 105 Z"
                   fill="url(#ptvGradient)"
@@ -216,14 +193,12 @@ export default function SignInPage() {
                   className="drop-shadow-[0_0_12px_rgba(56,189,248,0.9)]"
                 />
 
-                {/* D95% Kritik Nokta İğnesi (Pulsing Pin) */}
                 <circle cx="295" cy="18" r="4.5" fill="#38bdf8" className="animate-ping opacity-75" />
                 <circle cx="295" cy="18" r="3" fill="#ffffff" />
                 <text x="295" y="8" fill="#38bdf8" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">D95%</text>
               </svg>
             </div>
 
-            {/* Eksen Etiketleri */}
             <div className="flex justify-between text-[10px] text-slate-500 font-mono pt-1.5 border-t border-slate-800/80">
               <span>0 Gy</span>
               <span>30 Gy (Kritik Eşik)</span>
@@ -231,7 +206,6 @@ export default function SignInPage() {
               <span>{t.dmax}</span>
             </div>
 
-            {/* Radyasyon Fiziği İndeksleri (Holy Trinity) */}
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/60 text-center">
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.ciLabel}</span>
@@ -239,78 +213,4 @@ export default function SignInPage() {
               </div>
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.hiLabel}</span>
-                <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-500 font-normal">{t.target}</span></span>
-              </div>
-              <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
-                <span className="text-[10px] text-slate-400 block font-mono">{t.giLabel}</span>
-                <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-500 font-normal">{t.steep}</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* SOL ALT İMZA */}
-        <div className="text-xs text-slate-400 font-medium tracking-wide">
-          RadOnc CDSS • <span className="text-slate-200 font-semibold">Designed by Harun PEKMEZCI, MD</span>
-        </div>
-      </div>
-
-      {/* ==============================================================
-          2. SAĞ SÜTUN (ŞIK KOYU TEMA GİRİŞ KARTI)
-         ============================================================== */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
-        
-        {/* Mobilde Üst Logo */}
-        <div className="lg:hidden flex flex-col items-center text-center mb-6">
-          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
-            <Radiation className="w-7 h-7 animate-pulse" />
-          </div>
-          <span className="text-xl font-bold text-white tracking-tight">RadOnc CDSS</span>
-          <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
-        </div>
-
-        {/* Giriş Kartı */}
-        <div className="w-full max-w-[420px] flex flex-col items-center">
-          <SignIn
-            appearance={{
-              elements: {
-                socialButtons: '!hidden',
-                socialButtonsBlockButton: '!hidden',
-                dividerRow: '!hidden',
-                footer: '!hidden',
-                footerAction: '!hidden',
-
-                card: 'bg-[#0e1726]/95 border border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
-                headerTitle: 'text-white font-bold text-lg text-center',
-                headerSubtitle: 'text-slate-400 text-xs text-center mb-4',
-                
-                formFieldLabel: 'text-xs font-semibold text-slate-300',
-                formFieldInput: 'bg-[#131f33] border border-slate-700 text-white rounded-xl py-2.5 px-3.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500',
-                formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
-              },
-            }}
-          />
-
-          {/* Kayıt Ol Bağlantısı */}
-          <div className="mt-5 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">
-            <span>{t.noAccount}</span>
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-1 font-bold text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              {t.signUp}
-            </Link>
-          </div>
-
-          {/* Mobilde Alt İmza */}
-          <div className="lg:hidden mt-6 text-center text-xs text-slate-500 font-medium">
-            Designed by Harun PEKMEZCI, MD
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  );
-}
+                <span className="text-xs font-bold font-mono text-sky-400">1.04 <
