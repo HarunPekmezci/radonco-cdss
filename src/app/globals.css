@@ -48,21 +48,21 @@ html.dark input:not([type="checkbox"]):not([type="radio"]) {
 }
 
 .auth-screen .auth-clerk-title {
-  color: #f8fafc !important;
+  color: #0f172a !important;
 }
 
 .auth-screen .auth-clerk-subtitle {
-  color: #94a3b8 !important;
+  color: #475569 !important;
 }
 
 .auth-screen .auth-clerk-input {
-  border-color: #334155 !important;
-  background-color: #131e36 !important;
-  color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 .auth-screen .auth-clerk-input::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 .auth-screen .auth-clerk-input:focus {
@@ -72,13 +72,13 @@ html.dark input:not([type="checkbox"]):not([type="radio"]) {
 }
 
 .auth-screen .auth-clerk-social {
-  border-color: rgb(51 65 85 / 0.8) !important;
-  background-color: #131e36 !important;
-  color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 .auth-screen .auth-clerk-social:hover {
-  background-color: #1a2947 !important;
+  background-color: #f1f5f9 !important;
 }
 
 .auth-screen .auth-clerk-primary {
@@ -95,6 +95,34 @@ html.dark input:not([type="checkbox"]):not([type="radio"]) {
 
 .auth-screen .auth-clerk-link:hover {
   color: #93c5fd !important;
+}
+
+html.dark .auth-screen .auth-clerk-title {
+  color: #f8fafc !important;
+}
+
+html.dark .auth-screen .auth-clerk-subtitle {
+  color: #94a3b8 !important;
+}
+
+html.dark .auth-screen .auth-clerk-input {
+  border-color: #334155 !important;
+  background-color: #131e36 !important;
+  color: #ffffff !important;
+}
+
+html.dark .auth-screen .auth-clerk-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.dark .auth-screen .auth-clerk-social {
+  border-color: rgb(51 65 85 / 0.8) !important;
+  background-color: #131e36 !important;
+  color: #ffffff !important;
+}
+
+html.dark .auth-screen .auth-clerk-social:hover {
+  background-color: #1a2947 !important;
 }
 
 @theme inline {

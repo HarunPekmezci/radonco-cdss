@@ -7898,7 +7898,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* SEÇİLİ DOZ ŞEMASI KARTI */}
-            <div className="bg-[#f1f5f9] border border-slate-200/80 rounded-md p-3.5 mb-4">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3.5 mb-4 dark:bg-slate-900/90 dark:border-slate-800">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Radiation className="w-4 h-4 text-amber-700" />
@@ -7946,7 +7946,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </div>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
-                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
+                    <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Hacim' : 'Volume'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Doz' : 'Dose'}</th>
@@ -7978,7 +7978,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </h4>
                 <div className="border border-slate-200/80 rounded-md overflow-hidden text-xs">
                   <table className="w-full text-left">
-                    <thead className="bg-[#f1f5f9] text-slate-600 border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
+                    <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 dark:bg-slate-800/80 dark:border-slate-700/60 dark:text-slate-300">
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Organ' : 'Organ'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Metrik' : 'Metric'}</th>
@@ -8002,7 +8002,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}
-            <div className="bg-[#f1f5f9] border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-md p-3 mb-4 flex items-center justify-between text-xs dark:bg-slate-900/90 dark:border-slate-800">
               <div>
                 <span className="text-[11px] text-slate-600 block">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
                 <span className="font-bold text-slate-700">
