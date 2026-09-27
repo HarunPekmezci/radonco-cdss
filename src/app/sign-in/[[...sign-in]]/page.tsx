@@ -60,15 +60,20 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative">
       
-      {/* İNGİLİZCE BUTON METNİNİ DİNAMİK YAPAN STİL ENJEKSİYONU */}
+      {/* BUTON İÇİNDEKİ GİZLİ ÜÇGEN / SVG İKONLARI TAMAMEN YOK EDEN STİL */}
       <style dangerouslySetInnerHTML={{
         __html: `
-          .cl-formButtonPrimary.en-btn,
-          .cl-formButtonPrimary.en-btn * {
+          .cl-formButtonPrimary.en-btn {
+            position: relative !important;
             font-size: 0 !important;
           }
+          /* Butonun içindeki tüm çocuk elemanları (üçgen SVG dahil) gizle */
+          .cl-formButtonPrimary.en-btn * {
+            display: none !important;
+          }
+          /* Yalnızca tertemiz Sign In yazısını göster */
           .cl-formButtonPrimary.en-btn::after {
-            content: "Sign In →" !important;
+            content: "Sign In" !important;
             font-size: 0.875rem !important;
             font-weight: 600 !important;
             color: #ffffff !important;
@@ -248,7 +253,7 @@ export default function SignInPage() {
       </div>
 
       {/* ==============================================================
-          2. SAĞ SÜTUN (DİLE GÖRE DİNAMİK BUTONLU CLERK KARTI)
+          2. SAĞ SÜTUN (ŞIK KOYU TEMA CLERK GİRİŞ KARTI)
          ============================================================== */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
         
@@ -287,7 +292,7 @@ export default function SignInPage() {
                 formFieldLabel: '!text-slate-300 text-xs font-semibold',
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 
-                // DİL EN İSE en-btn SINIFI İLE "Sign In →" YAPILIR
+                // DİL EN İSE en-btn İLE ARKA PLANDAKİ TÜM İKONLAR/SVG SİLİNİR
                 formButtonPrimary: `bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all ${
                   lang === 'en' ? 'en-btn' : ''
                 }`,
