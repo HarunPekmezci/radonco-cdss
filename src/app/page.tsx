@@ -3108,6 +3108,10 @@ export default function RadoncoCDSSPage() {
     ));
   };
 
+  const parameterButtonClass = (selected: boolean) => selected
+    ? 'w-full rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-400 transition-all flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300'
+    : 'w-full rounded-xl border border-slate-700/80 bg-[#131f33] px-3 py-2 text-xs font-medium text-slate-200 transition-all hover:border-slate-500 hover:bg-[#182842] hover:text-white flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400';
+
   // Alt Başlık Değişimi
   const handleSubsiteChange = (subKey: string) => {
     const [organ, subtype] = subKey.split('-');
@@ -6932,11 +6936,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           const value = parseOption(item.id, ['Peripheral', 'Central', 'UltraCentral'] as const);
                           if (value) setThoraxCentrality(value);
                         }}
-                        className={`p-2 rounded-md text-center font-medium border transition-colors ${
-                          thoraxCentrality === item.id
-                            ? 'bg-amber-50 text-amber-800 border-amber-300'
-                            : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'
-                        }`}
+                        className={parameterButtonClass(thoraxCentrality === item.id)}
                       >
                         {tText(item.label)}
                       </button>
@@ -7038,11 +7038,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           const value = parseOption(item.id, ['Sinirli', 'Yaygin'] as const);
                           if (value) setSclcStage(value);
                         }}
-                        className={`p-2 rounded-md text-center font-medium border transition-colors ${
-                          sclcStage === item.id
-                            ? 'bg-sky-50 text-sky-800 border-sky-300'
-                            : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'
-                        }`}
+                        className={parameterButtonClass(sclcStage === item.id)}
                       >
                         {tText(item.label)}
                       </button>
@@ -7159,11 +7155,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         const value = parseOption(item.id, ['Preop', 'Postop_R0', 'Postop_R1'] as const);
                         if (value) setSarcomaSurgery(value);
                       }}
-                      className={`p-2 rounded-md text-center font-medium border transition-colors ${
-                        sarcomaSurgery === item.id
-                          ? 'bg-amber-50 text-amber-800 border-amber-300'
-                          : 'bg-white border-slate-200/80 text-slate-600 hover:bg-slate-100'
-                      }`}
+                      className={parameterButtonClass(sarcomaSurgery === item.id)}
                     >
                       {tText(item.label)}
                     </button>
@@ -7390,11 +7382,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         type="button"
                         aria-pressed={breastMenopause === value}
                         onClick={() => setBreastMenopause(value)}
-                        className={`rounded-md border px-2 py-2 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                          breastMenopause === value
-                            ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold shadow-xs'
-                            : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'
-                        }`}
+                        className={parameterButtonClass(breastMenopause === value)}
                       >
                         {value}
                       </button>
@@ -7464,11 +7452,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                             aria-pressed={marker.value}
                             aria-label={`${marker.label} ${marker.value ? 'pozitif' : 'negatif'}`}
                             onClick={() => marker.setter(!marker.value)}
-                            className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                              marker.value
-                                ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold shadow-xs'
-                                : 'bg-[#f1f5f9] border-slate-300 text-slate-700 hover:bg-slate-100'
-                            }`}
+                            className={parameterButtonClass(marker.value)}
                           >
                             {marker.value && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
                             {marker.label}{marker.value ? '+' : '-'}
@@ -7486,11 +7470,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                               type="button"
                               aria-pressed={selected}
                               onClick={() => setBreastKi67(option.value === 'High' ? '20' : '19')}
-                              className={`rounded-md border px-2 py-2 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                                selected
-                                  ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold shadow-xs'
-                                  : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'
-                              }`}
+                              className={parameterButtonClass(selected)}
                             >
                               {tText("\n                              Ki-67 ")}{tText(option.label)}
                             </button>
