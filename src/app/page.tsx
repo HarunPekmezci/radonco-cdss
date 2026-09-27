@@ -1264,6 +1264,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'sarcoma-retroperitoneal', name_tr: 'Retroperitoneal Sarkom', name_en: 'Retroperitoneal Sarcoma' },
     { id: 'sarcoma-rhabdomyosarcoma', name_tr: 'Rhabdomyosarkom', name_en: 'Rhabdomyosarcoma' },
     { id: 'sarcoma-liposarcoma', name_tr: 'Liposarkom / Leyomiyosarkom', name_en: 'Liposarcoma / LMS' },
+    { id: 'sarcoma-dfsp', name_tr: 'Dermatofibrosarkoma Protuberans (DFSP)', name_en: 'Dermatofibrosarcoma Protuberans (DFSP)' },
   ],
   skin: [
     { id: 'skin-scc', name_tr: 'Skuamöz Hücreli Karsinom (cSCC)', name_en: 'Cutaneous SCC' },
@@ -2626,6 +2627,40 @@ TNM_DATABASE['pediatric-Neuroblastom'] = {
   M: [{ code: 'M0', label: 'M0', criterion: 'Uzak metastaz yok' }, { code: 'M1', label: 'M1', criterion: 'Uzak metastaz mevcut' }],
 };
 TNM_DATABASE['breast-breast'] = TNM_DATABASE.breast;
+TNM_DATABASE.breast.T = TNM_DATABASE.breast.T.filter(option => option.code !== 'T4').concat([
+  { code: 'T4a', label: 'T4a', criterion: 'Göğüs duvarı invazyonu (kaburgalar, interkostal kaslar; pektoral kas hariç)' },
+  { code: 'T4b', label: 'T4b', criterion: 'Ciltte ödem (peau d’orange), ülserasyon veya satellit cilt nodülleri' },
+  { code: 'T4c', label: 'T4c', criterion: 'T4a ve T4b özelliklerinin birlikte bulunması' },
+  { code: 'T4d', label: 'T4d', criterion: 'İnflamatuar meme karsinomu (memenin en az 1/3’ünde diffüz eritem ve ödem)' },
+]);
+TNM_DATABASE['breast-breast'] = TNM_DATABASE.breast;
+TNM_DATABASE['gis-Ozofagus'] = {
+  T: [
+    { code: 'T1a', label: 'T1a', criterion: 'Lamina propria veya muskularis mukoza invazyonu' },
+    { code: 'T1b', label: 'T1b', criterion: 'Submukoza invazyonu' },
+    { code: 'T2', label: 'T2', criterion: 'Muskularis propria invazyonu' },
+    { code: 'T3', label: 'T3', criterion: 'Adventisya invazyonu' },
+    { code: 'T4a', label: 'T4a', criterion: 'Rezekabl komşu organ invazyonu (plevra, perikard, diyafram)' },
+    { code: 'T4b', label: 'T4b', criterion: 'İnrezekabl komşu organ invazyonu (aort, trakea, vertebra)' },
+  ],
+  N: [
+    { code: 'N0', label: 'N0', criterion: 'Bölgesel lenf nodu metastazı yok' },
+    { code: 'N1', label: 'N1', criterion: '1-2 bölgesel lenf nodu' },
+    { code: 'N2', label: 'N2', criterion: '3-6 bölgesel lenf nodu' },
+    { code: 'N3', label: 'N3', criterion: '≥7 bölgesel lenf nodu' },
+  ],
+  M: [{ code: 'M0', label: 'M0', criterion: 'Uzak metastaz yok' }, { code: 'M1', label: 'M1', criterion: 'Uzak metastaz mevcut' }],
+};
+TNM_DATABASE['gis-Pankreas'] = {
+  T: [
+    { code: 'T1', label: 'T1', criterion: 'Tümör ≤2 cm (pankreasa sınırlı)' },
+    { code: 'T2', label: 'T2', criterion: 'Tümör >2 cm ama ≤4 cm' },
+    { code: 'T3', label: 'T3', criterion: 'Tümör >4 cm (çölyak aks veya SMA tutulumu yok)' },
+    { code: 'T4', label: 'T4', criterion: 'Çölyak aks, SMA veya ana hepatik arter tutulumu (inrezekabl lokal ileri)' },
+  ],
+  N: [{ code: 'N0', label: 'N0', criterion: 'Bölgesel LN metastazı yok' }, { code: 'N1', label: 'N1', criterion: '1-3 bölgesel LN' }, { code: 'N2', label: 'N2', criterion: '≥4 bölgesel LN' }],
+  M: [{ code: 'M0', label: 'M0', criterion: 'Uzak metastaz yok' }, { code: 'M1', label: 'M1', criterion: 'Uzak metastaz mevcut' }],
+};
 TNM_DATABASE['gis-Karaciger'] = {
   T: [
     { code: 'T1a', label: 'T1a', criterion: 'Tek lezyon ≤2 cm; vasküler invazyon yok' },
@@ -2867,7 +2902,15 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 6. MSS / BEYİN ALT BAŞLIKLARI
   // ==========================================
-  const [cnsSubtype, setCnsSubtype] = useState<'mets' | 'gbm' | 'meningioma'>('mets');
+  const [cnsSubtype, setCnsSubtype] = useState<'mets' | 'gbm' | 'glioma' | 'meningioma'>('mets');
+  const [gliomaGrade, setGliomaGrade] = useState<'Grade_1' | 'Grade_2' | 'Grade_3' | 'Grade_4'>('Grade_2');
+  const [gliomaRiskFactors, setGliomaRiskFactors] = useState({
+    age40: false,
+    subtotalResection: false,
+    largeOrCrossing: false,
+    neurologicSymptoms: false,
+    molecularHighRisk: false,
+  });
   const [cnsMidlineShift, setCnsMidlineShift] = useState<'Yok' | '<5mm' | '>=5mm'>('Yok');
   const [cnsMetCount, setCnsMetCount] = useState<string>('1');
   const [cnsMaxDiameter, setCnsMaxDiameter] = useState<string>('1.8');
@@ -2908,14 +2951,14 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 10. HEMATOLOJİK
   // ==========================================
-  const [hematologicSubtype, setHematologicSubtype] = useState<'Hodgkin' | 'DLBCL' | 'Plasmacytoma' | 'Myeloma'>('Hodgkin');
+  const [hematologicSubtype, setHematologicSubtype] = useState<'Hodgkin' | 'DLBCL' | 'Plasmacytoma' | 'Myeloma' | 'ALL' | 'CLL'>('Hodgkin');
   const [lymphomaResponse, setLymphomaResponse] = useState<'Tam_Yanit' | 'Parsiyel_Rezidü'>('Tam_Yanit');
   const [myelomaFractionation, setMyelomaFractionation] = useState<'TekFx' | '20Gy' | '30Gy'>('TekFx');
 
   // ==========================================
   // 11. PEDİATRİK & 12. PALYATİF
   // ==========================================
-  const [pediatricSubtype, setPediatricSubtype] = useState<'Medulloblastom' | 'Wilms' | 'Neuroblastom' | 'Ewing'>('Medulloblastom');
+  const [pediatricSubtype, setPediatricSubtype] = useState<'Medulloblastom' | 'Wilms' | 'Neuroblastom' | 'Ewing' | 'Rhabdo'>('Medulloblastom');
   const [pediatricRisk, setPediatricRisk] = useState<'Standart' | 'Yuksek'>('Standart');
   const [wilmsStage, setWilmsStage] = useState<'Evre_I_II' | 'Evre_III_Anaplazi'>('Evre_I_II');
   const [wilmsWholeAbdomen, setWilmsWholeAbdomen] = useState<boolean>(false);
@@ -3047,7 +3090,7 @@ export default function RadoncoCDSSPage() {
     if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
     if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
     if (subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
-    if (organ === 'cns' && ['glioma', 'gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype === 'glioma' ? 'gbm' : subtype as typeof cnsSubtype);
+    if (organ === 'cns' && ['glioma', 'gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype as typeof cnsSubtype);
     if (organ === 'gynecology' && ['Serviks', 'Endometriyum', 'Vulva', 'Vajen'].includes(subtype)) setGynSite(subtype as typeof gynSite);
     if (subKey.startsWith('bone-sarcoma-') && ['Yumusak_Doku', 'Osteosarkom', 'Ewing'].includes(subKey.replace('bone-sarcoma-', ''))) setSarcomaSubtype(subKey.replace('bone-sarcoma-', '') as typeof sarcomaSubtype);
     if (organ === 'skin' && ['scc', 'bcc', 'melanom'].includes(subtype)) setSkinHistology(subtype === 'scc' ? 'SCC' : subtype === 'bcc' ? 'BCC' : 'Melanom');
@@ -3062,6 +3105,12 @@ export default function RadoncoCDSSPage() {
     if (db && db.N.length > 0) setSelectedN(db.N[0].code);
     if (db && db.M.length > 0) setSelectedM(db.M[0].code);
   };
+
+  useEffect(() => {
+    if (selectedOrgan === 'breast' && breastHistology === 'İnflamatuar Meme Kanseri (IBC)') {
+      setSelectedT('T4d');
+    }
+  }, [selectedOrgan, breastHistology]);
 
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
     if (axis === 'T') {
@@ -4244,6 +4293,29 @@ export default function RadoncoCDSSPage() {
     // 5. SANTRAL SİNİR SİSTEMİ
     // ------------------------------------------
     if (selectedOrgan === 'cns') {
+      if (cnsSubtype === 'glioma') {
+        const riskCount = Object.values(gliomaRiskFactors).filter(Boolean).length;
+        const highRisk = gliomaGrade === 'Grade_3' || gliomaGrade === 'Grade_4' || riskCount >= 2 || gliomaRiskFactors.molecularHighRisk;
+        const isGbm = gliomaGrade === 'Grade_4';
+        const dose = isGbm ? 60 : highRisk ? 57 : 50.4;
+        const fractions = isGbm ? 30 : highRisk ? 30 : 28;
+        const glioma: DoseScheme = {
+          id: isGbm ? 'glioma-stupp-60' : highRisk ? 'glioma-high-risk-57' : 'glioma-low-risk-504',
+          name: isGbm ? '60 Gy / 30 fx + TMZ (Stupp)' : highRisk ? '54-59.4 Gy / 30-33 fx + PCV/TMZ' : '45-54 Gy / 25-30 fx veya İzlem',
+          tag: isGbm ? 'WHO Grade 4 / GBM' : highRisk ? 'Yüksek Riskli Gliom' : 'Düşük Riskli Gliom',
+          totalDoseGy: dose,
+          fractionCount: fractions,
+          fractionDoseGy: dose / fractions,
+          alphaBeta: 10,
+          technique: 'IMRT / VMAT; cerrahi kavite + T2/FLAIR CTV',
+          indication: isGbm ? 'Maksimal güvenli rezeksiyon sonrası eşzamanlı ve adjuvan TMZ ile Stupp protokolü.' : highRisk ? `Pignatti/RTOG 9802 risk kriterleri: ${riskCount} kriter; PCV veya TMZ ile eskalasyon.` : 'Grade 1-2 düşük riskli gliomda izlem veya fokal RT multidisipliner değerlendirilir.',
+          targetVolumes: [{ name: 'GTV/CTV/PTV', doseGy: dose, marginMm: 'GTV + 1.5-2 cm CTV; PTV + 3-5 mm', anatomical: 'Cerrahi kavite, rezidü tümör ve T2/FLAIR anormalliği' }],
+          oars: [{ organ: 'Optik kiazma', metric: 'Dmax', limit: '< 54 Gy', source: 'QUANTEC' }, { organ: 'Beyin sapı', metric: 'Dmax', limit: '< 54 Gy', source: 'QUANTEC' }],
+          systemicTherapy: isGbm ? 'Eşzamanlı TMZ 75 mg/m² ve 6 kür adjuvan TMZ.' : highRisk ? 'PCV veya TMZ; moleküler sınıflamaya göre nöro-onkoloji kararı.' : undefined,
+          evidence: 'NCCN CNS; RTOG 9802; EORTC 22033; Stupp',
+        };
+        return { statusText: highRisk ? 'YÜKSEK RİSKLİ GLİOM: ESKALASYON PROTOKOLÜ' : 'DÜŞÜK RİSKLİ GLİOM: İZLEM / FOKAL RT', badgeClass: highRisk ? 'bg-rose-50 text-rose-800 border-rose-300' : 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: glioma, alternativeSchemes: [glioma] };
+      }
       if (cnsSubtype === 'gbm') {
         const isElderly = gbmPerformance === 'Duskun_Yasli';
         const stupp: DoseScheme = {
@@ -4721,6 +4793,54 @@ export default function RadoncoCDSSPage() {
         ? 'Tümör yatağı boost (10-16 Gy) endikasyonu klinik risk ve yaş ile tartışılsın.'
         : '';
 
+      if (breastHistology === 'Dermatofibrosarkoma Protuberans (DFSP)') {
+       const dfsp: DoseScheme = {
+         id: 'dfsp-adjuvant-50-60',
+         name: '50-60 Gy / 25-30 fx (Adjuvan DFSP RT)',
+         tag: 'DFSP - Yakın/Pozitif Marjin',
+         totalDoseGy: 56,
+         fractionCount: 28,
+         fractionDoseGy: 2,
+         alphaBeta: 4,
+         technique: 'Elektron veya foton RT; geniş mikroskopik marjin',
+         indication: 'Geniş lokal eksizyon (2-3 cm) veya Mohs sonrası pozitif/yakın cerrahi sınırda, re-eksizyon mümkün değilse adjuvan RT.',
+         targetVolumes: [{ name: 'CTV_DFSP', doseGy: 56, marginMm: '3-5 cm mikroskopik marjin', anatomical: 'Primer yatak ve cerrahi skar' }],
+         oars: [],
+         evidence: 'Soft tissue sarcoma / DFSP multidisciplinary guidance',
+       };
+       return { statusText: 'DEĞERLENDİR: DFSP YAKIN/PozİTİF MARJİNDE ADJUVAN RT', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300', primaryScheme: dfsp, alternativeSchemes: [dfsp] };
+      }
+
+      if (breastHistology === 'İnflamatuar Meme Kanseri (IBC)') {
+        const inflammatory: DoseScheme = {
+          id: 'br-inflammatory-pmrt-50',
+          name: '50 Gy / 25 fx + Kapsamlı RNI (İnflamatuar Meme T4d)',
+          tag: 'Lokal İleri Yüksek Risk (Evre IIIB/C)',
+          totalDoseGy: 50,
+          fractionCount: 25,
+          fractionDoseGy: 2,
+          alphaBeta: 4,
+          technique: 'IMRT / VMAT + DIBH',
+          indication: 'Neoadjuvan sistemik tedavi sonrası mastektomi ve adjuvan PMRT; RNI Düzey I-IV, supraklavikuler ve internal mammary chain alanlarını kapsar.',
+          targetVolumes: [
+            { name: 'CTV_ChestWall', doseGy: 50, marginMm: 'Anatomik', anatomical: 'Mastektomi göğüs duvarı ve cilt altı yüzey' },
+            { name: 'CTV_RNI', doseGy: 50, marginMm: 'Anatomik', anatomical: 'Aksilla Level I-IV + supraklavikuler + internal mammary chain' },
+          ],
+          oars: [
+            { organ: 'Kalp', metric: 'Dmean', limit: '< 2.5 Gy hedef', source: 'NCCN / EMBRACE prensipleri' },
+            { organ: 'İpsilateral akciğer', metric: 'V20Gy', limit: '< 30%', source: 'QUANTEC' },
+          ],
+          systemicTherapy: 'Neoadjuvan kemoterapi / anti-HER2 tedavi sonrası cerrahi ve PMRT.',
+          evidence: 'NCCN Breast Cancer v1.2025; AJCC 8th edition T4d',
+        };
+        return {
+          statusText: 'ENDİKE: İNFLAMATUAR MEME KARSİNOMU T4d - NEOADJUVAN KT + MASTEKTOMİ + PMRT',
+          badgeClass: 'bg-rose-50 text-rose-800 border-rose-300',
+          primaryScheme: inflammatory,
+          alternativeSchemes: [inflammatory],
+        };
+      }
+
       if (isMastectomy) {
         if (!isNodePositive && !isT3T4 && (isT1 || selectedT === 'T2') && selectedN === 'N0' && breastMargin === 'Negatif') {
           const noRt: DoseScheme = {
@@ -4929,6 +5049,55 @@ export default function RadoncoCDSSPage() {
           primaryScheme: liverSbrt,
           alternativeSchemes: [liverSbrt],
         };
+      }
+
+      if (gisOrgan === 'Ozofagus') {
+        const cross: DoseScheme = {
+          id: 'gis-esophagus-cross-414',
+          name: '41.4 Gy / 23 fx (CROSS Neoadjuvan KRT)',
+          tag: 'CROSS Kategori 1',
+          totalDoseGy: 41.4,
+          fractionCount: 23,
+          fractionDoseGy: 1.8,
+          alphaBeta: 10,
+          technique: 'VMAT / IMRT',
+          indication: 'Neoadjuvan CROSS protokolü: eşzamanlı karboplatin/paklitaksel ve ardından cerrahi.',
+          targetVolumes: [{ name: 'CTV_Esophagus', doseGy: 41.4, marginMm: 'Anatomik', anatomical: 'Primer özofagus tümörü ve bölgesel lenfatikler' }],
+          oars: [
+            { organ: 'Kalp', metric: 'Dmean', limit: '< 20 Gy; V30 < 30%', source: 'CROSS / QUANTEC' },
+            { organ: 'Akciğer', metric: 'V20Gy', limit: '< 20%', source: 'CROSS / QUANTEC' },
+            { organ: 'Spinal kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+          ],
+          systemicTherapy: 'Eşzamanlı karboplatin/paklitaksel.',
+          evidence: 'CROSS Trial; NCCN Esophageal Cancer v1.2025',
+        };
+        const definitive: DoseScheme = { ...cross, id: 'gis-esophagus-definitive-504', name: '50-50.4 Gy / 25-28 fx (Definitif KRT)', totalDoseGy: 50.4, fractionCount: 28, fractionDoseGy: 1.8, tag: 'Definitif Özofagus KRT' };
+        return { statusText: 'ENDİKE: ÖZOFAGUS CROSS NEOADJUVAN KRT', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: cross, alternativeSchemes: [cross, definitive] };
+      }
+
+      if (gisOrgan === 'Pankreas') {
+        const pancreatic: DoseScheme = {
+          id: 'gis-pancreas-504',
+          name: '50.4 Gy / 28 fx (Borderline Rezekabl Neoadjuvan KRT)',
+          tag: 'NCCN Pankreas',
+          totalDoseGy: 50.4,
+          fractionCount: 28,
+          fractionDoseGy: 1.8,
+          alphaBeta: 10,
+          technique: 'IMRT / VMAT',
+          indication: 'Borderline rezekabl veya seçilmiş lokal ileri pankreas kanserinde eşzamanlı kapesitabin; indüksiyon FOLFIRINOX sonrası SBRT değerlendirilebilir.',
+          targetVolumes: [{ name: 'PTV_Pancreas', doseGy: 50.4, marginMm: 'Anatomik', anatomical: 'Primer pankreas tümörü ve ilgili lenfatikler' }],
+          oars: [
+            { organ: 'Duodenum', metric: 'Dmax', limit: '< 54 Gy; SBRT V33Gy < 1 cc', source: 'NCCN / QUANTEC' },
+            { organ: 'Mide', metric: 'Dmax', limit: '< 54 Gy', source: 'NCCN' },
+            { organ: 'İnce bağırsak', metric: 'V45Gy', limit: '< 100 cc', source: 'QUANTEC' },
+            { organ: 'Böbrekler', metric: 'V18Gy', limit: '< 30% bilateral', source: 'QUANTEC' },
+          ],
+          systemicTherapy: 'Eşzamanlı kapesitabin veya indüksiyon FOLFIRINOX sonrası SBRT.',
+          evidence: 'NCCN Pancreatic Adenocarcinoma v1.2025',
+        };
+        const sbrt: DoseScheme = { ...pancreatic, id: 'gis-pancreas-sbrt-40', name: '33-40 Gy / 5 fx (Pankreas SBRT)', totalDoseGy: 40, fractionCount: 5, fractionDoseGy: 8, technique: 'MR-Linac / SBRT' };
+        return { statusText: 'ENDİKE: PANKREAS KRT / SEÇİLMİŞ SBRT', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: pancreatic, alternativeSchemes: [pancreatic, sbrt] };
       }
 
       // Anal / Pankreas / Özofagus
@@ -5249,6 +5418,8 @@ export default function RadoncoCDSSPage() {
     hnSubsite,
     hnLarynxSubsite,
     cnsSubtype,
+    gliomaGrade,
+    gliomaRiskFactors,
     cnsMidlineShift,
     cnsMetCount,
     cnsMaxDiameter,
@@ -5636,6 +5807,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   };
   const prescriptionTargetBadge = translatePrescriptionBadge(evaluatedDecision.targetVolumeBadge, `Hedef: ${prescriptionTarget}`);
   const prescriptionTechniqueBadge = translatePrescriptionBadge(evaluatedDecision.techniqueBadge, `Teknik & Hareket: ${activeScheme.technique}`);
+  const getConventionalFxBadge = () => {
+    if (selectedOrgan === 'breast') return '25 fx';
+    if (selectedOrgan === 'thorax') return '30-33 fx';
+    if (selectedOrgan === 'prostate') return '39-40 fx';
+    if (selectedOrgan === 'gis') return '25-28 fx';
+    if (selectedOrgan === 'head-neck') return '33-35 fx';
+    return '25-35 fx';
+  };
   const breastNodalSummary = selectedOrgan === 'breast'
     ? breastHistology === 'Duktal Karsinoma In Situ (DCIS)'
       ? 'RNI: Elektif Nodal Yapılmaz (DCIS)'
@@ -6202,7 +6381,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <select
                     value={cnsSubtype}
                     onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['mets', 'gbm', 'meningioma'] as const);
+                      const val = parseOption(e.currentTarget.value, ['mets', 'gbm', 'glioma', 'meningioma'] as const);
                       if (!val) return;
                       setCnsSubtype(val);
                       handleSubsiteChange(`cns-${val}`);
@@ -6211,9 +6390,39 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   >
                     <option value="mets">{tText("Beyin Metastazı (SRS vs WBRT)")}</option>
                     <option value="gbm">{tText("Glioblastom (GBM, WHO Grade 4)")}</option>
+                    <option value="glioma">{tText("Glial Tümörler (WHO Grade 1-4)")}</option>
                     <option value="meningioma">{tText("Menenjiyom (Grade 1 / 2 / 3)")}</option>
                   </select>
                 </div>
+                {cnsSubtype === 'glioma' && (
+                  <div className="space-y-2 rounded-lg border border-indigo-200 bg-indigo-50/60 p-2.5 dark:border-indigo-800/70 dark:bg-indigo-950/30">
+                    <label className="block text-slate-700 dark:text-slate-200">
+                      {tText("WHO histolojik grade")}
+                      <select value={gliomaGrade} onChange={event => setGliomaGrade(event.currentTarget.value as typeof gliomaGrade)} className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900">
+                        <option value="Grade_1">Grade 1</option>
+                        <option value="Grade_2">Grade 2</option>
+                        <option value="Grade_3">Grade 3</option>
+                        <option value="Grade_4">Grade 4 (GBM)</option>
+                      </select>
+                    </label>
+                    {(gliomaGrade === 'Grade_1' || gliomaGrade === 'Grade_2') && (
+                      <div className="space-y-1 text-[11px] text-slate-800 dark:text-slate-100">
+                        {(Object.entries({
+                          age40: 'Yaş ≥40',
+                          subtotalResection: 'Subtotal rezeksiyon / biyopsi',
+                          largeOrCrossing: '≥5 cm veya orta hat geçişi',
+                          neurologicSymptoms: 'Nörolojik defisit / dirençli nöbet',
+                          molecularHighRisk: 'IDH-wildtype veya CDKN2A/B delesyonu',
+                        }) as Array<[keyof typeof gliomaRiskFactors, string]>).map(([key, label]) => (
+                          <label key={key} className="flex items-center gap-2">
+                            <input type="checkbox" checked={gliomaRiskFactors[key]} onChange={event => setGliomaRiskFactors(current => ({ ...current, [key]: event.currentTarget.checked }))} />
+                            <span>{label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -6279,7 +6488,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   onChange={e => {
                     setBreastHistology(e.currentTarget.value);
                     const nextHistology = e.currentTarget.value;
-                    if (nextHistology === 'Duktal Karsinoma In Situ (DCIS)') handleSubsiteChange('breast-dcis');
+                    if (nextHistology === 'İnflamatuar Meme Kanseri (IBC)') handleSubsiteChange('breast-inflammatory');
+                    else if (nextHistology === 'Duktal Karsinoma In Situ (DCIS)') handleSubsiteChange('breast-dcis');
                     else if (nextHistology === 'Malign Filloides Tümörü') handleSubsiteChange('breast-phyllodes');
                     else handleSubsiteChange('breast-breast');
                   }}
@@ -6290,6 +6500,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <option value="Duktal Karsinoma In Situ (DCIS)">{tText("Duktal Karsinoma In Situ (DCIS)")}</option>
                   <option value="Malign Filloides Tümörü">{tText("Malign Filloides Tümörü")}</option>
                   <option value="Metaplastik Karsinom">{tText("Metaplastik Karsinom")}</option>
+                  <option value="İnflamatuar Meme Kanseri (IBC)">{tText("İnflamatuar Meme Kanseri (IBC)")}</option>
+                  <option value="Dermatofibrosarkoma Protuberans (DFSP)">{tText("Dermatofibrosarkoma Protuberans (DFSP)")}</option>
                 </select>
               </div>
             )}
@@ -7241,19 +7453,20 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <button
                       key={opt.code}
                       type="button"
+                      disabled={breastHistology === 'İnflamatuar Meme Kanseri (IBC)' && opt.code !== 'T4d'}
                       onClick={() => handleTnmSelection('T', opt.code)}
-                      className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
+                      className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${breastHistology === 'İnflamatuar Meme Kanseri (IBC)' && opt.code !== 'T4d' ? 'cursor-not-allowed opacity-45' : ''} ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
+                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
                           : theme === 'light'
-                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
-                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
+                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
+                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7277,15 +7490,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
+                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
                           : theme === 'light'
-                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
-                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
+                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
+                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7309,15 +7522,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className={`text-left p-2 rounded-md text-xs flex items-center justify-between transition-colors border ${
                         isSel
                           ? theme === 'light'
-                            ? 'bg-blue-50/90 border-blue-500 text-blue-950 font-bold shadow-xs'
-                            : 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-bold'
+                            ? 'bg-blue-50 border-blue-600 text-blue-950 font-bold shadow-xs'
+                            : 'bg-blue-950/80 border-blue-400 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]'
                           : theme === 'light'
-                            ? 'bg-white border-slate-200 text-slate-800 hover:border-blue-400 hover:bg-slate-50'
-                            : 'bg-[#0f172a] border-slate-800 text-slate-200 hover:bg-slate-800'
+                            ? 'bg-white border-slate-300 text-slate-900 hover:border-blue-500 hover:bg-slate-50'
+                            : 'bg-[#0c1424] border-slate-700/80 text-slate-100 hover:border-blue-400 hover:bg-[#121c33]'
                       }`}
                     >
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-slate-600">{tText(opt.label)}</span>
-                      <span className="text-[11px] flex-1 px-2 line-clamp-1 dark:text-slate-200">{tText(opt.criterion)}</span>
+                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 dark:bg-slate-800 dark:text-blue-300 dark:border dark:border-slate-600">{tText(opt.label)}</span>
+                      <span className="text-xs leading-relaxed flex-1 px-2 font-semibold text-slate-950 dark:text-slate-100">{tText(opt.criterion)}</span>
                       {isSel && <Check className="w-3.5 h-3.5 text-blue-700 shrink-0" aria-hidden="true" />}
                     </button>
                   );
@@ -7377,7 +7590,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       },
                       conventional: {
                         title: lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
-                        badge: '35-40 fx',
+                        badge: getConventionalFxBadge(),
                         detail: '1.8 - 2.0 Gy / fx',
                         active: 'bg-gradient-to-br from-slate-700 to-slate-900',
                         hover: 'hover:border-slate-400',
