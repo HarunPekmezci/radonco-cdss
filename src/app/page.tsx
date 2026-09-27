@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Radiation,
   Copy,
@@ -2662,6 +2662,9 @@ export default function RadoncoCDSSPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [reportInputText, setReportInputText] = useState<string>('');
   const [parsedData, setParsedData] = useState<ParsedReportData | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string>('');
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
   const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
@@ -5125,6 +5128,31 @@ export default function RadoncoCDSSPage() {
       () => window.alert(lang === 'tr' ? 'Vaka sorusu panoya kopyalanamadı.' : 'The case prompt could not be copied.'),
     );
   };
+  const handleFileProcess = (file: File) => {
+    if (!file) return;
+    setUploadedFileName(file.name);
+    const isTextFile = file.type.startsWith('text/') || /\.(txt|csv|json|xml|html?)$/i.test(file.name);
+    if (!isTextFile) {
+      window.alert(lang === 'tr'
+        ? 'Bu dosya türü seçildi ancak tarayıcıda doğrudan metin çıkarılamıyor. PDF/DOC/Görsel içeriğini OCR veya metin olarak aşağıdaki alana yapıştırın.'
+        : 'This file type was selected, but direct browser text extraction is unavailable. Paste PDF/DOC/image content as OCR or text below.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = event => {
+      const raw = event.target?.result;
+      if (typeof raw !== 'string') {
+        window.alert(lang === 'tr' ? 'Dosya metni okunamadı.' : 'The file text could not be read.');
+        return;
+      }
+      setReportInputText(raw);
+      setParsedData(raw.trim().length > 10 ? parseMedicalReport(raw) : null);
+    };
+    reader.onerror = () => {
+      window.alert(lang === 'tr' ? 'Dosya okunurken hata oluştu.' : 'An error occurred while reading the file.');
+    };
+    reader.readAsText(file);
+  };
   const activeCaseSummary = [
     `Organ: ${selectedOrgan}`,
     `Subsite: ${tText(selectedSubsite)}`,
@@ -5690,7 +5718,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </p>
             <button
               type="button"
-              onClick={() => setIsReportModalOpen(true)}
+              onClick={() => {
+                setUploadedFileName('');
+                setIsDragging(false);
+                setIsReportModalOpen(true);
+              }}
               className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
               <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" />
@@ -7359,9 +7391,71 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   {lang === 'tr' ? 'Tıbbi Rapor Analizi & Otomatik Evreleme' : 'Clinical Report Analysis & Auto-Staging'}
                 </h3>
               </div>
-              <button type="button" onClick={() => setIsReportModalOpen(false)} aria-label={lang === 'tr' ? 'Rapor penceresini kapat' : 'Close report window'} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+              <button type="button" onClick={() => { setIsReportModalOpen(false); setIsDragging(false); }} aria-label={lang === 'tr' ? 'Rapor penceresini kapat' : 'Close report window'} className="text-slate-400 hover:text-slate-600 dark:hover:text-white">
                 <XCircle className="h-5 w-5" aria-hidden="true" />
               </button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.pdf,.doc,.docx,.png,.jpg,.jpeg"
+              className="hidden"
+              onChange={event => {
+                const file = event.currentTarget.files?.[0];
+                if (file) handleFileProcess(file);
+                event.currentTarget.value = '';
+              }}
+            />
+            <div
+              onDragOver={event => {
+                event.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={event => {
+                event.preventDefault();
+                setIsDragging(false);
+                const file = event.dataTransfer.files?.[0];
+                if (file) handleFileProcess(file);
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') fileInputRef.current?.click();
+              }}
+              role="button"
+              tabIndex={0}
+              className={`mb-4 cursor-pointer rounded-xl border-2 border-dashed p-4 text-center transition-all ${
+                isDragging
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+                  : 'border-slate-300 bg-slate-50/50 hover:border-blue-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/20 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              <div className="flex flex-col items-center justify-center gap-1.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+                  <UploadCloud className="h-5 w-5" aria-hidden="true" />
+                </div>
+                {uploadedFileName ? (
+                  <div className="flex max-w-full items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="max-w-[280px] truncate">{uploadedFileName}</span>
+                    <span className="text-[10px] font-normal text-slate-400">({lang === 'tr' ? 'Okundu' : 'Loaded'})</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      {lang === 'tr' ? 'Belge / Rapor Dosyası Seçin veya Sürükleyin' : 'Choose or Drag & Drop Report File'}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      PDF, TXT, DOCX, JPG, PNG • {lang === 'tr' ? 'Otomatik Metin Çıkarımı' : 'Automatic Text Extraction'}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="mb-3 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+              <span>{lang === 'tr' ? 'veya metni aşağıya yapıştırın' : 'or paste text directly below'}</span>
+              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
             </div>
             <textarea
               rows={6}
@@ -7391,7 +7485,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-              <button type="button" onClick={() => { setReportInputText(''); setParsedData(null); setIsReportModalOpen(false); }} className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+              <button type="button" onClick={() => { setReportInputText(''); setParsedData(null); setUploadedFileName(''); setIsDragging(false); setIsReportModalOpen(false); }} className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
                 {lang === 'tr' ? 'Vazgeç' : 'Cancel'}
               </button>
               <button
@@ -7413,6 +7507,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   if (parsedData.gleasonPrimary !== undefined) setGleasonPrimary(String(parsedData.gleasonPrimary));
                   if (parsedData.gleasonSecondary !== undefined) setGleasonSecondary(String(parsedData.gleasonSecondary));
                   setIsReportModalOpen(false);
+                  setIsDragging(false);
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
