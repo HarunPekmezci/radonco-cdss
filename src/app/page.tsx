@@ -1201,7 +1201,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   thorax: [
     { id: 'thorax-nsclc', name_tr: 'KHDAK (NSCLC)', name_en: 'NSCLC' },
     { id: 'thorax-sclc', name_tr: 'KHAK (SCLC)', name_en: 'SCLC' },
-    { id: 'thorax-thymoma', name_tr: 'Timoma / Timik', name_en: 'Thymoma' },
+    { id: 'thorax-thymoma', name_tr: 'Timüs', name_en: 'Thymus' },
     { id: 'thorax-mesothelioma', name_tr: 'Mezotelyoma', name_en: 'Mesothelioma' },
   ],
   prostate: [
@@ -2839,6 +2839,7 @@ export default function RadoncoCDSSPage() {
   // ANA ORGAN VE EVRE DURUMU
   // ==========================================
   const [selectedOrgan, setSelectedOrgan] = useState<OrganId>('thorax');
+  const [openCategories, setOpenCategories] = useState<string[]>(['thorax']);
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
@@ -2857,6 +2858,7 @@ export default function RadoncoCDSSPage() {
   // Timoma
   const [thymomaStage, setThymomaStage] = useState<'Masaoka_I' | 'Masaoka_II' | 'Masaoka_III' | 'Masaoka_IV'>('Masaoka_II');
   const [thymomaMargin, setThymomaMargin] = useState<'R0' | 'R1' | 'R2'>('R0');
+  const [thymicHistology, setThymicHistology] = useState<'thymoma' | 'thymic-carcinoma'>('thymoma');
   // Mezotelyoma
   const [mesoIntent, setMesoIntent] = useState<'Palyatif' | 'Hemitorasik_Postop' | 'Dren_Yeri'>('Palyatif');
 
@@ -3090,6 +3092,14 @@ export default function RadoncoCDSSPage() {
     if (db && db.T.length > 0) setSelectedT(db.T[0].code);
     if (db && db.N.length > 0) setSelectedN(db.N[0].code);
     if (db && db.M.length > 0) setSelectedM(db.M[0].code);
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setOpenCategories(prev => (
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    ));
   };
 
   // Alt Başlık Değişimi
@@ -3472,6 +3482,35 @@ export default function RadoncoCDSSPage() {
 
       // 1.B. TİMOMA VE TİMİK KARSİNOM
       if (thoraxSubtype === 'thymoma') {
+        if (thymicHistology === 'thymic-carcinoma') {
+          const thymicCarcinoma: DoseScheme = {
+            id: 'thymic-carcinoma-port',
+            name: '50-60 Gy / 25-30 fx (Adjuvan Kemoradyoterapi)',
+            tag: '🛡️ Timik Karsinom PORT',
+            totalDoseGy: thymomaMargin === 'R1' ? 54 : 60,
+            fractionCount: thymomaMargin === 'R1' ? 27 : 30,
+            fractionDoseGy: 2,
+            alphaBeta: 10,
+            technique: 'IMRT / VMAT (Kalp ve Akciğer Koruma)',
+            indication: 'Timik karsinomda R0 rezeksiyon sonrasında dahi yüksek lokal ve sistemik nüks riski nedeniyle adjuvan kemoradyoterapi ve PORT değerlendirilmelidir.',
+            targetVolumes: [
+              { name: 'CTV_Bed', doseGy: thymomaMargin === 'R1' ? 54 : 60, marginMm: 'Anatomik', anatomical: 'Tümör yatağı, cerrahi klipsler ve anterior mediasten' },
+              { name: 'PTV', doseGy: thymomaMargin === 'R1' ? 54 : 60, marginMm: 'CTV + 5 mm', anatomical: 'Planlama hedef hacmi' },
+            ],
+            oars: [
+              { organ: 'Kalp Dmean', metric: 'Dmean', limit: '< 20 Gy', source: 'QUANTEC' },
+              { organ: 'Akciğer V20Gy', metric: 'V20Gy', limit: '< 25%', source: 'QUANTEC' },
+            ],
+            systemicTherapy: 'Cerrahi sonrası platin bazlı eşzamanlı kemoterapi, multidisipliner değerlendirme ile planlanır.',
+            evidence: 'NCCN v1.2025 Thymic Carcinoma / ITMIG',
+          };
+          return {
+            statusText: 'ENDİKE: TIMİK KARSİNOMDA ADJUVAN KEMORADYOTERAPİ (PORT)',
+            badgeClass: 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40',
+            primaryScheme: thymicCarcinoma,
+            alternativeSchemes: [thymicCarcinoma],
+          };
+        }
         if (thymomaStage === 'Masaoka_I' && thymomaMargin === 'R0') {
           const noRt: DoseScheme = {
             id: 'thymoma-obs',
@@ -3489,7 +3528,7 @@ export default function RadoncoCDSSPage() {
           };
           return {
             statusText: 'ENDİKE DEĞİLDİR: R0 EVRE I TİMOMADA PORT GEREKMEZ (İZLEM)',
-            badgeClass: 'bg-slate-100 text-slate-700 border-slate-300',
+            badgeClass: 'bg-slate-800 text-slate-200 border-slate-700',
             primaryScheme: noRt,
             alternativeSchemes: [noRt],
           };
@@ -3504,7 +3543,7 @@ export default function RadoncoCDSSPage() {
             fractionDoseGy: 2.0,
             alphaBeta: 10,
             technique: 'IMRT / VMAT (Kalp ve Akciğer Koruma)',
-            indication: 'Masaoka Evre II-III veya R1 cerrahi sınır pozitifliği taşıyan timoma ve timik karsinomlarda lokal nüksü önler.',
+            indication: 'Masaoka Evre II-III veya R1/R2 cerrahi sınır pozitifliği taşıyan timomalarda lokal nüksü azaltmak için adjuvan PORT uygulanır.',
             targetVolumes: [
               { name: 'CTV_Bed', doseGy: dose, marginMm: 'Anatomik', anatomical: 'Tümör yatağı, plevral adezyon bölgeleri ve anterior mediasten' },
               { name: 'PTV', doseGy: dose, marginMm: 'CTV + 5 mm', anatomical: 'Planlama hedef hacmi' },
@@ -3517,7 +3556,7 @@ export default function RadoncoCDSSPage() {
           };
           return {
             statusText: 'ENDİKE: POSTOPERATİF ADJUVAN MEDİASTİNAL RT (PORT)',
-            badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+            badgeClass: 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40',
             primaryScheme: thymomaRt,
             alternativeSchemes: [thymomaRt],
           };
@@ -5512,6 +5551,7 @@ export default function RadoncoCDSSPage() {
     sclcTiming,
     thymomaStage,
     thymomaMargin,
+    thymicHistology,
     mesoIntent,
     gynSite,
     cervixScenario,
@@ -6360,7 +6400,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div key={item.id}>
               <button
                 type="button"
-                onClick={() => handleOrganChange(item.id as OrganId)}
+                onClick={() => {
+                  if (!isActive) handleOrganChange(item.id as OrganId);
+                  toggleCategory(item.id);
+                }}
                 className={`rounded-xl py-2.5 px-3 text-xs flex items-center gap-2.5 transition-all w-full text-left ${
                   isActive
                     ? item.id === 'benign'
@@ -6373,9 +6416,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
                 <span>{displayName}</span>
-                <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${isActive ? 'rotate-180' : ''}`} aria-hidden="true" />
+                <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${openCategories.includes(item.id) ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
-              {isActive && (
+              {openCategories.includes(item.id) && (
                 <div className="ml-4 flex flex-col gap-1 border-l-2 border-blue-500/40 py-1 pl-4">
                   {ORGAN_TREE[item.id as OrganId].map(sub => {
                     const isSubsiteActive = selectedSubsite === sub.id || currentTnmKey === sub.id;
@@ -6852,6 +6895,65 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <option value="Postop_R1_R2">{lang === 'tr' ? 'Postoperatif R1 / R2 Rezeksiyon' : 'Postoperative R1 / R2 Resection'}</option>
                   </select>
                 </div>
+              </div>
+            )}
+
+            {selectedOrgan === 'thorax' && thoraxSubtype === 'thymoma' && (
+              <div className="flex flex-col gap-3 text-xs">
+                <div>
+                  <span className="mb-1 block font-semibold text-slate-300">
+                    {lang === 'tr' ? 'Histolojik Alt Tip' : 'Histologic Subtype'}
+                  </span>
+                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                    {[
+                      { value: 'thymoma' as const, label: lang === 'tr' ? 'Timoma (WHO Tip A, AB, B1, B2, B3)' : 'Thymoma (WHO Types A, AB, B1, B2, B3)' },
+                      { value: 'thymic-carcinoma' as const, label: lang === 'tr' ? 'Timik Karsinom (Tip C / Agresif)' : 'Thymic Carcinoma (Type C / Aggressive)' },
+                    ].map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={thymicHistology === option.value}
+                        onClick={() => setThymicHistology(option.value)}
+                        className={`rounded-lg border p-2 text-left font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                          thymicHistology === option.value
+                            ? 'border-blue-400 bg-blue-600 text-white'
+                            : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500 hover:bg-slate-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {thymicHistology === 'thymoma' && (
+                  <>
+                    <label className="font-medium text-slate-300">
+                      {lang === 'tr' ? 'Masaoka-Koga Evresi' : 'Masaoka-Koga Stage'}
+                      <select
+                        value={thymomaStage}
+                        onChange={event => setThymomaStage(event.currentTarget.value as typeof thymomaStage)}
+                        className="mt-1 w-full rounded-md border border-slate-700 bg-slate-800 p-2.5 text-slate-100"
+                      >
+                        <option value="Masaoka_I">Evre I</option>
+                        <option value="Masaoka_II">Evre II</option>
+                        <option value="Masaoka_III">Evre III</option>
+                        <option value="Masaoka_IV">Evre IV</option>
+                      </select>
+                    </label>
+                    <label className="font-medium text-slate-300">
+                      {lang === 'tr' ? 'Cerrahi Sınır' : 'Surgical Margin'}
+                      <select
+                        value={thymomaMargin}
+                        onChange={event => setThymomaMargin(event.currentTarget.value as typeof thymomaMargin)}
+                        className="mt-1 w-full rounded-md border border-slate-700 bg-slate-800 p-2.5 text-slate-100"
+                      >
+                        <option value="R0">R0 — Negatif</option>
+                        <option value="R1">R1 — Mikroskobik Pozitif</option>
+                        <option value="R2">R2 — Makroskobik Rezidü</option>
+                      </select>
+                    </label>
+                  </>
+                )}
               </div>
             )}
 
