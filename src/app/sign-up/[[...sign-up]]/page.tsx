@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Radiation, ShieldCheck, LogIn, Globe, AlertCircle, Building2 } from 'lucide-react';
+import { Radiation, ShieldCheck, LogIn, Globe, Building2 } from 'lucide-react';
 
 export default function SignUpPage() {
   const [lang, setLang] = useState<'en' | 'tr'>('en');
@@ -143,6 +143,7 @@ export default function SignUpPage() {
               formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
               formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)}
         />
 

@@ -378,6 +378,7 @@ export default function SignInPage() {
                 formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
               },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any)}
           />
 
