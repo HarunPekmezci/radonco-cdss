@@ -3697,6 +3697,11 @@ export default function RadoncoCDSSPage() {
   // Alt Başlık Değişimi
   const handleSubsiteChange = (subKey: string) => {
     const [organ, subtype] = subKey.split('-');
+    // Alt başlığın hangi ana organa ait olduğunu tespit edip selectedOrgan'ı senkronize et.
+    const parentOrgan = (Object.keys(ORGAN_TREE) as OrganId[]).find(
+      organId => ORGAN_TREE[organId].some(sub => sub.id === subKey)
+    );
+    if (parentOrgan) setSelectedOrgan(parentOrgan);
     if (organ === 'thorax' && ['nsclc', 'sclc', 'thymoma', 'mesothelioma'].includes(subtype)) setThoraxSubtype(subtype as typeof thoraxSubtype);
     if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
     if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
