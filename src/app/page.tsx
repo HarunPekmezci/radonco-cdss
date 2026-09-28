@@ -2003,6 +2003,9 @@ export interface OARConstraint {
   metric: string;
   limit: string;
   source: string;
+  context?: string;
+  contextEn?: string;
+  classification?: 'protocol-limit' | 'planning-aim' | 'dose-volume-reference' | 'context-note';
 }
 
 export interface DoseScheme {
@@ -2020,6 +2023,281 @@ export interface DoseScheme {
   systemicTherapy?: string;
   evidence: string;
 }
+
+const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme): OARConstraint[] => {
+  const conventionalFractionation = scheme.fractionCount >= 15 && scheme.fractionDoseGy <= 2.1;
+  const hasPelvicNodalTarget = scheme.targetVolumes.some(volume =>
+    /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)
+  );
+
+  if ((organ === 'sarcoma' || organ === 'bone-sarcoma')
+    && scheme.id === 'sarcoma-preop-50'
+    && (subsite === 'sarcoma-extremity' || subsite === 'bone-sarcoma-Yumusak_Doku')) {
+    return [{
+      organ: 'Longitudinal skin/subcutaneous strip',
+      metric: 'V20Gy',
+      limit: '≤ 50% of strip receives 20 Gy',
+      source: 'RTOG 0630 (2015), DOI: 10.1200/JCO.2014.58.5828',
+      context: 'Yalnızca ekstremite yumuşak doku sarkomunda preoperatif RT; protokol talimatı.',
+      contextEn: 'Preoperative extremity soft-tissue sarcoma only; protocol-specific instruction.',
+      classification: 'protocol-limit',
+    }];
+  }
+
+  if (organ === 'thorax' && conventionalFractionation) {
+    return [
+      {
+        organ: 'Bilateral akciğer (GTV hariç)',
+        metric: 'V20Gy',
+        limit: '< 30–35%',
+        source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091',
+        context: 'Konvansiyonel toraks RT; SBRT için kullanılmaz.',
+        contextEn: 'Conventional thoracic RT; not for SBRT.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Bilateral akciğer (GTV hariç)',
+        metric: 'Dmean',
+        limit: '< 20 Gy',
+        source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091',
+        context: 'Konvansiyonel toraks RT; plan ve hasta faktörlerine göre değerlendirilir.',
+        contextEn: 'Conventional thoracic RT; interpret with plan and patient factors.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Spinal kord',
+        metric: 'Dmax',
+        limit: '≤ 50 Gy',
+        source: 'QUANTEC spinal cord (2010); conventional fractionation',
+        context: 'Konvansiyonel fraksiyonasyon; kord PRV ve yeniden ışınlama için protokol doğrulaması gerekir.',
+        contextEn: 'Conventional fractionation; verify protocol for cord PRV and re-irradiation.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+  }
+
+  if (organ === 'prostate' && subsite === 'prostate-prostate' && conventionalFractionation) {
+    const rows: OARConstraint[] = [
+      {
+        organ: 'Rektum',
+        metric: 'V70Gy / V65Gy / V50Gy',
+        limit: '< 20% / < 25% / < 50%',
+        source: 'QUANTEC rectum (2010), DOI: 10.1016/j.ijrobp.2009.11.003',
+        context: 'Konvansiyonel prostat RT DVH referansı; PACE-B SBRT için uygulanmaz.',
+        contextEn: 'Conventional prostate RT DVH reference; not applicable to PACE-B SBRT.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Mesane',
+        metric: 'V70Gy / V65Gy',
+        limit: '< 35% / < 50%',
+        source: 'QUANTEC bladder (2010), conventional fractionation',
+        context: 'Konvansiyonel prostat RT; seçilen protokol ve kontur tanımıyla doğrulanmalıdır.',
+        contextEn: 'Conventional prostate RT; verify against the selected protocol and contour definition.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+    if (hasPelvicNodalTarget) {
+      rows.push({
+        organ: 'Peritoneal cavity / bowel bag',
+        metric: 'V45Gy',
+        limit: '< 195 cc',
+        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+        context: 'Yalnızca peritoneal boşluk/bowel bag konturu için; tek tek bağırsak ansı limiti değildir.',
+        contextEn: 'For the peritoneal cavity/bowel-bag contour only; not an individual bowel-loop limit.',
+        classification: 'dose-volume-reference',
+      });
+    }
+    return rows;
+  }
+
+  if (organ === 'breast') {
+    return [{
+      organ: 'Kalp / LAD / ipsilateral akciğer / kontralateral meme',
+      metric: 'Plan-specific DVH review',
+      limit: 'Dose minimization; no universal numerical threshold verified',
+      source: 'Darby et al. (NEJM 2013), DOI: 10.1056/NEJMoa1209825; ESTRO-ACROP (2023)',
+      context: 'Laterality, chest-wall/RNI fields and DIBH affect achievable dose; report the plan DVH.',
+      contextEn: 'Laterality, chest-wall/RNI fields and DIBH affect achievable dose; review the plan DVH.',
+      classification: 'planning-aim',
+    }];
+  }
+
+  if (organ === 'gis' && conventionalFractionation && ['gis-Rektum', 'gis-anus'].includes(subsite)) {
+    return [
+      {
+        organ: 'Peritoneal cavity / bowel bag',
+        metric: 'V45Gy',
+        limit: '< 195 cc',
+        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+        context: 'Konvansiyonel pelvik RT; bowel bag/peritoneal cavity konturu için.',
+        contextEn: 'Conventional pelvic RT; for the bowel-bag/peritoneal-cavity contour.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Individual small-bowel loops',
+        metric: 'V15Gy',
+        limit: '< 120 cc',
+        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+        context: 'Konvansiyonel pelvik RT; tek tek bağırsak ansları için, bowel bag ile karıştırılmamalıdır.',
+        contextEn: 'Conventional pelvic RT; individual loops, not interchangeable with the bowel bag.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+  }
+
+  if (organ === 'head-neck' && conventionalFractionation) {
+    return [
+      {
+        organ: 'Beyin sapı',
+        metric: 'Dmax',
+        limit: '≤ 54 Gy',
+        source: 'QUANTEC brainstem (2010), DOI: 10.1016/j.ijrobp.2009.07.1753',
+        context: 'Konvansiyonel fraksiyonasyon; D1cc küçük-hacim ölçütüyle aynı değildir.',
+        contextEn: 'Conventional fractionation; not interchangeable with a D1cc small-volume metric.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Optik sinirler / kiazma',
+        metric: 'Dmax',
+        limit: '≤ 55 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Konvansiyonel fraksiyonasyon; PRV limitleri seçilen protokole bağlıdır.',
+        contextEn: 'Conventional fractionation; PRV limits depend on the selected protocol.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Parotis (en az bir bez)',
+        metric: 'Dmean',
+        limit: '< 26 Gy',
+        source: 'QUANTEC parotid (2010), DOI: 10.1016/j.ijrobp.2009.06.090',
+        context: 'Konvansiyonel baş-boyun RT; hedef kapsamı ve bez konturu dikkate alınır.',
+        contextEn: 'Conventional head-and-neck RT; consider target coverage and gland contour.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Koklea',
+        metric: 'Dmean',
+        limit: '< 45 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Konvansiyonel RT için doz azaltma hedefi; işitme riski klinik faktörlere bağlıdır.',
+        contextEn: 'Conventional RT dose-reduction objective; hearing risk depends on clinical factors.',
+        classification: 'planning-aim',
+      },
+    ];
+  }
+
+  if (organ === 'bone' || (organ === 'bone-sarcoma'
+    && !subsite.endsWith('-Yumusak_Doku')
+    && !subsite.endsWith('-DFSP'))) {
+    if (scheme.fractionCount <= 5) {
+      return [{
+        organ: 'Spinal cord / cauda equina (when adjacent)',
+        metric: 'Fraction-specific dose-volume limit',
+        limit: 'Use the selected SBRT protocol; no generic limit',
+        source: 'AAPM TG-101 (2010), DOI: 10.1118/1.3438081; HyTEC spine (2021), DOI: 10.1016/j.ijrobp.2019.09.038',
+        context: 'SBRT limit depends on fraction count, contour/PRV and prior irradiation.',
+        contextEn: 'SBRT limits depend on fraction count, contour/PRV and prior irradiation.',
+        classification: 'context-note',
+      }];
+    }
+    return [{
+      organ: 'Anatomy-adjacent OARs',
+      metric: 'Protocol-specific planning',
+      limit: 'No universal bone-tumor OAR matrix verified',
+      source: 'QUANTEC / AAPM TG-101 / HyTEC; select by anatomy and fractionation',
+      context: 'Skull base, spine and extremity protocols are not interchangeable.',
+      contextEn: 'Skull-base, spine and extremity protocols are not interchangeable.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'skin') {
+    return [{
+      organ: 'Site-adjacent OARs (orbit, cartilage, salivary/thyroid tissue)',
+      metric: 'Site- and fractionation-specific',
+      limit: 'No universal skin-cancer OAR thresholds verified',
+      source: 'AAPM TG-101 (2010); QUANTEC head-and-neck review (2010)',
+      context: 'Select only structures at risk for the actual lesion and treatment field.',
+      contextEn: 'Select only structures at risk for the actual lesion and treatment field.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'hematologic') {
+    return [{
+      organ: 'Heart / lungs / breast / thyroid / kidneys',
+      metric: 'Dose minimization',
+      limit: 'No universal ILROG numeric matrix verified',
+      source: 'ILROG involved-site RT overview (2020), DOI: 10.1016/j.ijrobp.2020.03.019',
+      context: 'Use disease-site and protocol-specific objectives; preserve involved-site treatment.',
+      contextEn: 'Use disease-site and protocol-specific objectives; preserve involved-site treatment.',
+      classification: 'planning-aim',
+    }];
+  }
+
+  if (organ === 'pediatric') {
+    return [{
+      organ: 'Age- and endpoint-specific OARs',
+      metric: 'PENTEC risk model',
+      limit: 'No universal pediatric numeric limit verified',
+      source: 'PENTEC publications; apply the organ-specific model and population',
+      context: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
+      contextEn: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'cns') {
+    return [{
+      organ: 'Brain / optic structures / brainstem',
+      metric: 'SRS, FSRT or conventional RT',
+      limit: 'Use fraction- and prior-RT-specific HyTEC/TG-101 protocol; no generic value',
+      source: 'HyTEC brain SRS (2021), DOI: 10.1016/j.ijrobp.2020.08.013; AAPM TG-101',
+      context: 'NRG CC001 hippocampal limits apply only to HA-WBRT 30 Gy / 10 fx.',
+      contextEn: 'NRG CC001 hippocampal limits apply only to HA-WBRT 30 Gy / 10 fx.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'gynecology') {
+    return [{
+      organ: 'Pelvic OARs',
+      metric: 'EBRT DVH vs cumulative brachytherapy EQD2',
+      limit: 'Do not combine or substitute these metrics',
+      source: 'EMBRACE II protocol; DOI: 10.1016/j.ctro.2018.01.001',
+      context: 'Serviks D2cc değerleri kümülatif EBRT + brakiterapi EQD2, α/β=3 içindir.',
+      contextEn: 'Cervical D2cc values are cumulative EBRT + brachytherapy EQD2, α/β=3.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'palliative') {
+    return [{
+      organ: 'Critical OARs for palliation / re-irradiation',
+      metric: 'Intent- and fractionation-specific',
+      limit: 'Use the selected palliative or SBRT protocol; no universal value',
+      source: 'ASTRO bone metastases guideline (2024), DOI: 10.1016/j.prro.2024.04.018; HyTEC spine (2021)',
+      context: 'Distinguish conventional palliation, spine SBRT and prior-RT retreatment.',
+      contextEn: 'Distinguish conventional palliation, spine SBRT and prior-RT retreatment.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'benign') {
+    return [{
+      organ: 'Adjacent normal tissue',
+      metric: 'Planning objective',
+      limit: 'Minimize dose; no universal numeric limit verified',
+      source: 'Confirm the indication-specific benign RT guideline and local protocol',
+      context: 'Do not extrapolate cancer-site constraints to benign irradiation.',
+      contextEn: 'Do not extrapolate cancer-site constraints to benign irradiation.',
+      classification: 'planning-aim',
+    }];
+  }
+
+  return [];
+};
 
 export interface EvaluatedDecision {
   statusText: string;
@@ -5015,10 +5293,10 @@ export default function RadoncoCDSSPage() {
             { name: 'HR-CTV (High-Risk)', doseGy: 85, marginMm: 'MR bazlı', anatomical: 'Rezidu servikal kitle + tüm serviks (Brakiterapi ile eskalasyon)' },
           ],
           oars: [
-            { organ: 'Rektum D2cc', metric: 'EQD2', limit: '< 65 Gy', source: 'EMBRACE II' },
-            { organ: 'Mesane D2cc', metric: 'EQD2', limit: '< 80 Gy', source: 'EMBRACE II' },
-            { organ: 'Sigmoid D2cc', metric: 'EQD2', limit: '< 70 Gy', source: 'EMBRACE II' },
-            { organ: 'İnce Bağırsak D2cc', metric: 'EQD2', limit: '< 70 Gy', source: 'EMBRACE II' },
+            { organ: 'Rektum', metric: 'D2cc EQD2 α/β=3 (planlama hedefi / limit)', limit: '< 65 / < 75 Gy', source: 'EMBRACE II', context: 'Kümülatif EBRT + brakiterapi; yalnızca serviks kanseri.', contextEn: 'Cumulative EBRT + brachytherapy; cervical cancer only.', classification: 'protocol-limit' },
+            { organ: 'Mesane', metric: 'D2cc EQD2 α/β=3 (planlama hedefi / limit)', limit: '< 80 / < 90 Gy', source: 'EMBRACE II', context: 'Kümülatif EBRT + brakiterapi; yalnızca serviks kanseri.', contextEn: 'Cumulative EBRT + brachytherapy; cervical cancer only.', classification: 'protocol-limit' },
+            { organ: 'Sigmoid / bağırsak', metric: 'D2cc EQD2 α/β=3 (planlama hedefi / limit)', limit: '< 70 / < 75 Gy', source: 'EMBRACE II', context: 'Kümülatif EBRT + brakiterapi; yalnızca serviks kanseri.', contextEn: 'Cumulative EBRT + brachytherapy; cervical cancer only.', classification: 'protocol-limit' },
+            { organ: 'Bowel bag (EBRT)', metric: 'V45Gy', limit: '< 195 cc', source: 'QUANTEC small bowel (2010)', context: 'EBRT peritoneal cavity/bowel-bag metric; brakiterapi D2cc değerinden ayrı.', contextEn: 'EBRT peritoneal-cavity/bowel-bag metric; separate from brachytherapy D2cc.', classification: 'dose-volume-reference' },
           ],
           systemicTherapy: 'Eşzamanlı haftalık Sisplatin (40 mg/m2, 5-6 kür).',
           evidence: 'EMBRACE II Protokolü, NCCN v1.2025 Kategori 1',
@@ -5038,8 +5316,8 @@ export default function RadoncoCDSSPage() {
             { name: 'CTV_Bed_Pelvis', doseGy: 50.4, marginMm: 'Anatomik', anatomical: 'Vajinal kaf, parametriyum yatağı ve pelvik lenfatik drenaj' },
           ],
           oars: [
-            { organ: 'İnce Bağırsak V40Gy', metric: 'V40Gy', limit: '< 100 cc', source: 'QUANTEC' },
-            { organ: 'Rektum V40Gy', metric: 'V40Gy', limit: '< 40%', source: 'QUANTEC' },
+            { organ: 'Individual small-bowel loops', metric: 'V15Gy', limit: '< 120 cc (QUANTEC conventional-fractionation reference)', source: 'QUANTEC small bowel (2010)', context: 'Individual loops only; not interchangeable with a bowel-bag V45Gy metric.', contextEn: 'Individual loops only; not interchangeable with a bowel-bag V45Gy metric.', classification: 'dose-volume-reference' },
+            { organ: 'Rectum', metric: 'Protocol-specific DVH', limit: 'Follow the applicable postoperative pelvic RT protocol', source: 'Peters / GOG 109 protocol', context: 'Do not apply prostate-specific QUANTEC rectal DVH values as universal gynecologic limits.', contextEn: 'Do not apply prostate-specific QUANTEC rectal DVH values as universal gynecologic limits.', classification: 'context-note' },
           ],
           systemicTherapy: 'Eşzamanlı Sisplatin (40-50 mg/m2 haftalık).',
           evidence: 'Peters et al. (JCO 2000), GOG 109',
@@ -5119,8 +5397,8 @@ export default function RadoncoCDSSPage() {
               { name: 'VCB_Boost', doseGy: 10, marginMm: 'HDR', anatomical: 'Pozitif marjin veya servikal tutulumda vajinal kaf boostu' },
             ],
             oars: [
-              { organ: 'İnce Bağırsak', metric: 'V45Gy', limit: '< 65 cc', source: 'PORTEC-3' },
-              { organ: 'Mesane', metric: 'V45Gy', limit: '< 35%', source: 'QUANTEC' },
+              { organ: 'Bowel bag (EBRT)', metric: 'V45Gy', limit: '< 195 cc (QUANTEC reference; protocol-specific)', source: 'QUANTEC small bowel (2010)', context: 'Bowel-bag/peritoneal cavity metric; do not apply as an individual-loop threshold.', contextEn: 'Bowel-bag/peritoneal cavity metric; do not apply as an individual-loop threshold.', classification: 'dose-volume-reference' },
+              { organ: 'Mesane', metric: 'Protocol-specific DVH', limit: 'Follow the applicable pelvic RT protocol; no universal QUANTEC V45 limit asserted', source: 'PORTEC-3 protocol', context: 'This is not a QUANTEC small-bowel constraint.', contextEn: 'This is not a QUANTEC small-bowel constraint.', classification: 'context-note' },
             ],
             systemicTherapy: 'RT sırasında 2 kür Sisplatin (50 mg/m2) ardından 4 kür Karboplatin (AUC 5) + Paklitaksel (175 mg/m2).',
             evidence: 'PORTEC-3 Faz III (Lancet Oncol 2018), GOG 258',
@@ -5227,7 +5505,7 @@ export default function RadoncoCDSSPage() {
           ],
           oars: [
             { organ: 'Femur Başları', metric: 'Dmax', limit: '< 50 Gy', source: 'QUANTEC' },
-            { organ: 'Bağırsak Torbası', metric: 'V45Gy', limit: '< 100 cc', source: 'QUANTEC' },
+            { organ: 'Bowel bag / peritoneal cavity', metric: 'V45Gy', limit: '< 195 cc (QUANTEC dose-volume reference)', source: 'QUANTEC small bowel (2010)', context: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops.', contextEn: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops.', classification: 'dose-volume-reference' },
           ],
           systemicTherapy: 'Çoklu lenf nodu veya ENE pozitifliğinde eşzamanlı haftalık Sisplatin düşünülür.',
           evidence: 'GROINSS-V-II Trial (JCO 2021), GOG 37 Faz III (NEJM)',
@@ -5312,11 +5590,7 @@ export default function RadoncoCDSSPage() {
             { name: 'GTV', doseGy: isPreop ? 50 : 66, marginMm: '0 mm', anatomical: 'Primer kitle veya tümör rezeksiyon yatağı' },
             { name: 'CTV', doseGy: isPreop ? 50 : 60, marginMm: 'Boyuna 3-4 cm, radyal 1.5 cm', anatomical: 'Fasyal planlar boyunca anatomik mikroskobik yayılım payı' },
           ],
-          oars: [
-            { organ: 'Cilt Koruma Şeridi (Strip)', metric: 'Dmean', limit: '< 20 Gy (en az 2 cm serbest kalmalı)', source: 'NCCN Sarcoma (Lenfödem Önleme)' },
-            { organ: 'Komşu Eklem', metric: 'V50Gy', limit: '< 50%', source: 'QUANTEC' },
-            { organ: 'Kemik Korteksi', metric: 'Dmax', limit: '< 60 Gy (Patolojik fraktür önleme)', source: 'QUANTEC' },
-          ],
+          oars: [],
           evidence: 'Kanada Sarcoma Group Faz III (O\'Sullivan et al. Lancet 2002), NCCN v1.2025',
         };
         return {
@@ -5545,7 +5819,7 @@ export default function RadoncoCDSSPage() {
             ...(hnENE || selectedN === 'N2' || selectedN === 'N3' ? [{ name: 'PTV_Nodal_High_Risk_Boost', doseGy: selectedN === 'N3' ? 70 : 66, marginMm: 'Tutulu nod yatağı / SIB', anatomical: `Level V dahil yüksek riskli nodal alan; ${selectedN === 'N3' ? '70 Gy' : '66 Gy'} SIB boost` }] : []),
           ],
           oars: [
-            { organ: 'Mandibula', metric: 'Dmax', limit: '< 70 Gy (V60 < 30%)', source: 'QUANTEC (ORN Riski)' },
+            { organ: 'Mandibula', metric: 'Plan-specific dose review', limit: 'Minimize dose; assess dental status and osteoradionecrosis risk', source: 'Site- and protocol-specific planning guidance', context: 'No universal QUANTEC Dmax/V60 threshold; evaluate contour, dental factors, surgery and fractionation.', contextEn: 'No universal QUANTEC Dmax/V60 threshold; evaluate contour, dental factors, surgery and fractionation.', classification: 'planning-aim' },
             { organ: 'Parotis Bezi (Karşı)', metric: 'Dmean', limit: '< 26 Gy', source: 'QUANTEC' },
             { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
           ],
@@ -5834,7 +6108,7 @@ export default function RadoncoCDSSPage() {
           ],
           oars: [
             { organ: 'Rektum', metric: 'V50Gy', limit: 'Planlama protokolüyle sınırlandır', source: 'QUANTEC / IGRT' },
-            { organ: 'İnce bağırsak', metric: 'V45Gy', limit: 'Mümkün olduğunca düşük', source: 'QUANTEC' },
+            { organ: 'Pelvic bowel', metric: 'Protocol- and contour-specific DVH', limit: 'Minimize dose; follow the selected bladder-preservation protocol', source: 'BC2001 / site-specific protocol', context: 'Do not interpret as a QUANTEC V45 threshold for individual bowel loops.', contextEn: 'Do not interpret as a QUANTEC V45 threshold for individual bowel loops.', classification: 'context-note' },
           ],
           systemicTherapy: 'Eşzamanlı Sisplatin veya 5-FU / Mitomisin-C; maksimal TURBT ve yakın sistoskopik izlem.',
           evidence: 'NCCN Bladder Cancer v1.2025; BC2001; RTOG trimodal therapy protocols',
@@ -6327,7 +6601,7 @@ export default function RadoncoCDSSPage() {
             { name: 'CTV_Pelvis', doseGy: 25, marginMm: 'Anatomik', anatomical: 'Rektal tümör, mezorektum, presakral ve internal iliak lenf nodları' },
           ],
           oars: [
-            { organ: 'İnce Bağırsak', metric: 'V15Gy', limit: '< 120 cc', source: 'RAPIDO' },
+            { organ: 'Small bowel', metric: 'Fractionation-specific bowel DVH', limit: 'Use the applicable RAPIDO/site protocol; conventional QUANTEC limits are not transferable', source: 'RAPIDO protocol (verify current version)', context: 'Short-course RT 25 Gy / 5 fx; not the conventional-fractionation setting for QUANTEC V15/V45 references.', contextEn: 'Short-course RT 25 Gy / 5 fx; not the conventional-fractionation setting for QUANTEC V15/V45 references.', classification: 'context-note' },
             { organ: 'Femur Başları', metric: 'Dmax', limit: '< 25 Gy', source: 'QUANTEC' },
             { organ: 'Mesane', metric: 'V20Gy', limit: '< 40%', source: 'RAPIDO' },
           ],
@@ -6345,7 +6619,7 @@ export default function RadoncoCDSSPage() {
           technique: 'VMAT',
           indication: 'Lokal ileri rektum kanserinde sfinkter koruma ve lokal kontrol için uzun dönem eşzamanlı KRT.',
           targetVolumes: [{ name: 'CTV_Pelvis', doseGy: 50.4, marginMm: 'Anatomik', anatomical: 'Mezorektum ve pelvik lenfatik istasyonlar' }],
-          oars: [{ organ: 'İnce Bağırsak', metric: 'V45Gy', limit: '< 65 cc', source: 'QUANTEC' }],
+          oars: [],
           systemicTherapy: 'Eşzamanlı oral Kapesitabin (825 mg/m2 günde iki kez).',
           evidence: 'German Rectal Cancer Study (CAO/ARO/AIO-94)',
         };
@@ -6466,7 +6740,7 @@ export default function RadoncoCDSSPage() {
           oars: [
             { organ: 'Duodenum', metric: 'Dmax', limit: '< 54 Gy; SBRT V33Gy < 1 cc', source: 'NCCN / QUANTEC' },
             { organ: 'Mide', metric: 'Dmax', limit: '< 54 Gy', source: 'NCCN' },
-            { organ: 'İnce bağırsak', metric: 'V45Gy', limit: '< 100 cc', source: 'QUANTEC' },
+            { organ: 'Bowel bag / peritoneal cavity', metric: 'V45Gy', limit: '< 195 cc (QUANTEC dose-volume reference)', source: 'QUANTEC small bowel (2010)', context: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops; conventional fractionation.', contextEn: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops; conventional fractionation.', classification: 'dose-volume-reference' },
             { organ: 'Böbrekler', metric: 'V18Gy', limit: '< 30% bilateral', source: 'QUANTEC' },
           ],
           systemicTherapy: 'Eşzamanlı kapesitabin veya indüksiyon FOLFIRINOX sonrası SBRT.',
@@ -6488,7 +6762,7 @@ export default function RadoncoCDSSPage() {
         technique: 'VMAT',
         indication: 'GİS organı definitif kemoradyoterapi protokolü.',
         targetVolumes: [{ name: 'PTV', doseGy: 50.4, marginMm: '5-7 mm', anatomical: 'Primer kitle ve bölgesel lenfatikler' }],
-        oars: [{ organ: 'İnce Bağırsak', metric: 'V45Gy', limit: '< 65 cc', source: 'QUANTEC' }],
+        oars: [],
         evidence: 'NCCN Gastrointestinal Guidelines',
       };
       return {
@@ -7043,6 +7317,17 @@ export default function RadoncoCDSSPage() {
     return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
   }, [activeScheme]);
 
+  const clinicallyRelevantOars = useMemo(() => {
+    const verifiedGuidance = getVerifiedOarGuidance(selectedOrgan, selectedSubsite, activeScheme);
+    const existingOarKeys = new Set(activeScheme.oars.map(oar =>
+      `${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`
+    ));
+    const additionalGuidance = verifiedGuidance.filter(oar =>
+      !existingOarKeys.has(`${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`)
+    );
+    return [...activeScheme.oars, ...additionalGuidance];
+  }, [activeScheme, selectedOrgan, selectedSubsite]);
+
   const radiobiologyComparison = useMemo(() => {
     const referenceDose = activeScheme.totalDoseGy;
     const referenceFractionDose = activeScheme.fractionDoseGy;
@@ -7286,11 +7571,11 @@ ${labels.totalDose}: ${activeScheme.totalDoseGy} Gy | ${labels.fraction}: ${acti
 ${labels.technique}: ${tText(activeScheme.technique)}
 ${labels.radiobiology}: BED: ${radiobiology.bed} Gy | EQD2: ${radiobiology.eqd2} Gy (α/β = ${radiobiology.ab})
 ${labels.oarConstraints}:
-${activeScheme.oars.map(o => ` * ${tText(o.organ)}: ${tText(o.metric)} ${o.limit} (${tText(o.source)})`).join('\n')}
+${clinicallyRelevantOars.map(o => ` * ${tText(o.organ)}: ${tText(o.metric)} ${o.limit}${o.context ? ` [${lang === 'tr' ? o.context : o.contextEn || o.context}]` : ''} (${tText(o.source)})`).join('\n')}
 ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   }, [
     lang, selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype, patientAgeYears,
-    selectedT, selectedN, selectedM, evaluatedDecision, activeScheme, radiobiology,
+    selectedT, selectedN, selectedM, evaluatedDecision, activeScheme, clinicallyRelevantOars, radiobiology,
     hnCrossesMidline, hnDistanceFromMidlineCm, hnDoiMm, cnsSymptoms, cnsKps, cnsResection,
     prostateRiskLabel, psaLevel, gleasonPrimary, gleasonSecondary, positiveCorePercent,
     breastHistology, breastMenopause, breastER, breastPR, breastHER2, breastKi67, breastGrade,
@@ -9395,12 +9680,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* KRİTİK ORGAN (OAR) KISITLARI TABLOSU */}
-            {activeScheme.oars.length > 0 && (
+            {clinicallyRelevantOars.length > 0 && (
               <div className="mb-4">
                 <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <ShieldAlert className="w-3.5 h-3.5 text-rose-400" aria-hidden="true" />
                   {lang === 'tr' ? 'KRİTİK ORGAN (OAR) KISITLARI' : 'ORGANS AT RISK (OAR) CONSTRAINTS'}
                 </h4>
+                <p className="mb-2 text-[10px] leading-relaxed text-slate-500">
+                  {lang === 'tr'
+                    ? 'Doz ölçütleri fraksiyonasyon, kontur tanımı, tedavi alanı ve önceki RT’ye bağlıdır; bunlar planlama referansıdır, hasta-özel doz onayı değildir.'
+                    : 'Dose metrics depend on fractionation, contour definition, treatment site and prior RT; these are planning references, not patient-specific approval.'}
+                </p>
                 <div className="border border-slate-700/80 rounded-xl overflow-hidden text-xs shadow-sm bg-[#0e1726]">
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
@@ -9412,10 +9702,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       </tr>
                     </thead>
                     <tbody className="text-slate-100">
-                      {activeScheme.oars.map((oar, idx) => (
+                      {clinicallyRelevantOars.map((oar, idx) => (
                         <tr key={idx} className="border-b border-slate-800/80 hover:bg-slate-800/40 transition-colors">
                           <td className="p-2 text-white font-semibold text-xs">{tText(oar.organ)}</td>
-                          <td className="p-2 font-mono text-slate-100 text-xs">{tText(oar.metric)}</td>
+                          <td className="p-2 font-mono text-slate-100 text-xs">
+                            {tText(oar.metric)}
+                            {oar.context && <span className="mt-1 block font-sans text-[10px] leading-relaxed text-slate-500">{lang === 'tr' ? oar.context : oar.contextEn || oar.context}</span>}
+                            {oar.classification && <span className="mt-1 inline-block rounded border border-slate-700 px-1 py-0.5 font-sans text-[8px] uppercase tracking-wide text-sky-300">{oar.classification === 'planning-aim' ? (lang === 'tr' ? 'Planlama hedefi' : 'Planning aim') : oar.classification === 'protocol-limit' ? (lang === 'tr' ? 'Protokol sınırı' : 'Protocol limit') : oar.classification === 'dose-volume-reference' ? (lang === 'tr' ? 'Doz-hacim referansı' : 'Dose-volume reference') : (lang === 'tr' ? 'Bağlam notu' : 'Context note')}</span>}
+                          </td>
                           <td className="p-2 text-rose-400 font-mono font-bold text-xs">{oar.limit}</td>
                           <td className="p-2 text-[10px] text-slate-300">{tText(oar.source)}</td>
                         </tr>
@@ -10335,8 +10629,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <table className="print-report-table">
               <thead><tr><th>{lang === 'tr' ? 'Organ' : 'Organ'}</th><th>{lang === 'tr' ? 'Ölçüt' : 'Metric'}</th><th>{lang === 'tr' ? 'Sınır' : 'Limit'}</th><th>{lang === 'tr' ? 'Kaynak' : 'Source'}</th></tr></thead>
               <tbody>
-                {activeScheme.oars.map((oar, index) => (
-                  <tr key={`${oar.organ}-${index}`}><td>{tText(oar.organ)}</td><td>{tText(oar.metric)}</td><td>{oar.limit}</td><td>{tText(oar.source)}</td></tr>
+                  {clinicallyRelevantOars.map((oar, index) => (
+                  <tr key={`${oar.organ}-${index}`}><td>{tText(oar.organ)}</td><td>{tText(oar.metric)}{oar.context && <span className="block text-[6pt]">{lang === 'tr' ? oar.context : oar.contextEn || oar.context}</span>}</td><td>{oar.limit}</td><td>{tText(oar.source)}</td></tr>
                 ))}
               </tbody>
             </table>
