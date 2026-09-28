@@ -7458,19 +7458,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patoloji' : 'Pathology'}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex w-full flex-col gap-2">
                 {currentHistologies.map(h => (
                   <button
                     key={h.id}
                     type="button"
                     onClick={() => handleHistologySelect(h.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs transition-all ${
                       selectedHistology === h.id
-                        ? 'bg-sky-600 text-white font-semibold shadow-md shadow-sky-600/30 ring-1 ring-sky-400'
-                        : 'bg-[#16253d] text-slate-200 border border-slate-700/80 hover:bg-[#1c3050] hover:text-white'
+                        ? 'bg-sky-600 font-semibold text-white shadow-md shadow-sky-600/20 ring-1 ring-sky-400'
+                        : 'border border-slate-700/80 bg-[#131f33] font-medium text-slate-200 hover:border-slate-500 hover:bg-[#182842] hover:text-white'
                     }`}
                   >
-                    {tText(h.name)}
+                    <span>{tText(h.name)}</span>
+                    <span className="ml-3 shrink-0" aria-hidden="true">
+                      {selectedHistology === h.id ? '✓' : ''}
+                    </span>
                   </button>
                 ))}
               </div>
