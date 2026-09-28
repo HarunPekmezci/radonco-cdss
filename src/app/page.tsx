@@ -1864,6 +1864,59 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   ],
 };
 
+type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'gis' | 'gynecology' | 'sarcoma-palliative';
+type QuickCaseRegimen = 'clinical' | 'sbrt' | 'moderate' | 'sib' | 'conventional';
+type QuickCasePreset = {
+  id: string;
+  category: QuickCaseCategoryId;
+  title_tr: string;
+  title_en: string;
+  detail_tr: string;
+  detail_en: string;
+  organ: OrganId;
+  subsite: string;
+  t: string;
+  n: string;
+  m: string;
+  histologyId?: string;
+  regimen: QuickCaseRegimen;
+};
+
+const QUICK_CASE_CATEGORIES: { id: QuickCaseCategoryId; label_tr: string; label_en: string; icon: string }[] = [
+  { id: 'thorax', label_tr: 'Toraks', label_en: 'Thorax', icon: '🫁' },
+  { id: 'breast', label_tr: 'Meme', label_en: 'Breast', icon: '🎗️' },
+  { id: 'cns', label_tr: 'MSS', label_en: 'CNS', icon: '🧠' },
+  { id: 'gus', label_tr: 'GÜS', label_en: 'GU', icon: '💧' },
+  { id: 'gis', label_tr: 'GİS', label_en: 'GI', icon: '🍽️' },
+  { id: 'gynecology', label_tr: 'Jinekoloji', label_en: 'Gynecology', icon: '✨' },
+  { id: 'sarcoma-palliative', label_tr: 'Sarkom & Palyatif', label_en: 'Sarcoma & Palliative', icon: '🦴' },
+];
+
+const QUICK_CASE_PRESETS: QuickCasePreset[] = [
+  { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'sbrt' },
+  { id: 'case-02', category: 'thorax', title_tr: 'Lokal ileri KHDAK', title_en: 'Locally advanced NSCLC', detail_tr: 'Evre IIIA cT2 N2 M0 • Eşzamanlı KRT 60 Gy + PACIFIC', detail_en: 'Stage IIIA cT2 N2 M0 • Concurrent CRT 60 Gy + PACIFIC', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T2a', n: 'N2', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'clinical' },
+  { id: 'case-03', category: 'thorax', title_tr: 'Sınırlı evre KHAK', title_en: 'Limited-stage SCLC', detail_tr: 'T2 N1 M0 • Turrisi erken eşzamanlı KRT 45 Gy BID / 30 fx', detail_en: 'T2 N1 M0 • Turrisi early concurrent CRT 45 Gy BID / 30 fx', organ: 'thorax', subsite: 'thorax-sclc', t: 'T2', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-04', category: 'thorax', title_tr: 'Timoma, Masaoka evre II', title_en: 'Thymoma, Masaoka stage II', detail_tr: 'R0 rezeksiyon • Adjuvan PORT 50 Gy', detail_en: 'R0 resection • Adjuvant PORT 50 Gy', organ: 'thorax', subsite: 'thorax-thymoma', t: 'Masaoka-II', n: 'N0', m: 'M0', histologyId: 'thymoma', regimen: 'clinical' },
+  { id: 'case-05', category: 'breast', title_tr: 'Erken evre standart meme', title_en: 'Early-stage breast cancer', detail_tr: 'pT1c pN0 M0 • Postmenopoz • FAST-Forward 26 Gy / 5 fx', detail_en: 'pT1c pN0 M0 • Postmenopausal • FAST-Forward 26 Gy / 5 fx', organ: 'breast', subsite: 'breast-breast', t: 'T1c', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sbrt' },
+  { id: 'case-06', category: 'breast', title_tr: 'Yüksek riskli lokal ileri PMRT', title_en: 'High-risk locally advanced PMRT', detail_tr: 'pT3 pN2a M0 • Mastektomi • Göğüs duvarı + RNI 50 Gy / 25 fx', detail_en: 'pT3 pN2a M0 • Mastectomy • Chest wall + RNI 50 Gy / 25 fx', organ: 'breast', subsite: 'breast-breast', t: 'T3', n: 'N2', m: 'M0', histologyId: 'breast-nst', regimen: 'conventional' },
+  { id: 'case-07', category: 'breast', title_tr: 'Genç hasta, MKC + SIB boost', title_en: 'Young patient, BCS + SIB boost', detail_tr: 'pT2 pN0 M0 • 38 yaş • WBRT 40.05 Gy + kavite SIB 48 Gy / 15 fx', detail_en: 'pT2 pN0 M0 • Age 38 • WBRT 40.05 Gy + cavity SIB 48 Gy / 15 fx', organ: 'breast', subsite: 'breast-breast', t: 'T2', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sib' },
+  { id: 'case-08', category: 'cns', title_tr: 'Glioblastoma multiforme', title_en: 'Glioblastoma multiforme', detail_tr: 'WHO Grade 4, IDH-wt • KPS 90 • Stupp 60 Gy / 30 fx + TMZ', detail_en: 'WHO Grade 4, IDH-wt • KPS 90 • Stupp 60 Gy / 30 fx + TMZ', organ: 'cns', subsite: 'cns-glioma', t: 'Grade-4', n: 'N0', m: 'M0', histologyId: 'glioma-gbm', regimen: 'clinical' },
+  { id: 'case-09', category: 'cns', title_tr: 'Yüksek riskli düşük dereceli gliom', title_en: 'High-risk low-grade glioma', detail_tr: 'WHO Grade 2 • 45 yaş • STR • RTOG 9802: 54 Gy + PCV', detail_en: 'WHO Grade 2 • Age 45 • STR • RTOG 9802: 54 Gy + PCV', organ: 'cns', subsite: 'cns-glioma', t: 'Grade-2', n: 'N0', m: 'M0', histologyId: 'glioma-astro', regimen: 'clinical' },
+  { id: 'case-10', category: 'cns', title_tr: 'Oligometastatik beyin metastazı', title_en: 'Oligometastatic brain metastases', detail_tr: '2 asemptomatik metastaz • Stereotaktik radyocerrahi 24 Gy', detail_en: '2 asymptomatic metastases • Stereotactic radiosurgery 24 Gy', organ: 'cns', subsite: 'cns-mets', t: 'Oligo', n: 'N0', m: 'M1', regimen: 'clinical' },
+  { id: 'case-11', category: 'gus', title_tr: 'Orta-favorable risk prostat', title_en: 'Favorable intermediate-risk prostate cancer', detail_tr: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', detail_en: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'moderate' },
+  { id: 'case-12', category: 'gus', title_tr: 'Yüksek risk prostat', title_en: 'High-risk prostate cancer', detail_tr: 'cT3a ECE+ • Gleason 4+4 • PSA 24 • Pelvik nodal + prostat 78 Gy + 24 ay ADT', detail_en: 'cT3a ECE+ • Gleason 4+4 • PSA 24 • Pelvic nodes + prostate 78 Gy + 24 months ADT', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'conventional' },
+  { id: 'case-13', category: 'gus', title_tr: 'Kas invaziv mesane kanseri', title_en: 'Muscle-invasive bladder cancer', detail_tr: 'cT2 N0 M0 • Maksimal TURBT • Trimodalite KRT 64 Gy', detail_en: 'cT2 N0 M0 • Maximal TURBT • Trimodality chemoradiotherapy 64 Gy', organ: 'prostate', subsite: 'prostate-bladder', t: 'T2', n: 'N0', m: 'M0', histologyId: 'bladder-urothelial', regimen: 'clinical' },
+  { id: 'case-14', category: 'gus', title_tr: 'Evre I testis seminom', title_en: 'Stage I testicular seminoma', detail_tr: 'Orşiyektomi sonrası pT1 • Paraaortik elektif RT 20 Gy / 10 fx', detail_en: 'Post-orchiectomy pT1 • Elective para-aortic RT 20 Gy / 10 fx', organ: 'prostate', subsite: 'prostate-testis', t: 'I', n: 'N0', m: 'M0', histologyId: 'testis-seminoma', regimen: 'clinical' },
+  { id: 'case-15', category: 'gis', title_tr: 'Lokal ileri rektum kanseri', title_en: 'Locally advanced rectal cancer', detail_tr: 'cT3c N1b M0 • RAPIDO kısa dönem 5 × 5 Gy + konsolidasyon KT / TNT', detail_en: 'cT3c N1b M0 • RAPIDO short-course 5 × 5 Gy + consolidation chemotherapy / TNT', organ: 'gis', subsite: 'gis-Rektum', t: 'T3', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-16', category: 'gis', title_tr: 'Lokal ileri özofagus kanseri', title_en: 'Locally advanced esophageal cancer', detail_tr: 'cT3 N1 M0 • CROSS neoadjuvan KRT 41.4 Gy + cerrahi', detail_en: 'cT3 N1 M0 • CROSS neoadjuvant CRT 41.4 Gy + surgery', organ: 'gis', subsite: 'gis-Ozofagus', t: 'T3', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-17', category: 'gis', title_tr: 'Anal kanal karsinomu', title_en: 'Anal canal carcinoma', detail_tr: 'cT2 N1 M0 • Nigro: Mitomisin-C + 5-FU + 50.4 Gy IMRT', detail_en: 'cT2 N1 M0 • Nigro: Mitomycin-C + 5-FU + 50.4 Gy IMRT', organ: 'gis', subsite: 'gis-anus', t: 'T2', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-18', category: 'gynecology', title_tr: 'Lokal ileri serviks kanseri', title_en: 'Locally advanced cervical cancer', detail_tr: 'FIGO IIIC1 (pelvik LN+) • EMBRACE II 45 Gy KRT + 3D IGABT', detail_en: 'FIGO IIIC1 (pelvic LN+) • EMBRACE II 45 Gy CRT + 3D IGABT', organ: 'gynecology', subsite: 'gynecology-Serviks', t: 'IIIA-IIIB', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-19', category: 'gynecology', title_tr: 'Yüksek-orta risk endometriyum', title_en: 'High-intermediate-risk endometrial cancer', detail_tr: 'PORTEC-2 ölçütleri • 68 yaş • Vajinal kaf brakiterapisi', detail_en: 'PORTEC-2 criteria • Age 68 • Vaginal cuff brachytherapy', organ: 'gynecology', subsite: 'gynecology-Endometriyum', t: 'IB', n: 'N0', m: 'M0', regimen: 'clinical' },
+  { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
+  { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
+  { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
+];
+
 const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]> = {
   'benign-ho': [
     { value: 'preop', label: 'Preoperatif ilk 4 saat' },
@@ -2542,12 +2595,16 @@ const TNM_DATABASE: Record<string, { T: TNMOption[]; N: TNMOption[]; M: TNMOptio
   // --- TORAKS: KHAK (Küçük Hücreli Akciğer Kanseri) ---
   'thorax-sclc': {
     T: [
-      { code: 'T1-T2', label: 'T1-T2', criterion: 'Lokalize primer kitle (≤5 cm, plevral yayılım yok)' },
-      { code: 'T3-T4', label: 'T3-T4', criterion: 'Geniş mediastinal, trakeal, karinal veya toraks duvarı invazyonu' },
+      { code: 'T1', label: 'T1', criterion: '≤3 cm tümör, akciğer veya visseral plevra ile çevrili' },
+      { code: 'T2', label: 'T2', criterion: '>3-5 cm; ana bronş, visseral plevra veya hiler atelektazi tutulumu' },
+      { code: 'T3', label: 'T3', criterion: '>5-7 cm veya göğüs duvarı, frenik sinir ya da parietal perikard invazyonu' },
+      { code: 'T4', label: 'T4', criterion: '>7 cm veya mediasten, kalp, büyük damar, trakea ya da vertebra invazyonu' },
     ],
     N: [
-      { code: 'N0-N1', label: 'N0-N1', criterion: 'Nodal tutulum yok veya hiler tutulum ile sınırlı' },
-      { code: 'N2-N3', label: 'N2-N3', criterion: 'Mediastinal, subkarinal veya supraklavikular lenf nodu pozitifliği' },
+      { code: 'N0', label: 'N0', criterion: 'Bölgesel lenf nodu metastazı yok' },
+      { code: 'N1', label: 'N1', criterion: 'İpsilateral peribronşiyal, hiler veya intrapulmoner lenf nodu tutulumu' },
+      { code: 'N2', label: 'N2', criterion: 'İpsilateral mediastinal veya subkarinal lenf nodu tutulumu' },
+      { code: 'N3', label: 'N3', criterion: 'Kontralateral mediastinal/hiler veya supraklavikuler lenf nodu tutulumu' },
     ],
     M: [
       { code: 'M0', label: 'Sınırlı Evre (LS-SCLC)', criterion: 'Tek bir tolere edilebilir radyasyon alanı içine dahil edilebilen hastalık (M0)' },
@@ -3408,6 +3465,7 @@ export default function RadoncoCDSSPage() {
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
+  const [patientAgeYears, setPatientAgeYears] = useState<string>('');
   const [selectedSubsite, setSelectedSubsite] = useState<string>('benign-ho');
   const [benignClinicalStatus, setBenignClinicalStatus] = useState<string>('postop-24h');
 
@@ -3551,7 +3609,9 @@ export default function RadoncoCDSSPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
-  const [selectedRegimen, setSelectedRegimen] = useState<'sbrt' | 'moderate' | 'sib' | 'conventional'>('moderate');
+  const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
+  const [isQuickCasesOpen, setIsQuickCasesOpen] = useState(false);
+  const [activeQuickCaseCategory, setActiveQuickCaseCategory] = useState<QuickCaseCategoryId>('thorax');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
@@ -3662,6 +3722,8 @@ export default function RadoncoCDSSPage() {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
     setSelectedSubsite('');
+    setPatientAgeYears('');
+    setSelectedRegimen('clinical');
     setSelectedSchemeId('');
     let key = newOrgan as string;
     if (newOrgan === 'thorax') key = `thorax-${thoraxSubtype}`;
@@ -3722,6 +3784,8 @@ export default function RadoncoCDSSPage() {
     if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
     if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
     setSelectedSubsite(subKey);
+    setPatientAgeYears('');
+    setSelectedRegimen('clinical');
     setIsMobileDrawerOpen(false);
     const firstClinicalOption = BENIGN_CLINICAL_OPTIONS[subKey]?.[0];
     if (firstClinicalOption) setBenignClinicalStatus(firstClinicalOption.value);
@@ -3891,6 +3955,140 @@ export default function RadoncoCDSSPage() {
       return;
     }
     setSelectedSchemeId('');
+  };
+
+  const handleQuickCaseSelect = (preset: QuickCasePreset) => {
+    handleSubsiteChange(preset.subsite);
+    setSelectedOrgan(preset.organ);
+    setSelectedSchemeId('');
+    setSelectedRegimen(preset.regimen);
+    setPatientAgeYears('');
+    setOpenCategories(previous => previous.includes(preset.organ) ? previous : [...previous, preset.organ]);
+    if (preset.histologyId) handleHistologySelect(preset.histologyId);
+
+    switch (preset.id) {
+      case 'case-01':
+        setThoraxCentrality('Peripheral');
+        setThoraxSurgeryStatus('Inoperable');
+        setBreathingMotion('DIBH');
+        break;
+      case 'case-02':
+        setThoraxCentrality('Central');
+        setThoraxSurgeryStatus('Inoperable');
+        setBreathingMotion('4D-CT');
+        break;
+      case 'case-03':
+        setSclcStage('Sinirli');
+        setSclcTiming('Erken_BID_45Gy');
+        break;
+      case 'case-04':
+        setThymomaStage('Masaoka_II');
+        setThymomaMargin('R0');
+        setThoraxSurgeryStatus('Postop_R0');
+        break;
+      case 'case-05':
+        setBreastSurgery('MKC');
+        setBreastMargin('Negatif');
+        setBreastMenopause('Postmenopozal');
+        setBreastBoost(true);
+        break;
+      case 'case-06':
+        setBreastSurgery('Mastektomi');
+        setBreastMargin('Negatif');
+        setBreastMenopause('Postmenopozal');
+        setBreastBoost(false);
+        break;
+      case 'case-07':
+        setPatientAgeYears('38');
+        setBreastSurgery('MKC');
+        setBreastMargin('Negatif');
+        setBreastMenopause('Premenopozal');
+        setBreastBoost(true);
+        break;
+      case 'case-08':
+        setGliomaGrade('Grade_4');
+        setCnsKps('90');
+        setCnsResection('GTR');
+        setGbmPerformance('Iyi_ECOG_0_1');
+        setGliomaRiskFactors({ age40: false, subtotalResection: false, largeOrCrossing: false, neurologicSymptoms: false, molecularHighRisk: false });
+        break;
+      case 'case-09':
+        setPatientAgeYears('45');
+        setGliomaGrade('Grade_2');
+        setCnsKps('90');
+        setCnsResection('STR');
+        setGliomaRiskFactors({ age40: true, subtotalResection: true, largeOrCrossing: false, neurologicSymptoms: false, molecularHighRisk: false });
+        break;
+      case 'case-10':
+        setCnsMetCount('2');
+        setCnsMaxDiameter('2');
+        setCnsSymptoms('Asimptomatik');
+        setCnsKps('90');
+        break;
+      case 'case-11':
+        setGleasonPrimary('3');
+        setGleasonSecondary('4');
+        setPsaLevel('8.5');
+        setPositiveCorePercent('35');
+        setHasECE(false);
+        setHasSVI(false);
+        break;
+      case 'case-12':
+        setGleasonPrimary('4');
+        setGleasonSecondary('4');
+        setPsaLevel('24');
+        setPositiveCorePercent('60');
+        setHasECE(true);
+        setHasSVI(false);
+        break;
+      case 'case-13':
+        setBladderTurbtComplete(true);
+        setBladderTmtSuitable(true);
+        break;
+      case 'case-15':
+        setGisOrgan('Rektum');
+        setGisCrmStatus('Pozitif');
+        break;
+      case 'case-16':
+        setGisOrgan('Ozofagus');
+        setGisCrmStatus('Negatif');
+        break;
+      case 'case-17':
+        setGisOrgan('Anal');
+        setGisCrmStatus('Pozitif');
+        break;
+      case 'case-18':
+        setGynSite('Serviks');
+        setCervixScenario('Definitif_KRT');
+        break;
+      case 'case-19':
+        setPatientAgeYears('68');
+        setGynSite('Endometriyum');
+        setEndoRisk('High_Intermediate');
+        break;
+      case 'case-20':
+        setSarcomaSubtype('Yumusak_Doku');
+        setStsHistology('ups');
+        setSarcomaSurgery('Preop');
+        break;
+      case 'case-21':
+        setPalliativeIntent('Agri');
+        break;
+      case 'case-22':
+        setPalliativeIntent('Kord_Basisi');
+        break;
+      default:
+        break;
+    }
+
+    const database = TNM_DATABASE[preset.subsite] || TNM_DATABASE[preset.organ] || TNM_DATABASE['thorax-nsclc'];
+    setSelectedT(database.T.some(option => option.code === preset.t) ? preset.t : database.T[0]?.code ?? preset.t);
+    setSelectedN(database.N.some(option => option.code === preset.n) ? preset.n : database.N[0]?.code ?? preset.n);
+    setSelectedM(database.M.some(option => option.code === preset.m) ? preset.m : database.M[0]?.code ?? preset.m);
+    setSelectedRegimen(preset.regimen);
+    setActiveQuickCaseCategory(preset.category);
+    setIsQuickCasesOpen(false);
+    setActiveMobilePanel('prescription');
   };
 
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
@@ -6577,7 +6775,7 @@ export default function RadoncoCDSSPage() {
   };
 
   const activeScheme = useMemo(() => {
-    const regimenByOrgan: Partial<Record<OrganId, Record<typeof selectedRegimen, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
+    const regimenByOrgan: Partial<Record<OrganId, Record<Exclude<QuickCaseRegimen, 'clinical'>, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
       prostate: {
         sbrt: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5 },
         moderate: { name: 'Moderate Hypofractionation (CHHiP / PROFIT)', totalDoseGy: 60, fractionCount: 20, fractionDoseGy: 3, alphaBeta: 1.5 },
@@ -6593,10 +6791,11 @@ export default function RadoncoCDSSPage() {
       breast: {
         sbrt: { name: 'Ultra-Hypofractionation (FAST-Forward)', totalDoseGy: 26, fractionCount: 5, fractionDoseGy: 5.2, alphaBeta: 4 },
         moderate: { name: 'Moderate Hypofractionation (40.05 Gy / 15 fx)', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
-        sib: { name: 'SIB Boost (40.05 Gy + simultaneous boost)', totalDoseGy: 48, fractionCount: 15, fractionDoseGy: 3.2, alphaBeta: 4 },
+        sib: { name: 'Whole Breast 40.05 Gy + Cavity SIB 48 Gy / 15 fx', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
         conventional: { name: 'Conventional Breast RT (50 Gy / 25 fx)', totalDoseGy: 50, fractionCount: 25, fractionDoseGy: 2, alphaBeta: 4 },
       },
     };
+    if (selectedRegimen === 'clinical') return baseActiveScheme;
     const regimen = regimenByOrgan[selectedOrgan]?.[selectedRegimen];
     if (!regimen || !isRegimenEligible(selectedRegimen)) return baseActiveScheme;
     return {
@@ -6609,10 +6808,15 @@ export default function RadoncoCDSSPage() {
       fractionDoseGy: regimen.fractionDoseGy,
       alphaBeta: regimen.alphaBeta,
       // Yalnızca primer hedef hacim dozu felsefeye uyarlanır; nodal/boost seviyeleri korunur
-      targetVolumes: baseActiveScheme.targetVolumes.map(volume => ({
-        ...volume,
-        doseGy: volume.doseGy === baseActiveScheme.totalDoseGy ? regimen.totalDoseGy : volume.doseGy,
-      })),
+      targetVolumes: baseActiveScheme.targetVolumes.map(volume => {
+        if (selectedOrgan === 'breast' && selectedRegimen === 'sib' && /boost|tumor.?bed|kavite/i.test(`${volume.name} ${volume.anatomical}`)) {
+          return { ...volume, doseGy: 48 };
+        }
+        return {
+          ...volume,
+          doseGy: volume.doseGy === baseActiveScheme.totalDoseGy ? regimen.totalDoseGy : volume.doseGy,
+        };
+      }),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology]);
@@ -6817,7 +7021,7 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'pediatric') subInfo = `${tText(pediatricSubtype)}${pediatricSubtype === 'Medulloblastom' ? `; ${labels.risk} ${tText(pediatricRisk)}` : pediatricSubtype === 'Wilms' ? `; ${tText(wilmsStage)}` : ''}`;
 
     return `${labels.clinicalSummary} (RadOnco CDSS)
-${labels.organSystem}: ${lang === 'tr' ? selectedOrgan.toUpperCase() : organNames[selectedOrgan]} (${subInfo})
+${labels.organSystem}: ${lang === 'tr' ? selectedOrgan.toUpperCase() : organNames[selectedOrgan]} (${patientAgeYears ? `${lang === 'tr' ? 'Yaş' : 'Age'} ${patientAgeYears}; ` : ''}${subInfo})
 ${labels.stage}: ${selectedT} ${selectedN} ${selectedM}
 ${labels.decision}: ${tText(evaluatedDecision.statusText)}
 ${labels.prescription}: ${tText(activeScheme.name)} [${tText(activeScheme.tag)}]
@@ -6828,7 +7032,7 @@ ${labels.oarConstraints}:
 ${activeScheme.oars.map(o => ` * ${tText(o.organ)}: ${tText(o.metric)} ${o.limit} (${tText(o.source)})`).join('\n')}
 ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   }, [
-    lang, selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype,
+    lang, selectedOrgan, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype, patientAgeYears,
     selectedT, selectedN, selectedM, evaluatedDecision, activeScheme, radiobiology,
     hnCrossesMidline, hnDistanceFromMidlineCm, hnDoiMm, cnsSymptoms, cnsKps, cnsResection,
     prostateRiskLabel, psaLevel, gleasonPrimary, gleasonSecondary, positiveCorePercent,
@@ -7081,6 +7285,86 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <span aria-hidden="true">📖</span>
             <span className="hidden sm:inline">{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}</span>
           </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsQuickCasesOpen(open => !open)}
+              aria-expanded={isQuickCasesOpen}
+              aria-haspopup="dialog"
+              aria-label={lang === 'tr' ? '22 klinik hızlı vakayı aç' : 'Open 22 clinical preset cases'}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:px-3"
+            >
+              <span aria-hidden="true">⚡</span>
+              <span className="hidden sm:inline">{lang === 'tr' ? 'Hızlı Vakalar' : 'Preset Cases'}</span>
+              <ChevronDown className={`h-3 w-3 transition-transform ${isQuickCasesOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+            </button>
+            {isQuickCasesOpen && (
+              <div
+                role="dialog"
+                aria-label={lang === 'tr' ? 'Klinik simülatör vaka kütüphanesi' : 'Clinical simulator case library'}
+                className="absolute right-0 z-[60] mt-2 flex w-[min(94vw,52rem)] overflow-hidden rounded-2xl border border-slate-700 bg-[#0b1220] shadow-2xl shadow-black/50"
+              >
+                <div className="flex w-32 shrink-0 flex-col gap-1 border-r border-slate-800 bg-[#0e1726] p-2 sm:w-44 sm:p-3" role="tablist" aria-label={lang === 'tr' ? 'Vaka branşları' : 'Case specialties'}>
+                  <div className="mb-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {lang === 'tr' ? 'Branş' : 'Specialty'}
+                  </div>
+                  {QUICK_CASE_CATEGORIES.map(category => {
+                    const count = QUICK_CASE_PRESETS.filter(preset => preset.category === category.id).length;
+                    const active = activeQuickCaseCategory === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setActiveQuickCaseCategory(category.id)}
+                        className={`flex items-center gap-1.5 rounded-lg px-2 py-2 text-left text-[10px] font-semibold transition sm:gap-2 sm:px-2.5 sm:text-xs ${
+                          active
+                            ? 'bg-sky-500/15 text-sky-200 ring-1 ring-sky-500/30'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                        }`}
+                      >
+                        <span aria-hidden="true">{category.icon}</span>
+                        <span className="min-w-0 flex-1 truncate">{lang === 'tr' ? category.label_tr : category.label_en}</span>
+                        <span className="font-mono text-[9px] text-slate-500">{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="max-h-[min(72vh,40rem)] min-w-0 flex-1 overflow-y-auto p-2.5 sm:p-4" role="tabpanel">
+                  <div className="mb-2 flex items-center justify-between gap-2 px-1">
+                    <h2 className="text-xs font-bold text-slate-200 sm:text-sm">
+                      {QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.icon}{' '}
+                      {lang === 'tr'
+                        ? QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.label_tr
+                        : QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.label_en}
+                    </h2>
+                    <span className="text-[10px] text-slate-500">
+                      {QUICK_CASE_PRESETS.filter(preset => preset.category === activeQuickCaseCategory).length} {lang === 'tr' ? 'vaka' : 'cases'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {QUICK_CASE_PRESETS.filter(preset => preset.category === activeQuickCaseCategory).map(preset => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleQuickCaseSelect(preset)}
+                        className="group rounded-xl border border-slate-800 bg-[#0e1726] p-2.5 text-left transition hover:border-sky-500/50 hover:bg-[#131f33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:p-3"
+                      >
+                        <span className="block text-[11px] font-semibold leading-4 text-slate-100 group-hover:text-sky-100 sm:text-xs">
+                          {lang === 'tr' ? preset.title_tr : preset.title_en}
+                        </span>
+                        <span className="mt-1 block text-[10px] leading-4 text-slate-400 sm:text-[11px]">
+                          {lang === 'tr' ? preset.detail_tr : preset.detail_en}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <div className="relative">
             <button
               type="button"
@@ -7487,6 +7771,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <Activity className="w-3.5 h-3.5" />
               {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
             </h2>
+            {patientAgeYears !== '' && (
+              <label className="flex max-w-40 flex-col gap-1 text-[11px] font-medium text-slate-300">
+                {lang === 'tr' ? 'Hasta yaşı (yıl)' : 'Patient age (years)'}
+                <input
+                  type="number"
+                  min="0"
+                  max="120"
+                  value={patientAgeYears}
+                  onChange={event => {
+                    const value = event.currentTarget.value;
+                    if (value === '' || (Number(value) >= 0 && Number(value) <= 120)) setPatientAgeYears(value);
+                  }}
+                  className="w-full rounded-lg border border-slate-700 bg-[#131f33] px-2.5 py-2 text-xs text-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                />
+              </label>
+            )}
 
             {/* GİS: CRM VE SOLUNUM HAREKETİ PARAMETRELERİ */}
             {selectedOrgan === 'gis' && (
