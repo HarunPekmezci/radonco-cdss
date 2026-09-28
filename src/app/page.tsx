@@ -251,6 +251,14 @@ const getAdaptiveEContour = (
     );
   }
 
+  if (organ === 'prostate' && normalizedSubsite.includes('kidney')) {
+    return target(
+      'https://econtour.org/?search=renal+sbrt',
+      'eContour: Böbrek RCC SABR / Normal Doku Atlası',
+      'eContour: Renal Cell Carcinoma SABR / Normal Tissue Atlas',
+    );
+  }
+
   if (organ === 'prostate' && normalizedSubsite.includes('prostate')) {
     if (normalizedSurgery.includes('postop') || normalizedSurgery.includes('prostatektomi')) {
       return target(
@@ -355,15 +363,22 @@ const getAdaptiveEContour = (
         'eContour: Adjuvant Gastric Bed & Nodal Stations',
       );
     }
+    if (normalizedSubsite.includes('safra') || normalizedSubsite.includes('biliary') || normalizedSubsite.includes('cholangi')) {
+      return target(
+        'https://econtour.org/?search=biliary+tract',
+        'eContour: Safra Yolları & Postoperatif Safra Kesesi Yatağı',
+        'eContour: Biliary Tract & Post-op Gallbladder Bed',
+      );
+    }
     if (normalizedSubsite.includes('karaciger') || normalizedSubsite.includes('karaciğer') || normalizedSubsite.includes('liver')) {
       return target(
         'https://econtour.org/?search=liver+sbrt',
         motionManagement === 'DIBH'
-          ? 'eContour: Karaciğer SBRT (DIBH Nefes Tutma Atlası)'
-          : 'eContour: Karaciğer SBRT (4D-CT / ITV Atlası)',
+          ? 'eContour: Liver SBRT & Normal Tissue Constraints (DIBH / Motion Atlas)'
+          : 'eContour: Liver SBRT & Normal Tissue Constraints (4D-CT / ITV Atlas)',
         motionManagement === 'DIBH'
-          ? 'eContour: Liver SBRT (DIBH Breath-Hold Atlas)'
-          : 'eContour: Liver SBRT (4D-CT / ITV Atlas)',
+          ? 'eContour: Liver SBRT & Normal Tissue Constraints (DIBH / Motion Atlas)'
+          : 'eContour: Liver SBRT & Normal Tissue Constraints (4D-CT / ITV Atlas)',
       );
     }
     if (normalizedSubsite.includes('ozofagus') || normalizedSubsite.includes('özofagus') || normalizedSubsite.includes('esophag')) {
@@ -753,6 +768,18 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Pankreas Kanseri': 'Pancreatic Cancer',
   'Özofagus Kanseri': 'Esophageal Cancer',
   'Karaciğer': 'Liver',
+  Karaciger: 'Liver',
+  SafraYollari: 'Biliary Tract',
+  kidney: 'Kidney',
+  'renal-clear-cell': 'Clear-cell RCC',
+  'renal-papillary': 'Papillary RCC',
+  'renal-chromophobe': 'Chromophobe RCC',
+  'liver-hcc': 'Hepatocellular Carcinoma (HCC)',
+  'liver-colorectal-metastasis': 'Colorectal Liver Metastasis',
+  'biliary-intrahepatic': 'Intrahepatic Cholangiocarcinoma',
+  'biliary-perihilar': 'Perihilar Cholangiocarcinoma (Klatskin)',
+  'biliary-extrahepatic': 'Distal / Extrahepatic Cholangiocarcinoma',
+  'biliary-gallbladder': 'Gallbladder Cancer',
   'Nazofarenks': 'Nasopharynx',
   'Orofarenks': 'Oropharynx',
   'Larenks': 'Larynx',
@@ -1775,6 +1802,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'prostate-bladder', name_tr: 'Mesane Kanseri', name_en: 'Bladder Cancer' },
     { id: 'prostate-penile', name_tr: 'Penil Kanser', name_en: 'Penile Cancer' },
     { id: 'prostate-testis', name_tr: 'Testis Kanseri', name_en: 'Testicular Cancer' },
+    { id: 'prostate-kidney', name_tr: 'Böbrek Kanseri (RCC)', name_en: 'Renal Cell Carcinoma (RCC)' },
   ],
   breast: [
     { id: 'breast-idc', name_tr: 'İnvaziv Duktal Karsinom (İDK)', name_en: 'Invasive Ductal (IDC)' },
@@ -1788,7 +1816,8 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'gis-Rektum', name_tr: 'Rektum Kanseri', name_en: 'Rectal Cancer' },
     { id: 'gis-Mide', name_tr: 'Mide Kanseri', name_en: 'Gastric Cancer' },
     { id: 'gis-anus', name_tr: 'Anal Kanal Kanseri (Nigro)', name_en: 'Anal Canal Cancer' },
-    { id: 'gis-Karaciger', name_tr: 'Karaciğer (HCC/SBRT)', name_en: 'Liver Cancer' },
+    { id: 'gis-Karaciger', name_tr: 'Karaciğer (HCC/Met)', name_en: 'Liver (HCC/Met)' },
+    { id: 'gis-SafraYollari', name_tr: 'Safra Yolları', name_en: 'Biliary Tract' },
     { id: 'gis-Pankreas', name_tr: 'Pankreas Kanseri', name_en: 'Pancreatic Cancer' },
     { id: 'gis-Ozofagus', name_tr: 'Özofagus Kanseri', name_en: 'Esophageal Cancer' },
   ],
@@ -2024,7 +2053,7 @@ export interface DoseScheme {
   evidence: string;
 }
 
-const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme): OARConstraint[] => {
+const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARConstraint[] => {
   const conventionalFractionation = scheme.fractionCount >= 15 && scheme.fractionDoseGy <= 2.1;
   const hasPelvicNodalTarget = scheme.targetVolumes.some(volume =>
     /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)
@@ -2144,6 +2173,86 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
         classification: 'dose-volume-reference',
       },
     ];
+  }
+
+  if (organ === 'gis' && subsite === 'gis-Karaciger' && scheme.fractionCount === 5) {
+    return [
+      {
+        organ: lang === 'tr' ? 'Sağlam karaciğer (toplam karaciğer - GTV)' : 'Uninvolved liver (total liver minus GTV)',
+        metric: lang === 'tr' ? 'Korunmuş hacim eşiği (V15Gy)' : 'Spared-volume threshold (V15Gy)',
+        limit: lang === 'tr' ? 'En az 700 cc, ≤15 Gy doz almalı' : 'At least 700 cc should receive ≤15 Gy',
+        source: 'NRG/RTOG 1112 protocol; eviQ hepatic metastases SABR protocol',
+        context: lang === 'tr'
+          ? 'Beş fraksiyonlu karaciğer SBRT; başlangıç karaciğer fonksiyonu ve önceki karaciğer tedavilerini değerlendirin.'
+          : 'Five-fraction liver SBRT; assess baseline liver function and prior liver-directed treatment.',
+        contextEn: 'Five-fraction liver SBRT; assess baseline liver function and prior liver-directed treatment.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: lang === 'tr' ? 'Mide / duodenum' : 'Stomach / duodenum',
+        metric: 'D0.5cc',
+        limit: lang === 'tr' ? '≤30 Gy (5 fraksiyon referansı; seçilen protokolü doğrulayın)' : '≤30 Gy (5-fraction reference; verify selected protocol)',
+        source: 'eviQ hepatic metastases stereotactic EBRT protocol',
+        context: 'İlgili organa ve fraksiyonasyona özgü DVH kısıtlarını kullanın; gerekirse reçete dozunu azaltın.',
+        contextEn: 'Use the relevant organ-specific and fractionation-specific DVH constraints; reduce prescription if needed.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+  }
+
+  if (organ === 'gis' && subsite === 'gis-SafraYollari') {
+    return [{
+      organ: lang === 'tr' ? 'Mide / duodenum / ince bağırsak / santral safra yolları' : 'Stomach / duodenum / small bowel / central bile ducts',
+      metric: lang === 'tr' ? 'Fraksiyon ve alt bölgeye özgü doz-hacim sınırları' : 'Fraction- and site-specific dose-volume limits',
+      limit: lang === 'tr' ? 'Seçilen protokolü kullanın; evrensel biliyer SBRT eşiği yoktur' : 'Use the selected protocol; no universal biliary SBRT threshold',
+      source: 'SWOG S0809 (JCO 2015), DOI: 10.1200/JCO.2014.60.2219; RTOG upper-abdominal atlas',
+      context: 'İntrahepatik, perihiler, distal ve safra kesesi yatağı hedeflerinde anatomi ve OAR kısıtları farklıdır.',
+      contextEn: 'Anatomy and organ-at-risk limits differ for intrahepatic, perihilar, distal and gallbladder-bed targets.',
+      classification: 'context-note',
+    }];
+  }
+
+  if (organ === 'prostate' && subsite === 'prostate-kidney') {
+    if (scheme.id === 'rcc-primary-42-3') {
+      return [
+        {
+          organ: lang === 'tr' ? 'Kontralateral böbrek' : 'Contralateral kidney',
+          metric: 'Dmean',
+          limit: lang === 'tr' ? '≤8 Gy (eviQ 3 fraksiyon referansı)' : '≤8 Gy (3-fraction eviQ reference)',
+          source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol',
+          context: 'Renal fonksiyonu koruyun; başlangıç eGFR, tek böbrek ve önceki renal tedaviye göre bireyselleştirin.',
+          contextEn: 'Preserve renal function; individualise for baseline eGFR, solitary kidney and prior renal treatment.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: lang === 'tr' ? 'Bağırsak / duodenum' : 'Bowel / duodenum',
+          metric: 'D0.03cc',
+          limit: lang === 'tr' ? '≤30 Gy (eviQ 3 fraksiyon referansı)' : '≤30 Gy (3-fraction eviQ reference)',
+          source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol',
+          context: 'Noktasal maksimum D0.5cc veya Dmax ile eşdeğer değildir; güncel protokolün tam metriğini uygulayın.',
+          contextEn: 'Point maximum is not interchangeable with D0.5cc or Dmax; apply the exact current protocol.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: lang === 'tr' ? 'Spinal kord' : 'Spinal cord',
+          metric: lang === 'tr' ? 'Fraksiyona özgü küçük hacim kısıtı' : 'Fraction-specific small-volume constraint',
+          limit: lang === 'tr' ? 'Güncel renal SBRT protokolünü kullanın; genel bir değer verilmemiştir' : 'Use current renal SBRT protocol; no generic value asserted',
+          source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol; AAPM TG-101',
+          context: 'Başka bir protokol veya kontur tanımındaki 3 fraksiyon sınırını ikame etmeyin.',
+          contextEn: 'Do not substitute a three-fraction limit from another protocol or contour definition.',
+          classification: 'context-note',
+        },
+      ];
+    }
+    return [{
+      organ: lang === 'tr' ? 'Kalan böbrek / bağırsak / spinal kord' : 'Remaining kidney / bowel / spinal cord',
+      metric: lang === 'tr' ? 'Fraksiyona özgü doz-hacim sınırları' : 'Fraction-specific dose-volume limits',
+      limit: lang === 'tr' ? 'Seçilen FASTRACK II veya oligometastatik SBRT protokolünü kullanın' : 'Use the selected FASTRACK II or oligometastatic SBRT protocol',
+      source: 'FASTRACK II (Lancet Oncol 2024), DOI: 10.1016/S1470-2045(24)00020-2; eviQ renal SABR protocol',
+      context: 'Tek fraksiyon primer SABR ve 3–5 fraksiyon metastaz SBRT kısıtları farklıdır.',
+      contextEn: 'Single-fraction primary SABR and 3–5 fraction metastasis SBRT have different constraints.',
+      classification: 'context-note',
+    }];
   }
 
   if (organ === 'head-neck' && conventionalFractionation) {
@@ -3582,6 +3691,44 @@ TNM_DATABASE['gis-Karaciger'] = {
     { code: 'M1', label: 'M1', criterion: 'Uzak organ/peritoneal metastaz mevcut' },
   ],
 };
+TNM_DATABASE['gis-liver-metastasis'] = {
+  T: [{ code: 'N/A', label: 'N/A', criterion: 'The liver lesion is metastatic; stage the colorectal primary separately.' }],
+  N: [{ code: 'N/A', label: 'N/A', criterion: 'Primary-tumor nodal status is staged separately.' }],
+  M: [{ code: 'M1', label: 'M1', criterion: 'Distant metastatic disease involving the liver.' }],
+};
+TNM_DATABASE['gis-SafraYollari'] = {
+  T: [
+    { code: 'T1', label: 'T1', criterion: 'Site-specific early wall/depth-limited primary; use the intrahepatic, perihilar, distal or gallbladder AJCC definition.' },
+    { code: 'T2', label: 'T2', criterion: 'Site-specific local extension; criteria differ by biliary subsite.' },
+    { code: 'T3', label: 'T3', criterion: 'Advanced local extension or vascular/serosal involvement; consult site-specific AJCC criteria.' },
+    { code: 'T4', label: 'T4', criterion: 'Major vascular or adjacent-organ involvement; consult site-specific AJCC criteria.' },
+  ],
+  N: [
+    { code: 'N0', label: 'N0', criterion: 'No regional lymph-node metastasis.' },
+    { code: 'N1', label: 'N1', criterion: 'Regional lymph-node metastasis; definitions vary by site.' },
+  ],
+  M: [
+    { code: 'M0', label: 'M0', criterion: 'No distant metastasis.' },
+    { code: 'M1', label: 'M1', criterion: 'Distant metastasis.' },
+  ],
+};
+TNM_DATABASE['prostate-kidney'] = {
+  T: [
+    { code: 'T1a', label: 'T1a', criterion: 'Tumour ≤4 cm, limited to the kidney.' },
+    { code: 'T1b', label: 'T1b', criterion: 'Tumour >4 cm and ≤7 cm, limited to the kidney.' },
+    { code: 'T2', label: 'T2', criterion: 'Tumour >7 cm, limited to the kidney (subcategories depend on size).' },
+    { code: 'T3', label: 'T3', criterion: 'Renal vein/segmental branches, perirenal or renal sinus fat, or vena cava involvement without extension beyond Gerota fascia.' },
+    { code: 'T4', label: 'T4', criterion: 'Extension beyond Gerota fascia, including contiguous ipsilateral adrenal involvement.' },
+  ],
+  N: [
+    { code: 'N0', label: 'N0', criterion: 'No regional lymph-node metastasis.' },
+    { code: 'N1', label: 'N1', criterion: 'Regional lymph-node metastasis.' },
+  ],
+  M: [
+    { code: 'M0', label: 'M0', criterion: 'No distant metastasis.' },
+    { code: 'M1', label: 'M1', criterion: 'Distant metastasis.' },
+  ],
+};
 TNM_DATABASE['pediatric-Ewing'] = TNM_DATABASE['bone-sarcoma-Ewing'];
 TNM_DATABASE['skin-BCC'] = TNM_DATABASE.skin;
 TNM_DATABASE['skin-SCC'] = TNM_DATABASE.skin;
@@ -3771,7 +3918,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 2. GÜS / PROSTAT ALT BAŞLIKLARI
   // ==========================================
-  const [gusSubtype, setGusSubtype] = useState<'prostate' | 'bladder' | 'testis' | 'penile'>('prostate');
+  const [gusSubtype, setGusSubtype] = useState<'prostate' | 'bladder' | 'testis' | 'penile' | 'kidney'>('prostate');
   const [gleasonPrimary, setGleasonPrimary] = useState<string>('3');
   const [gleasonSecondary, setGleasonSecondary] = useState<string>('4');
   const [psaLevel, setPsaLevel] = useState<string>('8.5');
@@ -3783,6 +3930,8 @@ export default function RadoncoCDSSPage() {
   const [prostateHistology, setProstateHistology] = useState<'acinar' | 'ductal' | 'nepc'>('acinar');
   const [testisHistology, setTestisHistology] = useState<'seminoma' | 'nonseminoma'>('seminoma');
   const [bladderHistology, setBladderHistology] = useState<'urothelial' | 'non-urothelial'>('urothelial');
+  const [renalHistology, setRenalHistology] = useState<'clear-cell' | 'papillary' | 'chromophobe'>('clear-cell');
+  const [renalDiseaseSetting, setRenalDiseaseSetting] = useState<'primary-inoperable' | 'oligometastatic'>('primary-inoperable');
 
   // ==========================================
   // 3. MEME RİSK FAKTÖRLERİ
@@ -3803,7 +3952,12 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 4. GİS ALT BAŞLIKLARI
   // ==========================================
-  const [gisOrgan, setGisOrgan] = useState<'Rektum' | 'Mide' | 'Ozofagus' | 'Pankreas' | 'Anal' | 'Karaciger'>('Rektum');
+  const [gisOrgan, setGisOrgan] = useState<'Rektum' | 'Mide' | 'Ozofagus' | 'Pankreas' | 'Anal' | 'Karaciger' | 'SafraYollari'>('Rektum');
+  const [liverHistology, setLiverHistology] = useState<'hcc' | 'colorectal-metastasis'>('hcc');
+  const [liverBclcStage, setLiverBclcStage] = useState<'0' | 'A' | 'B' | 'C'>('A');
+  const [biliaryHistology, setBiliaryHistology] = useState<'intrahepatic' | 'perihilar' | 'extrahepatic' | 'gallbladder'>('intrahepatic');
+  const [biliaryTreatmentSetting, setBiliaryTreatmentSetting] = useState<'adjuvant' | 'unresectable'>('adjuvant');
+  const [biliaryMarginStatus, setBiliaryMarginStatus] = useState<'R0' | 'R1'>('R0');
   const [gisCrmStatus, setGisCrmStatus] = useState<'Negatif' | 'Pozitif'>('Negatif');
 
   // ==========================================
@@ -3939,6 +4093,9 @@ export default function RadoncoCDSSPage() {
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
+    if (selectedOrgan === 'gis' && gisOrgan === 'Karaciger' && liverHistology === 'colorectal-metastasis') {
+      return 'gis-liver-metastasis';
+    }
     if (selectedSubsite && TNM_DATABASE[selectedSubsite]) return selectedSubsite;
     if (selectedOrgan === 'thorax') return `thorax-${thoraxSubtype}`;
     if (selectedOrgan === 'gynecology') return `gynecology-${gynSite}`;
@@ -3958,7 +4115,7 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'hematologic') return `hematologic-${hematologicSubtype}`;
     if (selectedOrgan === 'pediatric') return `pediatric-${pediatricSubtype}`;
     return selectedOrgan;
-  }, [selectedOrgan, selectedSubsite, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
+  }, [selectedOrgan, selectedSubsite, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, liverHistology, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
 
   const currentTNM = TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
   const prostateRiskLabel = useMemo(() => {
@@ -4077,8 +4234,8 @@ export default function RadoncoCDSSPage() {
     );
     if (parentOrgan) setSelectedOrgan(parentOrgan);
     if (organ === 'thorax' && ['nsclc', 'sclc', 'thymoma', 'mesothelioma'].includes(subtype)) setThoraxSubtype(subtype as typeof thoraxSubtype);
-    if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
-    if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
+    if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis', 'kidney'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
+    if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus', 'SafraYollari'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
     if (subKey.startsWith('head-neck-')) setHnSubsite(subKey.replace('head-neck-', '') as typeof hnSubsite);
     if (organ === 'cns' && ['glioma', 'gbm', 'mets', 'meningioma'].includes(subtype)) setCnsSubtype(subtype as typeof cnsSubtype);
     if (organ === 'gynecology' && ['Serviks', 'Endometriyum', 'Vulva', 'Vajen'].includes(subtype)) setGynSite(subtype as typeof gynSite);
@@ -4115,6 +4272,11 @@ export default function RadoncoCDSSPage() {
 
   const currentHistologies: { id: string; name: string }[] = (() => {
     if (selectedOrgan === 'prostate') {
+      if (gusSubtype === 'kidney') return [
+        { id: 'renal-clear-cell', name: lang === 'tr' ? 'Şeffaf Hücreli RCC' : 'Clear-cell RCC' },
+        { id: 'renal-papillary', name: lang === 'tr' ? 'Papiller RCC' : 'Papillary RCC' },
+        { id: 'renal-chromophobe', name: lang === 'tr' ? 'Kromofob RCC' : 'Chromophobe RCC' },
+      ];
       if (gusSubtype === 'prostate') return [
         { id: 'prostate-acinar', name: 'Asiner Adenokarsinom (Klasik)' },
         { id: 'prostate-ductal', name: 'Duktal Karsinom (Agresif)' },
@@ -4130,6 +4292,16 @@ export default function RadoncoCDSSPage() {
       ];
       return [];
     }
+    if (selectedOrgan === 'gis' && gisOrgan === 'Karaciger') return [
+      { id: 'liver-hcc', name: lang === 'tr' ? 'Hepatosellüler Karsinom (HCC)' : 'Hepatocellular Carcinoma (HCC)' },
+      { id: 'liver-colorectal-metastasis', name: lang === 'tr' ? 'Kolorektal Karaciğer Metastazı' : 'Colorectal Liver Metastasis' },
+    ];
+    if (selectedOrgan === 'gis' && gisOrgan === 'SafraYollari') return [
+      { id: 'biliary-intrahepatic', name: lang === 'tr' ? 'İntrahepatik Kolanjiyokarsinom' : 'Intrahepatic Cholangiocarcinoma' },
+      { id: 'biliary-perihilar', name: lang === 'tr' ? 'Perihiler Kolanjiyokarsinom (Klatskin)' : 'Perihilar Cholangiocarcinoma (Klatskin)' },
+      { id: 'biliary-extrahepatic', name: lang === 'tr' ? 'Distal / Ekstrahepatik Kolanjiyokarsinom' : 'Distal / Extrahepatic Cholangiocarcinoma' },
+      { id: 'biliary-gallbladder', name: lang === 'tr' ? 'Safra Kesesi Kanseri' : 'Gallbladder Cancer' },
+    ];
     if (selectedOrgan === 'thorax') {
       if (thoraxSubtype === 'nsclc') return [
         { id: 'nsclc-adenocarcinoma', name: 'Adenokarsinom' },
@@ -4189,11 +4361,14 @@ export default function RadoncoCDSSPage() {
 
   const selectedHistology: string = (() => {
     if (selectedOrgan === 'prostate') {
+      if (gusSubtype === 'kidney') return `renal-${renalHistology}`;
       if (gusSubtype === 'prostate') return `prostate-${prostateHistology}`;
       if (gusSubtype === 'testis') return `testis-${testisHistology}`;
       if (gusSubtype === 'bladder') return `bladder-${bladderHistology}`;
       return '';
     }
+    if (selectedOrgan === 'gis' && gisOrgan === 'Karaciger') return `liver-${liverHistology}`;
+    if (selectedOrgan === 'gis' && gisOrgan === 'SafraYollari') return `biliary-${biliaryHistology}`;
     if (selectedOrgan === 'thorax') {
       if (thoraxSubtype === 'nsclc') return `nsclc-${nsclcHistology}`;
       if (thoraxSubtype === 'thymoma') return thymicHistology;
@@ -4215,7 +4390,27 @@ export default function RadoncoCDSSPage() {
   })();
 
   const handleHistologySelect = (id: string) => {
-    if (id.startsWith('prostate-')) setProstateHistology(id.replace('prostate-', '') as typeof prostateHistology);
+    if (id === 'renal-clear-cell') setRenalHistology('clear-cell');
+    else if (id === 'renal-papillary') setRenalHistology('papillary');
+    else if (id === 'renal-chromophobe') setRenalHistology('chromophobe');
+    else if (id === 'liver-hcc') {
+      setLiverHistology('hcc');
+      setLiverBclcStage('A');
+      setSelectedT('T1a');
+      setSelectedN('N0');
+      setSelectedM('M0');
+    }
+    else if (id === 'liver-colorectal-metastasis') {
+      setLiverHistology('colorectal-metastasis');
+      setSelectedT('N/A');
+      setSelectedN('N/A');
+      setSelectedM('M1');
+    }
+    else if (id === 'biliary-intrahepatic') setBiliaryHistology('intrahepatic');
+    else if (id === 'biliary-perihilar') setBiliaryHistology('perihilar');
+    else if (id === 'biliary-extrahepatic') setBiliaryHistology('extrahepatic');
+    else if (id === 'biliary-gallbladder') setBiliaryHistology('gallbladder');
+    else if (id.startsWith('prostate-')) setProstateHistology(id.replace('prostate-', '') as typeof prostateHistology);
     else if (id.startsWith('testis-')) setTestisHistology(id.replace('testis-', '') as typeof testisHistology);
     else if (id.startsWith('bladder-')) setBladderHistology(id.replace('bladder-', '') as typeof bladderHistology);
     else if (id.startsWith('nsclc-')) setNsclcHistology(id.replace('nsclc-', '') as typeof nsclcHistology);
@@ -6202,6 +6397,66 @@ export default function RadoncoCDSSPage() {
         };
       }
 
+      if (gusSubtype === 'kidney') {
+        const primaryRcc = renalDiseaseSetting === 'primary-inoperable';
+        const sizeBasedFractionation = selectedT === 'T1a' ? 'single' : selectedT === 'T1b' ? 'three' : 'ineligible';
+        if (primaryRcc && sizeBasedFractionation === 'ineligible') {
+          const notApplicable: DoseScheme = {
+            id: 'rcc-primary-outside-fastrack-size',
+            name: lang === 'tr' ? 'FASTRACK II uygunluğu için primer böbrek tümörü ≤10 cm olmalı; evre ve protokolü gözden geçirin' : 'FASTRACK II eligibility requires a renal primary ≤10 cm; review stage and local protocol',
+            tag: lang === 'tr' ? 'SABR uygunluk değerlendirmesi' : 'SABR eligibility review',
+            totalDoseGy: 0,
+            fractionCount: 0,
+            fractionDoseGy: 0,
+            alphaBeta: 10,
+            technique: lang === 'tr' ? 'Multidisipliner değerlendirme' : 'Multidisciplinary assessment',
+            indication: lang === 'tr'
+              ? 'Seçilen T2/T3 kategorisi T1a/T1b boyuta dayalı basit doz seçimlerinin dışındadır. SABR düşünülmeden tümör boyutu, renal ven/perirenal yayılım, performans ve güncel renal SBRT protokolü gözden geçirilmelidir.'
+              : 'The selected T2/T3 category is outside the simple T1a/T1b size-based choice. Review tumour size, renal vein/perirenal extension, fitness and current renal SBRT protocol before considering SABR.',
+            targetVolumes: [],
+            oars: [],
+            evidence: 'FASTRACK II (Lancet Oncol 2024), DOI: 10.1016/S1470-2045(24)00020-2; eviQ protocol 4381',
+          };
+          return { statusText: lang === 'tr' ? 'DEĞERLENDİRİN: RCC EVRESİ FASTRACK II BASİT T1 DOZ SEÇİMİ DIŞINDA' : 'REVIEW: SELECTED RCC EXTENT OUTSIDE SIMPLE T1 FASTRACK II DOSE SELECTION', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300', primaryScheme: notApplicable, alternativeSchemes: [notApplicable] };
+        }
+        const doseGy = primaryRcc ? sizeBasedFractionation === 'single' ? 26 : 42 : 35;
+        const fractions = primaryRcc ? sizeBasedFractionation === 'single' ? 1 : 3 : 5;
+        const scheme: DoseScheme = {
+          id: primaryRcc ? sizeBasedFractionation === 'single' ? 'rcc-primary-26-1' : 'rcc-primary-42-3' : 'rcc-oligometastatic-35-5',
+          name: lang === 'tr'
+            ? `${doseGy} Gy / ${fractions} fx (${primaryRcc ? 'primer renal SABR' : 'renal oligometastatik / oligoprogresif SBRT'})`
+            : `${doseGy} Gy / ${fractions} fx (${primaryRcc ? 'primary renal SABR' : 'renal oligometastatic / oligoprogressive SBRT'})`,
+          tag: primaryRcc ? 'FASTRACK II · SABR' : lang === 'tr' ? 'Oligometastatik SBRT' : 'Oligometastatic SBRT',
+          totalDoseGy: doseGy,
+          fractionCount: fractions,
+          fractionDoseGy: doseGy / fractions,
+          alphaBeta: 10,
+          technique: lang === 'tr' ? 'Solunum hareketi yönetimi ve görüntü kılavuzlu SABR; OAR yakınlığına göre uyarlayın' : 'Image-guided SABR with respiratory motion management; adapt to OAR proximity',
+          indication: primaryRcc
+            ? lang === 'tr'
+              ? `Biyopsiyle doğrulanmış, medikal olarak inoperabl veya cerrahi riski yüksek primer RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'}). FASTRACK II, ≤4 cm tümörlerde 26 Gy × 1 ve >4–10 cm tümörlerde 42 Gy / 3 fx kullandı. Doz seçimi boyuta dayanır; gerçek çapı, eGFR'yi ve uygunluğu doğrulayın.`
+              : `Biopsy-confirmed, medically inoperable or high-surgical-risk primary RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'} by selected T category). FASTRACK II delivered 26 Gy x1 for tumours ≤4 cm and 42 Gy in 3 fx for tumours >4–10 cm. The selection is size-based; verify actual tumour diameter, eGFR and eligibility.`
+            : lang === 'tr'
+              ? 'Konsey değerlendirmesi sonrası seçilmiş oligometastatik hastalık veya immünoterapi altında oligoprogresyon için örnek 35 Gy / 5 fx. Primer RCC’de FASTRACK II şeması değildir.'
+              : 'Example 35 Gy / 5 fx for selected oligometastatic disease or oligoprogression during immunotherapy after MDT review. Not a primary RCC FASTRACK II regimen.',
+          targetVolumes: [{ name: 'GTV_Renal', doseGy, marginMm: lang === 'tr' ? 'Güncel protokole göre hareket ve set-up marjini' : 'Motion and setup margin per current protocol', anatomical: lang === 'tr' ? 'Primer renal lezyon veya seçilmiş oligometastatik hedef' : 'Renal primary or selected oligometastatic target' }],
+          oars: [],
+          evidence: primaryRcc
+            ? 'FASTRACK II, Siva et al. Lancet Oncol 2024; DOI: 10.1016/S1470-2045(24)00020-2; eviQ renal SABR protocol 4381'
+            : 'Current disease-site SBRT protocol and multidisciplinary review; do not extrapolate FASTRACK II primary RCC limits',
+        };
+        return {
+          statusText: primaryRcc
+            ? lang === 'tr' ? 'SEÇENEK: SEÇİLMİŞ MEDİKAL İNOPERABL PRİMER RCC’DE SABR' : 'OPTION: SABR FOR SELECTED MEDICALLY INOPERABLE PRIMARY RCC'
+            : lang === 'tr' ? 'SEÇENEK: SEÇİLMİŞ RCC OLİGOMETASTAZI / OLİGOPROGRESYONUNDA SBRT' : 'OPTION: SBRT FOR SELECTED RCC OLIGOMETASTASIS / OLIGOPROGRESSION',
+          badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+          primaryScheme: scheme,
+          alternativeSchemes: primaryRcc && sizeBasedFractionation === 'single'
+            ? [scheme, { ...scheme, id: 'rcc-primary-42-3', name: lang === 'tr' ? '42 Gy / 3 fx (FASTRACK II; tümör >4–10 cm)' : '42 Gy / 3 fx (FASTRACK II; tumour >4–10 cm)', totalDoseGy: 42, fractionCount: 3, fractionDoseGy: 14 }]
+            : [scheme],
+        };
+      }
+
       const pG = parseInt(gleasonPrimary) || 3;
       const sG = parseInt(gleasonSecondary) || 4;
       const score = pG + sG;
@@ -6664,40 +6919,140 @@ export default function RadoncoCDSSPage() {
         };
       }
 
-      if (gisOrgan === 'Karaciger') {
+      if (gisOrgan === 'Karaciger' && liverHistology) {
+        const isHcc = liverHistology === 'hcc';
+        const doseGy = isHcc ? 45 : 50;
+        const stageText = `BCLC ${liverBclcStage}`;
         const liverSbrt: DoseScheme = {
-          id: 'gis-liver-sbrt',
-          name: '35-50 Gy / 5 fx (Karaciğer SBRT)',
-          tag: '🎯 Karaciğer SBRT',
-          totalDoseGy: 50,
+          id: isHcc ? 'gis-liver-hcc-sbrt-45-5' : 'gis-liver-crlm-sbrt-50-5',
+          name: lang === 'tr'
+            ? `${doseGy} Gy / 5 fx (${isHcc ? 'HCC' : 'kolorektal karaciğer metastazı'} SBRT)`
+            : `${doseGy} Gy / 5 fx (${isHcc ? 'HCC' : 'colorectal liver metastasis'} SBRT)`,
+          tag: isHcc ? 'NRG/RTOG 1112 · HCC' : lang === 'tr' ? 'Karaciğer oligometastazı SBRT' : 'Liver oligometastasis SBRT',
+          totalDoseGy: doseGy,
           fractionCount: 5,
-          fractionDoseGy: 10,
+          fractionDoseGy: doseGy / 5,
           alphaBeta: 10,
           technique: breathingMotion === 'DIBH'
-            ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT / VMAT'
-            : 'SBRT (4D-CT / ITV tabanlı VMAT)',
-          indication: 'Child-Pugh A inoperabl primer hepatoselüler karsinom (HCC), kolanjiokarsinom veya karaciğer metastazlarında yüksek ablasyon sağlar.',
-          targetVolumes: breathingMotion === 'DIBH'
-            ? [
-                { name: 'GTV_Liver', doseGy: 50, marginMm: '0 mm', anatomical: "DIBH BT'de kontrast tutan karaciğer lezyonu" },
-                { name: 'PTV_Liver_SBRT', doseGy: 50, marginMm: "GTV + 3-5 mm (Doğrudan GTV'den)", anatomical: 'DIBH altında set-up ve intra-fraksiyon güvenlik marjini' },
-              ]
-            : [
-                { name: 'GTV_Liver', doseGy: 50, marginMm: '0 mm', anatomical: 'Kontrast tutan karaciğer lezyonu' },
-                { name: 'ITV_4D', doseGy: 50, marginMm: 'GTV + 4D solunum fazları zarfı', anatomical: 'MIP üzerinde tümörün solunum hareket hacmi' },
-                { name: 'PTV_Liver_SBRT', doseGy: 50, marginMm: 'ITV + 4-5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
-              ],
-          oars: [
-            { organ: 'Sağlam Karaciğer', metric: 'V15Gy', limit: '< 700 cc (en az 700 cc normal karaciğer < 15 Gy almalı)', source: 'QUANTEC' },
-            { organ: 'Mide / Duodenum', metric: 'Dmax', limit: '< 30 Gy', source: 'QUANTEC' },
+            ? (lang === 'tr' ? 'Görüntü kılavuzlu DIBH / SGRT' : 'DIBH / SGRT with image guidance')
+            : (lang === 'tr' ? 'Günlük görüntü kılavuzlu 4D-CT / ITV tabanlı VMAT SBRT' : '4D-CT / ITV-based VMAT SBRT with daily image guidance'),
+          indication: isHcc
+            ? lang === 'tr'
+              ? `${stageText}${liverBclcStage === 'C' ? ' (makrovasküler invazyon / PVTT olasılığı)' : ''}: multidisipliner değerlendirme sonrası seçilmiş HCC olgusunda SBRT düşünülebilir. Child-Pugh sınıfını, karaciğer rezervini ve alternatifleri doğrulayın; 45 Gy / 5 fx NRG/RTOG 1112 aralığında örnek bir şemadır.`
+              : `${stageText}${liverBclcStage === 'C' ? ' with possible macrovascular invasion/PVTT' : ''}: selected HCC SBRT after MDT review. Confirm Child-Pugh class, liver reserve and alternatives; 45 Gy / 5 fx is an example within NRG/RTOG 1112.`
+            : lang === 'tr'
+              ? 'Rezeksiyon/ablasyon uygunluğu, sistemik hastalık kontrolü ve OAR yakınlığı konseyde değerlendirildikten sonra seçilmiş kolorektal karaciğer oligometastazı için örnek 50 Gy / 5 fx.'
+              : 'Example 50 Gy / 5 fx for selected colorectal liver oligometastasis after MDT review of resection/ablation, systemic disease control and OAR proximity.',
+          targetVolumes: [
+            { name: 'GTV_Liver', doseGy, marginMm: '0 mm', anatomical: lang === 'tr' ? 'Kontrast tutan karaciğer lezyonu' : 'Contrast-enhancing liver lesion' },
+            { name: breathingMotion === 'DIBH' ? 'PTV_Liver_DIBH' : 'ITV_4D', doseGy, marginMm: lang === 'tr' ? 'Kurumsal hareket yönetimi / set-up marjini' : 'Motion management / institution-specific setup margin', anatomical: breathingMotion === 'DIBH' ? (lang === 'tr' ? 'Tekrarlanabilir nefes tutma hedefi' : 'Reproducible breath-hold target') : (lang === 'tr' ? '4D-CT solunum hareket zarfı' : 'Respiratory motion envelope on 4D-CT') },
           ],
-          evidence: 'RTOG 1112 (Lancet Oncol), NRG GI003',
+          oars: [],
+          evidence: isHcc
+            ? 'NRG/RTOG 1112; Dawson et al. JAMA Oncol 2025; DOI: 10.1001/jamaoncol.2024.5403; ASTRO primary liver cancer guideline'
+            : 'eviQ Hepatic Metastases SABR protocol 4026; HyTEC liver metastases analysis',
         };
         return {
-          statusText: 'ENDİKE: KÜRATİF KARACİĞER STEREOTAKTİK SBRT',
+          statusText: isHcc
+            ? lang === 'tr' ? `SEÇENEK: HCC SBRT · ${stageText} · karaciğer rezervi ve konsey uygunluğunu doğrulayın` : `OPTION: HCC SBRT · ${stageText} · verify hepatic reserve and MDT suitability`
+            : lang === 'tr' ? 'SEÇENEK: SEÇİLMİŞ KOLOREKTAL KARACİĞER OLİGOMETASTAZINDA SBRT' : 'OPTION: SBRT FOR SELECTED COLORECTAL LIVER OLIGOMETASTASIS',
           badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
           primaryScheme: liverSbrt,
-          alternativeSchemes: [liverSbrt],
+          alternativeSchemes: [
+            liverSbrt,
+            { ...liverSbrt, id: 'gis-liver-sbrt-60-5', name: lang === 'tr' ? '60 Gy / 5 fx (seçilmiş karaciğer met; yalnızca OAR sınırları uygunsa)' : '60 Gy / 5 fx (selected liver metastasis; only if OAR limits permit)', totalDoseGy: 60, fractionDoseGy: 12 },
+          ],
+        };
+      }
+
+      if (gisOrgan === 'SafraYollari') {
+        const siteName = {
+          intrahepatic: lang === 'tr' ? 'intrahepatik kolanjiyokarsinom' : 'intrahepatic cholangiocarcinoma',
+          perihilar: lang === 'tr' ? 'perihiler kolanjiyokarsinom (Klatskin)' : 'perihilar cholangiocarcinoma (Klatskin)',
+          extrahepatic: lang === 'tr' ? 'distal / ekstrahepatik kolanjiyokarsinom' : 'distal / extrahepatic cholangiocarcinoma',
+          gallbladder: lang === 'tr' ? 'safra kesesi karsinomu' : 'gallbladder carcinoma',
+        }[biliaryHistology];
+        const highRisk = biliaryMarginStatus === 'R1' || selectedN === 'N1';
+        const boostDose = biliaryMarginStatus === 'R1' ? 59.4 : 54;
+        const boostFractions = Math.round(boostDose / 1.8);
+        const adjuvant: DoseScheme = {
+          id: `biliary-adjuvant-${biliaryMarginStatus.toLowerCase()}-${selectedN.toLowerCase()}`,
+          name: highRisk
+            ? lang === 'tr' ? `Bölgesel nodlara 45 Gy / 25 fx + tümör yatağına ${boostDose} Gy boost`
+              : `45 Gy / 25 fx regional nodes + tumour bed boost to ${boostDose} Gy`
+            : lang === 'tr' ? 'Mevcut R0/N0 seçiminde otomatik adjuvan RT önerilmez'
+              : 'No automatic adjuvant radiotherapy recommendation for current R0/N0 selection',
+          tag: 'SWOG S0809 · postoperative high-risk',
+          totalDoseGy: highRisk ? boostDose : 0,
+          fractionCount: highRisk ? boostFractions : 0,
+          fractionDoseGy: 1.8,
+          alphaBeta: 10,
+          technique: 'IMRT / VMAT with image guidance',
+          indication: highRisk
+            ? lang === 'tr'
+              ? `${siteName}: R1 marjin veya bölgesel N+ hastalık. SWOG S0809 bölgesel nodlara ve tümör yatağına 45 Gy / 25 fx; R0 için 54 Gy, R1 için 59.4 Gy boost kullandı. Kanıt ekstrahepatik kolanjiyokarsinom ve safra kesesi kanserinde daha güçlüdür; intrahepatik olguyu konseyde bireyselleştirin.`
+              : `${siteName}: R1 margin or regional N+ disease. SWOG S0809 used 45 Gy / 25 fx to regional nodes and tumour bed with boost to 54 Gy (R0) or 59.4 Gy (R1). Evidence is strongest for extrahepatic cholangiocarcinoma and gallbladder cancer; individualise intrahepatic cases.`
+            : lang === 'tr'
+              ? `${siteName}: mevcut R0/N0 seçimi SWOG S0809 yüksek risk ölçütlerini karşılamaz. Adjuvan kemoradyoterapi otomatik değildir; patoloji ve sistemik adjuvan tedaviyi konseyde değerlendirin.`
+              : `${siteName}: current R0/N0 selections do not meet high-risk SWOG S0809 criteria. Adjuvant chemoradiation is not automatic; review pathology and systemic adjuvant therapy at MDT.`,
+          targetVolumes: highRisk ? [
+            { name: 'Regional nodal CTV', doseGy: 45, marginMm: lang === 'tr' ? 'Alt bölgeye özgü atlas' : 'Site-specific atlas', anatomical: lang === 'tr' ? 'Primer alt bölgeye göre bölgesel nodal alan' : 'Regional nodal basin for primary site' },
+            { name: 'Tumour bed / high-risk margin', doseGy: boostDose, marginMm: lang === 'tr' ? 'Postoperatif anatomi ve klipler' : 'Postoperative anatomy and clips', anatomical: lang === 'tr' ? 'Rezeksiyon yatağı; R1 ise pozitif marjin' : 'Resection bed; positive margin if R1' },
+          ] : [],
+          oars: [],
+          systemicTherapy: highRisk
+            ? lang === 'tr'
+              ? 'SWOG S0809 sıralaması: gemsitabin/kapesitabin ardından RT ile eşzamanlı kapesitabin; dozları medikal onkolojiyle koordine edin.'
+              : 'SWOG S0809 sequence: gemcitabine/capecitabine followed by concurrent capecitabine with RT; coordinate doses with medical oncology.'
+            : undefined,
+          evidence: 'SWOG S0809, Ben-Josef et al. JCO 2015; DOI: 10.1200/JCO.2014.60.2219; verify current NCCN version',
+        };
+        if (biliaryTreatmentSetting === 'adjuvant') {
+          return {
+            statusText: highRisk
+              ? lang === 'tr' ? 'SEÇENEK: R1 VEYA N+ BİLİYER KANSERDE ADJUVAN KRT (SWOG S0809)' : 'OPTION: ADJUVANT CRT FOR R1 OR N+ BILIARY CANCER (SWOG S0809)'
+              : lang === 'tr' ? 'ADJUVAN KRT OTOMATİK ENDİKE DEĞİL: R1 / N+ RİSKİNİ DOĞRULAYIN' : 'ADJUVANT CRT NOT AUTOMATICALLY INDICATED: CONFIRM R1 / N+ RISK',
+            badgeClass: highRisk ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-amber-50 text-amber-800 border-amber-300',
+            primaryScheme: adjuvant,
+            alternativeSchemes: [adjuvant],
+          };
+        }
+        const sbrt: DoseScheme = {
+          ...adjuvant,
+          id: 'biliary-unresectable-sbrt-45-5',
+          name: lang === 'tr' ? '45 Gy / 5 fx (seçilmiş inoperabl safra yolu olguları)' : '45 Gy / 5 fx (selected unresectable biliary tract cases)',
+          tag: lang === 'tr' ? 'SBRT · OAR sınırlı' : 'SBRT · OAR-limited',
+          totalDoseGy: 45,
+          fractionCount: 5,
+          fractionDoseGy: 9,
+          technique: lang === 'tr' ? 'Solunum hareketi yönetimli, görüntü kılavuzlu VMAT / SBRT' : 'Image-guided VMAT / SBRT with respiratory motion management',
+          indication: lang === 'tr'
+            ? `${siteName}: yalnızca konsey değerlendirmesi sonrası ve alt bölgeye özgü mide, bağırsak ve santral safra yolu OAR kısıtları karşılanabiliyorsa düşünün.`
+            : `${siteName}: consider after MDT review only when site-specific stomach, bowel and central biliary OAR limits can be met.`,
+          targetVolumes: [{ name: 'GTV_Biliary', doseGy: 45, marginMm: lang === 'tr' ? 'Protokole özgü hareket/set-up marjini' : 'Protocol-specific motion/setup margin', anatomical: lang === 'tr' ? 'Makroskopik primer veya nüks; alt bölgeye özgü nodal yaklaşım' : 'Gross primary or recurrence; site-specific nodal policy' }],
+          evidence: 'Verify current NCCN Biliary Tract Cancers version; RTOG upper-abdominal atlas; institutional SBRT protocol',
+        };
+        const conventional: DoseScheme = {
+          ...sbrt,
+          id: 'biliary-unresectable-conventional-54-30',
+          name: lang === 'tr' ? '50.4–54 Gy / 28–30 fx (konvansiyonel fraksiyonlu RT)' : '50.4–54 Gy / 28–30 fx (conventionally fractionated RT)',
+          tag: lang === 'tr' ? 'Konvansiyonel RT / KRT' : 'Conventional RT / CRT',
+          totalDoseGy: 54,
+          fractionCount: 30,
+          fractionDoseGy: 1.8,
+          technique: lang === 'tr' ? 'Görüntü kılavuzlu IMRT / VMAT' : 'IMRT / VMAT with image guidance',
+          targetVolumes: [{ name: 'CTV_Biliary', doseGy: 50.4, marginMm: lang === 'tr' ? 'Alt bölgeye özgü atlas' : 'Site-specific atlas', anatomical: lang === 'tr' ? 'Primer alt bölge ve klinik endikasyonlu bölgesel nodlar' : 'Primary site and clinically indicated regional nodes' }],
+          evidence: 'SWOG S0809; verify current NCCN Biliary Tract Cancers version',
+        };
+        return {
+          statusText: lang === 'tr' ? 'SEÇENEK: İNOPERABL BİLİYER HASTALIKTA ANATOMİ VE HASTAYA UYARLANMIŞ RT' : 'OPTION: ANATOMY- AND PATIENT-ADAPTED RT FOR UNRESECTABLE BILIARY DISEASE',
+          badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+          primaryScheme: sbrt,
+          alternativeSchemes: [
+            sbrt,
+            conventional,
+            { ...conventional, id: 'biliary-unresectable-conventional-504-28', name: lang === 'tr' ? '50.4 Gy / 28 fx (konvansiyonel fraksiyonlu RT)' : '50.4 Gy / 28 fx (conventionally fractionated RT)', totalDoseGy: 50.4, fractionCount: 28 },
+          ],
         };
       }
 
@@ -7147,6 +7502,7 @@ export default function RadoncoCDSSPage() {
   }, [
     selectedOrgan,
     selectedSubsite,
+    lang,
     benignClinicalStatus,
     selectedT,
     selectedN,
@@ -7188,8 +7544,14 @@ export default function RadoncoCDSSPage() {
     gbmPerformance,
     meningiomaGrade,
     gisOrgan,
+    liverHistology,
+    liverBclcStage,
+    biliaryHistology,
+    biliaryTreatmentSetting,
+    biliaryMarginStatus,
     gisCrmStatus,
     gusSubtype,
+    renalDiseaseSetting,
     testisHistology,
     gleasonPrimary,
     gleasonSecondary,
@@ -7318,7 +7680,7 @@ export default function RadoncoCDSSPage() {
   }, [activeScheme]);
 
   const clinicallyRelevantOars = useMemo(() => {
-    const verifiedGuidance = getVerifiedOarGuidance(selectedOrgan, selectedSubsite, activeScheme);
+    const verifiedGuidance = getVerifiedOarGuidance(selectedOrgan, selectedSubsite, activeScheme, lang);
     const existingOarKeys = new Set(activeScheme.oars.map(oar =>
       `${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`
     ));
@@ -7326,7 +7688,7 @@ export default function RadoncoCDSSPage() {
       !existingOarKeys.has(`${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`)
     );
     return [...activeScheme.oars, ...additionalGuidance];
-  }, [activeScheme, selectedOrgan, selectedSubsite]);
+  }, [activeScheme, selectedOrgan, selectedSubsite, lang]);
 
   const radiobiologyComparison = useMemo(() => {
     const referenceDose = activeScheme.totalDoseGy;
@@ -7842,7 +8204,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   const reportMolecular = selectedOrgan === 'breast'
     ? `ER ${breastER ? '+' : '-'} / PR ${breastPR ? '+' : '-'} / HER2 ${breastHER2 ? '+' : '-'} / Ki-67 ${breastKi67}%`
     : selectedOrgan === 'prostate'
-      ? `PSA ${psaLevel} ng/mL / Gleason ${gleasonPrimary}+${gleasonSecondary}`
+      ? gusSubtype === 'kidney'
+        ? tText(selectedHistology)
+        : `PSA ${psaLevel} ng/mL / Gleason ${gleasonPrimary}+${gleasonSecondary}`
       : selectedOrgan === 'cns'
         ? `${tText(gliomaGrade)} / KPS ${cnsKps}${gliomaRiskFactors.molecularHighRisk ? ' / IDH-wt or molecular high risk' : ''}`
         : '—';
@@ -8362,27 +8726,71 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </div>
                 )}
                 {gisOrgan === 'Karaciger' && (
-                  <div>
-                    <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
-                    </span>
-                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                      {[
-                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
-                      ].map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={breathingMotion === option.value}
-                          onClick={() => setBreathingMotion(option.value)}
-                          className={parameterButtonClass(breathingMotion === option.value)}
+                  <>
+                    {liverHistology === 'hcc' && (
+                      <label className="block font-semibold text-slate-300">
+                        {lang === 'tr' ? 'BCLC klinik evresi' : 'BCLC clinical stage'}
+                        <select
+                          value={liverBclcStage}
+                          onChange={event => {
+                            const stage = event.currentTarget.value as typeof liverBclcStage;
+                            setLiverBclcStage(stage);
+                            setSelectedT(stage === 'C' ? 'T3' : stage === 'B' ? 'T2' : 'T1a');
+                            setSelectedN('N0');
+                            setSelectedM('M0');
+                          }}
+                          className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100"
                         >
-                          {option.label}
-                        </button>
-                      ))}
+                          <option value="0">BCLC 0 · {lang === 'tr' ? 'Çok erken' : 'Very early'}</option>
+                          <option value="A">BCLC A · {lang === 'tr' ? 'Erken' : 'Early'}</option>
+                          <option value="B">BCLC B · {lang === 'tr' ? 'Orta' : 'Intermediate'}</option>
+                          <option value="C">BCLC C · {lang === 'tr' ? 'İleri / PVTT' : 'Advanced / PVTT'}</option>
+                        </select>
+                      </label>
+                    )}
+                    <div>
+                      <span className="mb-1 block font-semibold text-slate-300">
+                        {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
+                      </span>
+                      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                        {[
+                          { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
+                          { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
+                        ].map(option => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            aria-pressed={breathingMotion === option.value}
+                            onClick={() => setBreathingMotion(option.value)}
+                            className={parameterButtonClass(breathingMotion === option.value)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  </>
+                )}
+                {gisOrgan === 'SafraYollari' && (
+                  <>
+                    <label className="block font-semibold text-slate-300">
+                      {lang === 'tr' ? 'Tedavi bağlamı' : 'Treatment setting'}
+                      <select value={biliaryTreatmentSetting} onChange={event => setBiliaryTreatmentSetting(event.currentTarget.value as typeof biliaryTreatmentSetting)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100">
+                        <option value="adjuvant">{lang === 'tr' ? 'Postoperatif yüksek risk / adjuvan' : 'Postoperative high-risk / adjuvant'}</option>
+                        <option value="unresectable">{lang === 'tr' ? 'İnoperabl lokal ileri' : 'Unresectable locally advanced'}</option>
+                      </select>
+                    </label>
+                    {biliaryTreatmentSetting === 'adjuvant' && (
+                      <div>
+                        <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Rezeksiyon marjini' : 'Resection margin'}</span>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {(['R0', 'R1'] as const).map(value => (
+                            <button key={value} type="button" aria-pressed={biliaryMarginStatus === value} onClick={() => setBiliaryMarginStatus(value)} className={parameterButtonClass(biliaryMarginStatus === value)}>{value}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -8852,6 +9260,25 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="rounded-lg border border-sky-300 bg-blue-50 p-2 font-semibold text-blue-900">
                   {tText("\n                  Otomatik NCCN risk grubu: ")}{prostateRiskLabel}
                 </div>
+              </div>
+            )}
+
+            {selectedOrgan === 'prostate' && gusSubtype === 'kidney' && (
+              <div className="space-y-2 text-xs">
+                <label className="block text-slate-300">
+                  {lang === 'tr' ? 'RCC tedavi bağlamı' : 'RCC treatment setting'}
+                  <select value={renalDiseaseSetting} onChange={event => setRenalDiseaseSetting(event.currentTarget.value as typeof renalDiseaseSetting)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100">
+                    <option value="primary-inoperable">{lang === 'tr' ? 'Medikal inoperabl primer RCC' : 'Medically inoperable primary RCC'}</option>
+                    <option value="oligometastatic">{lang === 'tr' ? 'Oligometastatik / immünoterapi altında oligoprogresyon' : 'Oligometastatic / oligoprogressive on immunotherapy'}</option>
+                  </select>
+                </label>
+                {renalDiseaseSetting === 'primary-inoperable' && (
+                  <p className="rounded-lg border border-amber-700/40 bg-amber-950/20 p-2 text-[10px] leading-relaxed text-amber-200">
+                    {lang === 'tr'
+                      ? 'FASTRACK II doz seçimi gerçek tümör çapına göre yapılır: ≤4 cm için 26 Gy × 1; >4–10 cm için 42 Gy / 3 fx. T kategorisi tek başına tümör çapının yerine geçmez.'
+                      : 'FASTRACK II dose selection is by actual tumour diameter: ≤4 cm, 26 Gy × 1; >4–10 cm, 42 Gy / 3 fx. T category alone does not replace measured tumour size.'}
+                  </p>
+                )}
               </div>
             )}
 
