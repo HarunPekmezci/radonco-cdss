@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import {
   Radiation,
   Copy,
@@ -25,7 +25,6 @@ import {
   HandHeart,
   User,
   UtensilsCrossed,
-  AlertTriangle,
   ShieldAlert,
   CheckCircle2,
   FileText,
@@ -37,7 +36,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Info,
   TrendingUp,
   Download,
 } from 'lucide-react';
@@ -1227,6 +1225,417 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Nodal durum ve klinik risk doğrultusunda bölgesel nodlar': 'Regional nodes per nodal status and clinical risk',
   'Risk uyarlanmış': 'Risk-adapted',
   'Mastektomi skarı ve pektorali kası yüzeyi': 'Mastectomy scar and pectoralis surface',
+  // --- TNM KRİTERLERİ (TAM KAPSAM) ---
+  'Lokalize primer kitle (≤5 cm, plevral yayılım yok)': 'Localized primary mass (≤5 cm, no pleural spread)',
+  'Geniş mediastinal, trakeal, karinal veya toraks duvarı invazyonu': 'Extensive mediastinal, tracheal, carinal, or chest wall invasion',
+  'Nodal tutulum yok veya hiler tutulum ile sınırlı': 'No nodal involvement or confined to hilar nodes',
+  'Mediastinal, subkarinal veya supraklavikular lenf nodu pozitifliği': 'Mediastinal, subcarinal, or supraclavicular lymph node positivity',
+  'Tek bir tolere edilebilir radyasyon alanı içine dahil edilebilen hastalık (M0)': 'Disease encompassable in a single tolerable radiation field (M0)',
+  'Karşı akciğer, plevral efüzyon veya uzak organ metastazı (M1)': 'Contralateral lung, pleural effusion, or distant organ metastasis (M1)',
+  'Kapsül intakt; makroskopik ve mikroskopik invazyon yok': 'Capsule intact; no macroscopic or microscopic invasion',
+  'Mikroskopik transkapsüler veya çevre mediastinal yağ invazyonu': 'Microscopic transcapsular or perimediastinal fat invasion',
+  'Komşu organ invazyonu (perikard, büyük damar, akciğer)': 'Adjacent organ invasion (pericardium, great vessels, lung)',
+  'Plevral/perikardiyal tohumlanma (IVA) veya uzak metastaz (IVB)': 'Pleural/pericardial seeding (IVA) or distant metastasis (IVB)',
+  'Lenf nodu tutulumu yok': 'No lymph node involvement',
+  'Anterior mediastinal lenf nodu tutulumu': 'Anterior mediastinal lymph node involvement',
+  'Derin intratorasik veya supraklavikular lenf nodu': 'Deep intrathoracic or supraclavicular lymph nodes',
+  'Uzak organ metastazı': 'Distant organ metastasis',
+  'İpsilateral pariyetal plevra ile sınırlı': 'Confined to ipsilateral parietal pleura',
+  'Visseral plevra, diyafram kası veya akciğer parankimi tutulumu': 'Visceral pleura, diaphragmatic muscle, or lung parenchyma involvement',
+  'Endotorasik fasya veya mediastinal yağ dokusu invazyonu': 'Endothoracic fascia or mediastinal fat invasion',
+  'Göğüs duvarı, perikard, karşı plevra veya omurga invazyonu': 'Chest wall, pericardium, contralateral pleura, or spine invasion',
+  'Bölgesel lenf nodu tutulumu yok': 'No regional lymph node involvement',
+  'İpsilateral bronkopulmoner, hiler veya mediastinal lenf nodu': 'Ipsilateral bronchopulmonary, hilar, or mediastinal lymph nodes',
+  'Kontralateral mediastinal veya supraklavikular lenf nodu': 'Contralateral mediastinal or supraclavicular lymph nodes',
+  'Uzak metastaz mevcut': 'Distant metastasis present',
+  'Servikse sınırlı, invazyon derinliği ≥5 mm, kitle çapı <4 cm': 'Confined to cervix, invasion depth ≥5 mm, mass diameter <4 cm',
+  'Servikse sınırlı kitle, en büyük çap ≥4 cm (Lokal ileri)': 'Mass confined to cervix, largest diameter ≥4 cm (locally advanced)',
+  'Üst 2/3 vajen tutulumu (IIA) veya parametriyal invazyon (IIB)': 'Upper 2/3 vaginal involvement (IIA) or parametrial invasion (IIB)',
+  'Alt 1/3 vajen tutulumu (IIIA) veya pelvik yan duvar / hidronefroz (IIIB)': 'Lower 1/3 vaginal involvement (IIIA) or pelvic sidewall / hydronephrosis (IIIB)',
+  'Mesane veya rektum mukozası doğrudan invazyonu': 'Direct invasion of bladder or rectal mucosa',
+  'Pelvik lenf nodu metastazı pozitif': 'Pelvic lymph node metastasis positive',
+  'Paraaortik lenf nodu metastazı pozitif': 'Para-aortic lymph node metastasis positive',
+  'Uzak organ metastazı (akciğer, karaciğer, kemik vb.)': 'Distant organ metastasis (lung, liver, bone, etc.)',
+  'Uterus korpusuna sınırlı, myometrium invazyonu <%50': 'Confined to uterine corpus, myometrial invasion <50%',
+  'Myometrium invazyonu ≥%50 (Derin myometriyal invazyon)': 'Myometrial invasion ≥50% (deep myometrial invasion)',
+  'Servikal stromal invazyon mevcut (ancak korpus dışına çıkmamış)': 'Cervical stromal invasion present (without extension beyond corpus)',
+  'Uterus seroza/adneks tutulumu (IIIA) veya vajen/parametrium invazyonu (IIIB)': 'Uterine serosal/adnexal involvement (IIIA) or vaginal/parametrial invasion (IIIB)',
+  'Mesane veya barsak mukozası invazyonu': 'Bladder or bowel mucosa invasion',
+  'Pelvik lenf nodu pozitifliği': 'Pelvic lymph node positivity',
+  'Paraaortik lenf nodu pozitifliği': 'Para-aortic lymph node positivity',
+  'Uzak organ veya intraabdominal peritoneal yayılım': 'Distant organ or intra-abdominal peritoneal spread',
+  'Over veya tuba uterina ile sınırlı tümör': 'Tumor confined to ovary or fallopian tube',
+  'Pelvik organlara (uterus, mesane, sigmoid) yayılım': 'Extension to pelvic organs (uterus, bladder, sigmoid)',
+  'Pelvis dışı mikroskopik/makroskopik peritoneal yayılım': 'Microscopic/macroscopic peritoneal spread beyond pelvis',
+  'Retroperitoneal (pelvik/paraaortik) lenf nodu metastazı': 'Retroperitoneal (pelvic/para-aortic) lymph node metastasis',
+  'Uzak organ metastazı yok': 'No distant organ metastasis',
+  'Plevral efüzyon sitolojisi pozitif (IVA) veya karaciğer/dalak parankim metastazı (IVB)': 'Positive pleural effusion cytology (IVA) or liver/spleen parenchymal metastasis (IVB)',
+  'Vajen duvarı ile sınırlı karsinom': 'Carcinoma confined to vaginal wall',
+  'Subvajinal doku / paraservikal alana invazyon (pelvis duvarına ulaşmamış)': 'Invasion into subvaginal tissue / paracervical area (not reaching pelvic wall)',
+  'Pelvis yan duvarına uzanım': 'Extension to pelvic sidewall',
+  'Mesane veya rektum mukozası invazyonu veya gerçek pelvis dışına çıkış': 'Bladder or rectal mucosa invasion or extension beyond true pelvis',
+  'Pelvik veya inguinal lenf nodu metastazı': 'Pelvic or inguinal lymph node metastasis',
+  'Vulva veya perinede sınırlı, ≤2 cm lezyon': 'Confined to vulva or perineum, ≤2 cm lesion',
+  '>2 cm kitle veya alt üretra/alt vajen/anüs komşuluğu': '>2 cm mass or adjacent to lower urethra/lower vagina/anus',
+  'Üst üretra, mesane, rektum mukozası veya pelvik kemik fiksasyonu': 'Upper urethra, bladder, rectal mucosa, or pelvic bone fixation',
+  'İnguinofemoral lenf nodu negatif': 'Inguinofemoral lymph nodes negative',
+  '1-2 lenf nodu metastazı (<5 mm)': '1-2 lymph node metastases (<5 mm)',
+  '≥3 lenf nodu metastazı veya kapsül dışı yayılım (ENE/ECE)': '≥3 lymph node metastases or extracapsular extension (ENE/ECE)',
+  'Pelvik lenf nodları veya uzak organ metastazları': 'Pelvic lymph nodes or distant organ metastases',
+  '≤5 cm en büyük çapta yüzeyel veya derin yerleşimli sarkom': 'Superficial or deep sarcoma ≤5 cm in greatest dimension',
+  '>5 cm ama ≤10 cm çap; fasyayı aşmamış veya derin': '>5 cm but ≤10 cm; not crossing fascia or deep-seated',
+  '>10 cm ama ≤15 cm çap': '>10 cm but ≤15 cm diameter',
+  '>15 cm büyük dev sarkomatöz kitle': '>15 cm large giant sarcomatous mass',
+  'Bölgesel lenf nodu tutulumu yok (çoğu YDS)': 'No regional lymph node involvement (most STS)',
+  'Bölgesel lenf nodu metastazı (Evre IV kabul edilir)': 'Regional lymph node metastasis (considered Stage IV)',
+  'Akciğer veya diğer uzak organ metastazları': 'Lung or other distant organ metastases',
+  '≤8 cm primer kemik içinde sınırlı kitle': '≤8 cm mass confined within primary bone',
+  '>8 cm korteksi aşan primer kemik kitlesi': '>8 cm primary bone mass crossing cortex',
+  'Aynı kemik segmentinde diskontinü skip lezyonlar': 'Discontinuous skip lesions in the same bone segment',
+  'Bölgesel lenf nodu tutulumu': 'Regional lymph node involvement',
+  'Yalnızca akciğer metastazı': 'Lung-only metastasis',
+  'Diğer kemik veya visseral organ metastazları': 'Other bone or visceral organ metastases',
+  '≤8 cm veya lokalize primer kemik tutulumu': '≤8 cm or localized primary bone involvement',
+  '>8 cm veya geniş ekstraosseöz yumuşak doku kompanenti': '>8 cm or large extraosseous soft tissue component',
+  'Bölgesel lenf nodu pozitif': 'Regional lymph node positive',
+  'Lokalize hastalık (metastaz yok)': 'Localized disease (no metastasis)',
+  'Kemik iliği, diğer kemikler veya uzak organ metastazı': 'Bone marrow, other bones, or distant organ metastasis',
+  '≤8 cm kortikal veya intramedüller lezyon': '≤8 cm cortical or intramedullary lesion',
+  '>8 cm geniş periostal / ekstraosseöz kitle': '>8 cm large periosteal / extraosseous mass',
+  'Akciğer veya uzak metastaz': 'Lung or distant metastasis',
+  '≤5 cm sakrum, vertebra veya klivus yerleşimli': '≤5 cm, located in sacrum, vertebra, or clivus',
+  '>5 cm komşu nöral / vasküler veya dural invazyon': '>5 cm with adjacent neural / vascular or dural invasion',
+  'Uzak metastaz': 'Distant metastasis',
+  'İntraosseöz sınırları belirgin, inaktif lezyon': 'Intraosseous well-demarcated, inactive lesion',
+  'Korteks genişlemiş ama intakt lezyon': 'Expanded but intact cortex lesion',
+  'Kortikal perforasyon ve yumuşak doku yayılımı': 'Cortical perforation and soft tissue extension',
+  'Lenf nodu pozitif': 'Lymph node positive',
+  'Metastaz yok': 'No metastasis',
+  'Akciğer benign/malign metastatik implantları': 'Benign/malign metastatic lung implants',
+  'Nazofarenks veya orofarenks / burun boşluğu ile sınırlı': 'Confined to nasopharynx or oropharynx / nasal cavity',
+  'Kafatası tabanı, servikal vertebra, pterigoid kemik invazyonu': 'Skull base, cervical vertebra, pterygoid bone invasion',
+  'İntrakraniyal uzanım, kraniyal sinir tutulumu, hipofarenks, orbita': 'Intracranial extension, cranial nerve involvement, hypopharynx, orbit',
+  'Unilateral servikal (≤6 cm) veya bilateral retrofaringeal lenf nodu': 'Unilateral cervical (≤6 cm) or bilateral retropharyngeal lymph nodes',
+  'Bilateral servikal lenf nodu (≤6 cm, klavikula üstü)': 'Bilateral cervical lymph nodes (≤6 cm, above clavicle)',
+  '>6 cm lenf nodu veya supraklavikuler fossa tutulumu': '>6 cm lymph node or supraclavicular fossa involvement',
+  '≤2 cm primer tümör': '≤2 cm primary tumor',
+  '>4 cm veya epiglot lingual yüzeyi tutulumu': '>4 cm or lingual surface of epiglottis involvement',
+  'Larinks, dil kası, medial pterigoid veya mandibula invazyonu': 'Larynx, tongue muscle, medial pterygoid, or mandible invasion',
+  'Bölgesel lenf nodu yok': 'No regional lymph nodes',
+  'İpsilateral tek lenf nodu ≤3 cm': 'Single ipsilateral lymph node ≤3 cm',
+  'Bilateral veya kontralateral ≤6 cm lenf nodu': 'Bilateral or contralateral lymph nodes ≤6 cm',
+  '>6 cm lenf nodu veya ENE pozitifliği': '>6 cm lymph node or ENE positivity',
+  'Tek veya her iki vokal kordla sınırlı, kord mobilitesi normal': 'Confined to one or both vocal cords, normal cord mobility',
+  'Supraglottik/subglottik uzanım ve/veya azalmış vokal kord mobilitesi': 'Supraglottic/subglottic extension and/or impaired vocal cord mobility',
+  'Vokal kord fiksasyonu ve/veya paraglottik alan invazyonu': 'Vocal cord fixation and/or paraglottic space invasion',
+  'Tiroid kıkırdak penetrasyonu, trakea veya derin boyun kası invazyonu': 'Thyroid cartilage penetration, trachea, or deep neck muscle invasion',
+  'İpsilateral çoklu veya bilateral lenf nodları ≤6 cm': 'Multiple ipsilateral or bilateral lymph nodes ≤6 cm',
+  '>6 cm lenf nodu': '>6 cm lymph node',
+  'Oligometastatik intrakraniyal lezyonlar (çap ≤3-4 cm)': 'Oligometastatic intracranial lesions (diameter ≤3-4 cm)',
+  'Çoklu intrakraniyal metastazlar veya yaygın ödem/kitle etkisi': 'Multiple intracranial metastases or extensive edema/mass effect',
+  'Primer tümör bölgesel lenf nodu negatif': 'Primary tumor regional lymph node negative',
+  'Primer tümör bölgesel lenf nodu pozitif': 'Primary tumor regional lymph node positive',
+  'Parankimal intrakraniyal beyin metastazı': 'Parenchymal intracranial brain metastasis',
+  'Maksimal güvenli cerrahiye uygun lober kitle': 'Lobar mass suitable for maximal safe resection',
+  'Bazal ganglion, talamus veya korpus kallozum invazyonu': 'Basal ganglia, thalamus, or corpus callosum invasion',
+  'Beyin parankiminde birden fazla birbirinden bağımsız odak': 'Multiple independent foci in brain parenchyma',
+  'MSS primer tümörlerinde lenf nodu değerlendirmesi yapılmaz': 'Lymph node assessment not applicable for CNS primary tumors',
+  'Leptomeningeal veya spinal tohumlanma yok': 'No leptomeningeal or spinal seeding',
+  'BOS sitolojisi pozitif veya spinal tohumlanma mevcut': 'Positive CSF cytology or spinal seeding present',
+  'Benign histoloji (Mitoz <4/10 BBA, beyin invazyonu yok)': 'Benign histology (mitoses <4/10 HPF, no brain invasion)',
+  'Atipik histoloji (Mitoz 4-19/10 BBA veya beyin invazyonu)': 'Atypical histology (mitoses 4-19/10 HPF or brain invasion)',
+  'Lenfatik drenaj değerlendirilmez': 'Lymphatic drainage not assessed',
+  'İntrakraniyal sınırlı lezyon': 'Intracranially confined lesion',
+  'Ekstrakraniyal uzak metastaz': 'Extracranial distant metastasis',
+  'Submukoza invazyonu (Muskularis propria intakt)': 'Submucosal invasion (muscularis propria intact)',
+  'Muskularis propria invazyonu': 'Muscularis propria invasion',
+  'Subseroza veya perirektal yağ dokusu invazyonu (Mezorektum)': 'Subserosa or perirectal fat invasion (mesorectum)',
+  'Komşu organ invazyonu (prostat, mesane, vajen, sakrum vb.)': 'Adjacent organ invasion (prostate, bladder, vagina, sacrum, etc.)',
+  'Bölgesel mezorektal lenf nodu metastazı yok': 'No regional mesorectal lymph node metastasis',
+  '1-3 bölgesel mezorektal lenf nodu pozitif': '1-3 regional mesorectal lymph nodes positive',
+  '≥4 bölgesel mezorektal lenf nodu pozitif': '≥4 regional mesorectal lymph nodes positive',
+  'Tek bir uzak organda soliter metastaz (örn. izole karaciğer)': 'Solitary metastasis in a single distant organ (e.g., isolated liver)',
+  'Birden fazla organda metastaz': 'Metastases in multiple organs',
+  'Lamina propria veya submukozaya invazyon': 'Invasion into lamina propria or submucosa',
+  'Subseroza bağ dokusu invazyonu': 'Subserosal connective tissue invasion',
+  'Komşu organ invazyonu (kolon, karaciğer, diyafram, pankreas)': 'Adjacent organ invasion (colon, liver, diaphragm, pancreas)',
+  '1-2 bölgesel lenf nodu pozitif': '1-2 regional lymph nodes positive',
+  '3-6 bölgesel lenf nodu pozitif': '3-6 regional lymph nodes positive',
+  '≥7 bölgesel lenf nodu pozitif': '≥7 regional lymph nodes positive',
+  'Uzak organ veya peritoneal karsinomatozis': 'Distant organ metastasis or peritoneal carcinomatosis',
+  'Palpabl tümör; bir lobun yarısı veya daha azı ile sınırlı': 'Palpable tumor; confined to half of one lobe or less',
+  'Ekstrakapsüler yayılım (ECE) - Prostat kapsülünü aşmış': 'Extracapsular extension (ECE) - beyond prostatic capsule',
+  'Seminal vezikül invazyonu (SVI)': 'Seminal vesicle invasion (SVI)',
+  'Rektum, levator kasları veya pelvik taban komşu organ invazyonu': 'Rectum, levator muscles, or pelvic floor adjacent organ invasion',
+  'Bölgesel pelvik lenf nodu metastazı yok': 'No regional pelvic lymph node metastasis',
+  'Pelvik lenf nodu metastazı (obturator, iliak nodlar)': 'Pelvic lymph node metastasis (obturator, iliac nodes)',
+  'Bölge dışı uzak lenf nodu metastazları': 'Distant lymph node metastases beyond region',
+  'Kemik metastazı (aksiyel/apandiküler iskelet)': 'Bone metastasis (axial/appendicular skeleton)',
+  '≤2 cm çap; yüksek risk özelliği yok': '≤2 cm diameter; no high-risk features',
+  '>4 cm veya derin invazyon (>6 mm) veya kemik korteks erozyonu': '>4 cm or deep invasion (>6 mm) or bone cortex erosion',
+  'Aksiyel kemik veya kafatası tabanı derin invazyonu': 'Deep invasion of axial bone or skull base',
+  '1 lenf nodu metastazı (≤3 cm)': '1 lymph node metastasis (≤3 cm)',
+  'Çoklu lenf nodu veya >3 cm kitle': 'Multiple lymph nodes or >3 cm mass',
+  'Uzak visseral organ metastazları': 'Distant visceral organ metastases',
+  'Tek bir lenf nodu bölgesi veya tek bir ekstralenfatik organ tutulumu': 'Single lymph node region or single extralymphatic organ involvement',
+  'Diyaframın aynı tarafında iki veya daha fazla lenf nodu bölgesi': 'Two or more lymph node regions on the same side of the diaphragm',
+  'Diyaframın her iki tarafında lenf nodu tutulumu': 'Lymph node involvement on both sides of the diaphragm',
+  'Yaygın kemik iliği, karaciğer veya ekstralenfatik organ yayılımı': 'Widespread bone marrow, liver, or extralymphatic organ involvement',
+  'Mediastinal veya periferik kitle çapı <7-10 cm': 'Mediastinal or peripheral mass diameter <7-10 cm',
+  '≥7-10 cm büyük kitle veya transtorasik çapın >1/3\'ü': '≥7-10 cm bulky mass or >1/3 of transthoracic diameter',
+  'B semptomu yok (Ateş, gece terlemesi, kilo kaybı yok)': 'No B symptoms (no fever, night sweats, weight loss)',
+  'B semptomları mevcut': 'B symptoms present',
+  'Rezidü kitle <1.5 cm2, nörolojik defisit ve yayılım sınırlı': 'Residual mass <1.5 cm², limited neurological deficit and spread',
+  'Rezidü ≥1.5 cm2 veya kraniyospinal aksa yayılım şüphesi': 'Residual ≥1.5 cm² or suspected craniospinal axis spread',
+  'Nodal tutulum yok': 'No nodal involvement',
+  'Bölgesel nodal tutulum': 'Regional nodal involvement',
+  'BOS sitolojisi pozitif veya spinal leptomeningeal tohumlanma': 'Positive CSF cytology or spinal leptomeningeal seeding',
+  'Omurga, pelvis, ekstremite kemik tutulumu': 'Spine, pelvis, extremity bone involvement',
+  'Kafa içi kitle lezyonları': 'Intracranial mass lesions',
+  'Acil medüller bası ve paraparezi riski': 'Urgent medullary compression and paraparesis risk',
+  'Mediastinal obstrüksiyon sendromu': 'Mediastinal obstruction syndrome',
+  'Pelvik, mesane veya rektal kanama': 'Pelvic, bladder, or rectal bleeding',
+  '8 Gy tek fraksiyon (Optimal ağrı palyasyonu, hasta konforu)': '8 Gy single fraction (optimal pain palliation, patient comfort)',
+  '20 Gy / 5 fx veya 30 Gy / 10 fx (Uzun sağkalım beklentisi)': '20 Gy / 5 fx or 30 Gy / 10 fx (longer survival expectation)',
+  'Detrusor kasını invaze eden kas-invaziv mesane tümörü': 'Muscle-invasive bladder tumor invading detrusor muscle',
+  'Perivezikal yağ dokusuna uzanım': 'Extension into perivesical fat',
+  'Prostat stroması, uterus veya vajen invazyonu': 'Prostatic stroma, uterus, or vagina invasion',
+  'Tek bölgesel lenf nodunda metastaz': 'Metastasis in a single regional lymph node',
+  'Birden fazla bölgesel lenf nodu metastazı': 'Multiple regional lymph node metastases',
+  'Seminom testise sınırlı, tümör belirteçleri ve görüntüleme ile N0M0': 'Seminoma confined to testis, N0M0 by tumor markers and imaging',
+  'Retroperitoneal lenf nodu metastazı, en büyük çap ≤2 cm': 'Retroperitoneal lymph node metastasis, largest diameter ≤2 cm',
+  'Retroperitoneal lenf nodu metastazı, en büyük çap >2-5 cm': 'Retroperitoneal lymph node metastasis, largest diameter >2-5 cm',
+  'Retroperitoneal lenf nodu metastazı yok': 'No retroperitoneal lymph node metastasis',
+  'Metastatik nodal kitle ≤2 cm': 'Metastatic nodal mass ≤2 cm',
+  'Metastatik nodal kitle >2-5 cm': 'Metastatic nodal mass >2-5 cm',
+  'Subepitelyal bağ dokusuna invazyon': 'Invasion into subepithelial connective tissue',
+  'Corpus spongiosum veya cavernosum invazyonu': 'Corpus spongiosum or cavernosum invasion',
+  'Üretra veya prostat invazyonu': 'Urethra or prostate invasion',
+  'Diğer komşu yapılara invazyon': 'Invasion into other adjacent structures',
+  'Tek unilateral inguinal lenf nodu': 'Single unilateral inguinal lymph node',
+  'Çoklu veya bilateral inguinal lenf nodu': 'Multiple or bilateral inguinal lymph nodes',
+  'Pelvik nodal metastaz veya ekstranodal yayılım': 'Pelvic nodal metastasis or extranodal spread',
+  'Duktal karsinoma in situ; stromal invazyon yok': 'Ductal carcinoma in situ; no stromal invasion',
+  'Tümör çapı ≤5 cm': 'Tumor diameter ≤5 cm',
+  'Tümör çapı >5 cm': 'Tumor diameter >5 cm',
+  'Rutin elektif aksiller nodal ışınlama endikasyonu yok': 'No indication for routine elective axillary nodal irradiation',
+  'Hipofarenksin tek alt bölgesinde, çap ≤2 cm': 'Single hypopharyngeal subsite, diameter ≤2 cm',
+  'Birden fazla alt bölge veya komşu bölge tutulumu, çap ≤4 cm': 'Multiple subsites or adjacent site involvement, diameter ≤4 cm',
+  'Çap >4 cm veya hemilarinks fiksasyonu': 'Diameter >4 cm or hemilarynx fixation',
+  'Tiroid/kıkırdak veya komşu yapı invazyonu': 'Thyroid/cartilage or adjacent structure invasion',
+  'Nod(lar) >3-6 cm veya bilateral/kontralateral tutulum': 'Node(s) >3-6 cm or bilateral/contralateral involvement',
+  'Tümör ≤2 cm ve DOI ≤5 mm': 'Tumor ≤2 cm and DOI ≤5 mm',
+  'Tümör ≤2 cm ve DOI >5-10 mm veya >2-4 cm ve DOI ≤10 mm': 'Tumor ≤2 cm and DOI >5-10 mm or >2-4 cm and DOI ≤10 mm',
+  'Tümör >4 cm veya DOI >10 mm': 'Tumor >4 cm or DOI >10 mm',
+  'Kortikal kemik, maksiller sinüs veya yüz cildi invazyonu': 'Cortical bone, maxillary sinus, or facial skin invasion',
+  'Mastikatör alan, pterigoid plak, kafa tabanı veya karotis çevresi invazyonu': 'Masticator space, pterygoid plates, skull base, or carotid encasement',
+  'Çoklu/bilateral nodlar ≤6 cm, ENE negatif': 'Multiple/bilateral nodes ≤6 cm, ENE negative',
+  'Nod >6 cm veya klinik olarak anlamlı ENE': 'Node >6 cm or clinically significant ENE',
+  'Tümör ≤2 cm, ekstraparenkimal yayılım yok': 'Tumor ≤2 cm, no extraparenchymal extension',
+  'Tümör >2-4 cm, ekstraparenkimal yayılım yok': 'Tumor >2-4 cm, no extraparenchymal extension',
+  'Tümör >4 cm veya ekstraparenkimal yumuşak doku yayılımı': 'Tumor >4 cm or extraparenchymal soft tissue extension',
+  'Deri, mandibula, dış kulak yolu veya fasiyal sinir invazyonu': 'Skin, mandible, external auditory canal, or facial nerve invasion',
+  'Kafa tabanı, pterigoid plak veya karotis çevresi invazyonu': 'Skull base, pterygoid plates, or carotid encasement',
+  'Nod >3-6 cm veya çoklu/bilateral nodal hastalık': 'Node >3-6 cm or multiple/bilateral nodal disease',
+  'Tek kemik veya ekstramedüller plazmasitom': 'Single bone or extramedullary plasmacytoma',
+  'Birden fazla kemik lezyonu; miyelom değerlendirmesi gerekir': 'Multiple bone lesions; myeloma workup required',
+  'Ek odak veya sistemik hastalık': 'Additional focus or systemic disease',
+  'Ağrılı litik lezyon veya patolojik fraktür riski': 'Painful lytic lesion or pathologic fracture risk',
+  'Böbreğe sınırlı veya cerrahiyle tamamen çıkarılmış tümör': 'Tumor confined to kidney or completely resected',
+  'Karın içinde rezidü, nodal tutulum veya fokal/diffüz anaplazi': 'Intra-abdominal residual, nodal involvement, or focal/diffuse anaplasia',
+  'Bölgesel nodal tutulum yok': 'No regional nodal involvement',
+  'Uzak metastaz, sıklıkla akciğer': 'Distant metastasis, frequently lung',
+  'Görüntülemede risk faktörü olmayan lokalize tümör': 'Localized tumor without imaging-defined risk factors',
+  'Bir veya daha fazla görüntüleme tanımlı risk faktörü olan lokalize tümör': 'Localized tumor with one or more imaging-defined risk factors',
+  'Uzak metastatik hastalık': 'Distant metastatic disease',
+  'İpsilateral bölgesel nod tutulumu': 'Ipsilateral regional node involvement',
+  'Ciltte ödem (peau d’orange), ülserasyon veya satellit cilt nodülleri': 'Skin edema (peau d\'orange), ulceration, or satellite skin nodules',
+  'T4a ve T4b özelliklerinin birlikte bulunması': 'Coexistence of T4a and T4b features',
+  'İnflamatuar meme karsinomu (memenin en az 1/3’ünde diffüz eritem ve ödem)': 'Inflammatory breast carcinoma (diffuse erythema and edema in at least 1/3 of the breast)',
+  'Lamina propria veya muskularis mukoza invazyonu': 'Lamina propria or muscularis mucosae invasion',
+  'Submukoza invazyonu': 'Submucosal invasion',
+  'Adventisya invazyonu': 'Adventitia invasion',
+  'Rezekabl komşu organ invazyonu (plevra, perikard, diyafram)': 'Resectable adjacent organ invasion (pleura, pericardium, diaphragm)',
+  'İnrezekabl komşu organ invazyonu (aort, trakea, vertebra)': 'Unresectable adjacent organ invasion (aorta, trachea, vertebra)',
+  '1-2 bölgesel lenf nodu': '1-2 regional lymph nodes',
+  '3-6 bölgesel lenf nodu': '3-6 regional lymph nodes',
+  '≥7 bölgesel lenf nodu': '≥7 regional lymph nodes',
+  'Tümör ≤2 cm (pankreasa sınırlı)': 'Tumor ≤2 cm (confined to pancreas)',
+  'Tümör >2 cm ama ≤4 cm': 'Tumor >2 cm but ≤4 cm',
+  'Tümör >4 cm (çölyak aks veya SMA tutulumu yok)': 'Tumor >4 cm (no celiac axis or SMA involvement)',
+  'Çölyak aks, SMA veya ana hepatik arter tutulumu (inrezekabl lokal ileri)': 'Celiac axis, SMA, or common hepatic artery involvement (unresectable locally advanced)',
+  'Bölgesel LN metastazı yok': 'No regional LN metastasis',
+  '1-3 bölgesel LN': '1-3 regional LNs',
+  '≥4 bölgesel LN': '≥4 regional LNs',
+  'Tek lezyon ≤2 cm; vasküler invazyon yok': 'Single lesion ≤2 cm; no vascular invasion',
+  'Tek lezyon ≤2 cm; mikrovasküler invazyon mevcut': 'Single lesion ≤2 cm; microvascular invasion present',
+  'Tek lezyon >2 cm veya vasküler invazyonlu tek lezyon': 'Single lesion >2 cm or single lesion with vascular invasion',
+  'Çapı >5 cm olan çoklu lezyonlar veya ana portal/hepatik ven dalı invazyonu': 'Multiple lesions >5 cm or main portal/hepatic vein branch invasion',
+  'Komşu organ invazyonu (safra kesesi hariç) veya visseral periton perforasyonu': 'Adjacent organ invasion (except gallbladder) or visceral peritoneal perforation',
+  'Bölgesel lenf nodu metastazı mevcut': 'Regional lymph node metastasis present',
+  'Uzak organ/peritoneal metastaz mevcut': 'Distant organ/peritoneal metastasis present',
+  'Pilositik astrositom veya düşük dereceli circumscribed gliom': 'Pilocytic astrocytoma or low-grade circumscribed glioma',
+  'Düşük dereceli diffüz astrositom veya oligodendrogliom': 'Low-grade diffuse astrocytoma or oligodendroglioma',
+  'Anaplastik astrositom veya anaplastik oligodendrogliom': 'Anaplastic astrocytoma or anaplastic oligodendroglioma',
+  'Glioblastom veya diğer yüksek dereceli diffüz gliom': 'Glioblastoma or other high-grade diffuse glioma',
+  'Beyin parankiminde bölgesel lenf nodu evrelemesi uygulanmaz': 'Regional lymph node staging not applicable in brain parenchyma',
+  'Uzak metastaz saptanmadı': 'No distant metastasis detected',
+  'Leptomeningeal veya uzak ekstrakraniyal yayılım': 'Leptomeningeal or distant extracranial spread',
+  'Tümör over/fallop tüpü ile sınırlı': 'Tumor confined to ovary/fallopian tube',
+  'Pelvise uzanım veya primer peritoneal yayılım': 'Pelvic extension or primary peritoneal spread',
+  'Ekstrapelvik peritoneal yayılım ve/veya retroperitoneal nod': 'Extrapelvic peritoneal spread and/or retroperitoneal nodes',
+  'Uzak metastaz veya malign plevral efüzyon': 'Distant metastasis or malignant pleural effusion',
+  'Retroperitoneal lenf nodu metastazı mevcut': 'Retroperitoneal lymph node metastasis present',
+  // --- HEDEF HACİM ANATOMİK KAPSAMLAR ---
+  'Pre-KT primer kitle ve tutulu mediastinal/hiler lenf nodları': 'Pre-CT primary mass and involved mediastinal/hilar lymph nodes',
+  'Yalnızca tutulu alan mikroskobik yayılımı (Elektif nodal önerilmez)': 'Microscopic spread of involved field only (elective nodal not recommended)',
+  'Solunum ve set-up zarfı': 'Respiratory and set-up envelope',
+  'Tüm beyin parankimi (Hipokampus nörogenezis zonu hariç)': 'Whole brain parenchyma (excluding hippocampal neurogenesis zone)',
+  'Post-KT rezidüel akciğer kitlesi ve tutulu nodlar': 'Post-CT residual lung mass and involved nodes',
+  'Tümör yatağı, cerrahi klipsler ve anterior mediasten': 'Tumor bed, surgical clips, and anterior mediastinum',
+  'Tümör yatağı, plevral adezyon bölgeleri ve anterior mediasten': 'Tumor bed, pleural adhesion areas, and anterior mediastinum',
+  'Ağrılı invaziv plevral kitle odağı': 'Painful invasive pleural mass focus',
+  'Dren ve biyopsi skarları': 'Drain and biopsy scars',
+  'Metastatik odak ve primer kitle': 'Metastatic focus and primary mass',
+  'Semptomatik obstrüktif kitle': 'Symptomatic obstructive mass',
+  'Primer kitle + PET/biyopsi pozitif mediastinal nodlar': 'Primary mass + PET/biopsy-positive mediastinal nodes',
+  'Yalnızca tutulu alan mikroskobik payı': 'Microscopic margin of involved field only',
+  'DIBH altında set-up ve intra-fraksiyon güvenlik marjini': 'Set-up and intra-fraction safety margin under DIBH',
+  'Parankimal primer kitle (BT/PET füzyonu)': 'Parenchymal primary mass (CT/PET fusion)',
+  'Tümörün solunum siklusu boyunca kat ettiği hareket hacmi (MIP)': 'Motion envelope traversed by tumor through respiratory cycle (MIP)',
+  'Günlük IGRT ve set-up güvenlik marjini': 'Daily IGRT and set-up safety margin',
+  'Serviks, uterus, parametriyal dokular, vajen üst 1/2 ve pelvik lenf nodları': 'Cervix, uterus, parametrial tissues, upper 1/2 vagina, and pelvic lymph nodes',
+  'Rezidu servikal kitle + tüm serviks (Brakiterapi ile eskalasyon)': 'Residual cervical mass + entire cervix (escalated with brachytherapy)',
+  'Vajinal kaf, parametriyum yatağı ve pelvik lenfatik drenaj': 'Vaginal cuff, parametrial bed, and pelvic lymphatic drainage',
+  'Vajinal kaf ve üst 3-4 cm vajina mukozası': 'Vaginal cuff and upper 3-4 cm vaginal mucosa',
+  'Pozitif marjin veya servikal tutulumda vajinal kaf boostu': 'Vaginal cuff boost in positive margin or cervical involvement',
+  'PET/MR pozitif nüks lenf nodu veya visseral kitle': 'PET/MR-positive recurrent lymph node or visceral mass',
+  'Stereotaktik güvenlik marjini': 'Stereotactic safety margin',
+  'Semptomatik kitle': 'Symptomatic mass',
+  'Tüm vajen, parakolpium, pelvik lenf nodları (alt 1/3 ise bilateral kasık dahil)': 'Entire vagina, paracolpium, pelvic lymph nodes (including bilateral groins if lower 1/3)',
+  'Primer kitle rezidüsü (İnterstisyel iğneler veya silindir ile boost)': 'Primary mass residual (boost with interstitial needles or cylinder)',
+  'Bilateral inguinofemoral ve iliak lenf nodu istasyonları': 'Bilateral inguinofemoral and iliac lymph node stations',
+  'Kapsül dışı yayılan veya rezeke makroskopik nod yatağı': 'Extracapsular spread or resected macroscopic nodal bed',
+  'Primer kitle ve tutulu kasık nodları': 'Primary mass and involved groin nodes',
+  'Ekstremite veya gövde primer yatağı': 'Extremity or trunk primary bed',
+  'Primer kitle veya tümör rezeksiyon yatağı': 'Primary mass or tumor resection bed',
+  'Fasyal planlar boyunca anatomik mikroskobik yayılım payı': 'Anatomic microscopic spread margin along fascial planes',
+  'Makroskopik rezidü veya cerrahi sınır pozitif kemik yatağı': 'Macroscopic residual or margin-positive bone bed',
+  'Mikroskobik kemik iliği ve periostal alan': 'Microscopic bone marrow and periosteal area',
+  'Kemoterapi ÖNCESİ başlangıçtaki tüm kemik tutulum hacmi': 'Pre-chemotherapy initial entire bone involvement volume',
+  'Kemoterapi SONRASI rezidüel yumuşak doku kompanenti': 'Post-chemotherapy residual soft tissue component',
+  'Rezidü veya inoperabl kitle': 'Residual or inoperable mass',
+  'Sakral veya klivus lezyon hacmi': 'Sacral or clival lesion volume',
+  'Ekspansif litik kitle': 'Expansile lytic mass',
+  'Gerçek vokal kordlar, ön komissür ve aritenoid vokal proçes': 'True vocal cords, anterior commissure, and arytenoid vocal process',
+  'Primer rezeksiyon yatağı ve patolojiye göre yüksek risk alanı': 'Primary resection bed and high-risk area per pathology',
+  'Primer komşuluğu ve tutulu nod istasyonu': 'Primary vicinity and involved nodal station',
+  'Cerrahi kavite, rezidü tümör ve T2/FLAIR anormalliği': 'Surgical cavity, residual tumor, and T2/FLAIR abnormality',
+  'T1 kontrastlı rezidü ve cerrahi kavite': 'T1 contrast-enhancing residual and surgical cavity',
+  'Anatomik bariyerlere saygılı mikroskobik pay': 'Microscopic margin respecting anatomic barriers',
+  'Set-up güvenlik zarfı': 'Set-up safety envelope',
+  'Kontrast tutan dural kuyruk ve rezidüel kitle': 'Contrast-enhancing dural tail and residual mass',
+  'Bilateral beyin hemisferleri (Hipokampus alanı hariç)': 'Bilateral brain hemispheres (excluding hippocampal area)',
+  'Pelvik lenfatikler ve mesane çevresi': 'Pelvic lymphatics and peri-bladder area',
+  'Görüntüleme ve TURBT bulgularına göre boost': 'Boost per imaging and TURBT findings',
+  'Prostat bezi ve seminal vezikül tabanı': 'Prostate gland and seminal vesicle base',
+  'Prostat ve seminal veziküller': 'Prostate and seminal vesicles',
+  'Prostat bezi; varsa dominant intraprostatik lezyon (DIL) / nodül boostu': 'Prostate gland; dominant intraprostatic lesion (DIL) / nodule boost if present',
+  'Prostat ± seminal veziküller, risk uyarlamalı': 'Prostate ± seminal vesicles, risk-adapted',
+  'Günlük IGRT ve prostat hareket güvenlik marjini': 'Daily IGRT and prostate motion safety margin',
+  'Meme yatağı; elektif aksilla dahil edilmez': 'Breast bed; elective axilla not included',
+  'Primer yatak ve cerrahi skar': 'Primary bed and surgical scar',
+  'Mastektomi göğüs duvarı ve cilt altı yüzey': 'Mastectomy chest wall and subcutaneous surface',
+  'Rektal tümör, mezorektum, presakral ve internal iliak lenf nodları': 'Rectal tumor, mesorectum, presacral and internal iliac lymph nodes',
+  'Mide yatağı, anastomoz hattı ve perigastrik/çölyak lenf nodları': 'Gastric bed, anastomotic line, and perigastric/celiac lymph nodes',
+  'Kontrast tutan karaciğer lezyonu': 'Contrast-enhancing liver lesion',
+  'MIP üzerinde tümörün solunum hareket hacmi': 'Tumor respiratory motion volume on MIP',
+  'Primer özofagus tümörü ve bölgesel lenfatikler': 'Primary esophageal tumor and regional lymphatics',
+  'Primer pankreas tümörü ve ilgili lenfatikler': 'Primary pancreatic tumor and related lymphatics',
+  'Primer kitle ve bölgesel lenfatikler': 'Primary mass and regional lymphatics',
+  'Elektif bölgesel nodal alan; risk uyarlanmış': 'Elective regional nodal area; risk-adapted',
+  'Makroskopik lezyon ve subklinik yayılım alanı': 'Macroscopic lesion and subclinical spread area',
+  'Ağrılı litik veya fraktür riski taşıyan lezyon': 'Painful lytic or fracture-risk lesion',
+  'Total body / kemik iliği': 'Total body / bone marrow',
+  'Tutulu lenf nodu bölgesi': 'Involved lymph node region',
+  'Başlangıçta tutulu lenf nodu hacmi': 'Initially involved lymph node volume',
+  'Primer tümör yatağı ve rezidüel hastalık': 'Primary tumor bed and residual disease',
+  'Kemoterapi öncesi kemik ve yumuşak doku hastalığı': 'Pre-chemotherapy bone and soft tissue disease',
+  'Post-KT rezidüel tümör / yüksek risk alanı': 'Post-CT residual tumor / high-risk area',
+  'Tüm beyin, tekal kese ve kauda ekuina sonlanımına kadar': 'Entire brain, thecal sac, down to cauda equina terminus',
+  'Posterior fossa tümör yatağı': 'Posterior fossa tumor bed',
+  'Makroskopik vertebral metastaz / epidural hastalık': 'Macroscopic vertebral metastasis / epidural disease',
+  'İlgili vertebral segment ve epidural yayılım': 'Involved vertebral segment and epidural extension',
+  'Günlük IGRT ve spinal set-up güvenlik marjini': 'Daily IGRT and spinal set-up safety margin',
+  // --- OAR ORGAN İSİMLERİ ---
+  'Gonad / komşu eklem': 'Gonad / adjacent joint',
+  'Cilt / çevre doku': 'Skin / surrounding tissue',
+  'Cilt / komşu eklem': 'Skin / adjacent joint',
+  'Beyin sapı yüzeyi': 'Brainstem surface',
+  'Beyin sapı': 'Brainstem',
+  'Kalp ve akciğer': 'Heart and lung',
+  'Beyin sapı / optik yol': 'Brainstem / optic pathway',
+  'Özofagus Mean': 'Esophagus Mean',
+  'Akciğer V20Gy': 'Lung V20Gy',
+  'Proksimal Bronş Ağacı': 'Proximal Bronchial Tree',
+  'Ana Bronş / Trakea': 'Main Bronchus / Trachea',
+  'İnce Bağırsak D2cc': 'Small Bowel D2cc',
+  'İnce Bağırsak V40Gy': 'Small Bowel V40Gy',
+  'İnce Bağırsak / Duodenum': 'Small Bowel / Duodenum',
+  'Büyük Damarlar': 'Great Vessels',
+  'Bağırsak': 'Bowel',
+  'Femur Başları': 'Femoral Heads',
+  'Bağırsak Torbası': 'Bowel Bag',
+  'Cilt Koruma Şeridi (Strip)': 'Skin Sparing Strip',
+  'Komşu Eklem': 'Adjacent Joint',
+  'Büyük Sinir Gövdeleri': 'Major Nerve Trunks',
+  'Büyüme Plağı (Pediatrik)': 'Growth Plate (Pediatric)',
+  'Beyin Sapı / Optik Yol': 'Brainstem / Optic Pathway',
+  'Beyin Sapı / Kord': 'Brainstem / Cord',
+  'Parotis Bezi (Karşı)': 'Parotid Gland (Contralateral)',
+  'Göz Lensleri': 'Eye Lenses',
+  'İnce bağırsak': 'Small bowel',
+  'Karşı testis': 'Contralateral testis',
+  'Böbrekler': 'Kidneys',
+  'Üretra / cilt': 'Urethra / skin',
+  'İpsilateral akciğer': 'Ipsilateral lung',
+  'İpsilateral Akciğer': 'Ipsilateral Lung',
+  'Bilateral Böbrek': 'Bilateral Kidneys',
+  'Sağlam Karaciğer': 'Uninvolved Liver',
+  'Göz Lensi (Yüz ise)': 'Eye Lens (if facial field)',
+  'Spinal kord (yakınsa)': 'Spinal cord (if adjacent)',
+  'Komşu OAR': 'Adjacent OAR',
+  'Kontralateral böbrek': 'Contralateral kidney',
+  'Büyüme plakları': 'Growth plates',
+  'Komşu eklem': 'Adjacent joint',
+  // --- MARJİN TANIMLARI ---
+  'GTV + 4D solunum fazları zarfı': 'GTV + 4D respiratory phase envelope',
+  'MR bazlı': 'MR-based',
+  'Üst 1/3-1/2': 'Upper 1/3-1/2',
+  'Cerrahi skar ve anatomik yayılım doğrultusunda': 'Along surgical scar and anatomic spread',
+  'Cerrahi yatak + klinik marjin': 'Surgical bed + clinical margin',
+  'Tutulu nod yatağı / SIB': 'Involved nodal bed / SIB',
+  'Kafatası': 'Skull',
+  'Mesane duvarı ve yatak': 'Bladder wall and bed',
+  '3-5 mm; rektum yönünde 3 mm': '3-5 mm; 3 mm toward rectum',
+  'Cerrahi yatak ve klipsler': 'Surgical bed and clips',
+  'Bölgesel drenaj': 'Regional drainage',
+  'Görüntüleme ve anatomik bariyerlere göre': 'Per imaging and anatomic barriers',
+  'Görüntüleme ve anatomik sınırlara göre': 'Per imaging and anatomic boundaries',
+  'Tüm vücut': 'Whole body',
+  'Dalak + günlük görüntüleme marjini': 'Spleen + daily imaging margin',
+  'Pre-KT GTV ile sınırlı': 'Confined to pre-CT GTV',
+  'COG / SIOP protokol sınırları': 'COG / SIOP protocol boundaries',
+  'Başlangıç görüntüleme ve protokol sınırları': 'Baseline imaging and protocol boundaries',
+  'Pre-KT başlangıç hacmine göre': 'Per pre-CT baseline volume',
+  'Rezidüel hacim': 'Residual volume',
+  'Tüm nöroaksis': 'Entire neuraxis',
+  '1-2 mm (SBRT planında)': '1-2 mm (in SBRT plan)',
+  'Semptomatik lezyon ve anatomik yayılım': 'Symptomatic lesion and anatomic spread',
+  'Tüm ipsilateral plevral yüzey, cerrahi yatak ve insizyon/dren bölgeleri': 'Entire ipsilateral pleural surface, surgical bed, and incision/drain sites',
+  'Günlük IGRT ile set-up güvenlik marjini': 'Set-up safety margin with daily IGRT',
+  'İpsilateral Akciğer (P/D sonrası)': 'Ipsilateral Lung (post P/D)',
+  'Karaciğer (Sağ taraf)': 'Liver (right-sided)',
 };
 
 const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(
@@ -2862,13 +3271,13 @@ export default function RadoncoCDSSPage() {
     return saved === 'tr' || saved === 'en' ? saved : 'en';
   });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
-  const tText = (text: string | undefined): string => {
+  const tText = useCallback((text: string | undefined): string => {
     if (!text) return '';
     if (lang === 'tr') return text;
     if (TRANSLATION_MAP[text]) return TRANSLATION_MAP[text];
 
     return text.replace(TRANSLATION_MATCHER, match => TRANSLATION_MAP[match] ?? match);
-  };
+  }, [lang]);
   const email = user?.primaryEmailAddress?.emailAddress ?? '';
   const ADMIN_EMAILS = ['harun.pekmezci@sbu.edu.tr', 'ee011126@mail2.gantep.edu.tr'];
   const emailLower = email.toLowerCase();
@@ -3045,7 +3454,7 @@ export default function RadoncoCDSSPage() {
   const [pediatricRisk, setPediatricRisk] = useState<'Standart' | 'Yuksek'>('Standart');
   const [wilmsStage, setWilmsStage] = useState<'Evre_I_II' | 'Evre_III_Anaplazi'>('Evre_I_II');
   const [wilmsWholeAbdomen, setWilmsWholeAbdomen] = useState<boolean>(false);
-  const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Kord_Basisi' | 'Kanama'>('Agri');
+  const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Kord_Basisi' | 'Kanama' | 'Omurga_SBRT'>('Agri');
 
   // Modal ve Kopyalama State'leri
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
@@ -3066,14 +3475,6 @@ export default function RadoncoCDSSPage() {
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
   const [copiedContext, setCopiedContext] = useState<boolean>(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
-    {
-      role: 'assistant',
-      content: 'Merhaba Doktor, ekrandaki aktif hasta verilerini okudum. Bu vakanın fraksiyonasyonu, OAR kısıtları veya kanıt temeli hakkında neyi tartışmak istersiniz?',
-    },
-  ]);
-  const [inputQuery, setInputQuery] = useState<string>('');
-  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
@@ -3832,11 +4233,33 @@ export default function RadoncoCDSSPage() {
           oars: [{ organ: 'Akciğer', metric: 'Dmax', limit: '< 10 Gy', source: 'Klinik' }],
           evidence: 'SMART Trial, NCCN',
         };
+        const mesoAdj: DoseScheme = {
+          id: 'meso-hemithoracic-504',
+          name: '50.4 Gy / 28 fx (Adjuvan Hemitorasik IMRT, P/D Sonrası)',
+          tag: '⚡ Adjuvan Hemitorasik RT',
+          totalDoseGy: 50.4,
+          fractionCount: 28,
+          fractionDoseGy: 1.8,
+          alphaBeta: 10,
+          technique: 'Hemitorasik IMRT / VMAT (akciğer koruyucu P/D sonrası); EPD sonrası dikkatli dozimetri',
+          indication: 'Plevrektomi/dekortikasyon (P/D) veya genişletilmiş plöropnömonektomi (EPD) sonrası yüksek lokal nüks riskinde adjuvan hemitorasik RT; IMPRINT verisi P/D sonrası akciğer koruyucu IMRT güvenliğini destekler.',
+          targetVolumes: [
+            { name: 'CTV_Hemithorax', doseGy: 50.4, marginMm: 'Anatomik', anatomical: 'Tüm ipsilateral plevral yüzey, cerrahi yatak ve insizyon/dren bölgeleri' },
+            { name: 'PTV', doseGy: 50.4, marginMm: 'CTV + 5-8 mm', anatomical: 'Günlük IGRT ile set-up güvenlik marjini' },
+          ],
+          oars: [
+            { organ: 'İpsilateral Akciğer (P/D sonrası)', metric: 'V20Gy', limit: 'Mümkün olan en düşük; MLD < 20 Gy', source: 'IMPRINT' },
+            { organ: 'Karaciğer (Sağ taraf)', metric: 'Mean', limit: '< 30 Gy', source: 'QUANTEC' },
+            { organ: 'Kalp (Sol taraf)', metric: 'Dmean', limit: '< 20 Gy', source: 'QUANTEC' },
+          ],
+          systemicTherapy: 'Platin + pemetrexed bazlı sistemik tedavi ile multidisipliner koordinasyon.',
+          evidence: 'IMPRINT Faz II (Rimmer et al. JCO 2016), NCCN v1.2025 Mesothelioma',
+        };
         return {
-          statusText: 'PALYATİF VEYA GİRİŞİM YERİ PROFLAKTİK RT',
-          badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-300',
-          primaryScheme: mesoIntent === 'Dren_Yeri' ? mesoTract : mesoPal,
-          alternativeSchemes: [mesoPal, mesoTract],
+          statusText: mesoIntent === 'Hemitorasik_Postop' ? 'ENDİKE: P/D-EPD SONRASI ADJUVAN HEMİTORASİK RT' : 'PALYATİF VEYA GİRİŞİM YERİ PROFLAKTİK RT',
+          badgeClass: mesoIntent === 'Hemitorasik_Postop' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-indigo-50 text-indigo-800 border-indigo-300',
+          primaryScheme: mesoIntent === 'Dren_Yeri' ? mesoTract : mesoIntent === 'Hemitorasik_Postop' ? mesoAdj : mesoPal,
+          alternativeSchemes: [mesoPal, mesoTract, mesoAdj],
         };
       }
 
@@ -3969,6 +4392,7 @@ export default function RadoncoCDSSPage() {
         ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT (Optik Yüzey Rehberliği) / VMAT'
         : 'SBRT (4D-CT / ITV tabanlı VMAT)';
       let sbrt: DoseScheme;
+      let sbrtAlt: DoseScheme | null = null;
       if (thoraxCentrality === 'Central') {
         sbrt = {
           id: 'lung-sbrt-50',
@@ -4017,12 +4441,29 @@ export default function RadoncoCDSSPage() {
           ],
           evidence: 'RTOG 0236, RTOG 0915, NCCN v1.2025 Kategori 1',
         };
+        sbrtAlt = {
+          id: 'lung-sbrt-48',
+          name: '48 Gy / 4 fx (SBRT Periferik Alternatif)',
+          tag: '🎯 Periferik 4 fx',
+          totalDoseGy: 48,
+          fractionCount: 4,
+          fractionDoseGy: 12,
+          alphaBeta: 10,
+          technique: lungSbrtTechnique,
+          indication: 'Göğüs duvarına komşu veya fraksiyon başına doz toksisitesi sınırlandırılmak istenen periferik erken evre KHDAK alternatifi (BED10 = 105.6 Gy).',
+          targetVolumes: lungSbrtTargets(48),
+          oars: [
+            { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 10-15%', source: 'RTOG 0915' },
+            { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0915' },
+          ],
+          evidence: 'RTOG 0915, NCCN v1.2025',
+        };
       }
       return {
         statusText: `ENDİKE: KÜRATİF ${sbrt.tag} PROTOKOLÜ`,
         badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
         primaryScheme: sbrt,
-        alternativeSchemes: [sbrt],
+        alternativeSchemes: sbrtAlt ? [sbrt, sbrtAlt] : [sbrt],
       };
     }
 
@@ -4635,23 +5076,49 @@ export default function RadoncoCDSSPage() {
       if (cnsSubtype === 'glioma') {
         const riskCount = Object.values(gliomaRiskFactors).filter(Boolean).length;
         const highRisk = gliomaGrade === 'Grade_3' || gliomaGrade === 'Grade_4' || riskCount >= 2 || gliomaRiskFactors.molecularHighRisk;
-        const isGbm = gliomaGrade === 'Grade_4';
+        const isGbm = gliomaHistology === 'gbm' || gliomaGrade === 'Grade_4';
+        const isOligo = gliomaHistology === 'oligodendroglioma';
+        const isAstro = gliomaHistology === 'astrocytoma';
         const dose = isGbm ? 60 : gliomaGrade === 'Grade_3' ? 59.4 : highRisk ? 54 : 50.4;
         const fractions = isGbm ? 30 : gliomaGrade === 'Grade_3' ? 33 : highRisk ? 30 : 28;
         const glioma: DoseScheme = {
-          id: isGbm ? 'glioma-stupp-60' : highRisk ? 'glioma-high-risk-57' : 'glioma-low-risk-504',
-          name: isGbm ? '60 Gy / 30 fx + TMZ (Stupp)' : gliomaGrade === 'Grade_3' ? '59.4-60 Gy / 30-33 fx + TMZ/PCV' : highRisk ? '54 Gy / 30 fx + TMZ/PCV' : '45-54 Gy / 25-30 fx veya İzlem',
-          tag: isGbm ? 'WHO Grade 4 / GBM' : highRisk ? 'Yüksek Riskli Gliom' : 'Düşük Riskli Gliom',
+          id: isGbm ? 'glioma-stupp-60' : isOligo ? 'glioma-oligo-pcv' : highRisk ? 'glioma-high-risk-57' : 'glioma-low-risk-504',
+          name: isGbm
+            ? '60 Gy / 30 fx + TMZ (Stupp)'
+            : isOligo
+              ? '54-59.4 Gy / 30-33 fx + PCV (RTOG 9402 Oligodendrogliom)'
+              : gliomaGrade === 'Grade_3'
+                ? '59.4-60 Gy / 30-33 fx + TMZ/PCV'
+                : highRisk
+                  ? '54 Gy / 30 fx + TMZ/PCV'
+                  : '45-54 Gy / 25-30 fx veya İzlem',
+          tag: isGbm ? 'WHO Grade 4 / GBM (IDH-wildtype)' : isOligo ? 'Oligodendrogliom (1p/19q ko-del)' : isAstro ? 'Astrositom (IDH-mutant)' : highRisk ? 'Yüksek Riskli Gliom' : 'Düşük Riskli Gliom',
           totalDoseGy: dose,
           fractionCount: fractions,
           fractionDoseGy: dose / fractions,
           alphaBeta: 10,
           technique: 'IMRT / VMAT; cerrahi kavite + T2/FLAIR CTV',
-          indication: isGbm ? 'Maksimal güvenli rezeksiyon sonrası eşzamanlı ve adjuvan TMZ ile Stupp protokolü.' : highRisk ? `Pignatti/RTOG 9802 risk kriterleri: ${riskCount} kriter; PCV veya TMZ ile eskalasyon.` : 'Grade 1-2 düşük riskli gliomda izlem veya fokal RT multidisipliner değerlendirilir.',
+          indication: isGbm
+            ? 'Maksimal güvenli rezeksiyon sonrası eşzamanlı ve adjuvan TMZ ile Stupp protokolü.'
+            : isOligo
+              ? '1p/19q ko-delesyonlu oligodendrogliomda RT sonrası adjuvan PCV, RTOG 9402 uzun dönem sağkalım avantajı göstermiştir; TMZ alternatifi daha zayıftır.'
+              : isAstro
+                ? 'IDH-mutant astrositomda CDKN2A/B delesyonu ve grade; düşük riskli Grade 2 olguda izlem veya fokal RT, yüksek riskte RT + TMZ değerlendirilir.'
+                : highRisk
+                  ? `Pignatti/RTOG 9802 risk kriterleri: ${riskCount} kriter; PCV veya TMZ ile eskalasyon.`
+                  : 'Grade 1-2 düşük riskli gliomda izlem veya fokal RT multidisipliner değerlendirilir.',
           targetVolumes: [{ name: 'GTV/CTV/PTV', doseGy: dose, marginMm: 'GTV + 1.5-2 cm CTV; PTV + 3-5 mm', anatomical: 'Cerrahi kavite, rezidü tümör ve T2/FLAIR anormalliği' }],
           oars: [{ organ: 'Optik kiazma', metric: 'Dmax', limit: '< 54 Gy', source: 'QUANTEC' }, { organ: 'Beyin sapı', metric: 'Dmax', limit: '< 54 Gy', source: 'QUANTEC' }],
-          systemicTherapy: isGbm ? 'Eşzamanlı TMZ 75 mg/m² ve 6 kür adjuvan TMZ.' : highRisk ? 'PCV veya TMZ; moleküler sınıflamaya göre nöro-onkoloji kararı.' : undefined,
-          evidence: 'NCCN CNS; RTOG 9802; EORTC 22033; Stupp',
+          systemicTherapy: isGbm
+            ? 'Eşzamanlı TMZ 75 mg/m² ve 6 kür adjuvan TMZ.'
+            : isOligo
+              ? 'RT sonrası adjuvan PCV (Prokarbazin, Lomustin, Vinkristin) - RTOG 9402 / EORTC 26951.'
+              : isAstro
+                ? 'IDH-mutant astrositomda yüksek risk özelliklerinde adjuvan TMZ; Grade 2 düşük riskte izlem seçeneği.'
+                : highRisk
+                  ? 'PCV veya TMZ; moleküler sınıflamaya göre nöro-onkoloji kararı.'
+                  : undefined,
+          evidence: 'NCCN CNS; RTOG 9802; RTOG 9402; EORTC 26951; EORTC 22033; Stupp',
         };
         return { statusText: highRisk ? 'YÜKSEK RİSKLİ GLİOM: ESKALASYON PROTOKOLÜ' : 'DÜŞÜK RİSKLİ GLİOM: İZLEM / FOKAL RT', badgeClass: highRisk ? 'bg-rose-50 text-rose-800 border-rose-300' : 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: glioma, alternativeSchemes: [glioma] };
       }
@@ -5107,11 +5574,11 @@ export default function RadoncoCDSSPage() {
             {
               ...dcisWbi,
               id: 'br-dcis-wbi-40-15',
-              name: '40 Gy / 15 fx (DCIS Tüm Meme RT) ± Boost',
-              totalDoseGy: 40,
+              name: '40.05 Gy / 15 fx (DCIS Tüm Meme RT, START-B) ± Boost',
+              totalDoseGy: 40.05,
               fractionCount: 15,
-              fractionDoseGy: 40 / 15,
-              targetVolumes: dcisWbi.targetVolumes.map(volume => ({ ...volume, doseGy: volume.name === 'Tumor bed boost' ? volume.doseGy : 40 })),
+              fractionDoseGy: 2.67,
+              targetVolumes: dcisWbi.targetVolumes.map(volume => ({ ...volume, doseGy: volume.name === 'Tumor bed boost' ? volume.doseGy : 40.05 })),
             },
           ],
         };
@@ -5260,11 +5727,11 @@ export default function RadoncoCDSSPage() {
             {
               ...pmrt,
               id: 'br-pmrt-40-15',
-              name: '40 Gy / 15 fx (Hipofraksiyone PMRT)',
-              totalDoseGy: 40,
+              name: '40.05 Gy / 15 fx (Hipofraksiyone PMRT, START-B)',
+              totalDoseGy: 40.05,
               fractionCount: 15,
-              fractionDoseGy: 40 / 15,
-              targetVolumes: pmrt.targetVolumes.map(volume => ({ ...volume, doseGy: 40 })),
+              fractionDoseGy: 2.67,
+              targetVolumes: pmrt.targetVolumes.map(volume => ({ ...volume, doseGy: 40.05 })),
             },
           ],
         };
@@ -5303,11 +5770,11 @@ export default function RadoncoCDSSPage() {
           {
             ...fastForward,
             id: 'br-wbi-40-15',
-            name: '40 Gy / 15 fx (Hipofraksiyone Tüm Meme RT) + Gereğinde 10-16 Gy Boost',
-            totalDoseGy: 40,
+            name: '40.05 Gy / 15 fx (Hipofraksiyone Tüm Meme RT, START-B) + Gereğinde 10-16 Gy Boost',
+            totalDoseGy: 40.05,
             fractionCount: 15,
             fractionDoseGy: 2.67,
-            targetVolumes: fastForward.targetVolumes.map(volume => ({ ...volume, doseGy: volume.name === 'TumorBedBoost' ? 10 : 40 })),
+            targetVolumes: fastForward.targetVolumes.map(volume => ({ ...volume, doseGy: volume.name === 'TumorBedBoost' ? 10 : 40.05 })),
           },
         ],
       };
@@ -5354,11 +5821,15 @@ export default function RadoncoCDSSPage() {
           systemicTherapy: 'Eşzamanlı oral Kapesitabin (825 mg/m2 günde iki kez).',
           evidence: 'German Rectal Cancer Study (CAO/ARO/AIO-94)',
         };
+        const crmPositive = gisCrmStatus === 'Pozitif';
+        const rapidoCrm: DoseScheme = crmPositive
+          ? { ...rapido, indication: `${rapido.indication} MR-CRM pozitifliği (≤1 mm) lokal nüks ve uzak metastaz riskini artırır; TNT yaklaşımı ve yeterli mezorektal excision kritik önemdedir.` }
+          : rapido;
         return {
-          statusText: 'ENDİKE: NEOADJUVAN TNT / RAPIDO KISA DÖNEM RT PROTOKOLÜ',
+          statusText: crmPositive ? 'ENDİKE: CRM+ LOKAL İLERİ REKTUM - TNT (RAPIDO / PRODIGE 23) ÖNCELİKLİ' : 'ENDİKE: NEOADJUVAN TNT / RAPIDO KISA DÖNEM RT PROTOKOLÜ',
           badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.25)]',
-          primaryScheme: rapido,
-          alternativeSchemes: [rapido, standardKrt],
+          primaryScheme: rapidoCrm,
+          alternativeSchemes: [rapidoCrm, standardKrt],
         };
       }
 
@@ -5799,6 +6270,30 @@ export default function RadoncoCDSSPage() {
     // 12. PALYATİF BAKIM
     // ------------------------------------------
     if (selectedOrgan === 'palliative') {
+      if (palliativeIntent === 'Omurga_SBRT') {
+        const spineSbrt: DoseScheme = {
+          id: 'spine-sbrt-24',
+          name: '24 Gy / 2 fx (Omurga SBRT - Küratif Amaçlı Oligometastaz)',
+          tag: '🎯 Spine SBRT',
+          totalDoseGy: 24,
+          fractionCount: 2,
+          fractionDoseGy: 12,
+          alphaBeta: 10,
+          technique: 'SBRT (IGRT + immobilizasyon; kord toleransı öncelikli)',
+          indication: 'Kord basısı OLMAYAN, mekanik instabilitesi bulunmayan (SINS <7) soliter/oligometastatik vertebral lezyonda yüksek lokal kontrol için ablatif SBRT; kord basısı varlığında önce cerrahi dekompresyon değerlendirilir.',
+          targetVolumes: [
+            { name: 'GTV_Spine', doseGy: 24, marginMm: '0 mm', anatomical: 'Makroskopik vertebral metastaz / epidural hastalık' },
+            { name: 'CTV_Spine', doseGy: 24, marginMm: 'Anatomik', anatomical: 'İlgili vertebral segment ve epidural yayılım' },
+            { name: 'PTV_Spine', doseGy: 24, marginMm: '1-2 mm (SBRT planında)', anatomical: 'Günlük IGRT ve spinal set-up güvenlik marjini' },
+          ],
+          oars: [
+            { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 17 Gy / 2 fx (HyTEC)', source: 'HyTEC Spine SBRT' },
+            { organ: 'Özofagus', metric: 'Dmax', limit: '< 25 Gy / 2 fx', source: 'HyTEC' },
+          ],
+          evidence: 'HyTEC Spine SBRT, RTOG 0631, NCCN Bone Cancer / Palliative v1.2025',
+        };
+        return { statusText: 'ENDİKE: OLİGOMETASTATİK VERTEBRAL LEZYONDA OMURGA SBRT', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: spineSbrt, alternativeSchemes: [spineSbrt] };
+      }
       const palliativeDose = palliativeIntent === 'Kord_Basisi' ? 20 : palliativeIntent === 'Kanama' ? 14.8 : 8;
       const palliativeFractions = palliativeIntent === 'Kord_Basisi' ? 5 : palliativeIntent === 'Kanama' ? 4 : 1;
       const palliativeScheme: DoseScheme = {
@@ -5879,6 +6374,7 @@ export default function RadoncoCDSSPage() {
     hnLarynxSubsite,
     cnsSubtype,
     gliomaGrade,
+    gliomaHistology,
     gliomaRiskFactors,
     cnsMidlineShift,
     cnsMetCount,
@@ -5890,6 +6386,7 @@ export default function RadoncoCDSSPage() {
     gbmPerformance,
     meningiomaGrade,
     gisOrgan,
+    gisCrmStatus,
     gusSubtype,
     testisHistology,
     gleasonPrimary,
@@ -5938,6 +6435,28 @@ export default function RadoncoCDSSPage() {
     return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
   }, [evaluatedDecision, selectedSchemeId]);
 
+  // Fraksiyonasyon felsefesi kartları için klinik uygunluk kapısı
+  const isRegimenEligible = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional'): boolean => {
+    if (selectedOrgan === 'prostate') {
+      const lowBurden = gusSubtype === 'prostate' && selectedN === 'N0' && selectedM === 'M0' && !hasSVI && selectedT !== 'T3b' && selectedT !== 'T4';
+      if (regimen === 'sbrt') return lowBurden;
+      if (regimen === 'sib') return gusSubtype === 'prostate' && (selectedN === 'N1' || hasSVI || hasECE || selectedT === 'T3a' || selectedT === 'T3b' || selectedT === 'T4');
+      return true;
+    }
+    if (selectedOrgan === 'thorax') {
+      const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
+      if (regimen === 'sbrt' || regimen === 'moderate') return earlyStage;
+      if (regimen === 'sib') return thoraxSubtype === 'nsclc' && !earlyStage && selectedM === 'M0';
+      return true;
+    }
+    if (selectedOrgan === 'breast') {
+      const bcsCandidate = breastSurgery === 'MKC' && breastHistology !== 'İnflamatuar Meme Kanseri (IBC)' && breastHistology !== 'Malign Filloides Tümörü';
+      if (regimen === 'sbrt' || regimen === 'moderate' || regimen === 'sib') return bcsCandidate;
+      return true;
+    }
+    return true;
+  };
+
   const activeScheme = useMemo(() => {
     const regimenByOrgan: Partial<Record<OrganId, Record<typeof selectedRegimen, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
       prostate: {
@@ -5960,7 +6479,7 @@ export default function RadoncoCDSSPage() {
       },
     };
     const regimen = regimenByOrgan[selectedOrgan]?.[selectedRegimen];
-    if (!regimen) return baseActiveScheme;
+    if (!regimen || !isRegimenEligible(selectedRegimen)) return baseActiveScheme;
     return {
       ...baseActiveScheme,
       id: `${baseActiveScheme.id}-${selectedRegimen}`,
@@ -5970,12 +6489,14 @@ export default function RadoncoCDSSPage() {
       fractionCount: regimen.fractionCount,
       fractionDoseGy: regimen.fractionDoseGy,
       alphaBeta: regimen.alphaBeta,
+      // Yalnızca primer hedef hacim dozu felsefeye uyarlanır; nodal/boost seviyeleri korunur
       targetVolumes: baseActiveScheme.targetVolumes.map(volume => ({
         ...volume,
-        doseGy: regimen.totalDoseGy,
+        doseGy: volume.doseGy === baseActiveScheme.totalDoseGy ? regimen.totalDoseGy : volume.doseGy,
       })),
     };
-  }, [baseActiveScheme, selectedOrgan, selectedRegimen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology]);
 
   // Canlı Radyobiyoloji Hesabı
   const radiobiology = useMemo(() => {
@@ -6009,7 +6530,11 @@ export default function RadoncoCDSSPage() {
       },
     ),
     [
+      breastER,
       breastGrade,
+      breastHER2,
+      breastKi67,
+      breastPR,
       cnsKps,
       cnsSubtype,
       gleasonPrimary,
@@ -6037,7 +6562,7 @@ export default function RadoncoCDSSPage() {
         undefined,
         lang,
       ),
-    [activeScheme, lang, selectedM, selectedN, selectedOrgan, selectedSubsite, selectedT],
+    [activeScheme, lang, selectedM, selectedN, selectedOrgan, selectedSubsite, selectedT, tText],
   );
   const copyCasePrompt = () => {
     if (!navigator.clipboard) {
@@ -6077,16 +6602,6 @@ export default function RadoncoCDSSPage() {
     };
     reader.readAsText(file);
   };
-  const activeCaseSummary = [
-    `Organ: ${selectedOrgan}`,
-    `Subsite: ${tText(selectedSubsite)}`,
-    `Stage: ${selectedT} ${selectedN} ${selectedM}`,
-    `Decision: ${tText(evaluatedDecision.statusText)}`,
-    `Prescription: ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx (${tText(activeScheme.name)})`,
-    `Technique: ${tText(activeScheme.technique)}`,
-    `Radiobiology: BED ${radiobiology.bed} Gy, EQD2 ${radiobiology.eqd2} Gy, alpha/beta ${radiobiology.ab}`,
-    `OAR constraints: ${activeScheme.oars.map(oar => `${tText(oar.organ)} ${tText(oar.metric)} ${oar.limit}`).join('; ') || 'None listed'}`,
-  ].join('\n');
   const copyCaseContext = () => {
     const prompt = `${casePrompt}\n\nPlease answer as a consultant reviewing this active case.`;
     if (!navigator.clipboard) {
@@ -6115,38 +6630,6 @@ export default function RadoncoCDSSPage() {
     };
     if (copyCaseContext()) {
       window.open(aiUrls[activeAiTab], 'ai_dock', 'width=480,height=900,left=1400');
-    }
-  };
-
-  const submitAiQuestion = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!inputQuery.trim() || isAiLoading) return;
-
-    const userText = inputQuery.trim();
-    const newHistory = [...chatMessages, { role: 'user' as const, content: userText }];
-    setInputQuery('');
-    setChatMessages(newHistory);
-    setIsAiLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newHistory, activeCaseContext: activeCaseSummary }),
-      });
-      const data = (await response.json()) as { reply?: string };
-      if (!response.ok || !data.reply) {
-        throw new Error(data.reply || 'The AI assistant could not respond.');
-      }
-      setChatMessages([...newHistory, { role: 'assistant', content: data.reply }]);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'The AI assistant could not respond.';
-      setChatMessages([...newHistory, {
-        role: 'assistant',
-        content: lang === 'tr' ? `Bağlantı hatası: ${message}` : `Connection error: ${message}`,
-      }]);
-    } finally {
-      setIsAiLoading(false);
     }
   };
 
@@ -6230,7 +6713,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     selectedT, selectedN, selectedM, evaluatedDecision, activeScheme, radiobiology,
     hnCrossesMidline, hnDistanceFromMidlineCm, hnDoiMm, cnsSymptoms, cnsKps, cnsResection,
     prostateRiskLabel, psaLevel, gleasonPrimary, gleasonSecondary, positiveCorePercent,
-    breastHistology, breastMenopause, breastER, breastPR, breastHER2, breastKi67, breastGrade, breastBoost,
+    breastHistology, breastMenopause, breastER, breastPR, breastHER2, breastKi67, breastGrade,
     skinHistology, skinMargin, skinDepthMm, skinPerineuralInvasion, hematologicSubtype,
     myelomaFractionation, pediatricSubtype, pediatricRisk, wilmsStage, tText,
   ]);
@@ -6848,391 +7331,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <span>{lang === 'tr' ? 'Rapor Yapıştır & Otomatik Evrele' : 'Paste Report & Auto-Stage'}</span>
             </button>
           </div>
-          {false && <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-5 shadow-sm">
-            <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-              <span>{lang === 'tr' ? 'ORGAN & ALT BAŞLIK SEÇİMİ' : 'ORGAN & SUBSITE SELECTION'}</span>
-              <span className="text-[10px] text-amber-700 font-normal">{lang === 'tr' ? 'Kılavuz Tanımlı' : 'Guideline-defined'}</span>
-            </h2>
-
-            {/* 1. TORAKS ALT BAŞLIKLARI */}
-            {selectedOrgan === 'thorax' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Toraks Tümör Alt Tipi' : 'Thorax Subsite'}</label>
-                  <select
-                    value={thoraxSubtype}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['nsclc', 'sclc', 'thymoma', 'mesothelioma'] as const);
-                      if (!val) return;
-                      setThoraxSubtype(val);
-                      handleSubsiteChange(`thorax-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="nsclc">{tText("Küçük Hücreli Dışı Akciğer Ca (KHDAK)")}</option>
-                    <option value="sclc">{tText("Küçük Hücreli Akciğer Ca (KHAK / SCLC)")}</option>
-                    <option value="thymoma">{tText("Timoma & Timik Karsinom")}</option>
-                    <option value="mesothelioma">{tText("Malign Plevral Mezotelyoma (MPM)")}</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {selectedOrgan === 'benign' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <label className="text-slate-600">
-                  {lang === 'tr' ? 'Benign hastalık / klinik endikasyon' : 'Benign disease / clinical indication'}
-                  <select
-                    value={selectedSubsite}
-                    onChange={event => {
-                      const nextSubsite = SUBSITES.benign?.find(option => option.id === event.currentTarget.value);
-                      if (!nextSubsite) return;
-                      setSelectedSubsite(nextSubsite.id);
-                      const firstClinicalOption = BENIGN_CLINICAL_OPTIONS[nextSubsite.id]?.[0];
-                      if (firstClinicalOption) setBenignClinicalStatus(firstClinicalOption.value);
-                      setSelectedSchemeId('');
-                    }}
-                    className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2.5 font-semibold text-slate-900"
-                  >
-                    {SUBSITES.benign?.map(subsite => (
-                      <option key={subsite.id} value={subsite.id}>{tText(subsite.name)}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            )}
-
-            {/* 2. JİNEKOLOJİ ALT BAŞLIKLARI */}
-            {selectedOrgan === 'gynecology' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Jinekolojik Kanser Bölgesi")}</label>
-                  <select
-                    value={gynSite}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['Serviks', 'Endometriyum', 'Over_Tuba', 'Vajen', 'Vulva'] as const);
-                      if (!val) return;
-                      setGynSite(val);
-                      handleSubsiteChange(`gynecology-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="Serviks">{tText("Serviks Uteri Karsinomu (Cervix)")}</option>
-                    <option value="Endometriyum">{tText("Endometriyum Karsinomu (Corpus Uteri)")}</option>
-                    <option value="Over_Tuba">{tText("Over & Tuba Uterina Karsinomu")}</option>
-                    <option value="Vajen">{tText("Vajen Karsinomu (Vagina)")}</option>
-                    <option value="Vulva">{tText("Vulva Karsinomu (Vulva)")}</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* 3. KEMİK & SARKOM ALT BAŞLIKLARI */}
-            {selectedOrgan === 'bone-sarcoma' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Sarkom / Kemik Tümör Tipi")}</label>
-                  <select
-                    value={sarcomaSubtype}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['Yumusak_Doku', 'Osteosarkom', 'Ewing', 'Kondrosarkom', 'Kordoma', 'GCTB', 'DFSP'] as const);
-                      if (!val) return;
-                      setSarcomaSubtype(val);
-                      handleSubsiteChange(`bone-sarcoma-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="Yumusak_Doku">{tText("Yumuşak Doku Sarkomu (YDS / STS)")}</option>
-                    <option value="Osteosarkom">{tText("Osteosarkom (Osteosarcoma)")}</option>
-                    <option value="Ewing">{tText("Ewing Sarkomu (Ewing Sarcoma)")}</option>
-                    <option value="Kondrosarkom">{tText("Kondrosarkom (Chondrosarcoma)")}</option>
-                    <option value="Kordoma">{tText("Kordoma (Sakral / Klivus Chordoma)")}</option>
-                    <option value="GCTB">{tText("Dev Hücreli Kemik Tümörü (GCTB)")}</option>
-                    <option value="DFSP">{tText("Dermatofibrosarkoma Protuberans (DFSP)")}</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* 4. BAŞ-BOYUN ALT BAŞLIKLARI */}
-            {selectedOrgan === 'head-neck' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Baş-Boyun Anatomik Bölgesi")}</label>
-                  <select
-                    value={hnSubsite}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['nasopharynx', 'oropharynx', 'larynx', 'hypopharynx', 'oral-cavity', 'salivary'] as const);
-                      if (!val) return;
-                      setHnSubsite(val);
-                      handleSubsiteChange(`head-neck-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="nasopharynx">{tText("Nazofarenks Karsinomu (NPC)")}</option>
-                    <option value="oropharynx">{tText("Orofarenks Karsinomu (p16/HPV)")}</option>
-                    <option value="larynx">{tText("Larinks Karsinomu (Glottik/Supraglottik)")}</option>
-                    <option value="hypopharynx">{tText("Hipofarenks Karsinomu")}</option>
-                    <option value="oral-cavity">{tText("Oral Kavite Karsinomu")}</option>
-                    <option value="salivary">{tText("Tükürük Bezi Tümörleri")}</option>
-                  </select>
-                </div>
-                <details className="rounded-md border border-slate-200/80 bg-[#f1f5f9] p-3">
-                  <summary className="cursor-pointer list-none text-xs font-semibold text-[#0f294a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                    {tText("\n                    📖 Kılavuz Tanımlı Elektif Boyun Drenaj Rehberi (ESTRO / ASTRO Konsensüsü)\n                  ")}</summary>
-                  <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-700">
-                    <li><strong>{tText("Nazofarenks:")}</strong> {tText(" Bilateral Level II-Vb ve retrofaringeal lenf nodları (RPN) kapsanır.")}</li>
-                    <li><strong>{tText("Orofarenks / Hipofarenks / Supraglottik:")}</strong> {tText(" Bilateral Level II-IV; orta hat komşuluğu ve bilateral drenaj riski dikkate alınır.")}</li>
-                    <li><strong>{tText("Erken glottik (T1-T2 N0):")}</strong> {tText(" Elektif boyun ışınlaması yapılmaz; yalnızca gerçek vokal kordlar hedeflenir.")}</li>
-                    <li><strong>{tText("Oral kavite, lateralize (>1 cm):")}</strong> {tText(" İpsilateral Level I-III; DOI >5 mm ise Level IV eklenir.")}</li>
-                    <li><strong>{tText("Oral kavite, orta hat tutulumu veya <1 cm:")}</strong> {tText(" Bilateral Level I-IV kapsanır.")}</li>
-                    <li><strong>{tText("ENE+ veya N2-N3:")}</strong> {tText(" Level V eklenmesi ve tutulu nod yatağına 66-70 Gy SIB boost değerlendirilir.")}</li>
-                  </ul>
-                </details>
-              </div>
-            )}
-
-            {/* 5. MSS ALT BAŞLIKLARI */}
-            {selectedOrgan === 'cns' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("MSS Patolojisi")}</label>
-                  <select
-                    value={cnsSubtype}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['mets', 'gbm', 'glioma', 'meningioma'] as const);
-                      if (!val) return;
-                      setCnsSubtype(val);
-                      handleSubsiteChange(`cns-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="mets">{tText("Beyin Metastazı (SRS vs WBRT)")}</option>
-                    <option value="gbm">{tText("Glioblastom (GBM, WHO Grade 4)")}</option>
-                    <option value="glioma">{tText("Glial Tümörler (WHO Grade 1-4)")}</option>
-                    <option value="meningioma">{tText("Menenjiyom (Grade 1 / 2 / 3)")}</option>
-                  </select>
-                </div>
-                {cnsSubtype === 'glioma' && (
-                  <div className="space-y-2 rounded-lg border border-indigo-200 bg-indigo-50/60 p-2.5 dark:border-indigo-800/70 dark:bg-indigo-950/30">
-                    <label className="block text-slate-700 dark:text-slate-200">
-                      {tText("WHO histolojik grade")}
-                      <select value={gliomaGrade} onChange={event => { const value = event.currentTarget.value as typeof gliomaGrade; setGliomaGrade(value); setSelectedT(value.replace('_', '-')); }} className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900">
-                        <option value="Grade_1">Grade 1</option>
-                        <option value="Grade_2">Grade 2</option>
-                        <option value="Grade_3">Grade 3</option>
-                        <option value="Grade_4">Grade 4 (GBM)</option>
-                      </select>
-                    </label>
-                    {(gliomaGrade === 'Grade_1' || gliomaGrade === 'Grade_2') && (
-                      <div className="space-y-1 text-[11px] text-slate-800 dark:text-slate-100">
-                        {(Object.entries({
-                          age40: 'Yaş ≥40',
-                          subtotalResection: 'Subtotal rezeksiyon / biyopsi',
-                          largeOrCrossing: '≥5 cm veya orta hat geçişi',
-                          neurologicSymptoms: 'Nörolojik defisit / dirençli nöbet',
-                          molecularHighRisk: 'IDH-wildtype veya CDKN2A/B delesyonu',
-                        }) as Array<[keyof typeof gliomaRiskFactors, string]>).map(([key, label]) => (
-                          <label key={key} className="flex items-center gap-2">
-                            <input type="checkbox" checked={gliomaRiskFactors[key]} onChange={event => setGliomaRiskFactors(current => ({ ...current, [key]: event.currentTarget.checked }))} />
-                            <span>{label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 6. GİS ALT BAŞLIKLARI */}
-            {selectedOrgan === 'gis' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Primer GİS Organı")}</label>
-                  <select
-                    value={gisOrgan}
-                    onChange={e => {
-                      const val = parseOption(e.currentTarget.value, ['Rektum', 'Mide', 'Ozofagus', 'Pankreas', 'Anal', 'Karaciger'] as const);
-                      if (!val) return;
-                      setGisOrgan(val);
-                      handleSubsiteChange(`gis-${val}`);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                  >
-                    <option value="Rektum">{tText("Rektum Karsinomu (TNT RAPIDO)")}</option>
-                    <option value="Mide">{tText("Mide / Gastrik Adenokarsinom")}</option>
-                    <option value="Karaciger">{tText("Karaciğer (HCC / Kolanjio SBRT)")}</option>
-                    <option value="Ozofagus">{tText("Özofagus Karsinomu (CROSS)")}</option>
-                    <option value="Pankreas">{tText("Pankreas Adenokarsinomu")}</option>
-                    <option value="Anal">{tText("Anal Kanal Skuamöz Karsinom (Nigro)")}</option>
-                  </select>
-                </div>
-                {gisOrgan === 'Karaciger' && (
-                  <div>
-                    <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
-                    </span>
-                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                      {[
-                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
-                      ].map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={breathingMotion === option.value}
-                          onClick={() => setBreathingMotion(option.value)}
-                          className={parameterButtonClass(breathingMotion === option.value)}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 7. PROSTAT / GÜS */}
-            {selectedOrgan === 'prostate' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <label className="text-slate-600">{tText("GÜS Anatomik Alt Bölgesi")}</label>
-                <select
-                  value={gusSubtype}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'prostate' || value === 'bladder' || value === 'testis' || value === 'penile') {
-                      setGusSubtype(value);
-                      handleSubsiteChange(value === 'penile' ? 'prostate-penis' : `prostate-${value}`);
-                    }
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-bold"
-                >
-                  <option value="prostate">{tText("Prostat")}</option>
-                  <option value="bladder">{tText("Mesane")}</option>
-                  <option value="testis">{tText("Testis")}</option>
-                  <option value="penile">{lang === 'tr' ? 'Penil Kanser' : 'Penile Cancer'}</option>
-                </select>
-                {gusSubtype === 'prostate' && <span className="font-semibold text-slate-900">{tText("Prostat adenokarsinomu")}</span>}
-                {gusSubtype === 'bladder' && <span className="font-semibold text-slate-900">{tText("Mesane koruyucu trimodal tedavi (TMT)")}</span>}
-                {gusSubtype === 'testis' && <span className="font-semibold text-slate-900">{tText("Testis seminom evrelemesi")}</span>}
-                {gusSubtype === 'penile' && <span className="font-semibold text-slate-900">{lang === 'tr' ? 'Penil kanser evrelemesi' : 'Penile cancer staging'}</span>}
-              </div>
-            )}
-
-            {/* 8. MEME */}
-            {selectedOrgan === 'breast' && (
-              <div className="flex flex-col gap-1.5 text-xs">
-                <label className="text-slate-600">{tText("Meme Histopatolojisi")}</label>
-                <select
-                  value={breastHistology}
-                  onChange={e => {
-                    setBreastHistology(e.currentTarget.value);
-                    const nextHistology = e.currentTarget.value;
-                    if (nextHistology === 'İnflamatuar Meme Kanseri (IBC)') handleSubsiteChange('breast-inflammatory');
-                    else if (nextHistology === 'Duktal Karsinoma In Situ (DCIS)') handleSubsiteChange('breast-dcis');
-                    else if (nextHistology === 'Malign Filloides Tümörü') handleSubsiteChange('breast-phyllodes');
-                    else handleSubsiteChange('breast-breast');
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="İnvaziv Duktal Karsinom (İDK)">{tText("İnvaziv Duktal Karsinom (İDK)")}</option>
-                  <option value="İnvaziv Lobüler Karsinom (İLK)">{tText("İnvaziv Lobüler Karsinom (İLK)")}</option>
-                  <option value="Triple Negatif Meme Kanseri (TNBC)">{tText("Triple Negatif Meme Kanseri (TNBC)")}</option>
-                  <option value="Duktal Karsinoma In Situ (DCIS)">{tText("Duktal Karsinoma In Situ (DCIS)")}</option>
-                  <option value="Malign Filloides Tümörü">{tText("Malign Filloides Tümörü")}</option>
-                  <option value="Metaplastik Karsinom">{tText("Metaplastik Karsinom")}</option>
-                  <option value="İnflamatuar Meme Kanseri (IBC)">{tText("İnflamatuar Meme Kanseri (IBC)")}</option>
-                  <option value="Dermatofibrosarkoma Protuberans (DFSP)">{tText("Dermatofibrosarkoma Protuberans (DFSP)")}</option>
-                </select>
-              </div>
-            )}
-
-            {/* 9. CİLT */}
-            {selectedOrgan === 'skin' && (
-              <div className="flex flex-col gap-1.5 text-xs">
-                <label className="text-slate-600">{tText("Cilt Patolojisi")}</label>
-                <select
-                  value={skinHistology}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'SCC' || value === 'BCC' || value === 'Melanom' || value === 'Merkel') {
-                      setSkinHistology(value);
-                      handleSubsiteChange(`skin-${value}`);
-                    }
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="SCC">{tText("Kutanöz Skuamöz Hücreli Karsinom (cSCC)")}</option>
-                  <option value="BCC">{tText("Bazal Hücreli Karsinom (BCC)")}</option>
-                  <option value="Melanom">{tText("Malign Melanom")}</option>
-                  <option value="Merkel">{tText("Merkel Hücreli Karsinom")}</option>
-                </select>
-              </div>
-            )}
-
-            {/* 10. HEMATOLOJİK */}
-            {selectedOrgan === 'hematologic' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <label className="text-slate-600">{tText("Hematolojik Tümör")}</label>
-                <select
-                  value={hematologicSubtype}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'Hodgkin' || value === 'DLBCL' || value === 'Foliküler' || value === 'Plasmacytoma' || value === 'Myeloma' || value === 'ALL' || value === 'CLL') {
-                      setHematologicSubtype(value);
-                      handleSubsiteChange(`hematologic-${value}`);
-                    }
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="Hodgkin">{tText("Hodgkin Lenfoma")}</option>
-                  <option value="DLBCL">{tText("Diffüz Büyük B Hücreli Lenfoma (DLBCL)")}</option>
-                  <option value="Foliküler">{tText("Foliküler Lenfoma")}</option>
-                  <option value="Plasmacytoma">{tText("Soliter Plazmasitom")}</option>
-                  <option value="Myeloma">{tText("Multiple Miyelom")}</option>
-                  <option value="ALL">{tText("Akut Lenfoblastik Lösemi (ALL)")}</option>
-                  <option value="CLL">{tText("Kronik Lenfositik Lösemi (KLL)")}</option>
-                </select>
-              </div>
-            )}
-
-            {/* 11. PEDİATRİK */}
-            {selectedOrgan === 'pediatric' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <label className="text-slate-600">{tText("Pediatrik Tümör")}</label>
-                <select
-                  value={pediatricSubtype}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'Medulloblastom' || value === 'Wilms' || value === 'Neuroblastom' || value === 'Ewing') {
-                      setPediatricSubtype(value);
-                      handleSubsiteChange(`pediatric-${value}`);
-                    }
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="Medulloblastom">{tText("Medulloblastom")}</option>
-                  <option value="Wilms">{tText("Wilms Tümörü")}</option>
-                  <option value="Neuroblastom">{tText("Nöroblastom")}</option>
-                  <option value="Ewing">{tText("Pediatrik Ewing Sarkomu")}</option>
-         a       </select>
-              </div>
-            )}
-
-            {/* 12. PALYATİF */}
-            {selectedOrgan === 'palliative' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <label className="text-slate-600 block mb-1">{tText("Palyatif endikasyon")}</label>
-                <select value={palliativeIntent} onChange={event => setPalliativeIntent(event.currentTarget.value as typeof palliativeIntent)} className="bg-white border border-slate-300 rounded-md p-2.5 text-slate-900">
-                  <option value="Agri">{tText("Ağrılı kemik metastazı")}</option>
-                  <option value="Kord_Basisi">{tText("Spinal kord basısı (MESCC)")}</option>
-                  <option value="Kanama">{tText("Kanama / obstrüksiyon / SVC")}</option>
-                </select>
-              </div>
-            )}
-          </div>}
 
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
           {currentHistologies.length > 0 && (
@@ -7267,6 +7365,58 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <Activity className="w-3.5 h-3.5" />
               {lang === 'tr' ? 'KLİNİK PARAMETRELER & RİSK' : 'CLINICAL PARAMETERS & RISK'}
             </h2>
+
+            {/* GİS: CRM VE SOLUNUM HAREKETİ PARAMETRELERİ */}
+            {selectedOrgan === 'gis' && (
+              <div className="flex flex-col gap-3 text-xs">
+                {gisOrgan === 'Rektum' && (
+                  <div>
+                    <span className="mb-1 block font-semibold text-slate-300">
+                      {lang === 'tr' ? 'MR CRM (Mezorektal Fasya) Durumu' : 'MRI CRM (Mesorectal Fascia) Status'}
+                    </span>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { value: 'Negatif' as const, label: lang === 'tr' ? 'CRM Negatif (>1 mm)' : 'CRM Negative (>1 mm)' },
+                        { value: 'Pozitif' as const, label: lang === 'tr' ? 'CRM Pozitif / Tehlikeli (≤1 mm)' : 'CRM Positive / Threatened (≤1 mm)' },
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={gisCrmStatus === option.value}
+                          onClick={() => setGisCrmStatus(option.value)}
+                          className={parameterButtonClass(gisCrmStatus === option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {gisOrgan === 'Karaciger' && (
+                  <div>
+                    <span className="mb-1 block font-semibold text-slate-300">
+                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
+                    </span>
+                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                      {[
+                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
+                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={breathingMotion === option.value}
+                          onClick={() => setBreathingMotion(option.value)}
+                          className={parameterButtonClass(breathingMotion === option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* TORAKS: KHDAK PARAMETRELERİ */}
             {selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc' && (
@@ -7395,6 +7545,32 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* TORAKS: KHAK (SCLC) PARAMETRELERİ */}
+            {/* MEZOTELYOMA TEDAVİ AMACI */}
+            {selectedOrgan === 'thorax' && thoraxSubtype === 'mesothelioma' && (
+              <div className="flex flex-col gap-2 text-xs">
+                <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tedavi Amacı / Cerrahi Durum' : 'Treatment Intent / Surgical Status'}</label>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {[
+                    { id: 'Palyatif', label: lang === 'tr' ? 'Palyatif Semptom Kontrolü (30 Gy/10 fx)' : 'Palliative Symptom Control (30 Gy/10 fx)' },
+                    { id: 'Hemitorasik_Postop', label: lang === 'tr' ? 'Adjuvan Hemitorasik RT (P/D veya EPD Sonrası)' : 'Adjuvant Hemithoracic RT (post P/D or EPD)' },
+                    { id: 'Dren_Yeri', label: lang === 'tr' ? 'Girişim / Dren Yeri Profilaksisi (21 Gy/3 fx)' : 'Procedure / Drain Tract Prophylaxis (21 Gy/3 fx)' },
+                  ].map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        const value = parseOption(item.id, ['Palyatif', 'Hemitorasik_Postop', 'Dren_Yeri'] as const);
+                        if (value) setMesoIntent(value);
+                      }}
+                      className={parameterButtonClass(mesoIntent === item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {selectedOrgan === 'thorax' && thoraxSubtype === 'sclc' && (
               <div className="flex flex-col gap-3 text-xs">
                 <div>
@@ -7965,6 +8141,49 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </label>
               </div>
             )}
+            {/* MSS GLİOM: GRADE + PIGNATTI / RTOG 9802 RİSK FAKTÖRLERİ */}
+            {selectedOrgan === 'cns' && cnsSubtype === 'glioma' && (
+              <div className="flex flex-col gap-2.5 text-xs">
+                <div>
+                  <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'WHO Grade' : 'WHO Grade'}</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {(['Grade_1', 'Grade_2', 'Grade_3', 'Grade_4'] as const).map(grade => (
+                      <button
+                        key={grade}
+                        type="button"
+                        aria-pressed={gliomaGrade === grade}
+                        onClick={() => setGliomaGrade(grade)}
+                        className={parameterButtonClass(gliomaGrade === grade)}
+                      >
+                        {grade.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Pignatti / RTOG 9802 Yüksek Risk Kriterleri' : 'Pignatti / RTOG 9802 High-Risk Criteria'}</span>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {([
+                      { key: 'age40', label: lang === 'tr' ? 'Yaş ≥ 40' : 'Age ≥ 40' },
+                      { key: 'subtotalResection', label: lang === 'tr' ? 'Subtotal rezeksiyon / biyopsi (STR)' : 'Subtotal resection / biopsy (STR)' },
+                      { key: 'largeOrCrossing', label: lang === 'tr' ? 'Çap ≥ 5 cm veya korpus kallozum geçişi' : 'Diameter ≥ 5 cm or corpus callosum crossing' },
+                      { key: 'neurologicSymptoms', label: lang === 'tr' ? 'Nörolojik defisit / semptom' : 'Neurological deficit / symptoms' },
+                      { key: 'molecularHighRisk', label: lang === 'tr' ? 'Moleküler yüksek risk (IDH-wt, CDKN2A/B del, TERT mut)' : 'Molecular high risk (IDH-wt, CDKN2A/B del, TERT mut)' },
+                    ] as const).map(item => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        aria-pressed={gliomaRiskFactors[item.key]}
+                        onClick={() => setGliomaRiskFactors(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                        className={parameterButtonClass(gliomaRiskFactors[item.key])}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
             {selectedOrgan === 'cns' && cnsSubtype === 'meningioma' && (
               <div className="space-y-2 text-xs">
                 <label className="text-slate-600 block">{tText("WHO derece")}</label>
@@ -8108,6 +8327,33 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <label className="flex items-center gap-2 text-slate-700 text-xs">
                   <input type="checkbox" checked={wilmsWholeAbdomen} onChange={e => setWilmsWholeAbdomen(e.currentTarget.checked)} />
                   {tText("\n                  Yaygın peritoneal yayılım / tüm batın RT endikasyonu\n                ")}</label>
+              </div>
+            )}
+            {/* PALYATİF ENDİKASYON SEÇİMİ */}
+            {selectedOrgan === 'palliative' && (
+              <div className="flex flex-col gap-2 text-xs">
+                <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Palyatif Endikasyon' : 'Palliative Indication'}</span>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {[
+                    { id: 'Agri', label: lang === 'tr' ? 'Ağrılı kemik metastazı (8 Gy/1 fx)' : 'Painful bone metastasis (8 Gy/1 fx)' },
+                    { id: 'Kord_Basisi', label: lang === 'tr' ? 'Spinal kord basısı - MESCC (20 Gy/5 fx acil)' : 'Spinal cord compression - MESCC (20 Gy/5 fx urgent)' },
+                    { id: 'Omurga_SBRT', label: lang === 'tr' ? 'Omurga SBRT - Oligometastaz (24 Gy/2 fx)' : 'Spine SBRT - Oligometastatic (24 Gy/2 fx)' },
+                    { id: 'Kanama', label: lang === 'tr' ? 'Kanama / obstrüksiyon (Quad Shot 14.8 Gy/4 fx)' : 'Bleeding / obstruction (Quad Shot 14.8 Gy/4 fx)' },
+                  ].map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={palliativeIntent === item.id}
+                      onClick={() => {
+                        const value = parseOption(item.id, ['Agri', 'Kord_Basisi', 'Omurga_SBRT', 'Kanama'] as const);
+                        if (value) setPalliativeIntent(value);
+                      }}
+                      className={parameterButtonClass(palliativeIntent === item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -8320,15 +8566,20 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       },
                     };
                     const card = cards[regimen];
+                    const eligible = isRegimenEligible(regimen);
                     return (
                       <button
                         key={regimen}
                         type="button"
+                        disabled={!eligible}
+                        title={eligible ? undefined : (lang === 'tr' ? 'Bu fraksiyonasyon felsefesi mevcut klinik senaryo için uygun değil' : 'This fractionation philosophy is not appropriate for the current clinical scenario')}
                         onClick={() => setSelectedRegimen(regimen)}
                         className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
-                          selectedRegimen === regimen
-                            ? `${card.active} border-transparent text-white shadow-md`
-                            : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
+                          !eligible
+                            ? 'cursor-not-allowed border-slate-800 bg-slate-900/40 text-slate-600 opacity-50'
+                            : selectedRegimen === regimen
+                              ? `${card.active} border-transparent text-white shadow-md`
+                              : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
                         }`}
                       >
                         <div className="mb-1 flex items-center justify-between">
