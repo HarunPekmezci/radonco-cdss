@@ -7,6 +7,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import {
   Radiation,
   Copy,
@@ -9181,15 +9182,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ? '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.'
             : '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® and DEGRO® are registered trademarks of their respective organizations. This system is intended for clinical decision support and educational purposes only.'}</p>
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveReferenceTab('guidelines');
-              setShowGuidelineModal(true);
-            }}
+          <Link
+            href="/references"
             className="whitespace-nowrap text-[11px] font-semibold text-blue-800 dark:text-blue-300 hover:underline"
           >
-            {tText("\n            📚 Kılavuz & Kaynakça\n          ")}</button>
+            {tText("\n            📚 Kılavuz & Kaynakça\n          ")}
+          </Link>
           <button
             type="button"
             onClick={() => {
