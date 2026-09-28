@@ -1873,6 +1873,7 @@ type QuickCasePreset = {
   title_en: string;
   detail_tr: string;
   detail_en: string;
+  badge?: string;
   organ: OrganId;
   subsite: string;
   t: string;
@@ -1881,16 +1882,6 @@ type QuickCasePreset = {
   histologyId?: string;
   regimen: QuickCaseRegimen;
 };
-
-const QUICK_CASE_CATEGORIES: { id: QuickCaseCategoryId; label_tr: string; label_en: string; icon: string }[] = [
-  { id: 'thorax', label_tr: 'Toraks', label_en: 'Thorax', icon: '🫁' },
-  { id: 'breast', label_tr: 'Meme', label_en: 'Breast', icon: '🎗️' },
-  { id: 'cns', label_tr: 'MSS', label_en: 'CNS', icon: '🧠' },
-  { id: 'gus', label_tr: 'GÜS', label_en: 'GU', icon: '💧' },
-  { id: 'gis', label_tr: 'GİS', label_en: 'GI', icon: '🍽️' },
-  { id: 'gynecology', label_tr: 'Jinekoloji', label_en: 'Gynecology', icon: '✨' },
-  { id: 'sarcoma-palliative', label_tr: 'Sarkom & Palyatif', label_en: 'Sarcoma & Palliative', icon: '🦴' },
-];
 
 const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'sbrt' },
@@ -3611,8 +3602,6 @@ export default function RadoncoCDSSPage() {
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
-  const [isQuickCasesOpen, setIsQuickCasesOpen] = useState(false);
-  const [activeQuickCaseCategory, setActiveQuickCaseCategory] = useState<QuickCaseCategoryId>('thorax');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
@@ -4087,10 +4076,24 @@ export default function RadoncoCDSSPage() {
     setSelectedN(database.N.some(option => option.code === preset.n) ? preset.n : database.N[0]?.code ?? preset.n);
     setSelectedM(database.M.some(option => option.code === preset.m) ? preset.m : database.M[0]?.code ?? preset.m);
     setSelectedRegimen(preset.regimen);
-    setActiveQuickCaseCategory(preset.category);
-    setIsQuickCasesOpen(false);
     setActiveMobilePanel('prescription');
   };
+
+  const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
+    if (selectedOrgan === 'bone-sarcoma') return preset.category === 'sarcoma-palliative';
+    if (selectedOrgan === 'sarcoma') return preset.id === 'case-20';
+    if (selectedOrgan === 'palliative') return preset.id === 'case-21' || preset.id === 'case-22';
+
+    const categoryByOrgan: Partial<Record<OrganId, QuickCaseCategoryId>> = {
+      thorax: 'thorax',
+      breast: 'breast',
+      cns: 'cns',
+      prostate: 'gus',
+      gis: 'gis',
+      gynecology: 'gynecology',
+    };
+    return preset.category === categoryByOrgan[selectedOrgan];
+  });
 
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
     if (axis === 'T') {
@@ -7289,86 +7292,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           <div className="relative">
             <button
               type="button"
-              onClick={() => setIsQuickCasesOpen(open => !open)}
-              aria-expanded={isQuickCasesOpen}
-              aria-haspopup="dialog"
-              aria-label={lang === 'tr' ? '22 klinik hızlı vakayı aç' : 'Open 22 clinical preset cases'}
-              className="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:px-3"
-            >
-              <span aria-hidden="true">⚡</span>
-              <span className="hidden sm:inline">{lang === 'tr' ? 'Hızlı Vakalar' : 'Preset Cases'}</span>
-              <ChevronDown className={`h-3 w-3 transition-transform ${isQuickCasesOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
-            </button>
-            {isQuickCasesOpen && (
-              <div
-                role="dialog"
-                aria-label={lang === 'tr' ? 'Klinik simülatör vaka kütüphanesi' : 'Clinical simulator case library'}
-                className="absolute right-0 z-[60] mt-2 flex w-[min(94vw,52rem)] overflow-hidden rounded-2xl border border-slate-700 bg-[#0b1220] shadow-2xl shadow-black/50"
-              >
-                <div className="flex w-32 shrink-0 flex-col gap-1 border-r border-slate-800 bg-[#0e1726] p-2 sm:w-44 sm:p-3" role="tablist" aria-label={lang === 'tr' ? 'Vaka branşları' : 'Case specialties'}>
-                  <div className="mb-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    {lang === 'tr' ? 'Branş' : 'Specialty'}
-                  </div>
-                  {QUICK_CASE_CATEGORIES.map(category => {
-                    const count = QUICK_CASE_PRESETS.filter(preset => preset.category === category.id).length;
-                    const active = activeQuickCaseCategory === category.id;
-                    return (
-                      <button
-                        key={category.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={active}
-                        onClick={() => setActiveQuickCaseCategory(category.id)}
-                        className={`flex items-center gap-1.5 rounded-lg px-2 py-2 text-left text-[10px] font-semibold transition sm:gap-2 sm:px-2.5 sm:text-xs ${
-                          active
-                            ? 'bg-sky-500/15 text-sky-200 ring-1 ring-sky-500/30'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
-                        }`}
-                      >
-                        <span aria-hidden="true">{category.icon}</span>
-                        <span className="min-w-0 flex-1 truncate">{lang === 'tr' ? category.label_tr : category.label_en}</span>
-                        <span className="font-mono text-[9px] text-slate-500">{count}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="max-h-[min(72vh,40rem)] min-w-0 flex-1 overflow-y-auto p-2.5 sm:p-4" role="tabpanel">
-                  <div className="mb-2 flex items-center justify-between gap-2 px-1">
-                    <h2 className="text-xs font-bold text-slate-200 sm:text-sm">
-                      {QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.icon}{' '}
-                      {lang === 'tr'
-                        ? QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.label_tr
-                        : QUICK_CASE_CATEGORIES.find(category => category.id === activeQuickCaseCategory)?.label_en}
-                    </h2>
-                    <span className="text-[10px] text-slate-500">
-                      {QUICK_CASE_PRESETS.filter(preset => preset.category === activeQuickCaseCategory).length} {lang === 'tr' ? 'vaka' : 'cases'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {QUICK_CASE_PRESETS.filter(preset => preset.category === activeQuickCaseCategory).map(preset => (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleQuickCaseSelect(preset)}
-                        className="group rounded-xl border border-slate-800 bg-[#0e1726] p-2.5 text-left transition hover:border-sky-500/50 hover:bg-[#131f33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:p-3"
-                      >
-                        <span className="block text-[11px] font-semibold leading-4 text-slate-100 group-hover:text-sky-100 sm:text-xs">
-                          {lang === 'tr' ? preset.title_tr : preset.title_en}
-                        </span>
-                        <span className="mt-1 block text-[10px] leading-4 text-slate-400 sm:text-[11px]">
-                          {lang === 'tr' ? preset.detail_tr : preset.detail_en}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="relative">
-            <button
-              type="button"
               onClick={() => setIsAiDropdownOpen(open => !open)}
               aria-expanded={isAiDropdownOpen}
               aria-haspopup="menu"
@@ -8786,6 +8709,32 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
         <section className={`col-span-12 lg:col-span-4 flex flex-col gap-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`}>
+          {currentOrganPresets.length > 0 && (
+            <div
+              className="mb-0 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
+              role="group"
+              aria-label={lang === 'en' ? 'Quick clinical scenarios' : 'Hızlı klinik senaryolar'}
+            >
+              <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-amber-400">
+                <span aria-hidden="true">⚡</span>
+                {lang === 'en' ? 'Quick Scenarios:' : 'Hızlı Vakalar:'}
+              </span>
+              <div className="flex flex-nowrap items-center gap-1.5">
+                {currentOrganPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    title={lang === 'en' ? preset.detail_en : preset.detail_tr}
+                    onClick={() => handleQuickCaseSelect(preset)}
+                    className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-700/80 bg-[#111c2e] px-2.5 py-1 text-xs font-medium text-slate-200 shadow-sm transition-all hover:border-amber-500/60 hover:bg-[#182842] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                  >
+                    <span aria-hidden="true">{preset.badge || '🎯'}</span>
+                    <span>{lang === 'en' ? preset.title_en : preset.title_tr}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-4 shadow-xl shadow-black/40">
             <div className="flex items-center justify-between pb-3 border-b border-slate-700/80 mb-3">
               <div>
