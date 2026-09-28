@@ -7329,7 +7329,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <Menu className="h-4 w-4" aria-hidden="true" />
           </button>
           <div className="shrink-0 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
-            <Radiation className="w-6 h-6 animate-pulse" aria-hidden="true" />
+            <Radiation className="w-6 h-6 animate-[spin_12s_linear_infinite]" aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <h1 className="truncate text-xs font-bold text-slate-900 dark:text-white sm:text-base">
@@ -9051,7 +9051,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="bg-[#111c2e] border border-slate-700/80 text-slate-200 rounded-xl p-4 shadow-md mb-4">
               <div className="mb-2">
                 <h3 className="text-amber-300 font-bold text-sm flex items-center gap-2">
-                  <Radiation className="w-4 h-4 text-amber-300" />
+                  <Radiation className="w-4 h-4 animate-[spin_12s_linear_infinite] text-amber-300" />
                   {tText(activeScheme.name)}
                 </h3>
               </div>
