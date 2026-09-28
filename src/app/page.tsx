@@ -3607,6 +3607,12 @@ export default function RadoncoCDSSPage() {
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [isRadiobiologyModalOpen, setIsRadiobiologyModalOpen] = useState<boolean>(false);
+  const [comparisonDosePerFraction, setComparisonDosePerFraction] = useState<number>(2);
+  const [comparisonFractions, setComparisonFractions] = useState<number>(30);
+  const [comparisonAlphaBeta, setComparisonAlphaBeta] = useState<number>(10);
+  const [missedTreatmentDays, setMissedTreatmentDays] = useState<number>(0);
+  const [remainingTreatmentFractions, setRemainingTreatmentFractions] = useState<number>(30);
   const [reportInputText, setReportInputText] = useState<string>('');
   const [parsedData, setParsedData] = useState<ParsedReportData | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
@@ -3617,6 +3623,15 @@ export default function RadoncoCDSSPage() {
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
   const [copiedContext, setCopiedContext] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isRadiobiologyModalOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsRadiobiologyModalOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isRadiobiologyModalOpen]);
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
@@ -6838,6 +6853,52 @@ export default function RadoncoCDSSPage() {
     return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
   }, [activeScheme]);
 
+  const radiobiologyComparison = useMemo(() => {
+    const referenceDose = activeScheme.totalDoseGy;
+    const referenceFractionDose = activeScheme.fractionDoseGy;
+    const referenceAlphaBeta = activeScheme.alphaBeta;
+    const referenceTumorBed = referenceDose * (1 + referenceFractionDose / referenceAlphaBeta);
+    const referenceTumorEqd2 = referenceTumorBed / (1 + 2 / referenceAlphaBeta);
+    const referenceLateBed = referenceDose * (1 + referenceFractionDose / 3);
+    const referenceLateEqd2 = referenceLateBed / (1 + 2 / 3);
+    const comparisonDose = comparisonFractions * comparisonDosePerFraction;
+    const comparisonTumorBed = comparisonDose * (1 + comparisonDosePerFraction / comparisonAlphaBeta);
+    const comparisonTumorEqd2 = comparisonTumorBed / (1 + 2 / comparisonAlphaBeta);
+    const comparisonLateBed = comparisonDose * (1 + comparisonDosePerFraction / 3);
+    const comparisonLateEqd2 = comparisonLateBed / (1 + 2 / 3);
+
+    return {
+      reference: {
+        dose: referenceDose,
+        fractions: activeScheme.fractionCount,
+        fractionDose: referenceFractionDose,
+        alphaBeta: referenceAlphaBeta,
+        tumorBed: referenceTumorBed,
+        tumorEqd2: referenceTumorEqd2,
+        lateBed: referenceLateBed,
+        lateEqd2: referenceLateEqd2,
+      },
+      comparison: {
+        dose: comparisonDose,
+        tumorBed: comparisonTumorBed,
+        tumorEqd2: comparisonTumorEqd2,
+        lateBed: comparisonLateBed,
+        lateEqd2: comparisonLateEqd2,
+      },
+      tumorEqd2Delta: comparisonTumorEqd2 - referenceTumorEqd2,
+      tumorEqd2DeltaPercent: referenceTumorEqd2 === 0 ? 0 : ((comparisonTumorEqd2 - referenceTumorEqd2) / referenceTumorEqd2) * 100,
+      lateBedDelta: comparisonLateBed - referenceLateBed,
+    };
+  }, [activeScheme, comparisonAlphaBeta, comparisonDosePerFraction, comparisonFractions]);
+
+  const openRadiobiologyModal = () => {
+    setComparisonDosePerFraction(Math.min(20, Math.max(1.8, activeScheme.fractionDoseGy)));
+    setComparisonFractions(Math.min(40, Math.max(1, activeScheme.fractionCount)));
+    setComparisonAlphaBeta(activeScheme.alphaBeta);
+    setRemainingTreatmentFractions(Math.min(40, Math.max(1, activeScheme.fractionCount)));
+    setIsRadiobiologyModalOpen(true);
+  };
+
   const prognosticResult = useMemo(
     () => calculatePrognosticIndex(
       selectedOrgan,
@@ -9150,16 +9211,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}
-            <div className="bg-[#0b1220] border border-slate-800 rounded-xl p-3 mb-4 flex items-center justify-between text-xs">
-              <div>
-                <span className="text-[11px] text-slate-300 block">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={openRadiobiologyModal}
+              className="mb-4 flex w-full items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-left text-xs transition-colors hover:border-sky-700/70 hover:bg-[#101b2d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            >
+              <span className="min-w-0">
+                <span className="block text-[11px] text-slate-300">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
                 <span className="font-bold text-slate-200">
-                  {tText("\n                  α/β = ")}{radiobiology.ab} {tText(" Gy | BED: ")}<span className="text-amber-700">{radiobiology.bed} {tText(" Gy")}</span> {tText(" | EQD2: ")}<span className="text-emerald-700">{radiobiology.eqd2} {tText(" Gy")}</span>
+                  α/β = {radiobiology.ab} Gy | BED: <span className="text-amber-400">{radiobiology.bed} Gy</span> | EQD2: <span className="text-emerald-400">{radiobiology.eqd2} Gy</span>
                 </span>
-              </div>
-              <div className="text-[11px] text-slate-400 text-right">
-                {lang === 'tr' ? 'Lineer-Kuadratik Model' : 'Linear-Quadratic Model'}</div>
-            </div>
+              </span>
+              <span className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1.5 text-[10px] font-semibold text-sky-300">
+                🧮 {lang === 'tr' ? 'İnteraktif Dönüştürücü ↗' : 'Interactive Calculator ↗'}
+              </span>
+            </button>
 
             {/* SİSTEMİK TEDAVİ VE KANIT */}
             {activeScheme.systemicTherapy && (
@@ -9256,6 +9323,267 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </section>
       </main>
       </div>
+
+      {isRadiobiologyModalOpen && (
+        <div
+          className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-slate-950/80 p-3 backdrop-blur-sm sm:p-6"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setIsRadiobiologyModalOpen(false);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="radiobiology-modal-title"
+            className="my-auto w-full max-w-4xl rounded-3xl border border-slate-800 bg-[#0e1726] p-5 text-slate-100 shadow-2xl sm:p-6 md:p-8"
+          >
+            <header className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <div className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-400">
+                  🧮 {lang === 'tr' ? 'LQ Model • BED / EQD2' : 'LQ Model • BED / EQD2'}
+                </div>
+                <h2 id="radiobiology-modal-title" className="text-lg font-bold text-white sm:text-xl">
+                  {lang === 'tr' ? 'Lineer-Kuadratik Radyobiyolojik Doz Eşdeğerlik Konsolu' : 'Linear-Quadratic Radiobiological Dose Equivalence Console'}
+                </h2>
+                <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">
+                  {lang === 'tr'
+                    ? 'Farklı fraksiyonasyon şemalarını kıyaslayın; izoefektif EQD2 ve BED değerlerini anında hesaplayın.'
+                    : 'Compare fractionation schedules and calculate isoeffective EQD2 and BED values in real time.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsRadiobiologyModalOpen(false)}
+                aria-label={lang === 'tr' ? 'Radyobiyoloji dönüştürücüsünü kapat' : 'Close radiobiology calculator'}
+                className="shrink-0 rounded-xl border border-slate-700 p-2 text-slate-400 transition hover:border-slate-500 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              >
+                <XCircle className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </header>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <section className="rounded-2xl border border-indigo-500/25 bg-indigo-500/[0.06] p-4">
+                <div className="mb-4 flex items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-bold text-indigo-200">{lang === 'tr' ? 'A. Mevcut Reçete' : 'A. Current Prescription'}</h3>
+                    <p className="mt-0.5 text-[11px] text-slate-400">{tText(activeScheme.name)}</p>
+                  </div>
+                  <span className="rounded-full border border-indigo-400/30 bg-indigo-400/10 px-2 py-1 text-[10px] font-semibold text-indigo-200">
+                    {lang === 'tr' ? 'REFERANS' : 'REFERENCE'}
+                  </span>
+                </div>
+                <div className="mb-4 grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'D', value: `${radiobiologyComparison.reference.dose.toFixed(1)} Gy` },
+                    { label: 'n', value: `${radiobiologyComparison.reference.fractions} fx` },
+                    { label: 'd', value: `${radiobiologyComparison.reference.fractionDose.toFixed(2)} Gy/fx` },
+                  ].map(metric => (
+                    <div key={metric.label} className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-2">
+                      <div className="text-[10px] text-slate-500">{metric.label}</div>
+                      <div className="mt-0.5 text-xs font-bold text-white">{metric.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {lang === 'tr' ? `Tümör α/β = ${radiobiologyComparison.reference.alphaBeta} Gy` : `Tumor α/β = ${radiobiologyComparison.reference.alphaBeta} Gy`}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">BED</div><div className="font-mono text-sm font-bold text-amber-300">{radiobiologyComparison.reference.tumorBed.toFixed(1)} Gy</div></div>
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">EQD2</div><div className="font-mono text-sm font-bold text-emerald-300">{radiobiologyComparison.reference.tumorEqd2.toFixed(1)} Gy</div></div>
+                </div>
+                <div className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {lang === 'tr' ? 'Geç Hasar / Normal Doku α/β = 3 Gy' : 'Late Tissue / Normal Tissue α/β = 3 Gy'}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">BED₃</div><div className="font-mono text-sm font-bold text-amber-300">{radiobiologyComparison.reference.lateBed.toFixed(1)} Gy</div></div>
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">EQD2₃</div><div className="font-mono text-sm font-bold text-emerald-300">{radiobiologyComparison.reference.lateEqd2.toFixed(1)} Gy</div></div>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-sky-500/25 bg-sky-500/[0.05] p-4">
+                <div className="mb-4">
+                  <h3 className="text-sm font-bold text-sky-200">{lang === 'tr' ? 'B. Test Edilen Fraksiyonasyon' : 'B. Test Fractionation Schedule'}</h3>
+                  <p className="mt-0.5 text-[11px] text-slate-400">{lang === 'tr' ? 'Yeni şema için değerleri düzenleyin.' : 'Edit values for the proposed schedule.'}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-[11px] font-medium text-slate-300" htmlFor="comparison-fraction-dose">
+                    {lang === 'tr' ? 'Fraksiyon başına doz (d), Gy' : 'Dose per fraction (d), Gy'}
+                    <input
+                      id="comparison-fraction-dose"
+                      type="number"
+                      min="1.8"
+                      max="20"
+                      step="0.1"
+                      value={comparisonDosePerFraction}
+                      onChange={event => {
+                        const value = Number(event.currentTarget.value);
+                        if (Number.isFinite(value)) setComparisonDosePerFraction(Math.min(20, Math.max(1.8, value)));
+                      }}
+                      className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-sm text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    />
+                  </label>
+                  <label className="text-[11px] font-medium text-slate-300" htmlFor="comparison-fraction-count">
+                    {lang === 'tr' ? 'Fraksiyon sayısı (n)' : 'Number of fractions (n)'}
+                    <input
+                      id="comparison-fraction-count"
+                      type="number"
+                      min="1"
+                      max="40"
+                      step="1"
+                      value={comparisonFractions}
+                      onChange={event => {
+                        const value = Number(event.currentTarget.value);
+                        if (Number.isFinite(value)) setComparisonFractions(Math.round(Math.min(40, Math.max(1, value))));
+                      }}
+                      className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-sm text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    />
+                  </label>
+                </div>
+                <input
+                  type="range"
+                  min="1.8"
+                  max="20"
+                  step="0.1"
+                  value={comparisonDosePerFraction}
+                  onChange={event => setComparisonDosePerFraction(Number(event.currentTarget.value))}
+                  aria-label={lang === 'tr' ? 'Fraksiyon başına dozu ayarla' : 'Adjust dose per fraction'}
+                  className="mt-2 h-1.5 w-full cursor-pointer accent-sky-500"
+                />
+                <div className="mt-3 rounded-lg border border-slate-700/70 bg-slate-950/40 px-3 py-2 text-xs">
+                  <span className="text-slate-400">{lang === 'tr' ? 'Otomatik toplam doz:' : 'Calculated total dose:'}</span>
+                  <strong className="ml-2 font-mono text-white">{radiobiologyComparison.comparison.dose.toFixed(1)} Gy</strong>
+                  <span className="ml-2 text-slate-500">D = n × d</span>
+                </div>
+                <div className="mt-4">
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {lang === 'tr' ? 'Tümör α/β Seçimi' : 'Tumor α/β Selection'}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { value: 10, label: lang === 'tr' ? '10 Gy • Genel tümör' : '10 Gy • Most tumors' },
+                      { value: 4, label: lang === 'tr' ? '4 Gy • Meme' : '4 Gy • Breast' },
+                      { value: 1.5, label: lang === 'tr' ? '1.5 Gy • Prostat' : '1.5 Gy • Prostate' },
+                      { value: 3, label: lang === 'tr' ? '3 Gy • Sarkom / geç doku' : '3 Gy • Sarcoma / late tissue' },
+                    ].map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={comparisonAlphaBeta === option.value}
+                        onClick={() => setComparisonAlphaBeta(option.value)}
+                        className={`rounded-lg border px-2 py-1.5 text-[10px] font-semibold transition ${comparisonAlphaBeta === option.value ? 'border-sky-400 bg-sky-500/20 text-sky-100' : 'border-slate-700 bg-slate-900/70 text-slate-400 hover:border-slate-500 hover:text-white'}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {lang === 'tr' ? `Tümör α/β = ${comparisonAlphaBeta} Gy` : `Tumor α/β = ${comparisonAlphaBeta} Gy`}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">BED</div><div className="font-mono text-sm font-bold text-amber-300">{radiobiologyComparison.comparison.tumorBed.toFixed(1)} Gy</div></div>
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">EQD2</div><div className="font-mono text-sm font-bold text-emerald-300">{radiobiologyComparison.comparison.tumorEqd2.toFixed(1)} Gy</div></div>
+                </div>
+                <div className="mb-2 mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {lang === 'tr' ? 'Geç Hasar / Normal Doku α/β = 3 Gy' : 'Late Tissue / Normal Tissue α/β = 3 Gy'}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">BED₃</div><div className="font-mono text-sm font-bold text-amber-300">{radiobiologyComparison.comparison.lateBed.toFixed(1)} Gy</div></div>
+                  <div className="rounded-xl bg-slate-950/40 p-2.5"><div className="text-[10px] text-slate-400">EQD2₃</div><div className="font-mono text-sm font-bold text-emerald-300">{radiobiologyComparison.comparison.lateEqd2.toFixed(1)} Gy</div></div>
+                </div>
+              </section>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-slate-700/70 bg-slate-950/40 px-3 py-2.5 text-center font-mono text-[10px] leading-relaxed text-slate-300 sm:text-xs">
+              BED = D × (1 + d / (α/β)) <span className="mx-2 text-slate-600">|</span> EQD2 = BED / (1 + 2 / (α/β))
+              <span className="mt-1 block font-sans text-[10px] text-slate-500">{lang === 'tr' ? 'Geç doku karşılaştırması için α/β = 3 Gy alınmıştır.' : 'Late-tissue comparison uses α/β = 3 Gy.'}</span>
+            </div>
+
+            <section className="mt-4 rounded-2xl border border-slate-700/80 bg-slate-900/50 p-4">
+              <h3 className="mb-3 text-sm font-bold text-white">{lang === 'tr' ? 'Otomatik Fark ve Klinik Kıyaslama' : 'Automatic Delta and Clinical Comparison'}</h3>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className={`rounded-xl border p-3 ${Math.abs(radiobiologyComparison.tumorEqd2DeltaPercent) <= 5 ? 'border-emerald-500/30 bg-emerald-500/10' : radiobiologyComparison.tumorEqd2Delta > 0 ? 'border-amber-500/30 bg-amber-500/10' : 'border-sky-500/30 bg-sky-500/10'}`}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{lang === 'tr' ? 'Tümör EQD2 Farkı' : 'Tumor EQD2 Difference'}</div>
+                  <div className="mt-1 text-sm font-bold text-white">
+                    {radiobiologyComparison.tumorEqd2Delta > 0 ? '+' : ''}{radiobiologyComparison.tumorEqd2Delta.toFixed(1)} Gy ({radiobiologyComparison.tumorEqd2DeltaPercent > 0 ? '+' : ''}{radiobiologyComparison.tumorEqd2DeltaPercent.toFixed(1)}%)
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-slate-300">
+                    {Math.abs(radiobiologyComparison.tumorEqd2DeltaPercent) <= 5
+                      ? (lang === 'tr' ? 'Yakın izoefektif aralık' : 'Within a near-isoeffective range')
+                      : radiobiologyComparison.tumorEqd2Delta > 0
+                        ? (lang === 'tr' ? 'Modelde daha yüksek tümör EQD2' : 'Higher modeled tumor EQD2')
+                        : (lang === 'tr' ? 'Modelde daha düşük tümör EQD2' : 'Lower modeled tumor EQD2')}
+                  </div>
+                </div>
+                <div className={`rounded-xl border p-3 ${radiobiologyComparison.lateBedDelta <= 0 ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-rose-500/30 bg-rose-500/10'}`}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{lang === 'tr' ? 'Normal Doku BED₃ Farkı' : 'Normal Tissue BED₃ Difference'}</div>
+                  <div className="mt-1 text-sm font-bold text-white">{radiobiologyComparison.lateBedDelta > 0 ? '+' : ''}{radiobiologyComparison.lateBedDelta.toFixed(1)} Gy</div>
+                  <div className="mt-0.5 text-[11px] text-slate-300">
+                    {radiobiologyComparison.lateBedDelta < 0
+                      ? (lang === 'tr' ? 'Daha düşük modellenen geç doku etkisi' : 'Lower modeled late-tissue effect')
+                      : radiobiologyComparison.lateBedDelta > 0
+                        ? (lang === 'tr' ? 'Daha yüksek modellenen geç doku etkisi' : 'Higher modeled late-tissue effect')
+                        : (lang === 'tr' ? 'Referansla aynı BED₃' : 'Same BED₃ as reference')}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/[0.05] p-4">
+              <h3 className="text-sm font-bold text-amber-100">{lang === 'tr' ? 'Tedavi Arası / Repopülasyon Telafisi Tahmini' : 'Treatment Gap / Repopulation Compensation Estimate'}</h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+                {lang === 'tr' ? 'Yaklaşık doğrusal model: ΔD = kaçırılan gün × 0.6 Gy/gün. Bu tahmin reçete değişikliği değildir.' : 'Approximate linear model: ΔD = missed days × 0.6 Gy/day. This estimate is not a prescription change.'}
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <label className="text-[11px] font-medium text-slate-300" htmlFor="missed-treatment-days">
+                  {lang === 'tr' ? 'Kaçırılan gün / fraksiyon (k)' : 'Missed days / fractions (k)'}
+                  <input
+                    id="missed-treatment-days"
+                    type="number"
+                    min="0"
+                    max="40"
+                    step="1"
+                    value={missedTreatmentDays}
+                    onChange={event => {
+                      const value = Number(event.currentTarget.value);
+                      if (Number.isFinite(value)) setMissedTreatmentDays(Math.round(Math.min(40, Math.max(0, value))));
+                    }}
+                    className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-sm text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  />
+                </label>
+                <label className="text-[11px] font-medium text-slate-300" htmlFor="remaining-treatment-fractions">
+                  {lang === 'tr' ? 'Kalan fraksiyon sayısı' : 'Remaining fractions'}
+                  <input
+                    id="remaining-treatment-fractions"
+                    type="number"
+                    min="1"
+                    max="40"
+                    step="1"
+                    value={remainingTreatmentFractions}
+                    onChange={event => {
+                      const value = Number(event.currentTarget.value);
+                      if (Number.isFinite(value)) setRemainingTreatmentFractions(Math.round(Math.min(40, Math.max(1, value))));
+                    }}
+                    className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-2.5 py-2 text-sm text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  />
+                </label>
+                <div className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-3">
+                  <div className="text-[10px] text-slate-400">{lang === 'tr' ? 'Hesaplanan doz kaybı (ΔD)' : 'Estimated dose loss (ΔD)'}</div>
+                  <div className="mt-1 font-mono text-sm font-bold text-amber-300">{(missedTreatmentDays * 0.6).toFixed(1)} Gy</div>
+                  <div className="mt-1 text-[10px] text-slate-400">
+                    {lang === 'tr' ? 'Telafi için kalan fx başına' : 'Estimated per remaining fx'}: <strong className="text-white">{((missedTreatmentDays * 0.6) / remainingTreatmentFractions).toFixed(2)} Gy</strong>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
+                {lang === 'tr'
+                  ? 'LQ tahminleri klinik toksisiteyi veya tümör kontrolünü tek başına belirlemez. Herhangi bir fraksiyonasyon telafisi; endikasyon, tedavi amacı, normal doku dozları ve kurum protokolüyle sorumlu radyasyon onkoloğu tarafından doğrulanmalıdır.'
+                  : 'LQ estimates do not independently predict clinical toxicity or tumor control. Any compensation must be reviewed by the treating radiation oncologist against intent, indication, normal-tissue doses, and institutional protocol.'}
+              </p>
+            </section>
+          </section>
+        </div>
+      )}
 
       {isAiOpen && (
         <div
