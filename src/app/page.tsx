@@ -209,6 +209,8 @@ const getAdaptiveEContour = (
   m: string,
   riskCategory?: string,
   surgeryStatus?: string,
+  motionManagement?: '4D-CT' | 'DIBH',
+  histology?: string,
 ): EContourTarget => {
   const normalizedSubsite = subsite.toLocaleLowerCase('tr');
   const normalizedSurgery = surgeryStatus?.toLocaleLowerCase('tr') ?? '';
@@ -222,9 +224,25 @@ const getAdaptiveEContour = (
 
   if (organ === 'prostate' && normalizedSubsite.includes('bladder')) {
     return target(
-      'https://econtour.org/cases/',
-      'eContour: Mesane Koruyucu KRT & Pelvik Lenfatikler',
-      'eContour: Bladder-Preserving CRT & Pelvic Nodes',
+      'https://econtour.org/?search=bladder',
+      'eContour: Mesane Kanseri Trimodalite (Tüm Mesane + Pelvik Nodal)',
+      'eContour: Bladder Cancer Trimodality (Whole Bladder + Pelvic Nodal)',
+    );
+  }
+
+  if (organ === 'prostate' && normalizedSubsite.includes('testis')) {
+    return target(
+      'https://econtour.org/?search=seminoma',
+      'eContour: Testis Seminomu (Paraaortik / Dogleg Nodal Atlası)',
+      'eContour: Testicular Seminoma (Para-aortic / Dogleg Nodal Atlas)',
+    );
+  }
+
+  if (organ === 'prostate' && normalizedSubsite.includes('penile')) {
+    return target(
+      'https://econtour.org/?search=penile',
+      'eContour: Penil Kanser (İnguinal & Pelvik Lenfatik Atlası)',
+      'eContour: Penile Cancer (Inguinal & Pelvic Nodal Atlas)',
     );
   }
 
@@ -232,8 +250,8 @@ const getAdaptiveEContour = (
     if (normalizedSurgery.includes('postop') || normalizedSurgery.includes('prostatektomi')) {
       return target(
         'https://econtour.org/cases/34',
-        'eContour: RTOG Prostatik Yatak (Fossa) Atlası',
-        'eContour: RTOG Prostate Bed (Fossa) Atlas',
+        'eContour: Post-Prostatektomi Yatağı (RTOG / RADICALS Atlası)',
+        'eContour: Post-Prostatectomy Bed (RTOG / RADICALS Atlas)',
       );
     }
     if (t.startsWith('T3') || t.startsWith('T4') || n.startsWith('N1') || isHighRisk) {
@@ -245,56 +263,65 @@ const getAdaptiveEContour = (
     }
     return target(
       'https://econtour.org/cases/34',
-      'eContour: İntakt Prostat Bezi (SBRT/Hipofraksiyon)',
-      'eContour: Intact Prostate Gland Atlas',
+      'eContour: İntakt Prostat SBRT / PACE-B Atlası',
+      'eContour: Intact Prostate SBRT / PACE-B Atlas',
     );
   }
 
   if (organ === 'thorax') {
-    if (normalizedSubsite.includes('nsclc') || normalizedSubsite === 'thorax-nsclc') {
-      if (n === 'N2' || n === 'N3' || t === 'T3' || t === 'T4') {
-        return target(
-          'https://econtour.org/cases/',
-          'eContour: Lokal İleri KHDAK & Mediasten Atlası',
-          'eContour: Locally Advanced NSCLC & Mediastinal Stations',
-        );
-      }
+    if (normalizedSubsite.includes('thymoma') || normalizedSubsite.includes('timoma')) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Akciğer SBRT (4D-CT / ITV Hacim Kapsamı)',
-        'eContour: Lung SBRT (4D-CT / ITV Target Volume)',
+        'https://econtour.org/?search=thymoma',
+        'eContour: Timüs Masaoka-Koga Cerrahi Yatak PORT Atlası',
+        'eContour: Thymoma Masaoka-Koga Post-op Bed (PORT) Atlas',
       );
     }
     if (normalizedSubsite.includes('sclc') && !normalizedSubsite.includes('nsclc')) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Sınırlı Evre KHAK Torasik KRT & PCI',
-        'eContour: Limited SCLC Thoracic CRT & PCI',
+        'https://econtour.org/cases/9',
+        'eContour: KHAK (SCLC) Pre-KT Mediastinal CTV Atlası',
+        'eContour: Small Cell Lung Cancer (Pre-Chemo Mediastinal CTV) Atlas',
       );
     }
-    if (normalizedSubsite.includes('thymoma') || normalizedSubsite.includes('timoma')) {
+    if (normalizedSubsite.includes('mesothelioma')) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Timoma Masaoka Cerrahi Yatak PORT',
-        'eContour: Thymoma Post-op Bed (PORT) Atlas',
+        'https://econtour.org/?search=mesothelioma',
+        'eContour: Mezotelyoma Hemitorasik Plevral Atlası',
+        'eContour: Mesothelioma Hemithoracic Pleural Atlas',
       );
     }
-    if (n === 'N2' || n === 'N3' || t === 'T3' || t === 'T4') {
+    // KHDAK (NSCLC)
+    const isEarlyNsclc = m === 'M0' && n === 'N0' && (t.startsWith('T1') || t === 'T2');
+    if (!isEarlyNsclc) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Lokal İleri KHDAK & IASLC Mediastinal Nodal İstasyonlar',
-        'eContour: Locally Advanced NSCLC & Mediastinal Stations',
+        'https://econtour.org/cases/10',
+        'eContour: Lokal İleri KHDAK (PACIFIC / Elektif Nodal CTV)',
+        'eContour: Locally Advanced NSCLC (Elective Nodal / Primary CTV)',
+      );
+    }
+    if (motionManagement === 'DIBH') {
+      return target(
+        'https://econtour.org/?search=lung+dibh',
+        'eContour: Akciğer SBRT (DIBH Nefes Tutma GTV→PTV Atlası)',
+        'eContour: Lung SBRT (DIBH Breath-Hold GTV→PTV Atlas)',
       );
     }
     return target(
-      'https://econtour.org/cases/',
-      'eContour: Akciğer SBRT (4D-CT / ITV Hacim Kapsamı)',
-      'eContour: Lung SBRT (4D-CT / ITV Target Volume)',
+      'https://econtour.org/cases/11',
+      'eContour: Akciğer SBRT (4D-CT / ITV Hareket Zarfı Atlası)',
+      'eContour: Lung SBRT (4D-CT / ITV Motion Envelope Atlas)',
     );
   }
 
   if (organ === 'breast') {
-    if (n === 'N2' || n === 'N3' || normalizedSurgery.includes('mastektomi')) {
+    if (normalizedSurgery.includes('mastektomi') || normalizedSurgery.includes('mastectomy')) {
+      return target(
+        'https://econtour.org/cases/74',
+        'eContour: PMRT Göğüs Duvarı & İnternal Mammar Nodal Atlası',
+        'eContour: Post-Mastectomy Chest Wall & Internal Mammary Nodal Atlas',
+      );
+    }
+    if (n === 'N2' || n === 'N3') {
       return target(
         'https://econtour.org/cases/74',
         'eContour: Göğüs Duvarı + Aksilla & Supraklavikular (RNI)',
@@ -303,8 +330,8 @@ const getAdaptiveEContour = (
     }
     return target(
       'https://econtour.org/hypofrac',
-      'eContour: Tüm Meme (WBRT) & Kavite Boost Atlası',
-      'eContour: Whole Breast & Tumor Bed Cavity Atlas',
+      'eContour: Tüm Meme Tanjantları & Tümör Yatağı Boost Atlası',
+      'eContour: Whole Breast Tangents & Tumor Bed Boost Atlas',
     );
   }
 
@@ -325,9 +352,34 @@ const getAdaptiveEContour = (
     }
     if (normalizedSubsite.includes('karaciger') || normalizedSubsite.includes('karaciğer') || normalizedSubsite.includes('liver')) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Karaciğer Primer/Metastaz SBRT Atlası',
-        'eContour: Liver SBRT & Normal Tissue Envelope',
+        'https://econtour.org/?search=liver+sbrt',
+        motionManagement === 'DIBH'
+          ? 'eContour: Karaciğer SBRT (DIBH Nefes Tutma Atlası)'
+          : 'eContour: Karaciğer SBRT (4D-CT / ITV Atlası)',
+        motionManagement === 'DIBH'
+          ? 'eContour: Liver SBRT (DIBH Breath-Hold Atlas)'
+          : 'eContour: Liver SBRT (4D-CT / ITV Atlas)',
+      );
+    }
+    if (normalizedSubsite.includes('ozofagus') || normalizedSubsite.includes('özofagus') || normalizedSubsite.includes('esophag')) {
+      return target(
+        'https://econtour.org/?search=esophagus',
+        'eContour: Özofagus Karsinomu (CROSS Protokol GTV/CTV Atlası)',
+        'eContour: Esophageal Carcinoma (CROSS Protocol GTV/CTV Atlas)',
+      );
+    }
+    if (normalizedSubsite.includes('anal') || normalizedSubsite.includes('anus')) {
+      return target(
+        'https://econtour.org/?search=anal',
+        'eContour: Anal Kanal Skuamöz (İnguinal / Pelvik Nodal Atlası)',
+        'eContour: Anal Squamous Cell Carcinoma (Inguinal / Pelvic Nodal Atlas)',
+      );
+    }
+    if (normalizedSubsite.includes('pankreas') || normalizedSubsite.includes('pancrea')) {
+      return target(
+        'https://econtour.org/?search=pancreas',
+        'eContour: Pankreas Adenokarsinomu / SBRT Atlası',
+        'eContour: Pancreatic Adenocarcinoma / SBRT Atlas',
       );
     }
     return target(
@@ -346,31 +398,40 @@ const getAdaptiveEContour = (
       );
     }
     return target(
-      'https://econtour.org/cases/',
-      'eContour: Baş-Boyun Bilateral Servikal Boyun Düzeyleri (I-VII)',
-      'eContour: Head & Neck Bilateral Neck Levels (I-VII)',
+      'https://econtour.org/?search=head+neck+nodal',
+      'eContour: Baş-Boyun Nodal Düzeyler & Primer SIB Hedef Atlası (DAHANCA / RTOG)',
+      'eContour: Head & Neck Nodal Levels & Primary SIB Target Atlas (DAHANCA / RTOG)',
     );
   }
 
   if (organ === 'cns') {
-    if (normalizedSubsite.includes('gbm') || normalizedSubsite.includes('glioblastom')) {
-      return target(
-        'https://econtour.org/cases/',
-        'eContour: Glioblastom (GBM) Stupp T1+Gd / FLAIR CTV Atlası',
-        'eContour: Glioblastoma (GBM) Stupp T1+Gd / FLAIR CTV',
-      );
-    }
     if (normalizedSubsite.includes('meningioma') || normalizedSubsite.includes('menenj')) {
       return target(
-        'https://econtour.org/cases/',
-        'eContour: Menenjiom SRS / Fraksiyone SRT Hedef Hacmi',
-        'eContour: Meningioma SRS / FSRT Target Volume',
+        'https://econtour.org/cases/12',
+        'eContour: Menenjiom (Dural Kuyruk & Kemik İnvazyonu Atlası)',
+        'eContour: Intracranial Meningioma (Dural Tail & Bone Invasion Atlas)',
+      );
+    }
+    if (normalizedSubsite.includes('glioma') || normalizedSubsite.includes('gbm') || normalizedSubsite.includes('glioblastom')) {
+      return target(
+        'https://econtour.org/cases/1',
+        'eContour: Glial Tümör (ESTRO/EORTC & RTOG T2/FLAIR CTV Atlası)',
+        'eContour: Glioma / GBM (ESTRO/EORTC & RTOG T2/FLAIR CTV Atlas)',
+      );
+    }
+    // Beyin metastazları
+    const isOligoMets = t.startsWith('T1') || t === 'T2';
+    if (isOligoMets) {
+      return target(
+        'https://econtour.org/cases/2',
+        'eContour: Beyin Metastazları SRS / Radyocerrahi Atlası',
+        'eContour: Brain Metastases SRS / Radiosurgery Atlas',
       );
     }
     return target(
-      'https://econtour.org/cases/',
-      'eContour: Beyin Metastazları Tek/Oligo SRS Atlası',
-      'eContour: Brain Metastases SRS / HA-WBRT Atlas',
+      'https://econtour.org/?search=ha-wbrt',
+      'eContour: HA-WBRT (Hipokampus Koruyucu Tüm Beyin RT Atlası)',
+      'eContour: WBRT with Hippocampal Sparing (HA-WBRT Atlas)',
     );
   }
 
@@ -396,18 +457,32 @@ const getAdaptiveEContour = (
     );
   }
 
-  if (organ === 'bone-sarcoma') {
-    if (normalizedSubsite.includes('ewing') || normalizedSubsite.includes('osteosarkom')) {
+  if (organ === 'bone' || organ === 'bone-sarcoma') {
+    if (normalizedSubsite.includes('kordoma') || normalizedSubsite.includes('chordoma') || histology === 'Kordoma') {
+      return target(
+        'https://econtour.org/?search=spine+sbrt',
+        'eContour: Kordoma / Omurga SBRT (International Spine Consortium Atlası)',
+        'eContour: Chordoma / Spine SBRT (International Spine Consortium Atlas)',
+      );
+    }
+    if (normalizedSubsite.includes('ewing') || normalizedSubsite.includes('osteosarkom') || histology === 'Osteosarkom' || histology === 'Ewing') {
       return target(
         'https://econtour.org/cases/',
         'eContour: Kemik Sarkomları (Pre-KT Kemik Tutulum Hacmi)',
         'eContour: Bone Sarcoma (Pre-chemo Bone Extent CTV)',
       );
     }
+    if (normalizedSubsite.includes('yumusak') || normalizedSubsite.includes('soft') || histology === 'ups' || histology === 'liposarcoma' || histology === 'leiomyosarcoma' || histology === 'synovial') {
+      return target(
+        'https://econtour.org/?search=soft+tissue+sarcoma',
+        'eContour: Ekstremite Yumuşak Doku Sarkomu (Preop 50 Gy Fasyal Marjinler)',
+        'eContour: Extremity Soft Tissue Sarcoma (Preoperative 50 Gy Fascial Margins)',
+      );
+    }
     return target(
       'https://econtour.org/cases/',
-      'eContour: Yumuşak Doku Sarkomu Preop 50 Gy & Cilt Şeridi',
-      'eContour: Soft Tissue Sarcoma Preop 50 Gy & Skin Sparing',
+      'eContour: Kemik & Yumuşak Doku Sarkomu Konturlama Atlası',
+      'eContour: Bone & Soft Tissue Sarcoma Contouring Atlas',
     );
   }
 
@@ -420,18 +495,32 @@ const getAdaptiveEContour = (
   }
 
   if (organ === 'hematologic') {
+    if (histology === 'Plasmacytoma' || histology === 'Myeloma') {
+      return target(
+        'https://econtour.org/?search=myeloma',
+        'eContour: Multipl Miyelom / Plazmositom Lokal RT Atlası',
+        'eContour: Multiple Myeloma / Plasmacytoma Local RT Atlas',
+      );
+    }
     return target(
-      'https://econtour.org/cases/',
-      'eContour: Lenfoma ILROG Tutulu Alan (ISRT / INRT) Atlası',
-      'eContour: Lymphoma ILROG Involved-Site RT (ISRT/INRT)',
+      'https://econtour.org/?search=lymphoma+isrt',
+      'eContour: Lenfoma Tutulu Alan RT (ILROG ISRT/INRT Atlası)',
+      'eContour: Lymphoma Involved Site RT (ILROG ISRT/INRT Atlas)',
     );
   }
 
   if (organ === 'pediatric') {
+    if (histology === 'Medulloblastom' || normalizedSubsite.includes('medulloblastoma')) {
+      return target(
+        'https://econtour.org/?search=craniospinal',
+        'eContour: Pediatrik Kraniyospinal Işınlama (CSI) & Posterior Fossa Boost',
+        'eContour: Pediatric Craniospinal Irradiation (CSI) & Posterior Fossa Boost',
+      );
+    }
     return target(
       'https://econtour.org/cases/',
-      'eContour: Pediatrik Medulloblastom (CSI) & Wilms Atlası',
-      'eContour: Pediatric Medulloblastoma (CSI) & Wilms Atlas',
+      'eContour: Pediatrik Tümör Konturlama Atlası',
+      'eContour: Pediatric Tumor Contouring Atlas',
     );
   }
 
@@ -3533,7 +3622,15 @@ export default function RadoncoCDSSPage() {
       : selectedOrgan === 'bone-sarcoma'
         ? sarcomaSurgery
         : undefined;
-  const eContour = getAdaptiveEContour(
+  const eContourHistologyParam = (() => {
+    if (selectedOrgan === 'bone') return sarcomaSubtype;
+    if (selectedOrgan === 'bone-sarcoma') return sarcomaSubtype === 'Yumusak_Doku' ? stsHistology : sarcomaSubtype;
+    if (selectedOrgan === 'hematologic') return hematologicSubtype;
+    if (selectedOrgan === 'pediatric') return pediatricSubtype;
+    return undefined;
+  })();
+
+  const eContour = useMemo(() => getAdaptiveEContour(
     selectedOrgan,
     eContourSubsite,
     selectedT,
@@ -3541,7 +3638,23 @@ export default function RadoncoCDSSPage() {
     selectedM,
     eContourRiskCategory,
     eContourSurgeryStatus,
-  );
+    breathingMotion,
+    eContourHistologyParam,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [
+    selectedOrgan,
+    eContourSubsite,
+    selectedT,
+    selectedN,
+    selectedM,
+    eContourRiskCategory,
+    eContourSurgeryStatus,
+    breathingMotion,
+    sarcomaSubtype,
+    stsHistology,
+    hematologicSubtype,
+    pediatricSubtype,
+  ]);
 
   // Organ Değişimi
   const handleOrganChange = (newOrgan: OrganId) => {
