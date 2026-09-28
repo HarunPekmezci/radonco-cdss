@@ -39,6 +39,7 @@ import {
   ChevronDown,
   TrendingUp,
   Download,
+  Printer,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 
@@ -3404,6 +3405,7 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const [lang, setLang] = useState<'en' | 'tr'>('en');
+  const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
     if (!text) return '';
@@ -7051,6 +7053,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const printBoardSummary = () => {
+    const now = new Date();
+    const timestamp = new Intl.DateTimeFormat(lang === 'tr' ? 'tr-TR' : 'en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(now);
+    const reportId = `RO-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+    setPrintMetadata({ timestamp, reportId });
+    window.requestAnimationFrame(() => window.print());
+  };
+
   const exportResearchCohort = () => {
     const now = new Date();
     const pad = (value: number) => String(value).padStart(2, '0');
@@ -7251,8 +7264,56 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     );
   }
 
+  const reportOrganNames: Record<OrganId, string> = {
+    thorax: lang === 'tr' ? 'Toraks' : 'Thorax',
+    prostate: lang === 'tr' ? 'Genitoüriner Sistem' : 'Genitourinary',
+    breast: lang === 'tr' ? 'Meme' : 'Breast',
+    gis: lang === 'tr' ? 'Gastrointestinal Sistem' : 'Gastrointestinal',
+    'head-neck': lang === 'tr' ? 'Baş-Boyun' : 'Head and Neck',
+    cns: lang === 'tr' ? 'Santral Sinir Sistemi' : 'Central Nervous System',
+    gynecology: lang === 'tr' ? 'Jinekoloji' : 'Gynecology',
+    bone: lang === 'tr' ? 'Kemik' : 'Bone',
+    sarcoma: lang === 'tr' ? 'Yumuşak Doku Sarkomu' : 'Soft Tissue Sarcoma',
+    'bone-sarcoma': lang === 'tr' ? 'Kemik ve Sarkom' : 'Bone and Sarcoma',
+    skin: lang === 'tr' ? 'Cilt' : 'Skin',
+    hematologic: lang === 'tr' ? 'Hematolojik' : 'Hematologic',
+    pediatric: lang === 'tr' ? 'Pediatrik' : 'Pediatric',
+    palliative: lang === 'tr' ? 'Palyatif' : 'Palliative',
+    benign: lang === 'tr' ? 'Benign' : 'Benign',
+  };
+  const reportDiagnosis = selectedOrgan === 'breast'
+    ? breastHistology
+    : selectedOrgan === 'thorax'
+      ? tText(thoraxSubtype)
+      : selectedOrgan === 'cns'
+        ? tText(cnsSubtype)
+        : selectedOrgan === 'prostate'
+          ? tText(gusSubtype)
+          : selectedOrgan === 'gynecology'
+            ? tText(gynSite)
+            : selectedOrgan === 'gis'
+              ? tText(gisOrgan)
+              : selectedOrgan === 'head-neck'
+                ? tText(hnSubsite)
+                : tText(selectedSubsite || selectedOrgan);
+  const reportHistology = selectedOrgan === 'breast'
+    ? breastHistology
+    : selectedOrgan === 'thorax'
+      ? thoraxSubtype === 'nsclc' ? tText(nsclcHistology) : thoraxSubtype === 'thymoma' ? tText(thymicHistology) : tText(thoraxSubtype)
+      : selectedOrgan === 'cns'
+        ? cnsSubtype === 'glioma' || cnsSubtype === 'gbm' ? tText(gliomaHistology) : tText(cnsSubtype)
+        : tText(selectedHistology) || reportDiagnosis;
+  const reportMolecular = selectedOrgan === 'breast'
+    ? `ER ${breastER ? '+' : '-'} / PR ${breastPR ? '+' : '-'} / HER2 ${breastHER2 ? '+' : '-'} / Ki-67 ${breastKi67}%`
+    : selectedOrgan === 'prostate'
+      ? `PSA ${psaLevel} ng/mL / Gleason ${gleasonPrimary}+${gleasonSecondary}`
+      : selectedOrgan === 'cns'
+        ? `${tText(gliomaGrade)} / KPS ${cnsKps}${gliomaRiskFactors.molecularHighRisk ? ' / IDH-wt or molecular high risk' : ''}`
+        : '—';
+
   return (
-    <div className="min-h-screen w-full bg-[#0a0f1d] text-slate-100 flex flex-col font-sans">
+    <>
+    <div id="clinical-app" className="min-h-screen w-full bg-[#0a0f1d] text-slate-100 flex flex-col font-sans">
 
       {/* ==========================================
           HEADER: PARILDAYAN RADYASYON LOGOSU
@@ -9172,6 +9233,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Cohort & Export Excel'}</span>
               </button>
               <button
+                type="button"
+                onClick={printBoardSummary}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-[#111c2e] px-3.5 py-2 text-xs font-semibold text-slate-200 shadow-sm transition-all hover:bg-[#182842] hover:text-white"
+              >
+                <Printer className="h-4 w-4 text-sky-400" aria-hidden="true" />
+                <span>{lang === 'en' ? 'Print Board Summary (PDF)' : 'Konsey Raporu (Yazdır / PDF)'}</span>
+              </button>
+              <button
                 onClick={copyToClipboard}
                 className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
               >
@@ -9545,5 +9614,102 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
       )}
     </div>
+      <article id="print-report" className="hidden print:block" aria-label={lang === 'tr' ? 'Multidisipliner tümör konseyi raporu' : 'Multidisciplinary tumor board summary'}>
+        <header className="print-report-header">
+          <div>
+            <div className="font-bold">RadOnc CDSS — {lang === 'tr' ? 'Klinik Karar Destek Platformu' : 'Clinical Decision Support Platform'}</div>
+            <div className="text-[8pt]">{lang === 'tr' ? 'Multidisipliner Onkoloji Konsey Raporu' : 'Multidisciplinary Oncology Board Summary'}</div>
+          </div>
+          <div className="text-right text-[8pt]">
+            <div>{printMetadata.timestamp || '—'}</div>
+            <div>{lang === 'tr' ? 'Rapor No' : 'Report No'}: {printMetadata.reportId || '—'}</div>
+          </div>
+        </header>
+
+        <section className="print-report-section">
+          <h2>1. {lang === 'tr' ? 'Hasta ve Patolojik Tanı' : 'Patient and Pathologic Diagnosis'}</h2>
+          <table className="print-report-table">
+            <tbody>
+              <tr>
+                <th>{lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Site'}</th><td>{reportOrganNames[selectedOrgan]}</td>
+                <th>{lang === 'tr' ? 'Yaş' : 'Age'}</th><td>{patientAgeYears || '—'}</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Tanı / Alt Tip' : 'Diagnosis / Subsite'}</th><td>{reportDiagnosis}</td>
+                <th>{lang === 'tr' ? 'Histoloji' : 'Histology'}</th><td>{reportHistology}</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Moleküler / Klinik Parametreler' : 'Molecular / Clinical Parameters'}</th><td colSpan={3}>{reportMolecular}</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Klinik Evre' : 'Clinical Stage'}</th><td colSpan={3}>{selectedT} {selectedN} {selectedM} • {tText(evaluatedDecision.statusText)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="print-report-section">
+          <h2>2. {lang === 'tr' ? 'Endike Radyoterapi ve Fraksiyonasyon Kararı' : 'Radiotherapy and Fractionation Recommendation'}</h2>
+          <table className="print-report-table">
+            <tbody>
+              <tr>
+                <th>{lang === 'tr' ? 'Reçete' : 'Prescription'}</th><td>{tText(activeScheme.name)}</td>
+                <th>{lang === 'tr' ? 'Doz / Fraksiyon' : 'Dose / Fractions'}</th><td>{activeScheme.totalDoseGy} Gy / {activeScheme.fractionCount} × {activeScheme.fractionDoseGy} Gy</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Teknik' : 'Technique'}</th><td>{tText(activeScheme.technique)}</td>
+                <th>{lang === 'tr' ? 'Solunum Yönetimi' : 'Motion Management'}</th><td>{selectedOrgan === 'thorax' || selectedOrgan === 'breast' ? tText(breathingMotion) : '—'}</td>
+              </tr>
+              <tr>
+                <th>BED (α/β = {radiobiology.ab})</th><td>{radiobiology.bed} Gy</td>
+                <th>EQD2</th><td>{radiobiology.eqd2} Gy</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Sistemik Tedavi' : 'Systemic Therapy'}</th><td colSpan={3}>{tText(activeScheme.systemicTherapy || '—')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="print-report-section print-report-tables">
+          <div>
+            <h2>3a. {lang === 'tr' ? 'Hedef Hacimler (ICRU 83)' : 'Target Volumes (ICRU 83)'}</h2>
+            <table className="print-report-table">
+              <thead><tr><th>{lang === 'tr' ? 'Hacim' : 'Volume'}</th><th>{lang === 'tr' ? 'Doz' : 'Dose'}</th><th>{lang === 'tr' ? 'Marjin' : 'Margin'}</th><th>{lang === 'tr' ? 'Anatomi' : 'Anatomy'}</th></tr></thead>
+              <tbody>
+                {activeScheme.targetVolumes.map((volume, index) => (
+                  <tr key={`${volume.name}-${index}`}><td>{tText(volume.name)}</td><td>{volume.doseGy} Gy</td><td>{volume.marginMm}</td><td>{tText(volume.anatomical)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h2>3b. {lang === 'tr' ? 'OAR Doz Kısıtları' : 'Organs-at-Risk Constraints'}</h2>
+            <table className="print-report-table">
+              <thead><tr><th>{lang === 'tr' ? 'Organ' : 'Organ'}</th><th>{lang === 'tr' ? 'Ölçüt' : 'Metric'}</th><th>{lang === 'tr' ? 'Sınır' : 'Limit'}</th><th>{lang === 'tr' ? 'Kaynak' : 'Source'}</th></tr></thead>
+              <tbody>
+                {activeScheme.oars.map((oar, index) => (
+                  <tr key={`${oar.organ}-${index}`}><td>{tText(oar.organ)}</td><td>{tText(oar.metric)}</td><td>{oar.limit}</td><td>{tText(oar.source)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="print-report-section print-report-evidence">
+          <h2>4. {lang === 'tr' ? 'Kanıt Düzeyi ve Hekim İmzası' : 'Evidence and Physician Sign-off'}</h2>
+          <div><strong>{lang === 'tr' ? 'Kanıt / Kılavuz:' : 'Evidence / Guideline:'}</strong> {tText(activeScheme.evidence)}</div>
+          <div className="print-report-signature">
+            <div className="signature-line" />
+            <strong>{lang === 'tr' ? 'Sorumlu Radyasyon Onkoloğu: Dr. Harun PEKMEZCİ, MD' : 'Attending Radiation Oncologist: Dr. Harun PEKMEZCİ, MD'}</strong>
+          </div>
+        </section>
+        <footer className="print-report-footer">
+          {lang === 'tr'
+            ? 'Klinik karar destek çıktısıdır; nihai tedavi kararı sorumlu hekim ve multidisipliner konsey değerlendirmesine tabidir.'
+            : 'Clinical decision-support output only; final treatment decisions remain subject to physician judgment and multidisciplinary review.'}
+        </footer>
+      </article>
+    </>
   );
 }
