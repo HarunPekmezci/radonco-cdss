@@ -8,8 +8,11 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Radiation,
+  Search,
+  ArrowUpRight,
   Copy,
   Check,
   BookOpen,
@@ -1884,6 +1887,11 @@ type QuickCasePreset = {
   regimen: QuickCaseRegimen;
 };
 
+type CommandPaletteItem =
+  | { id: string; kind: 'organ'; title: string; subtitle: string; searchText: string; organ: OrganId; subsite: string; histologyId?: string }
+  | { id: string; kind: 'protocol'; title: string; subtitle: string; searchText: string; preset: QuickCasePreset }
+  | { id: string; kind: 'page'; title: string; subtitle: string; searchText: string; destination: 'references' | 'contact' | 'guidelines' };
+
 const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'sbrt' },
   { id: 'case-02', category: 'thorax', title_tr: 'Lokal ileri KHDAK', title_en: 'Locally advanced NSCLC', detail_tr: 'Evre IIIA cT2 N2 M0 • Eşzamanlı KRT 60 Gy + PACIFIC', detail_en: 'Stage IIIA cT2 N2 M0 • Concurrent CRT 60 Gy + PACIFIC', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T2a', n: 'N2', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'clinical' },
@@ -3404,6 +3412,7 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
+  const router = useRouter();
   const [lang, setLang] = useState<'en' | 'tr'>('en');
   const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
@@ -3608,6 +3617,9 @@ export default function RadoncoCDSSPage() {
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isRadiobiologyModalOpen, setIsRadiobiologyModalOpen] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearchIndex, setActiveSearchIndex] = useState(0);
   const [comparisonDosePerFraction, setComparisonDosePerFraction] = useState<number>(2);
   const [comparisonFractions, setComparisonFractions] = useState<number>(30);
   const [comparisonAlphaBeta, setComparisonAlphaBeta] = useState<number>(10);
@@ -3632,6 +3644,20 @@ export default function RadoncoCDSSPage() {
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [isRadiobiologyModalOpen]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsSearchOpen(open => !open);
+      } else if (event.key === 'Escape') {
+        setIsSearchOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleSearchShortcut);
+    return () => window.removeEventListener('keydown', handleSearchShortcut);
+  }, []);
 
   // Dinamik TNM Anahtarı
   const currentTnmKey = useMemo(() => {
@@ -4111,6 +4137,170 @@ export default function RadoncoCDSSPage() {
     };
     return preset.category === categoryByOrgan[selectedOrgan];
   });
+
+  const commandPaletteGroups = useMemo(() => {
+    const organNames: Record<OrganId, string> = {
+      thorax: lang === 'tr' ? 'Toraks' : 'Thorax',
+      prostate: lang === 'tr' ? 'GÜS' : 'Genitourinary',
+      breast: lang === 'tr' ? 'Meme' : 'Breast',
+      gis: lang === 'tr' ? 'GİS' : 'Gastrointestinal',
+      'head-neck': lang === 'tr' ? 'Baş-Boyun' : 'Head & Neck',
+      cns: lang === 'tr' ? 'MSS' : 'CNS',
+      gynecology: lang === 'tr' ? 'Jinekoloji' : 'Gynecology',
+      bone: lang === 'tr' ? 'Kemik' : 'Bone',
+      sarcoma: lang === 'tr' ? 'Sarkom' : 'Sarcoma',
+      'bone-sarcoma': lang === 'tr' ? 'Kemik & Sarkom' : 'Bone & Sarcoma',
+      skin: lang === 'tr' ? 'Cilt' : 'Skin',
+      hematologic: lang === 'tr' ? 'Hematoloji' : 'Hematologic',
+      pediatric: lang === 'tr' ? 'Pediatri' : 'Pediatric',
+      palliative: lang === 'tr' ? 'Palyatif' : 'Palliative',
+      benign: lang === 'tr' ? 'Benign' : 'Benign',
+    };
+    const aliases: Record<string, string> = {
+      'thorax-nsclc': 'khdak nsclc lung non-small-cell carcinoma lung cancer',
+      'thorax-sclc': 'khak sclc small-cell lung cancer',
+      'thorax-thymoma': 'thymoma thymus timoma timus mediastinum',
+      'cns-glioma': 'glioblastoma gbm stupp glioma glial',
+      'cns-mets': 'brain metastasis metastases srs radiosurgery',
+      'prostate-prostate': 'prostate cancer prostat cancer prostate carcinoma',
+      'prostate-testis': 'testis seminoma testicular cancer seminom',
+      'breast-idc': 'invasive ductal idc invaziv duktal',
+      'gis-Rektum': 'rectum rectal cancer RAPIDO',
+      'gynecology-Serviks': 'cervix cervical cancer EMBRACE',
+    };
+    const normalize = (value: string) => value
+      .toLocaleLowerCase(lang === 'tr' ? 'tr-TR' : 'en-US')
+      .replace(/ı/g, 'i')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    const organItems: CommandPaletteItem[] = (Object.entries(ORGAN_TREE) as [OrganId, typeof ORGAN_TREE[OrganId]][])
+      .flatMap(([organ, subsites]) => subsites.map(subsite => {
+        const title = lang === 'tr' ? subsite.name_tr : subsite.name_en;
+        const histologyId = subsite.id === 'breast-idc'
+          ? 'breast-nst'
+          : subsite.id === 'breast-ilc'
+            ? 'breast-ilc'
+            : subsite.id === 'breast-dcis' || subsite.id === 'breast-phyllodes' || subsite.id === 'breast-inflammatory'
+              ? subsite.id
+              : undefined;
+        return {
+          id: `organ-${subsite.id}`,
+          kind: 'organ' as const,
+          title,
+          subtitle: organNames[organ],
+          searchText: normalize(`${title} ${subsite.name_tr} ${subsite.name_en} ${organNames[organ]} ${aliases[subsite.id] || ''}`),
+          organ,
+          subsite: subsite.id,
+          histologyId,
+        };
+      }));
+
+    organItems.push({
+      id: 'organ-glioblastoma',
+      kind: 'organ',
+      title: lang === 'tr' ? 'Glioblastoma (GBM)' : 'Glioblastoma (GBM)',
+      subtitle: organNames.cns,
+      searchText: normalize('glioblastoma GBM glioma WHO grade 4 idh wildtype'),
+      organ: 'cns',
+      subsite: 'cns-glioma',
+      histologyId: 'glioma-gbm',
+    });
+    organItems.push({
+      id: 'organ-prostate',
+      kind: 'organ',
+      title: lang === 'tr' ? 'Prostat Kanseri' : 'Prostate Cancer',
+      subtitle: organNames.prostate,
+      searchText: normalize('prostate prostate cancer prostat kanseri'),
+      organ: 'prostate',
+      subsite: 'prostate-prostate',
+      histologyId: 'prostate-acinar',
+    });
+
+    const protocolItems: CommandPaletteItem[] = QUICK_CASE_PRESETS.map(preset => ({
+      id: `protocol-${preset.id}`,
+      kind: 'protocol',
+      title: lang === 'tr' ? preset.title_tr : preset.title_en,
+      subtitle: lang === 'tr' ? preset.detail_tr : preset.detail_en,
+      searchText: normalize(`${preset.title_tr} ${preset.title_en} ${preset.detail_tr} ${preset.detail_en} ${preset.id}`),
+      preset,
+    }));
+    const pageItems: CommandPaletteItem[] = [
+      {
+        id: 'page-references',
+        kind: 'page',
+        title: lang === 'tr' ? 'Klinik Kaynakça ve Kanıt Atlası' : 'Clinical References & Evidence Atlas',
+        subtitle: '/references',
+        searchText: normalize('references bibliography evidence atlas kaynakca kanit'),
+        destination: 'references',
+      },
+      {
+        id: 'page-contact',
+        kind: 'page',
+        title: lang === 'tr' ? 'İletişim ve Protokol Katkısı' : 'Contact & Protocol Contribution',
+        subtitle: lang === 'tr' ? 'E-posta ile iletişim' : 'Contact by email',
+        searchText: normalize('contact iletişim protocol contribution katkı'),
+        destination: 'contact',
+      },
+      {
+        id: 'page-guidelines',
+        kind: 'page',
+        title: lang === 'tr' ? 'Kılavuz İlkeleri' : 'Guideline Principles',
+        subtitle: lang === 'tr' ? 'Kılavuz ve kanıt penceresini aç' : 'Open the guidelines and evidence dialog',
+        searchText: normalize('guidelines guideline principles kılavuz ilkeleri'),
+        destination: 'guidelines',
+      },
+    ];
+    const query = normalize(searchQuery.trim());
+    const filter = (items: CommandPaletteItem[]) => items
+      .filter(item => !query || item.searchText.includes(query))
+      .slice(0, query ? 10 : 6);
+
+    return [
+      { id: 'tumors', title: lang === 'tr' ? '🎯 Tümörler ve Alt Başlıklar' : '🎯 Tumors & Subsites', items: filter(organItems) },
+      { id: 'protocols', title: lang === 'tr' ? '⚡ Protokoller ve Çalışmalar' : '⚡ Protocols & Studies', items: filter(protocolItems) },
+      { id: 'pages', title: lang === 'tr' ? '📚 Sayfalar ve Kısayollar' : '📚 Pages & Shortcuts', items: filter(pageItems) },
+    ].filter(group => group.items.length > 0);
+  }, [lang, searchQuery]);
+  const commandPaletteResults = commandPaletteGroups.flatMap(group => group.items);
+  const commandPaletteResultRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  useEffect(() => {
+    commandPaletteResultRefs.current[activeSearchIndex]?.scrollIntoView({ block: 'nearest' });
+  }, [activeSearchIndex, commandPaletteResults.length]);
+
+  const selectCommandPaletteItem = (item: CommandPaletteItem) => {
+    setIsSearchOpen(false);
+    if (item.kind === 'organ') {
+      const targetSubsite = item.subsite.startsWith('breast-') && !['breast-dcis', 'breast-phyllodes'].includes(item.subsite)
+        ? 'breast-breast'
+        : item.subsite;
+      handleSubsiteChange(targetSubsite);
+      setOpenCategories(previous => previous.includes(item.organ) ? previous : [...previous, item.organ]);
+      if (item.histologyId === 'breast-dcis') {
+        setBreastHistology('Duktal Karsinoma İn Situ (DCIS)');
+      } else if (item.histologyId === 'breast-phyllodes') {
+        setBreastHistology('Malign Filloides Tümörü');
+      } else if (item.histologyId === 'breast-inflammatory') {
+        setBreastHistology('İnflamatuar Meme Kanseri (IBC)');
+      } else if (item.histologyId) {
+        handleHistologySelect(item.histologyId);
+      }
+      return;
+    }
+    if (item.kind === 'protocol') {
+      handleQuickCaseSelect(item.preset);
+      return;
+    }
+    if (item.destination === 'references') {
+      router.push('/references');
+    } else if (item.destination === 'contact') {
+      router.push('/contact');
+    } else {
+      setActiveReferenceTab('guidelines');
+      setShowGuidelineModal(true);
+    }
+  };
 
   const handleTnmSelection = (axis: 'T' | 'N' | 'M', code: string) => {
     if (axis === 'T') {
@@ -7401,6 +7591,32 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
         <div className="flex shrink-0 items-center gap-1.5">
           <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setActiveSearchIndex(0);
+              setIsSearchOpen(true);
+            }}
+            aria-label={lang === 'en' ? 'Quick search or jump' : 'Hızlı arama veya komut'}
+            className="hidden items-center gap-2 rounded-xl border border-slate-800 bg-[#0e1726] px-3 py-1.5 text-xs text-slate-400 shadow-sm transition-all hover:border-slate-700 hover:text-slate-200 md:flex"
+          >
+            <Search className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+            <span>{lang === 'en' ? 'Quick search or jump...' : 'Hızlı arama veya komut...'}</span>
+            <kbd className="ml-2 rounded-md border border-slate-700 bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Ctrl K</kbd>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setActiveSearchIndex(0);
+              setIsSearchOpen(true);
+            }}
+            aria-label={lang === 'en' ? 'Open quick search' : 'Hızlı aramayı aç'}
+            className="flex items-center justify-center rounded-lg border border-slate-700 bg-slate-800 p-2 text-slate-300 transition hover:bg-slate-700 md:hidden"
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
             onClick={() => {
               setActiveReferenceTab('guidelines');
               setShowGuidelineModal(true);
@@ -9323,6 +9539,109 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </section>
       </main>
       </div>
+
+      {isSearchOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-start justify-center bg-black/75 p-4 pt-20 backdrop-blur-md"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setIsSearchOpen(false);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-label={lang === 'tr' ? 'Hızlı arama ve komut paleti' : 'Quick search and command palette'}
+            className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#0e1726]/95 shadow-2xl backdrop-blur-2xl"
+          >
+            <div className="flex items-center gap-3 border-b border-slate-800 px-4">
+              <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+              <input
+                autoFocus
+                type="search"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="command-palette-results"
+                aria-activedescendant={commandPaletteResults[activeSearchIndex] ? `command-result-${commandPaletteResults[activeSearchIndex].id}` : undefined}
+                aria-label={lang === 'tr' ? 'Tümör, protokol veya sayfa ara' : 'Search tumors, protocols, or pages'}
+                value={searchQuery}
+                onChange={event => {
+                  setSearchQuery(event.currentTarget.value);
+                  setActiveSearchIndex(0);
+                }}
+                onKeyDown={event => {
+                  if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    setActiveSearchIndex(index => commandPaletteResults.length ? (index + 1) % commandPaletteResults.length : 0);
+                  } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    setActiveSearchIndex(index => commandPaletteResults.length ? (index - 1 + commandPaletteResults.length) % commandPaletteResults.length : 0);
+                  } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const result = commandPaletteResults[activeSearchIndex];
+                    if (result) selectCommandPaletteItem(result);
+                  } else if (event.key === 'Escape') {
+                    setIsSearchOpen(false);
+                  }
+                }}
+                placeholder={lang === 'tr' ? 'Tümör, alt tip, çalışma veya sayfa ara…' : 'Search tumors, subsites, trials, or pages…'}
+                className="min-w-0 flex-1 bg-transparent p-4 text-sm text-white placeholder:text-slate-500 focus:outline-none"
+              />
+              <kbd className="shrink-0 rounded-md border border-slate-700 bg-slate-800 px-1.5 py-1 font-mono text-[10px] text-slate-300">ESC</kbd>
+            </div>
+
+            <div id="command-palette-results" role="listbox" className="max-h-[min(70vh,560px)] overflow-y-auto p-2">
+              {commandPaletteGroups.length === 0 ? (
+                <div className="px-4 py-10 text-center text-xs text-slate-400">
+                  {lang === 'tr' ? '🔍 Eşleşen klinik protokol veya organ bulunamadı.' : '🔍 No matching clinical protocol or organ found.'}
+                </div>
+              ) : commandPaletteGroups.map((group, groupIndex) => {
+                const groupStartIndex = commandPaletteGroups
+                  .slice(0, groupIndex)
+                  .reduce((total, previousGroup) => total + previousGroup.items.length, 0);
+                return (
+                  <div key={group.id} className="mb-2 last:mb-0">
+                    <h3 className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">{group.title}</h3>
+                    <div className="space-y-0.5">
+                      {group.items.map((item, itemIndex) => {
+                        const resultIndex = groupStartIndex + itemIndex;
+                        const selected = activeSearchIndex === resultIndex;
+                        return (
+                          <button
+                            key={item.id}
+                            id={`command-result-${item.id}`}
+                            ref={element => { commandPaletteResultRefs.current[resultIndex] = element; }}
+                            type="button"
+                            role="option"
+                            aria-selected={selected}
+                            onMouseEnter={() => setActiveSearchIndex(resultIndex)}
+                            onClick={() => selectCommandPaletteItem(item)}
+                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${selected ? 'bg-sky-500/15 text-white ring-1 ring-inset ring-sky-500/40' : 'text-slate-300 hover:bg-slate-800/70'}`}
+                          >
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-xs font-semibold">{item.title}</span>
+                              <span className="mt-0.5 block truncate text-[10px] text-slate-500">{item.subtitle}</span>
+                            </span>
+                            {item.kind === 'page'
+                              ? <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-slate-500" aria-hidden="true" />
+                              : item.kind === 'protocol'
+                                ? <span className="shrink-0 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">{lang === 'tr' ? 'YÜKLE' : 'LOAD'}</span>
+                                : <span className="shrink-0 text-[9px] text-slate-600">↵</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <footer className="flex items-center justify-between border-t border-slate-800 px-4 py-2 text-[10px] text-slate-500">
+              <span>{lang === 'tr' ? '↑ ↓ gezin' : '↑ ↓ navigate'} <span className="mx-1 text-slate-700">•</span> Enter {lang === 'tr' ? 'seç' : 'select'}</span>
+              <span>Ctrl K {lang === 'tr' ? 'aç / kapat' : 'toggle'}</span>
+            </footer>
+          </section>
+        </div>
+      )}
 
       {isRadiobiologyModalOpen && (
         <div
