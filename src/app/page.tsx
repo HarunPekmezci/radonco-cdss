@@ -3412,11 +3412,7 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
-  const [lang, setLang] = useState<'tr' | 'en'>(() => {
-    if (typeof window === 'undefined') return 'en';
-    const saved = window.localStorage.getItem('radonco-lang');
-    return saved === 'tr' || saved === 'en' ? saved : 'en';
-  });
+  const [lang, setLang] = useState<'en' | 'tr'>('en');
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
     if (!text) return '';
@@ -3449,8 +3445,13 @@ export default function RadoncoCDSSPage() {
     }
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const changeLanguage = (nextLanguage: 'tr' | 'en') => {
     setLang(nextLanguage);
+    document.documentElement.lang = nextLanguage;
     window.localStorage.setItem('radonco-lang', nextLanguage);
   };
 
