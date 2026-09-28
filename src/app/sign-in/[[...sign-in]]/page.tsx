@@ -174,8 +174,8 @@ export default function SignInPage() {
         
         {/* Üst Logo */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md">
-            <Radiation className="w-7 h-7 animate-[spin_12s_linear_infinite]" />
+          <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md nuclear-box">
+            <Radiation className="w-7 h-7 nuclear-icon" />
           </div>
           <div>
             <span className="text-lg font-extrabold tracking-tight text-white block">RadOnc CDSS</span>
@@ -340,8 +340,8 @@ export default function SignInPage() {
         
         {/* Mobilde Üst Logo */}
         <div className="lg:hidden flex flex-col items-center text-center mb-6">
-          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
-            <Radiation className="w-7 h-7 animate-[spin_12s_linear_infinite]" />
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5 nuclear-box">
+            <Radiation className="w-7 h-7 nuclear-icon" />
           </div>
           <span className="text-xl font-bold text-white tracking-tight">RadOnc CDSS</span>
           <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>

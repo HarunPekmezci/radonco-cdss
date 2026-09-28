@@ -382,3 +382,26 @@ button:active {
     font-size: 6.5pt;
   }
 }
+
+/* CANLI NÜKLEER REAKTÖR PARLAMASI (GÖZLE GÖRÜLÜR AMBER AURA) */
+@keyframes reactorAura {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.3);
+    opacity: 0.85;
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(245, 158, 11, 0.75), 0 0 45px rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.85);
+    opacity: 1;
+  }
+}
+
+.nuclear-box {
+  animation: reactorAura 2.4s ease-in-out infinite !important;
+}
+
+.nuclear-icon {
+  animation: spin 12s linear infinite !important;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8)) !important;
+}

@@ -81,8 +81,8 @@ export default function SignUpPage() {
           ÜST KURUMSAL LOGO VE BAŞLIK
          ============================================================== */}
       <div className="w-full max-w-[460px] mb-4 flex flex-col items-center text-center">
-        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5">
-          <Radiation className="w-8 h-8 animate-[spin_12s_linear_infinite]" />
+        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5 nuclear-box">
+          <Radiation className="w-8 h-8 nuclear-icon" />
         </div>
         
         <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
