@@ -1,6 +1,8 @@
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ClerkProvider } from '@clerk/nextjs';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import './globals.css';
 
 export const metadata = {
@@ -25,7 +27,13 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">
-        <body className="min-h-screen antialiased bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">{children}</body>
+        <body className="min-h-screen antialiased bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </body>
       </html>
     </ClerkProvider>
   );
