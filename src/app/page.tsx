@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -147,56 +147,66 @@ const AI_PLATFORMS = [
   { id: 'grok', name: 'Grok', url: 'https://x.ai' },
 ] as const;
 
+const GeminiIcon = ({ className = 'h-4 w-4' }: { className?: string }) => {
+  const gradientId = useId();
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4E82EE" />
+          <stop offset="50%" stopColor="#9B72CB" />
+          <stop offset="100%" stopColor="#D96570" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2C12 7.523 7.523 12 2 12C7.523 12 12 16.477 12 22C12 16.477 16.477 12 22 12C16.477 12 12 7.523 12 2Z" fill={`url(#${gradientId})`} />
+    </svg>
+  );
+};
+
+const ChatGPTIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={`${className} text-[#10a37f]`} aria-hidden="true">
+    <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.5045 4.5045 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.0993 3.8558L12.5973 8.3829l2.02-1.1639a.0804.0804 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.402-.6859zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.407 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813v6.7227zm1.1218-1.9728l3.4111-1.968 3.4158 1.968v3.9409l-3.4158 1.9728-3.4111-1.9728z" />
+  </svg>
+);
+
+const PerplexityIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z" stroke="#20B2AA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M12 2V22M4 7L20 17M20 7L4 17" stroke="#20B2AA" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="2.5" fill="#20B2AA" />
+  </svg>
+);
+
+const NotebookLMIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="4" fill="#1e1e2f" stroke="#8b5cf6" strokeWidth="1.5" />
+    <path d="M7 7H17M7 11H17M7 15H13" stroke="#c4b5fd" strokeWidth="1.8" strokeLinecap="round" />
+    <circle cx="16" cy="15" r="2" fill="#a78bfa" />
+  </svg>
+);
+
+const ClaudeIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <path d="M12 2V6M12 18V22M2 12H6M18 12H22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="3.5" fill="#D97706" />
+  </svg>
+);
+
+const GrokIcon = ({ className = 'h-4 w-4' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={`${className} text-slate-100`} aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
 const AiLogo = ({ id, className = 'h-4 w-4' }: { id: string; className?: string }) => {
   switch (id) {
-    case 'gemini':
-      return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2C12 7.52 7.52 12 2 12C7.52 12 12 16.48 12 22C12 16.48 16.48 12 22 12C16.48 12 12 7.52 12 2Z" fill="url(#gemini-grad)" />
-          <defs>
-            <linearGradient id="gemini-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#4E88FF" />
-              <stop offset="0.5" stopColor="#9B51E0" />
-              <stop offset="1" stopColor="#38BDF8" />
-            </linearGradient>
-          </defs>
-        </svg>
-      );
-    case 'chatgpt':
-      return (
-        <svg className={`${className} text-[#10a37f]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M22.28 10.63a5.56 5.56 0 0 0-.48-4.66 5.76 5.76 0 0 0-5.74-2.82 5.58 5.58 0 0 0-4.32-1.9 5.73 5.73 0 0 0-5.46 3.96 5.6 5.6 0 0 0-3.83 2.76 5.73 5.73 0 0 0 .7 6.37 5.56 5.56 0 0 0 .48 4.66 5.76 5.76 0 0 0 5.74 2.82 5.58 5.58 0 0 0 4.32 1.9 5.73 5.73 0 0 0 5.46-3.96 5.6 5.6 0 0 0 3.83-2.76 5.73 5.73 0 0 0-.7-6.37Zm-8.48 10.87a4.15 4.15 0 0 1-2.6-.92l.14-.08 4.33-2.5a.8.8 0 0 0 .4-.69v-5.26l1.62.94a.07.07 0 0 1 .04.05v4.99a4.2 4.2 0 0 1-3.93 3.47ZM4.7 17.5a4.16 4.16 0 0 1-.5-2.72l.14.09 4.33 2.5a.8.8 0 0 0 .8 0l4.56-2.63v1.87a.08.08 0 0 1-.03.06l-4.32 2.5a4.2 4.2 0 0 1-4.98-1.67ZM3.45 8.92a4.15 4.15 0 0 1 2.1-1.8l-.02.16v5a.8.8 0 0 0 .4.69l4.56 2.63-1.62.94a.08.08 0 0 1-.07 0l-4.32-2.5a4.2 4.2 0 0 1-1.05-5.12Zm13.52 2.66-4.56-2.63 1.62-.94a.08.08 0 0 1 .07 0l4.32 2.5a4.2 4.2 0 0 1-1.05 7.78v-5.02a.8.8 0 0 0-.4-.69ZM20.8 9.22a4.16 4.16 0 0 1 .5 2.72l-.14-.09-4.33-2.5a.8.8 0 0 0-.8 0l-4.56 2.63V10.1a.08.08 0 0 1 .03-.06l4.32-2.5a4.2 4.2 0 0 1 4.98 1.67ZM10.2 6.5a4.15 4.15 0 0 1 2.6.92l-.14.08-4.33 2.5a.8.8 0 0 0-.4.69v5.26l-1.62-.94a.07.07 0 0 1-.04-.05v-4.99A4.2 4.2 0 0 1 10.2 6.5Zm1.8 4.26 2.38 1.37v2.74L12 16.24l-2.38-1.37v-2.74Z" />
-        </svg>
-      );
-    case 'perplexity':
-      return (
-        <svg className={`${className} text-[#22b8cf]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm6 14.3l-6 3.75-6-3.75V8.7l6-3.75 6 3.75v7.6z" />
-          <circle cx="12" cy="12" r="2.5" fill="#f97316" />
-        </svg>
-      );
-    case 'notebooklm':
-      return (
-        <svg className={`${className} text-[#8b5cf6]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M19 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm-1 16H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h11v15z" />
-          <path d="M9 7h8v2H9zm0 4h8v2H9zm0 4h5v2H9z" fill="#a78bfa" />
-        </svg>
-      );
-    case 'claude':
-      return (
-        <svg className={`${className} text-[#d97706]`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 3a1 1 0 0 1 1 1v2.5a1 1 0 0 1-2 0V4a1 1 0 0 1 1-1zm0 13.5a1 1 0 0 1 1 1V20a1 1 0 0 1-2 0v-2.5a1 1 0 0 1 1-1zm8-5.5a1 1 0 0 1-1 1h-2.5a1 1 0 0 1 0-2H19a1 1 0 0 1 1 1zm-13.5 0a1 1 0 0 1-1 1H3a1 1 0 0 1 0-2h2.5a1 1 0 0 1 1 1zm12.1-6.1a1 1 0 0 1 0 1.4l-1.8 1.8a1 1 0 0 1-1.4-1.4l1.8-1.8a1 1 0 0 1 1.4 0zm-11.4 11.4a1 1 0 0 1 0 1.4l-1.8 1.8a1 1 0 0 1-1.4-1.4l1.8-1.8a1 1 0 0 1 1.4 0zm11.4 0a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 0 1 1.4-1.4l1.8 1.8a1 1 0 0 1 1.4 0zm-11.4-11.4a1 1 0 0 1-1.4 0l-1.8-1.8a1 1 0 0 1 1.4-1.4l1.8 1.8a1 1 0 0 1 0 1.4z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      );
-    case 'grok':
-      return (
-        <svg className={`${className} text-slate-900 dark:text-white`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-      );
-    default:
-      return <Sparkles className={className} aria-hidden="true" />;
+    case 'gemini': return <GeminiIcon className={className} />;
+    case 'chatgpt': return <ChatGPTIcon className={className} />;
+    case 'perplexity': return <PerplexityIcon className={className} />;
+    case 'notebooklm': return <NotebookLMIcon className={className} />;
+    case 'claude': return <ClaudeIcon className={className} />;
+    case 'grok': return <GrokIcon className={className} />;
+    default: return <Sparkles className={className} aria-hidden="true" />;
   }
 };
 
@@ -8327,10 +8337,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           `width=${width},height=${height},left=${left},top=0,menubar=no,status=no`,
                         );
                       }}
-                      className={`flex w-full items-center justify-between px-3.5 py-2 text-left text-xs transition ${
+                      className={`flex w-full items-center justify-between rounded-xl p-2 text-left text-xs transition-all ${
                         isCurrent
                           ? 'bg-blue-50 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
-                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
+                          : 'text-slate-300 hover:bg-slate-800/60'
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
