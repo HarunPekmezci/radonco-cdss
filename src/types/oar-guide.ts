@@ -12,7 +12,8 @@ export type OARFractionation =
   | 'sbrt-2fx'
   | 'sbrt-3fx'
   | 'sbrt-5fx'
-  | 'srs-1fx';
+  | 'srs-1fx'
+  | 'srs-3fx';
 
 export type OARPriority = 'hard' | 'soft';
 
