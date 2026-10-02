@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, ExternalLink, Globe2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen, ExternalLink, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 type CategoryId =
   | 'thorax'
@@ -13,6 +14,7 @@ type CategoryId =
   | 'cns'
   | 'gynecology'
   | 'bone-sarcoma'
+  | 'guidelines'
   | 'oar';
 
 type Reference = {
@@ -39,10 +41,41 @@ const categories: { id: CategoryId | 'all'; label_tr: string; label_en: string }
   { id: 'cns', label_tr: 'MSS', label_en: 'CNS' },
   { id: 'gynecology', label_tr: 'Jinekoloji', label_en: 'Gynecology' },
   { id: 'bone-sarcoma', label_tr: 'Kemik & Sarkom', label_en: 'Bone & Soft Tissue' },
+  { id: 'guidelines', label_tr: 'Kılavuzlar', label_en: 'Guidelines' },
   { id: 'oar', label_tr: 'OAR & Radyobiyoloji', label_en: 'Physics & OAR' },
 ];
 
 const references: Reference[] = [
+  {
+    category: 'guidelines',
+    title: 'NCCN Clinical Practice Guidelines in Oncology',
+    indication: 'Hastalık bölgesine özgü güncel kanıta dayalı kılavuzlar. Sürümü, erişim tarihini ve klinik uygunluğu doğrulayın; bazı içerikler erişim kısıtlamalı olabilir.',
+    indication_en: 'Current evidence-based guidelines by disease site. Verify the version, access date, and clinical applicability; some content may require authorized access.',
+    publication: 'NCCN Guidelines',
+    authors: 'National Comprehensive Cancer Network',
+    url: 'https://www.nccn.org/guidelines',
+    linkLabel: 'NCCN',
+  },
+  {
+    category: 'guidelines',
+    title: 'ESTRO Guidelines and Consensus Statements',
+    indication: 'Radyoterapi uygulamalarına yönelik Avrupa kılavuzları ve uzman konsensus belgeleri.',
+    indication_en: 'European guidelines and expert consensus statements on radiotherapy practice.',
+    publication: 'ESTRO Clinical Practice Guidelines',
+    authors: 'European Society for Radiotherapy and Oncology',
+    url: 'https://www.estro.org/Science/Guidelines',
+    linkLabel: 'ESTRO',
+  },
+  {
+    category: 'guidelines',
+    title: 'HyTEC — High Dose per Fraction, Hypofractionated Treatment Effects in the Clinic',
+    indication: 'Stereotaktik radyoterapide doz, fraksiyonasyon ve klinik toksisite ilişkisine yönelik yayımlanmış kanıtları bulun ve her organ için ilgili birincil analizi doğrulayın.',
+    indication_en: 'Find published evidence on dose, fractionation, and clinical toxicity in stereotactic radiotherapy; verify the relevant primary analysis for each organ.',
+    publication: 'HyTEC evidence reviews',
+    authors: 'AAPM Working Group',
+    url: pubmedSearch('HyTEC high dose per fraction hypofractionated treatment effects clinic'),
+    linkLabel: 'PubMed',
+  },
   {
     category: 'thorax',
     title: 'PACIFIC Trial — Durvalumab after Chemoradiotherapy in Stage III NSCLC',
@@ -296,7 +329,7 @@ const references: Reference[] = [
 ];
 
 export default function ReferencesPage() {
-  const [lang, setLang] = useState<'en' | 'tr'>('en');
+  const { language: lang } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<CategoryId | 'all'>('all');
   const filteredReferences = useMemo(
     () => activeCategory === 'all'
@@ -305,46 +338,17 @@ export default function ReferencesPage() {
     [activeCategory],
   );
 
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
-
-  const changeLanguage = (nextLanguage: 'en' | 'tr') => {
-    setLang(nextLanguage);
-    window.localStorage.setItem('radonco-lang', nextLanguage);
-    document.documentElement.lang = nextLanguage;
-  };
-
   return (
     <main className="min-h-screen bg-[#070b14] px-4 py-6 text-slate-100 sm:px-6 md:p-12">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0e1726] px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-sky-500/60 hover:bg-[#131f33] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {lang === 'en' ? 'Back to Decision Support Matrix' : 'Ana Karar Destek Paneline Dön'}
+            {lang === 'en' ? 'Back to portal' : 'Portala dön'}
           </Link>
-          <div className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'en' ? 'Language' : 'Dil'}>
-            <Globe2 className="ml-1.5 h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => changeLanguage('en')}
-              aria-pressed={lang === 'en'}
-              className={`rounded-md px-2 py-1 transition ${lang === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              onClick={() => changeLanguage('tr')}
-              aria-pressed={lang === 'tr'}
-              className={`rounded-md px-2 py-1 transition ${lang === 'tr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-            >
-              TR
-            </button>
-          </div>
         </div>
 
         <header className="mb-8 max-w-4xl">
@@ -361,8 +365,8 @@ export default function ReferencesPage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
             {lang === 'en'
-              ? 'Literature sources for all fractionation philosophies, target volume definitions, and dosimetric OAR constraints utilized in RadOnc CDSS.'
-              : 'RadOnc CDSS sisteminde kullanılan fraksiyonasyon yaklaşımları, hedef hacim tanımları ve dozimetrik OAR kısıtlarının literatür kaynakları.'}
+              ? 'Literature sources for fractionation approaches, target-volume definitions, and dosimetric OAR constraints used in RadOnc CDSS. Publication titles remain in their original language; summaries are translated.'
+              : 'RadOnco CDSS sistemindeki fraksiyonasyon yaklaşımları, hedef hacim tanımları ve OAR kısıtları için literatür kaynakları. Yayın başlıkları özgün dilinde, özetler seçilen dilde gösterilir.'}
           </p>
         </header>
 
@@ -414,7 +418,7 @@ export default function ReferencesPage() {
                       ? categories.find(category => category.id === reference.category)?.label_en
                       : categories.find(category => category.id === reference.category)?.label_tr}
                   </span>
-                  <span className="shrink-0 text-right text-[11px] text-slate-500">{reference.publication}</span>
+                  <span className="shrink-0 text-right text-[11px] text-slate-400">{reference.publication}</span>
                 </div>
                 <h3 className="text-sm font-semibold leading-5 text-slate-100 sm:text-base">
                   {reference.title}
@@ -424,7 +428,7 @@ export default function ReferencesPage() {
                 </p>
                 <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-slate-800/80 pt-3">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                       {lang === 'en' ? 'AUTHORS' : 'YAZARLAR'}
                     </div>
                     <p className="mt-1 text-xs text-slate-300">{reference.authors}</p>

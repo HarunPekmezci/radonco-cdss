@@ -8,6 +8,7 @@ export type TranslationDictionary = {
     assistant: string;
     references: string;
     disclaimer: string;
+    privacy: string;
     contact: string;
     mainNavigation: string;
     languagePicker: string;
@@ -42,6 +43,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       assistant: 'AI Asistan',
       references: 'Kaynakça',
       disclaimer: 'Yasal Uyarı',
+      privacy: 'Gizlilik',
       contact: 'İletişim',
       mainNavigation: 'Ana navigasyon',
       languagePicker: 'Dil seçimi',
@@ -95,6 +97,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       assistant: 'AI Assistant',
       references: 'References',
       disclaimer: 'Disclaimer',
+      privacy: 'Privacy',
       contact: 'Contact',
       mainNavigation: 'Main navigation',
       languagePicker: 'Language selection',

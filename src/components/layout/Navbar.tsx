@@ -12,6 +12,7 @@ const navigation = [
   { href: '/ai-asistan', labelKey: 'assistant' },
   { href: '/kaynakca', labelKey: 'references' },
   { href: '/yasal-uyari', labelKey: 'disclaimer' },
+  { href: '/gizlilik', labelKey: 'privacy' },
   { href: '/iletisim', labelKey: 'contact' },
 ] as const;
 
