@@ -7893,6 +7893,15 @@ export default function RadoncoCDSSPage() {
     return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
   }, [activeScheme]);
 
+  const radiobiologyByAlphaBeta = useMemo(() => [10, 3].map(ab => {
+    const D = activeScheme.totalDoseGy;
+    const d = activeScheme.fractionDoseGy;
+    if (D <= 0 || d <= 0) return { bed: '0.0', eqd2: '0.0', ab };
+    const bed = D * (1 + d / ab);
+    const eqd2 = bed / (1 + 2 / ab);
+    return { bed: bed.toFixed(1), eqd2: eqd2.toFixed(1), ab };
+  }), [activeScheme]);
+
   const clinicallyRelevantOars = useMemo(() => {
     const verifiedGuidance = getVerifiedOarGuidance(selectedOrgan, selectedSubsite, activeScheme, lang);
     const existingOarKeys = new Set(activeScheme.oars.map(oar =>
@@ -10570,9 +10579,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             >
               <span className="min-w-0">
                 <span className="block text-[11px] text-slate-300">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
-                <span className="font-bold text-slate-200">
-                  α/β = {radiobiology.ab} Gy | BED: <span className="text-amber-400">{radiobiology.bed} Gy</span> | EQD2: <span className="text-emerald-400">{radiobiology.eqd2} Gy</span>
-                </span>
+                {radiobiologyByAlphaBeta.map(({ ab, bed, eqd2 }) => (
+                  <span key={ab} className="block font-bold leading-5 text-slate-200">
+                    α/β = {ab} Gy | BED: <span className="text-amber-400">{bed} Gy</span> | EQD2: <span className="text-emerald-400">{eqd2} Gy</span>
+                  </span>
+                ))}
               </span>
               <span className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1.5 text-[10px] font-semibold text-sky-300">
                 🧮 {lang === 'tr' ? 'İnteraktif Dönüştürücü ↗' : 'Interactive Calculator ↗'}
