@@ -17,7 +17,7 @@ export type OARFractionation =
 
 export type OARPriority = 'hard' | 'soft';
 
-export interface OARGuideItem {
+export interface OARNTPCeiling {
   id: string;
   organ: string;
   region: OARRegion;
@@ -31,3 +31,5 @@ export interface OARGuideItem {
   sourceUrl?: string;
   context: string;
 }
+
+export type OARGuideItem = OARNTPCeiling;

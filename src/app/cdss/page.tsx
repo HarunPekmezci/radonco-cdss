@@ -2032,14 +2032,23 @@ export interface TNMOption {
   criterion: string;
 }
 
-export interface TargetVolume {
+export interface TCPTargetVolume {
   name: string;
   doseGy: number;
   marginMm: string;
   anatomical: string;
 }
 
-export interface OARConstraint {
+export interface TCPTargetPrescription {
+  totalDoseGy: number;
+  fractionCount: number;
+  fractionDoseGy: number;
+  targetVolumes: TCPTargetVolume[];
+}
+
+export type TargetVolume = TCPTargetVolume;
+
+export interface OARNTPCeiling {
   organ: string;
   metric: string;
   limit: string;
@@ -2049,23 +2058,21 @@ export interface OARConstraint {
   classification?: 'protocol-limit' | 'planning-aim' | 'dose-volume-reference' | 'context-note';
 }
 
-export interface DoseScheme {
+export type OARConstraint = OARNTPCeiling;
+
+export interface DoseScheme extends TCPTargetPrescription {
   id: string;
   name: string;
   tag: string;
-  totalDoseGy: number;
-  fractionCount: number;
-  fractionDoseGy: number;
   alphaBeta: number;
   technique: string;
   indication: string;
-  targetVolumes: TargetVolume[];
-  oars: OARConstraint[];
+  oars: OARNTPCeiling[];
   systemicTherapy?: string;
   evidence: string;
 }
 
-const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARConstraint[] => {
+const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARNTPCeiling[] => {
   const conventionalFractionation = scheme.fractionCount >= 15 && scheme.fractionDoseGy <= 2.1;
   const hasPelvicNodalTarget = scheme.targetVolumes.some(volume =>
     /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)
@@ -2118,7 +2125,7 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
   }
 
   if (organ === 'prostate' && subsite === 'prostate-prostate' && conventionalFractionation) {
-    const rows: OARConstraint[] = [
+    const rows: OARNTPCeiling[] = [
       {
         organ: 'Rektum',
         metric: 'V70Gy / V65Gy / V50Gy',
@@ -4861,7 +4868,7 @@ export default function RadoncoCDSSPage() {
         technique: string,
         indication: string,
         target: string,
-        oars: OARConstraint[] = [],
+        oars: OARNTPCeiling[] = [],
         alphaBeta = 3,
       ): DoseScheme => ({
         id,
@@ -10107,6 +10114,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <h4 className="flex min-w-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
                     <Layers className="w-3.5 h-3.5 shrink-0 text-sky-700" />
                     <span>{lang === 'tr' ? 'HEDEF HACİMLER (ICRU 83)' : 'TARGET VOLUMES (ICRU 83)'}</span>
+                    <span className="shrink-0 rounded border border-emerald-400/40 bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-emerald-700 dark:text-emerald-200">TCP TARGET</span>
                   </h4>
                   <a
                     href={eContour.url}
@@ -10126,7 +10134,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Hacim' : 'Volume'}</th>
-                        <th className="p-2">{lang === 'tr' ? 'Doz' : 'Dose'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'TCP Reçetesi' : 'TCP Prescription'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Marjin' : 'Margin'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Anatomik Kapsam' : 'Anatomic Coverage'}</th>
                       </tr>
@@ -10149,9 +10157,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             {/* KRİTİK ORGAN (OAR) KISITLARI TABLOSU */}
             {clinicallyRelevantOars.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex flex-wrap items-center gap-1.5">
                   <ShieldAlert className="w-3.5 h-3.5 text-rose-400" aria-hidden="true" />
                   {lang === 'tr' ? 'KRİTİK ORGAN (OAR) KISITLARI' : 'ORGANS AT RISK (OAR) CONSTRAINTS'}
+                  <span className="rounded border border-rose-400/40 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-rose-200">NTCP CEILING</span>
                 </h4>
                 <p className="mb-2 text-[10px] leading-relaxed text-slate-500">
                   {lang === 'tr'
@@ -10164,7 +10173,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       <tr>
                         <th className="p-2">{lang === 'tr' ? 'Kritik Organ' : 'Critical Organ (OAR)'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Metrik' : 'Metric'}</th>
-                        <th className="p-2">{lang === 'tr' ? 'Doz Limiti' : 'Dose Limit'}</th>
+                        <th className="p-2">{lang === 'tr' ? 'NTCP Tavan Sınırı' : 'NTCP Ceiling'}</th>
                         <th className="p-2">{lang === 'tr' ? 'Kılavuz' : 'Standard'}</th>
                       </tr>
                     </thead>
@@ -11081,7 +11090,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
         <section className="print-report-section print-report-tables">
           <div>
-            <h2>3a. {lang === 'tr' ? 'Hedef Hacimler (ICRU 83)' : 'Target Volumes (ICRU 83)'}</h2>
+            <h2>3a. {lang === 'tr' ? 'TCP Hedef Reçetesi ve Hacimler (ICRU 83)' : 'TCP Target Prescription and Volumes (ICRU 83)'}</h2>
             <table className="print-report-table">
               <thead><tr><th>{lang === 'tr' ? 'Hacim' : 'Volume'}</th><th>{lang === 'tr' ? 'Doz' : 'Dose'}</th><th>{lang === 'tr' ? 'Marjin' : 'Margin'}</th><th>{lang === 'tr' ? 'Anatomi' : 'Anatomy'}</th></tr></thead>
               <tbody>
@@ -11092,7 +11101,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </table>
           </div>
           <div>
-            <h2>3b. {lang === 'tr' ? 'OAR Doz Kısıtları' : 'Organs-at-Risk Constraints'}</h2>
+            <h2>3b. {lang === 'tr' ? 'OAR NTCP Tolerans Tavanları' : 'OAR NTCP Tolerance Ceilings'}</h2>
             <table className="print-report-table">
               <thead><tr><th>{lang === 'tr' ? 'Organ' : 'Organ'}</th><th>{lang === 'tr' ? 'Ölçüt' : 'Metric'}</th><th>{lang === 'tr' ? 'Sınır' : 'Limit'}</th><th>{lang === 'tr' ? 'Kaynak' : 'Source'}</th></tr></thead>
               <tbody>

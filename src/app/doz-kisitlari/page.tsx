@@ -95,7 +95,10 @@ export default function DoseConstraintsPage() {
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
             Dozimetri rehberi
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Kritik Organ Doz Kısıtları</h1>
+          <h1 className="mt-2 flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            Kritik Organ Doz Kısıtları
+            <span className="rounded border border-rose-400/40 bg-rose-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
+          </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her satırdaki klinik bağlam ve kullanılan DVH metriği birlikte değerlendirilmelidir.
           </p>
@@ -160,6 +163,7 @@ export default function DoseConstraintsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h2 className="text-base font-semibold text-white">{item.organ}</h2>
+                    <span className="mt-1 inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
                     <p className="mt-1 text-[11px] font-medium text-slate-500">{fractionationLabel(item.fractionation)} · α/β {item.alphaBeta ?? '—'}</p>
                   </div>
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${item.priority === 'hard' ? 'border-rose-400/30 bg-rose-400/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'}`}>
@@ -174,7 +178,7 @@ export default function DoseConstraintsPage() {
                     <div className="mt-1 text-sm font-semibold text-cyan-200">{item.metric}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Referans sınır</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-rose-300">NTCP tavan sınırı</div>
                     <div className="mt-1 max-w-64 text-sm font-bold text-white">{item.limit}</div>
                   </div>
                 </div>

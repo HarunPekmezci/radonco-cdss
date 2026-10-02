@@ -139,15 +139,22 @@ export interface Fractionation {
   bedGy?: number;
 }
 
+export type TCPDosePrescription = Fractionation;
+
 export type TargetVolumeName = 'GTV' | 'CTV' | 'ITV' | 'PTV' | 'PRV' | 'OAR';
 
 export interface TargetVolume {
   name: TargetVolumeName | string;
   description?: string;
-  dose?: Fractionation;
+  dose?: TCPDosePrescription;
   margin?: string;
   includedStructures?: string[];
   excludedStructures?: string[];
+}
+
+export interface TCPTargetPrescription {
+  targetVolume: TargetVolume;
+  dose: TCPDosePrescription;
 }
 
 export type ConstraintMetric = 'Dmax' | 'D0.03cc' | 'D1cc' | 'D2cc' | 'Dmean' | 'Vx' | 'V20' | 'V30';
@@ -161,7 +168,7 @@ export type OARSourceReference =
   | 'institutional'
   | 'other';
 
-export interface OARConstraint {
+export interface OARNTPCeiling {
   organ: string;
   metric: ConstraintMetric | string;
   limit: number;
@@ -171,6 +178,8 @@ export interface OARConstraint {
   source: OARSourceReference;
   sourceReference?: string;
 }
+
+export type OARConstraint = OARNTPCeiling;
 
 export interface SystemicTherapyRecommendation {
   setting: 'concurrent' | 'adjuvant' | 'neoadjuvant' | 'induction' | 'maintenance' | 'palliative';
@@ -197,9 +206,10 @@ export interface ClinicalRecommendation {
   label: string;
   indication: RTIndication;
   intent: TreatmentIntent;
-  fractionation?: Fractionation;
+  fractionation?: TCPDosePrescription;
   targetVolumes?: TargetVolume[];
-  oarConstraints?: OARConstraint[];
+  targetPrescriptions?: TCPTargetPrescription[];
+  oarConstraints?: OARNTPCeiling[];
   systemicTherapy?: SystemicTherapyRecommendation[];
   rationale: string[];
   guidelineReferences?: GuidelineReference[];
@@ -215,10 +225,10 @@ export interface AlternativeDoseScheme {
   label: string;
   intent: TreatmentIntent;
   indication?: string;
-  fractionation: Fractionation;
+  fractionation: TCPDosePrescription;
   targetDescription: string;
   evidence: GuidelineReference[];
-  oarProfile: OARConstraint[];
+  oarProfile: OARNTPCeiling[];
   notes?: string[];
 }
 

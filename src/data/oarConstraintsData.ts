@@ -1,6 +1,6 @@
-import type { OARGuideItem } from '@/types/oar-guide';
+import type { OARNTPCeiling } from '@/types/oar-guide';
 
-export const oarConstraintsData: OARGuideItem[] = [
+export const oarConstraintsData: OARNTPCeiling[] = [
   {
     id: 'brainstem-conventional',
     organ: 'Beyin sapı',

@@ -3,6 +3,11 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeftRight, Calculator, Info, RotateCcw } from 'lucide-react';
+import type { OARNTPCeiling } from '@/types/oar-guide';
+
+type AlphaBetaPreset =
+  | { kind: 'tcp-target'; label: string; value: number }
+  | { kind: 'oar-ntcp-ceiling'; label: string; value: number };
 
 type Schedule = {
   totalDose: string;
@@ -10,26 +15,26 @@ type Schedule = {
 };
 
 const baselinePresets = [
-  { label: 'Acute tissue / tumor', value: 10 },
-  { label: 'Late tissue / OAR', value: 3 },
-] as const;
+  { kind: 'tcp-target', label: 'Tumor response', value: 10 },
+  { kind: 'oar-ntcp-ceiling', label: 'Late organ toxicity', value: 3 },
+] satisfies AlphaBetaPreset[];
 
 const tissuePresets = [
-  { label: 'Prostate', value: 1.5 },
-  { label: 'Melanoma', value: 2.5 },
-  { label: 'RCC', value: 2.6 },
-  { label: 'Colon / colorectal', value: 5 },
-  { label: 'Breast', value: 4 },
-  { label: 'CNS', value: 2 },
-  { label: 'Lens', value: 1.2 },
-] as const;
+  { kind: 'tcp-target', label: 'Prostate', value: 1.5 },
+  { kind: 'tcp-target', label: 'Melanoma', value: 2.5 },
+  { kind: 'tcp-target', label: 'RCC', value: 2.6 },
+  { kind: 'tcp-target', label: 'Colon / colorectal', value: 5 },
+  { kind: 'tcp-target', label: 'Breast', value: 4 },
+  { kind: 'tcp-target', label: 'CNS', value: 2 },
+  { kind: 'oar-ntcp-ceiling', label: 'Lens', value: 1.2 },
+] satisfies AlphaBetaPreset[];
 
 const reverseFractionCounts = [1, 3, 5, 8, 10, 15, 20, 25, 28, 30, 35] as const;
 
 const initialReference: Schedule = { totalDose: '60', fractions: '30' };
 const initialAlternative: Schedule = { totalDose: '40', fractions: '15' };
 
-export type OarContext = { organ: string; metric: string; limit: string; fractionation: string };
+export type OarContext = Pick<OARNTPCeiling, 'organ' | 'metric' | 'limit'> & { fractionation: string };
 
 const calculate = (schedule: Schedule, alphaBeta: number) => {
   const totalDose = Number(schedule.totalDose);
@@ -124,8 +129,11 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
         </header>
 
         {initialOarContext && (
-          <aside className="mb-4 rounded-xl border border-cyan-500/25 bg-cyan-500/5 p-4 text-sm" aria-label="Selected OAR constraint">
-            <div className="font-semibold text-cyan-100">OAR constraint context received</div>
+          <aside className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/5 p-4 text-sm" aria-label="Selected OAR NTCP ceiling">
+            <div className="flex flex-wrap items-center gap-2 font-semibold text-rose-100">
+              <span>OAR tolerance context</span>
+              <span className="rounded border border-rose-400/40 bg-rose-400/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
+            </div>
             <p className="mt-1 text-xs leading-5 text-slate-300">
               {initialOarContext.organ} · {initialOarContext.metric}: <strong>{initialOarContext.limit}</strong> · {initialOarContext.fractionation}
             </p>
@@ -135,7 +143,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
-            <h2 className="text-sm font-semibold text-white">Baseline standards</h2>
+            <h2 className="text-sm font-semibold text-white">Baseline α/β assumptions</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {baselinePresets.map(preset => (
                 <button
@@ -143,8 +151,11 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                   type="button"
                   aria-pressed={alphaBeta === preset.value}
                   onClick={() => setAlphaBetaInput(String(preset.value))}
-                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${alphaBeta === preset.value ? 'border-violet-400/70 bg-violet-400/10 text-violet-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
+                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${preset.kind === 'tcp-target'
+                    ? alphaBeta === preset.value ? 'border-emerald-400/70 bg-emerald-400/10 text-emerald-100' : 'border-slate-700 text-slate-400 hover:border-emerald-500/50 hover:text-white'
+                    : alphaBeta === preset.value ? 'border-rose-400/70 bg-rose-400/10 text-rose-100' : 'border-slate-700 text-slate-400 hover:border-rose-500/50 hover:text-white'}`}
                 >
+                  <span className={`mr-1 rounded px-1 py-0.5 text-[9px] font-bold ${preset.kind === 'tcp-target' ? 'bg-emerald-400/10 text-emerald-300' : 'bg-rose-400/10 text-rose-300'}`}>{preset.kind === 'tcp-target' ? 'TCP' : 'NTCP'}</span>
                   {preset.label} <span className="ml-1 text-slate-500">α/β {preset.value}</span>
                 </button>
               ))}
@@ -164,7 +175,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
           </section>
 
           <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
-            <h2 className="text-sm font-semibold text-white">Specific tissue α/β presets</h2>
+            <h2 className="text-sm font-semibold text-white">Tissue-specific α/β assumptions</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {tissuePresets.map(preset => (
                 <button
@@ -172,8 +183,11 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                   type="button"
                   aria-pressed={alphaBeta === preset.value}
                   onClick={() => setAlphaBetaInput(String(preset.value))}
-                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${alphaBeta === preset.value ? 'border-cyan-400/70 bg-cyan-400/10 text-cyan-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
+                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${preset.kind === 'tcp-target'
+                    ? alphaBeta === preset.value ? 'border-emerald-400/70 bg-emerald-400/10 text-emerald-100' : 'border-slate-700 text-slate-400 hover:border-emerald-500/50 hover:text-white'
+                    : alphaBeta === preset.value ? 'border-rose-400/70 bg-rose-400/10 text-rose-100' : 'border-slate-700 text-slate-400 hover:border-rose-500/50 hover:text-white'}`}
                 >
+                  <span className={`mr-1 rounded px-1 py-0.5 text-[9px] font-bold ${preset.kind === 'tcp-target' ? 'bg-emerald-400/10 text-emerald-300' : 'bg-rose-400/10 text-rose-300'}`}>{preset.kind === 'tcp-target' ? 'TCP' : 'NTCP'}</span>
                   {preset.label} <span className="ml-1 text-slate-500">α/β {preset.value}</span>
                 </button>
               ))}
@@ -239,9 +253,12 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
         </section>
 
         <section className="mt-4 rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
-          <h2 className="text-sm font-semibold text-white">Reverse target EQD2 solver</h2>
+          <h2 className="flex flex-wrap items-center gap-2 text-sm font-semibold text-white">
+            Reverse target EQD2 solver
+            <span className="rounded border border-emerald-400/40 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-200">TCP target</span>
+          </h2>
           <label className="mt-3 block max-w-xs text-xs font-medium text-slate-300">
-            Target EQD2 (Gy)
+            TCP target EQD2 (Gy)
             <input
               type="number"
               min="0.1"
@@ -273,7 +290,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
 
         <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-5 text-amber-100/70">
           <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <p>Educational calculation aid only. Verify prescription, α/β assumptions and clinical interpretation with the treating radiation oncologist and medical physicist.</p>
+            <p>Educational calculation aid only. EQD2 equivalence does not estimate TCP or establish an NTCP ceiling. Verify prescription, α/β assumptions and clinical interpretation with the treating radiation oncologist and medical physicist.</p>
         </div>
         <Link href="/doz-kisitlari" className="mt-4 inline-flex text-xs font-medium text-sky-300 hover:text-sky-200">← Return to OAR constraints</Link>
       </div>
