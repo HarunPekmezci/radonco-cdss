@@ -43,9 +43,9 @@ import {
   TrendingUp,
   Download,
   Printer,
-  ExternalLink,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+import { useLanguage } from '@/context/LanguageContext';
 
 // ==========================================
 // 1. TİPLER VE KLİNİK VERİ MODELLERİ
@@ -3851,15 +3851,20 @@ type EvidenceReference = {
   url: string;
 };
 
-const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|PORTEC-3|NCCN|ASTRO|ESTRO|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
+const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC-3|NCCN|ASTRO|ESTRO|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
 
-const resolveEvidenceUrl = (token: string): string | undefined => {
+const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undefined => {
   if (/FAST[-\s]?Forward/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(20)30932-6';
   if (/PACIFIC/i.test(token)) return 'https://doi.org/10.1056/NEJMoa1709937';
   if (/RAPIDO/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(20)30555-6';
+  if (/STAMPEDE/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30524-1';
   if (/PORTEC-3/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30079-2';
   if (/NCCN/i.test(token)) return 'https://www.nccn.org/guidelines';
-  if (/ASTRO/i.test(token)) return 'https://www.astro.org/provider-resources/guidelines';
+  if (/ASTRO/i.test(token)) {
+    return /breast|meme|whole breast/i.test(clinicalContext)
+      ? 'https://www.practicalradonc.org/article/S1879-8500(18)30116-6/fulltext'
+      : 'https://www.astro.org/provider-resources/guidelines';
+  }
   if (/ESTRO/i.test(token)) return 'https://www.estro.org/Science/Guidelines';
   if (/QUANTEC/i.test(token)) return 'https://doi.org/10.1016/j.ijrobp.2009.07.1753';
   if (/DEGRO/i.test(token)) return 'https://www.degro.org/';
@@ -3872,15 +3877,19 @@ const resolveEvidenceUrl = (token: string): string | undefined => {
   return doi ? `https://doi.org/${doi[1].replace(/[.)]+$/, '')}` : undefined;
 };
 
-const getEvidenceReferences = (scheme: DoseScheme): EvidenceReference[] => {
-  const evidence = `${scheme.name}; ${scheme.evidence}`;
+const getEvidenceReferences = (scheme: DoseScheme, clinicalContext: string): EvidenceReference[] => {
+  const evidence = `${clinicalContext}; ${scheme.name}; ${scheme.evidence}`;
   const references: EvidenceReference[] = [];
 
   for (const token of evidence.match(evidenceLinkTokens) ?? []) {
-    const url = resolveEvidenceUrl(token);
+    const url = resolveEvidenceUrl(token, evidence);
     if (!url || references.some(reference => reference.url === url)) continue;
     references.push({
-      label: /FAST[-\s]?Forward/i.test(token) ? 'FAST-Forward (Lancet 2020)' : token,
+      label: /FAST[-\s]?Forward/i.test(token)
+        ? 'FAST-Forward (Lancet 2020)'
+        : /ASTRO/i.test(token) && /breast|meme|whole breast/i.test(evidence)
+          ? 'ASTRO Whole Breast Irradiation Guideline'
+          : token,
       url,
     });
   }
@@ -3891,7 +3900,7 @@ const getEvidenceReferences = (scheme: DoseScheme): EvidenceReference[] => {
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
-  const [lang, setLang] = useState<'en' | 'tr'>('en');
+  const { language: lang, setLanguage: setLang } = useLanguage();
   const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
@@ -3918,21 +3927,8 @@ export default function RadoncoCDSSPage() {
     document.documentElement.classList.add('dark');
   }, []);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem('radonco-lang');
-    if (saved !== 'tr' && saved !== 'en') {
-      window.localStorage.setItem('radonco-lang', 'en');
-    }
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
-
   const changeLanguage = (nextLanguage: 'tr' | 'en') => {
     setLang(nextLanguage);
-    document.documentElement.lang = nextLanguage;
-    window.localStorage.setItem('radonco-lang', nextLanguage);
   };
 
   // ==========================================
@@ -8266,23 +8262,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         ? `${tText(gliomaGrade)} / KPS ${cnsKps}${gliomaRiskFactors.molecularHighRisk ? ' / IDH-wt or molecular high risk' : ''}`
         : '—';
   const surgeryLogic = selectedOrgan === 'breast'
-    ? `${tText(breastSurgery)} · ${tText(breastMargin)} ${lang === 'tr' ? 'marjin' : 'margin'}`
+    ? tText(breastSurgery)
     : selectedOrgan === 'thorax'
       ? thoraxSubtype === 'thymoma'
-        ? `${tText(thoraxSurgeryStatus)} · ${tText(thymomaMargin)}`
+        ? tText(thoraxSurgeryStatus)
         : tText(thoraxSurgeryStatus)
       : selectedOrgan === 'gis' && gisOrgan === 'SafraYollari'
-        ? `${tText(biliaryTreatmentSetting)} · ${tText(biliaryMarginStatus)}`
-        : selectedOrgan === 'gis'
-          ? tText(gisCrmStatus)
-          : selectedOrgan === 'cns'
+        ? tText(biliaryTreatmentSetting)
+        : selectedOrgan === 'cns'
             ? tText(cnsResection)
             : selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma'
               ? tText(sarcomaSurgery)
-              : selectedOrgan === 'skin'
-                ? tText(skinMargin)
-                : selectedOrgan === 'head-neck' && hnPositiveMargin
-                  ? (lang === 'tr' ? 'Pozitif marjin' : 'Positive margin')
+              : '';
+  const surgicalMarginLogic = selectedOrgan === 'breast'
+    ? tText(breastMargin)
+    : selectedOrgan === 'thorax' && thoraxSubtype === 'thymoma'
+      ? tText(thymomaMargin)
+      : selectedOrgan === 'gis' && gisOrgan === 'SafraYollari'
+        ? tText(biliaryMarginStatus)
+        : selectedOrgan === 'gis' && gisOrgan === 'Rektum'
+          ? tText(gisCrmStatus)
+          : selectedOrgan === 'skin'
+            ? tText(skinMargin)
+            : selectedOrgan === 'head-neck' && hnPositiveMargin
+              ? 'R1'
+              : (selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma') && sarcomaSurgery === 'Postop_R1'
+                ? 'R1'
+                : selectedOrgan === 'bone' && osteoScenario === 'Marjin_Pozitif_R1_R2'
+                  ? 'R1/R2'
                   : '';
   const selectedRisk = prognosticResult?.riskCategory
     ?? (selectedOrgan === 'pediatric'
@@ -8293,19 +8300,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           ? [skinPerineuralInvasion && (lang === 'tr' ? 'Perinöral invazyon' : 'Perineural invasion'), skinBoneInvasion && (lang === 'tr' ? 'Kemik invazyonu' : 'Bone invasion')].filter(Boolean).join(' · ')
           : '');
   const clinicalDecisionFactors = [
-    { label: lang === 'tr' ? 'Bölge' : 'Site', value: tText(reportDiagnosis) },
-    { label: lang === 'tr' ? 'Evre' : 'Stage', value: `${selectedT} ${selectedN} ${selectedM}` },
-    { label: lang === 'tr' ? 'Histoloji' : 'Histology', value: tText(reportHistology) },
-    ...(selectedRisk ? [{ label: lang === 'tr' ? 'Risk' : 'Risk', value: tText(selectedRisk) }] : []),
-    ...(surgeryLogic ? [{ label: lang === 'tr' ? 'Cerrahi' : 'Surgery', value: surgeryLogic }] : []),
-    { label: lang === 'tr' ? 'Endikasyon' : 'Indication', value: tText(activeScheme.indication) },
+    { label: 'Tanı / Diagnosis', value: tText(reportDiagnosis) },
+    { label: 'Evre / Stage', value: `${selectedT}${selectedN}${selectedM}` },
+    { label: 'Histoloji / Histology', value: tText(reportHistology) },
+    ...(selectedRisk ? [{ label: 'Risk Grubu / Risk Category', value: tText(selectedRisk) }] : []),
+    ...(surgeryLogic ? [{ label: 'Cerrahi / Surgery', value: surgeryLogic }] : []),
+    ...(surgicalMarginLogic ? [{ label: 'Cerrahi Sınır / Margin', value: surgicalMarginLogic }] : []),
+    { label: 'Endikasyon / Indication', value: tText(activeScheme.indication) },
     {
-      label: lang === 'tr' ? 'Seçilen şema' : 'Selected scheme',
+      label: 'Önerilen Şema / Recommended Scheme',
       value: `${tText(activeScheme.name)} · ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
     },
   ].filter(factor => factor.value.trim().length > 0);
   const evidenceText = tText(activeScheme.evidence);
-  const evidenceReferences = getEvidenceReferences(activeScheme);
+  const evidenceContext = `${selectedOrgan} ${activeScheme.name} ${activeScheme.evidence}`;
+  const evidenceReferences = getEvidenceReferences(activeScheme, selectedOrgan);
   const verifyReference = evidenceReferences[0];
 
   return (
@@ -10064,8 +10073,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <section className="mb-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] p-3" aria-labelledby="decision-chain-heading">
               <h3 id="decision-chain-heading" className="mb-2 text-[11px] font-bold uppercase tracking-wide text-sky-200">
                 {lang === 'tr'
-                  ? 'Klinik Karar Zinciri (Triggered Decision Logic)'
-                  : 'Clinical Decision Chain (Triggered Decision Logic)'}
+                  ? 'İzlenebilir Karar Zinciri (Triggered Decision Logic)'
+                  : 'Traceable Decision Chain (Triggered Decision Logic)'}
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {clinicalDecisionFactors.map((factor, index) => (
@@ -10306,7 +10315,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               <div className="font-semibold text-slate-200">
                 {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
                 {evidenceText.split(evidenceLinkTokens).map((token, index) => {
-                  const url = resolveEvidenceUrl(token);
+                  const url = resolveEvidenceUrl(token, evidenceContext);
                   return url ? (
                     <a
                       key={`${token}-${index}`}
@@ -10316,7 +10325,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
                     >
                       {token}
-                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                     </a>
                   ) : (
                     <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
@@ -10334,7 +10343,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
                     >
                       {reference.label}
-                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                     </a>
                   ))}
                   {verifyReference && (
@@ -10344,8 +10353,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
                     >
-                      {lang === 'tr' ? 'Kılavuz Referansını Doğrula ↗' : 'Verify in Guideline ↗'}
-                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                      {lang === 'tr' ? 'Kılavuz Referansını Doğrula' : 'Verify in Guideline'}
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                     </a>
                   )}
                 </div>
