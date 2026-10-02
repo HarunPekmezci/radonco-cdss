@@ -120,6 +120,7 @@ export type TreatmentIntent =
 
 export type FractionationClass =
   | 'conventional'
+  | 'accelerated-hyperfractionation'
   | 'moderate-hypofractionation'
   | 'ultra-hypofractionation'
   | 'SBRT'

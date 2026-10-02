@@ -221,7 +221,7 @@ export class SCLCDecisionEngine extends BaseDecisionEngine<SCLCInput> {
       warnings.push('Önceki torasik RT nedeniyle kümülatif akciğer, özofagus, kalp, medulla ve brakial pleksus dozları hesaplanmalıdır.');
     }
     if (input.stage === 'limited-stage') {
-      const thoracicDose = dose(45, 30, 'conventional', '45 Gy / 30 fx BID, günde 2 fx');
+      const thoracicDose = dose(45, 30, 'accelerated-hyperfractionation', '45 Gy / 30 fx, 1.5 Gy/fx, günde iki kez (BID), seanslar arasında en az 6 saat');
       const systemicTherapy = [
         therapy('concurrent', 'Platin-etoposid ile eşzamanlı torasik KRT', ['cisplatin + etoposide veya carboplatin + etoposide'], 'RT tercihen ilk kemoterapi siklusunda, mümkün olduğunca erken başlatılır'),
         ...(input.responseToInitialTherapy === 'complete' || input.responseToInitialTherapy === 'partial'
