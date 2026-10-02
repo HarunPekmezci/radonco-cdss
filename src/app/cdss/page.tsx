@@ -44,7 +44,7 @@ import {
   Download,
   Printer,
 } from 'lucide-react';
-import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+import { SignOutButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 
 // ==========================================
@@ -8557,21 +8557,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <span aria-hidden="true">📖</span>
             <span className="hidden sm:inline">{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}</span>
           </button>
-          <Show when="signed-out">
-            <SignInButton mode="redirect">
-              <button type="button" className="rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700">
-                {lang === 'tr' ? 'Giriş yap' : 'Sign in'}
-              </button>
-            </SignInButton>
-            <SignUpButton mode="redirect">
-              <button type="button" className="rounded-md bg-blue-600 dark:bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 dark:hover:bg-blue-600">
-                {lang === 'tr' ? 'Kayıt ol' : 'Sign up'}
-              </button>
-            </SignUpButton>
-          </Show>
-          <Show when="signed-in">
-            <UserButton />
-          </Show>
         </div>
       </header>
 

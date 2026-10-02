@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Radiation } from 'lucide-react';
+import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 
 const navigation = [
@@ -103,46 +104,63 @@ export default function Navbar() {
             );
           })}
         </nav>
-        <div className="relative shrink-0" ref={languageMenuRef}>
-          <button
-            type="button"
-            aria-label={`${t.nav.languagePicker}: ${t.languageNames[currentLang]}`}
-            aria-haspopup="menu"
-            aria-expanded={isLanguageMenuOpen}
-            onClick={() => setLangOpen(open => !open)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-[#0d1527] px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
-          >
-            <activeLanguage.Flag />
-            <span>{activeLanguage.code.toUpperCase()}</span>
-            <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
-          </button>
-          {isLanguageMenuOpen && (
-            <div
-              role="menu"
-              aria-label={t.nav.languagePicker}
-              className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
+        <div className="flex shrink-0 items-center gap-2">
+          <Show when="signed-out">
+            <SignInButton mode="redirect">
+              <button type="button" className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                {currentLang === 'tr' ? 'Giriş yap' : 'Sign in'}
+              </button>
+            </SignInButton>
+            <SignUpButton mode="redirect">
+              <button type="button" className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-500">
+                {currentLang === 'tr' ? 'Kayıt ol' : 'Sign up'}
+              </button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
+          <div className="relative shrink-0" ref={languageMenuRef}>
+            <button
+              type="button"
+              aria-label={`${t.nav.languagePicker}: ${t.languageNames[currentLang]}`}
+              aria-haspopup="menu"
+              aria-expanded={isLanguageMenuOpen}
+              onClick={() => setLangOpen(open => !open)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-[#0d1527] px-2.5 py-2 text-xs font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
             >
-              {languages.map(option => (
-                <button
-                  key={option.code}
-                  type="button"
-                  role="menuitem"
-                  aria-current={currentLang === option.code ? 'true' : undefined}
-                  onClick={() => selectLanguage(option.code)}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
-                >
-                  <option.Flag />
-                  <span className="flex-1">{t.languageNames[option.code]}</span>
-                  {currentLang === option.code && (
-                    <Check
-                      className={`h-4 w-4 ${option.code === 'tr' ? 'text-amber-300' : 'text-sky-300'}`}
-                      aria-hidden="true"
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+              <activeLanguage.Flag />
+              <span>{activeLanguage.code.toUpperCase()}</span>
+              <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+            </button>
+            {isLanguageMenuOpen && (
+              <div
+                role="menu"
+                aria-label={t.nav.languagePicker}
+                className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
+              >
+                {languages.map(option => (
+                  <button
+                    key={option.code}
+                    type="button"
+                    role="menuitem"
+                    aria-current={currentLang === option.code ? 'true' : undefined}
+                    onClick={() => selectLanguage(option.code)}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+                  >
+                    <option.Flag />
+                    <span className="flex-1">{t.languageNames[option.code]}</span>
+                    {currentLang === option.code && (
+                      <Check
+                        className={`h-4 w-4 ${option.code === 'tr' ? 'text-amber-300' : 'text-sky-300'}`}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
