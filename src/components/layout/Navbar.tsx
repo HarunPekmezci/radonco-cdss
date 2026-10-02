@@ -75,7 +75,7 @@ export default function Navbar() {
   const activeLanguage = languages.find(item => item.code === currentLang) ?? languages[0];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/90 bg-[#0a0f1d]/95 text-slate-100 shadow-lg shadow-black/10 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-[#0B1120] text-slate-100">
       <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-white">
           <Radiation className="h-5 w-5 text-amber-400" aria-hidden="true" />

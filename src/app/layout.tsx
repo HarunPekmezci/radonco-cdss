@@ -27,7 +27,7 @@ export default function RootLayout({
         formButtonPrimary: 'Sign in',
       }}
     >
-      <html lang="tr" className="dark">
+      <html lang="tr" className="dark min-h-screen bg-[#0B1120]">
         <body className="min-h-screen flex flex-col bg-[#0B1120] text-slate-100 antialiased">
           <LanguageProvider>
             <Navbar />
