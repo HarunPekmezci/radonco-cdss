@@ -87,6 +87,21 @@ export default function DoseConstraintsPage() {
   const [fractionation, setFractionation] = useState<FractionationFilter>('all');
   const [query, setQuery] = useState('');
 
+  const handleRegionChange = (nextRegion: RegionFilter) => {
+    setRegion(nextRegion);
+    if (nextRegion === 'kranial' && fractionation === 'sbrt') {
+      setFractionation('all');
+    } else if (nextRegion !== 'kranial' && nextRegion !== 'all' && fractionation === 'srs') {
+      setFractionation('all');
+    }
+  };
+
+  const visibleFractionations = fractionations.filter(item => {
+    if (region === 'kranial') return item.id !== 'sbrt';
+    if (region !== 'all') return item.id !== 'srs';
+    return true;
+  });
+
   const filteredItems = useMemo(() => {
     const locale = language === 'tr' ? 'tr-TR' : 'en-US';
     const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
@@ -154,7 +169,7 @@ export default function DoseConstraintsPage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setRegion(item.id)}
+                  onClick={() => handleRegionChange(item.id)}
                   aria-pressed={region === item.id}
                   className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold transition ${region === item.id ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-200' : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-white'}`}
                 >
@@ -169,7 +184,7 @@ export default function DoseConstraintsPage() {
               {language === 'en' ? 'Fractionation' : 'Fraksiyonasyon'}
             </h2>
             <div className="flex flex-wrap gap-2">
-              {fractionations.map(item => (
+              {visibleFractionations.map(item => (
                 <button
                   key={item.id}
                   type="button"
