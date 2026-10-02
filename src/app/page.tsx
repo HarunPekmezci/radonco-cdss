@@ -98,21 +98,13 @@ export default function PortalPage() {
             </Link>
           </div>
           <div className="relative mt-8 grid grid-cols-2 gap-3 border-t border-slate-700/70 pt-5 sm:mt-10 sm:flex sm:gap-8">
-            <div>
-              <div className="text-lg font-bold text-white">12</div>
-              <div className="text-xs text-slate-400">organ sistemi</div>
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <ShieldAlert className="h-4 w-4 text-sky-400" />
+              <span>Klinik karar desteği ve dozimetri araçları</span>
             </div>
-            <div>
-              <div className="text-lg font-bold text-white">BED / EQD2</div>
-              <div className="text-xs text-slate-400">radyobiyoloji</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-white">Evidence-led</div>
-              <div className="text-xs text-slate-400">doz kısıtları</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-white">Clinician-first</div>
-              <div className="text-xs text-slate-400">tasarım yaklaşımı</div>
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <Activity className="h-4 w-4 text-emerald-400" />
+              <span>Kanıt odaklı protokoller</span>
             </div>
           </div>
         </section>

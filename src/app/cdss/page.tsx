@@ -1954,6 +1954,8 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
   { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
+  { id: 'case-23', category: 'gus', title_tr: 'Primer RCC ≤4 cm • FASTRACK II', title_en: 'Primary RCC ≤4 cm • FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx', detail_en: 'Medically inoperable • 26 Gy / 1 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'clinical' },
+  { id: 'case-24', category: 'gus', title_tr: 'Primer RCC >4–10 cm • FASTRACK II', title_en: 'Primary RCC >4–10 cm • FASTRACK II', detail_tr: 'Medikal inoperabl • 42 Gy / 3 fx', detail_en: 'Medically inoperable • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'clinical' },
 ];
 
 const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]> = {
@@ -2443,6 +2445,27 @@ export interface PrognosticCriterion {
   value: string;
   points?: string;
 }
+
+const renderEvidenceWithDoiLinks = (evidence: string): React.ReactNode => {
+  const doiPattern = /\bDOI:\s*(10\.\d{4,9}\/[-._;()/:A-Z0-9]+[A-Z0-9])/gi;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of evidence.matchAll(doiPattern)) {
+    const index = match.index ?? 0;
+    const doi = match[1];
+    if (index > lastIndex) parts.push(evidence.slice(lastIndex, index));
+    parts.push(
+      <a key={`${doi}-${index}`} href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200">
+        DOI: {doi}
+      </a>,
+    );
+    lastIndex = index + match[0].length;
+  }
+
+  if (lastIndex < evidence.length) parts.push(evidence.slice(lastIndex));
+  return parts;
+};
 
 const calculatePrognosticIndexBase = (
   organ: string,
@@ -4593,6 +4616,10 @@ export default function RadoncoCDSSPage() {
       case 'case-22':
         setPalliativeIntent('Kord_Basisi');
         break;
+      case 'case-23':
+      case 'case-24':
+        setRenalDiseaseSetting('primary-inoperable');
+        break;
       default:
         break;
     }
@@ -4606,6 +4633,9 @@ export default function RadoncoCDSSPage() {
   };
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
+    if (selectedOrgan === 'prostate' && gusSubtype === 'kidney') {
+      return preset.id === 'case-23' || preset.id === 'case-24';
+    }
     if (selectedOrgan === 'bone-sarcoma') return preset.category === 'sarcoma-palliative';
     if (selectedOrgan === 'sarcoma') return preset.id === 'case-20';
     if (selectedOrgan === 'palliative') return preset.id === 'case-21' || preset.id === 'case-22';
@@ -10183,7 +10213,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             <div className="text-[11px] text-slate-600 italic mb-4">
-              {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{tText(activeScheme.evidence)}
+              {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{renderEvidenceWithDoiLinks(tText(activeScheme.evidence))}
             </div>
 
             {prognosticResult && (

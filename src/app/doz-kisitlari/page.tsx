@@ -74,6 +74,19 @@ export default function DoseConstraintsPage() {
     });
   }, [fractionation, query, region]);
 
+  const visibleFractionations = fractionations.filter(item => (
+    !(region === 'kranial' && item.id === 'sbrt')
+    && !(region !== 'all' && region !== 'kranial' && item.id === 'srs')
+  ));
+
+  const selectRegion = (nextRegion: RegionFilter) => {
+    setRegion(nextRegion);
+    if ((nextRegion === 'kranial' && fractionation === 'sbrt')
+      || (nextRegion !== 'all' && nextRegion !== 'kranial' && fractionation === 'srs')) {
+      setFractionation('all');
+    }
+  };
+
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
       <div className="mx-auto max-w-7xl">
@@ -109,7 +122,7 @@ export default function DoseConstraintsPage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setRegion(item.id)}
+                  onClick={() => selectRegion(item.id)}
                   aria-pressed={region === item.id}
                   className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold transition ${region === item.id ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-200' : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-white'}`}
                 >
@@ -122,7 +135,7 @@ export default function DoseConstraintsPage() {
           <div className="mt-4">
             <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Fraksiyonasyon</h2>
             <div className="flex flex-wrap gap-2">
-              {fractionations.map(item => (
+              {visibleFractionations.map(item => (
                 <button
                   key={item.id}
                   type="button"

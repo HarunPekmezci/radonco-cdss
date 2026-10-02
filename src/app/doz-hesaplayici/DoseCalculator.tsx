@@ -5,34 +5,46 @@ import Link from 'next/link';
 import { ArrowLeftRight, Calculator, Info, RotateCcw } from 'lucide-react';
 
 type Schedule = {
-  totalDose: number;
-  fractions: number;
+  totalDose: string;
+  fractions: string;
 };
 
-const presets = [
-  { label: 'Akut doku / tümör', value: 10 },
-  { label: 'Geç doku / OAR', value: 3 },
-  { label: 'MSS / kord', value: 2 },
-  { label: 'Prostat', value: 1.5 },
+const baselinePresets = [
+  { label: 'Acute tissue / tumor', value: 10 },
+  { label: 'Late tissue / OAR', value: 3 },
 ] as const;
 
-const initialReference: Schedule = { totalDose: 60, fractions: 30 };
-const initialAlternative: Schedule = { totalDose: 40, fractions: 15 };
+const tissuePresets = [
+  { label: 'Prostate', value: 1.5 },
+  { label: 'Melanoma', value: 2.5 },
+  { label: 'RCC', value: 2.6 },
+  { label: 'Colon / colorectal', value: 5 },
+  { label: 'Breast', value: 4 },
+  { label: 'CNS', value: 2 },
+  { label: 'Lens', value: 1.2 },
+] as const;
+
+const reverseFractionCounts = [1, 3, 5, 8, 10, 15, 20, 25, 28, 30, 35] as const;
+
+const initialReference: Schedule = { totalDose: '60', fractions: '30' };
+const initialAlternative: Schedule = { totalDose: '40', fractions: '15' };
 
 export type OarContext = { organ: string; metric: string; limit: string; fractionation: string };
 
 const calculate = (schedule: Schedule, alphaBeta: number) => {
+  const totalDose = Number(schedule.totalDose);
+  const fractions = Number(schedule.fractions);
   if (
-    !Number.isFinite(schedule.totalDose)
-    || !Number.isFinite(schedule.fractions)
-    || schedule.totalDose <= 0
-    || schedule.fractions <= 0
-    || !Number.isInteger(schedule.fractions)
+    !Number.isFinite(totalDose)
+    || !Number.isFinite(fractions)
+    || totalDose <= 0
+    || fractions <= 0
+    || !Number.isInteger(fractions)
     || !Number.isFinite(alphaBeta)
     || alphaBeta <= 0
   ) return null;
-  const dosePerFraction = schedule.totalDose / schedule.fractions;
-  const bed = schedule.totalDose * (1 + dosePerFraction / alphaBeta);
+  const dosePerFraction = totalDose / fractions;
+  const bed = totalDose * (1 + dosePerFraction / alphaBeta);
   const eqd2 = bed / (1 + 2 / alphaBeta);
   return { dosePerFraction, bed, eqd2 };
 };
@@ -46,8 +58,8 @@ const NumberField = ({
   step,
 }: {
   label: string;
-  value: number;
-  onChange: (value: number) => void;
+  value: string;
+  onChange: (value: string) => void;
   min: number;
   max: number;
   step: number;
@@ -61,8 +73,7 @@ const NumberField = ({
       step={step}
       value={value}
       onChange={event => {
-        const next = Number(event.target.value);
-        if (Number.isFinite(next)) onChange(next);
+        onChange(event.target.value);
       }}
       className="mt-1.5 w-full rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-400"
     />
@@ -70,23 +81,32 @@ const NumberField = ({
 );
 
 export default function DoseCalculator({ initialOarContext }: { initialOarContext: OarContext | null }) {
-  const [alphaBeta, setAlphaBeta] = useState(10);
+  const [alphaBetaInput, setAlphaBetaInput] = useState('10');
+  const [targetEqd2Input, setTargetEqd2Input] = useState('60');
+  const alphaBeta = Number(alphaBetaInput);
   const [reference, setReference] = useState(initialReference);
   const [alternative, setAlternative] = useState(initialAlternative);
 
   const referenceResult = useMemo(() => calculate(reference, alphaBeta), [alphaBeta, reference]);
   const alternativeResult = useMemo(() => calculate(alternative, alphaBeta), [alphaBeta, alternative]);
   const validSchedules = [reference, alternative].every(schedule =>
-    Number.isFinite(schedule.totalDose)
-    && Number.isFinite(schedule.fractions)
-    && schedule.totalDose > 0
-    && schedule.fractions > 0
-    && Number.isInteger(schedule.fractions)
+    Number.isFinite(Number(schedule.totalDose))
+    && Number.isFinite(Number(schedule.fractions))
+    && Number(schedule.totalDose) > 0
+    && Number(schedule.fractions) > 0
+    && Number.isInteger(Number(schedule.fractions))
   );
   const bedDelta = validSchedules && referenceResult && alternativeResult ? alternativeResult.bed - referenceResult.bed : null;
   const eqd2Delta = validSchedules && referenceResult && alternativeResult ? alternativeResult.eqd2 - referenceResult.eqd2 : null;
+  const targetEqd2 = Number(targetEqd2Input);
+  const reverseSchedules = Number.isFinite(targetEqd2) && targetEqd2 > 0 && Number.isFinite(alphaBeta) && alphaBeta > 0
+    ? reverseFractionCounts.map(fractions => {
+      const dosePerFraction = (-alphaBeta + Math.sqrt(alphaBeta ** 2 + (4 * targetEqd2 * (alphaBeta + 2)) / fractions)) / 2;
+      return { fractions, totalDose: fractions * dosePerFraction, dosePerFraction };
+    })
+    : [];
 
-  const updateSchedule = (key: 'reference' | 'alternative', field: keyof Schedule, value: number) => {
+  const updateSchedule = (key: 'reference' | 'alternative', field: keyof Schedule, value: string) => {
     const setter = key === 'reference' ? setReference : setAlternative;
     setter(previous => ({ ...previous, [field]: value }));
   };
@@ -113,37 +133,53 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
           </aside>
         )}
 
-        <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-6">
-          <h2 className="text-sm font-semibold text-white">Tissue α/β preset</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {presets.map(preset => (
-              <button
-                key={preset.value}
-                type="button"
-                aria-pressed={alphaBeta === preset.value}
-                onClick={() => setAlphaBeta(preset.value)}
-                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${alphaBeta === preset.value ? 'border-violet-400/70 bg-violet-400/10 text-violet-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
-              >
-                {preset.label} <span className="ml-1 text-slate-500">α/β {preset.value}</span>
-              </button>
-            ))}
-          </div>
-          <label className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400">
-            Custom α/β (Gy)
-            <input
-              type="number"
-              min="0.1"
-              max="50"
-              step="0.1"
-              value={alphaBeta}
-              onChange={event => {
-                const next = Number(event.target.value);
-                if (Number.isFinite(next) && next > 0) setAlphaBeta(next);
-              }}
-              className="w-24 rounded-lg border border-slate-700 bg-[#0a0f1d] px-2.5 py-1.5 text-xs text-white outline-none focus:border-violet-400"
-            />
-          </label>
-        </section>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
+            <h2 className="text-sm font-semibold text-white">Baseline standards</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {baselinePresets.map(preset => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  aria-pressed={alphaBeta === preset.value}
+                  onClick={() => setAlphaBetaInput(String(preset.value))}
+                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${alphaBeta === preset.value ? 'border-violet-400/70 bg-violet-400/10 text-violet-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
+                >
+                  {preset.label} <span className="ml-1 text-slate-500">α/β {preset.value}</span>
+                </button>
+              ))}
+            </div>
+            <label className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400">
+              Custom α/β (Gy)
+              <input
+                type="number"
+                min="0.1"
+                max="50"
+                step="0.1"
+                value={alphaBetaInput}
+                onChange={event => setAlphaBetaInput(event.target.value)}
+                className="w-24 rounded-lg border border-slate-700 bg-[#0a0f1d] px-2.5 py-1.5 text-xs text-white outline-none focus:border-violet-400"
+              />
+            </label>
+          </section>
+
+          <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
+            <h2 className="text-sm font-semibold text-white">Specific tissue α/β presets</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tissuePresets.map(preset => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  aria-pressed={alphaBeta === preset.value}
+                  onClick={() => setAlphaBetaInput(String(preset.value))}
+                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${alphaBeta === preset.value ? 'border-cyan-400/70 bg-cyan-400/10 text-cyan-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
+                >
+                  {preset.label} <span className="ml-1 text-slate-500">α/β {preset.value}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
 
         <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
           {([
@@ -200,6 +236,39 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
           <p className="mt-4 rounded-lg bg-slate-900/70 p-3 text-[11px] leading-5 text-slate-400">
             BED = n × d × (1 + d / α/β); EQD2 = BED / (1 + 2 / α/β). Model estimates do not account for repopulation, repair kinetics, treatment time, concurrent systemic therapy, or patient-specific biology.
           </p>
+        </section>
+
+        <section className="mt-4 rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
+          <h2 className="text-sm font-semibold text-white">Reverse target EQD2 solver</h2>
+          <label className="mt-3 block max-w-xs text-xs font-medium text-slate-300">
+            Target EQD2 (Gy)
+            <input
+              type="number"
+              min="0.1"
+              step="0.1"
+              value={targetEqd2Input}
+              onChange={event => setTargetEqd2Input(event.target.value)}
+              className="mt-1.5 w-full rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-400"
+            />
+          </label>
+          {reverseSchedules.length ? (
+            <div className="mt-3 overflow-x-auto rounded-xl border border-slate-800">
+              <table className="w-full min-w-[420px] text-left text-xs">
+                <thead className="bg-slate-900/70 text-slate-400">
+                  <tr><th className="p-2.5">Fractions</th><th className="p-2.5">Total dose</th><th className="p-2.5">Dose / fraction</th></tr>
+                </thead>
+                <tbody>
+                  {reverseSchedules.map(schedule => (
+                    <tr key={schedule.fractions} className="border-t border-slate-800 text-slate-200">
+                      <td className="p-2.5">{schedule.fractions}</td>
+                      <td className="p-2.5">{schedule.totalDose.toFixed(2)} Gy</td>
+                      <td className="p-2.5">{schedule.dosePerFraction.toFixed(2)} Gy</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <p role="alert" className="mt-3 text-xs text-rose-300">Enter a positive target EQD2 and α/β value.</p>}
         </section>
 
         <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-5 text-amber-100/70">
