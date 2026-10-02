@@ -54,7 +54,7 @@ const modules: PortalModule[] = [
     accent: 'text-amber-300 bg-amber-400/10 ring-amber-300/20',
   },
   {
-    href: '/cdss?tab=toxicity',
+    href: '/toxicity',
     cardKey: 'toxicity',
     icon: HeartPulse,
     accent: 'text-rose-300 bg-rose-400/10 ring-rose-300/20',
