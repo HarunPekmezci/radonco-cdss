@@ -3896,6 +3896,7 @@ export default function RadoncoCDSSPage() {
   // ANA ORGAN VE EVRE DURUMU
   // ==========================================
   const [selectedOrgan, setSelectedOrgan] = useState<OrganId>('thorax');
+  const [selectedQuickCaseId, setSelectedQuickCaseId] = useState<string | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>(['thorax']);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -4474,6 +4475,7 @@ export default function RadoncoCDSSPage() {
   };
 
   const handleQuickCaseSelect = (preset: QuickCasePreset) => {
+    setSelectedQuickCaseId(preset.id);
     handleSubsiteChange(preset.subsite);
     setSelectedOrgan(preset.organ);
     setSelectedSchemeId('');
@@ -9771,28 +9773,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <section className={`col-span-12 lg:col-span-4 flex flex-col gap-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`}>
           {currentOrganPresets.length > 0 && (
             <div
-              className="mb-0 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
+              className="mb-0 flex flex-wrap items-center gap-2.5"
               role="group"
               aria-label={lang === 'en' ? 'Quick clinical scenarios' : 'Hızlı klinik senaryolar'}
             >
-              <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-amber-400">
+              <span className="flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 font-bold text-amber-400">
                 <span aria-hidden="true">⚡</span>
                 {lang === 'en' ? 'Quick Scenarios:' : 'Hızlı Vakalar:'}
               </span>
-              <div className="flex flex-nowrap items-center gap-1.5">
-                {currentOrganPresets.map(preset => (
+              {currentOrganPresets.map(preset => {
+                const isSelected = selectedQuickCaseId === preset.id;
+                return (
                   <button
                     key={preset.id}
                     type="button"
                     title={lang === 'en' ? preset.detail_en : preset.detail_tr}
                     onClick={() => handleQuickCaseSelect(preset)}
-                    className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-700/80 bg-[#111c2e] px-2.5 py-1 text-xs font-medium text-slate-200 shadow-sm transition-all hover:border-amber-500/60 hover:bg-[#182842] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    aria-pressed={isSelected}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-xs font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                      isSelected
+                        ? 'ring-1 ring-amber-400 border-amber-400/80 bg-amber-500/20 text-white'
+                        : 'border-slate-700/80 bg-slate-800/90 text-slate-100 hover:border-amber-400/60 hover:bg-slate-700/80'
+                    }`}
                   >
                     <span aria-hidden="true">{preset.badge || '🎯'}</span>
                     <span>{lang === 'en' ? preset.title_en : preset.title_tr}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-4 shadow-xl shadow-black/40">

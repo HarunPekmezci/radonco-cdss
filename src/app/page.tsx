@@ -97,27 +97,9 @@ export default function PortalPage() {
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-          <div className="relative mt-8 grid grid-cols-2 gap-3 border-t border-slate-700/70 pt-5 sm:mt-10 sm:flex sm:gap-8">
-            <div>
-              <div className="text-lg font-bold text-white">12</div>
-              <div className="text-xs text-slate-400">organ sistemi</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-white">BED / EQD2</div>
-              <div className="text-xs text-slate-400">radyobiyoloji</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-white">Evidence-led</div>
-              <div className="text-xs text-slate-400">doz kısıtları</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold text-white">Clinician-first</div>
-              <div className="text-xs text-slate-400">tasarım yaklaşımı</div>
-            </div>
-          </div>
         </section>
 
-        <section className="mt-8" aria-labelledby="tools-heading">
+        <section className="mt-10 sm:mt-12" aria-labelledby="tools-heading">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 id="tools-heading" className="text-lg font-semibold text-white">Klinik araçlar ve kaynaklar</h2>
