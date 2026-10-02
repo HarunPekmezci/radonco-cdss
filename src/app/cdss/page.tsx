@@ -7812,6 +7812,9 @@ export default function RadoncoCDSSPage() {
     const list = evaluatedDecision.alternativeSchemes;
     return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
   }, [evaluatedDecision, selectedSchemeId]);
+  const isSclcTurrisiScheme = selectedOrgan === 'thorax'
+    && thoraxSubtype === 'sclc'
+    && baseActiveScheme.id === 'sclc-turrisi-45';
 
   // Fraksiyonasyon felsefesi kartları için klinik uygunluk kapısı
   const isRegimenEligible = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional'): boolean => {
@@ -7847,7 +7850,15 @@ export default function RadoncoCDSSPage() {
         sbrt: { name: 'Lung SBRT (54 Gy / 3 fx)', totalDoseGy: 54, fractionCount: 3, fractionDoseGy: 18, alphaBeta: 10 },
         moderate: { name: 'Lung Hypofractionation (50 Gy / 5 fx)', totalDoseGy: 50, fractionCount: 5, fractionDoseGy: 10, alphaBeta: 10 },
         sib: { name: 'Concurrent Chemoradiotherapy (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
-        conventional: { name: 'Conventional Thoracic RT (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+        conventional: isSclcTurrisiScheme
+          ? {
+              name: lang === 'tr' ? '45 Gy / 30 fx BID (Akselere Hiperfraksiyonasyon - Turrisi)' : '45 Gy / 30 fx BID (Accelerated Hyperfractionation - Turrisi)',
+              totalDoseGy: 45,
+              fractionCount: 30,
+              fractionDoseGy: 1.5,
+              alphaBeta: 10,
+            }
+          : { name: 'Conventional Thoracic RT (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
       },
       breast: {
         sbrt: { name: 'Ultra-Hypofractionation (FAST-Forward)', totalDoseGy: 26, fractionCount: 5, fractionDoseGy: 5.2, alphaBeta: 4 },
@@ -7880,7 +7891,7 @@ export default function RadoncoCDSSPage() {
       }),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology]);
+  }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology, lang]);
 
   // Canlı Radyobiyoloji Hesabı
   const radiobiology = useMemo(() => {
@@ -8329,7 +8340,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   const prescriptionTechniqueBadge = translatePrescriptionBadge(evaluatedDecision.techniqueBadge, `Teknik & Hareket: ${activeScheme.technique}`);
   const getConventionalFxBadge = () => {
     if (selectedOrgan === 'breast') return '25 fx';
-    if (selectedOrgan === 'thorax') return '30-33 fx';
+    if (selectedOrgan === 'thorax') return isSclcTurrisiScheme ? '45 Gy' : '30-33 fx';
     if (selectedOrgan === 'prostate') return '39-40 fx';
     if (selectedOrgan === 'gis') return '25-28 fx';
     if (selectedOrgan === 'head-neck') return '33-35 fx';
@@ -8785,16 +8796,18 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 flex min-w-0 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs leading-snug text-amber-200/90">
+        <div className="col-span-12 flex h-auto min-h-0 min-w-0 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs leading-snug text-amber-200">
           <ShieldAlert className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
-          <p className="min-w-0">
+          <p className="min-w-0 truncate" title={lang === 'tr'
+            ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
+            : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}>
             {lang === 'tr'
               ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
               : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
           </p>
         </div>
-        <div className="col-span-12 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2 sm:px-4">
-          <span className="text-xs font-semibold leading-none text-slate-300">
+        <div className="col-span-12 flex h-12 min-h-0 min-w-0 items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
+          <span className="hidden shrink-0 text-xs font-semibold leading-none text-slate-300 sm:inline">
             {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
           </span>
           <div className="flex max-w-full items-center gap-1 rounded-lg border border-slate-700 bg-[#080d18] p-0.5" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
@@ -8802,7 +8815,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               type="button"
               aria-pressed={isGuidedMode}
               onClick={() => setViewMode(true)}
-              className={`rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
+              className={`rounded-md px-1.5 py-1 text-[9px] font-semibold leading-none transition sm:px-3 sm:text-xs ${
                 isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -8812,7 +8825,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               type="button"
               aria-pressed={!isGuidedMode}
               onClick={() => setViewMode(false)}
-              className={`rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
+              className={`rounded-md px-1.5 py-1 text-[9px] font-semibold leading-none transition sm:px-3 sm:text-xs ${
                 !isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -10398,9 +10411,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         hover: 'hover:border-emerald-300',
                       },
                       conventional: {
-                        title: lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
+                        title: isSclcTurrisiScheme
+                          ? lang === 'tr' ? 'Akselere Hiperfraksiyonasyon (30 fx BID)' : 'Accelerated Hyperfractionation (30 fx BID)'
+                          : lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
                         badge: getConventionalFxBadge(),
-                        detail: '1.8 - 2.0 Gy / fx',
+                        detail: isSclcTurrisiScheme
+                          ? lang === 'tr' ? '1.5 Gy / fx (Günde 2 kez BID, ≥ 6 saat ara)' : '1.5 Gy / fx (Twice daily BID, ≥ 6 hours apart)'
+                          : '1.8 - 2.0 Gy / fx',
                         active: 'bg-gradient-to-br from-slate-700 to-slate-900',
                         hover: 'hover:border-slate-400',
                       },
@@ -10576,11 +10593,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             >
               <span className="min-w-0">
                 <span className="block text-[11px] text-slate-300">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
-                {radiobiologyByAlphaBeta.map(({ ab, bed, eqd2 }) => (
-                  <span key={ab} className="block font-bold leading-5 text-slate-200">
-                    α/β = {ab} Gy | BED: <span className="text-amber-400">{bed} Gy</span> | EQD2: <span className="text-emerald-400">{eqd2} Gy</span>
-                  </span>
-                ))}
+                {radiobiologyByAlphaBeta.map(({ ab, bed, eqd2 }) => {
+                  const subscript = ab === 10 ? '₁₀' : '₃';
+                  const tissue = ab === 10
+                    ? lang === 'tr' ? 'Tümör / Akut' : 'Tumor / Acute'
+                    : lang === 'tr' ? 'Geç Doku / OAR' : 'Late Tissue / OAR';
+                  return (
+                    <span key={ab} className="block font-bold leading-5 text-slate-200">
+                      α/β = {ab} Gy ({tissue}): BED{subscript} = <span className="text-amber-400">{bed} Gy</span> | EQD2{subscript} = <span className="text-emerald-400">{eqd2} Gy</span>
+                    </span>
+                  );
+                })}
               </span>
               <span className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1.5 text-[10px] font-semibold text-sky-300">
                 🧮 {lang === 'tr' ? 'İnteraktif Dönüştürücü ↗' : 'Interactive Calculator ↗'}
@@ -10595,52 +10618,66 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
-              <div className="font-semibold text-slate-200">
-                {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
-                {evidenceText.split(evidenceLinkTokens).map((token, index) => {
-                  const url = resolveEvidenceUrl(token, evidenceContext);
-                  return url ? (
-                    <a
-                      key={`${token}-${index}`}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
-                    >
-                      {token}
-                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                    </a>
-                  ) : (
-                    <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
-                  );
-                })}
-              </div>
-              {evidenceReferences.length > 0 && (
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  {evidenceReferences.map(reference => (
-                    <a
-                      key={reference.url}
-                      href={reference.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
-                    >
-                      {reference.label}
-                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                    </a>
-                  ))}
-                  {verifyReference && (
-                    <a
-                      href={verifyReference.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
-                    >
-                      {lang === 'tr' ? 'Kılavuz Referansını Doğrula' : 'Verify in Guideline'}
-                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                    </a>
+              {isSclcTurrisiScheme ? (
+                <a
+                  href="https://doi.org/10.1056/NEJM199901283400403"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  📖 NCCN SCLC / Turrisi Kanıtı (NEJM)
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              ) : (
+                <>
+                  <div className="font-semibold text-slate-200">
+                    {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
+                    {evidenceText.split(evidenceLinkTokens).map((token, index) => {
+                      const url = resolveEvidenceUrl(token, evidenceContext);
+                      return url ? (
+                        <a
+                          key={`${token}-${index}`}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
+                        >
+                          {token}
+                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                        </a>
+                      ) : (
+                        <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
+                      );
+                    })}
+                  </div>
+                  {evidenceReferences.length > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {evidenceReferences.map(reference => (
+                        <a
+                          key={reference.url}
+                          href={reference.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
+                        >
+                          {reference.label}
+                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                        </a>
+                      ))}
+                      {verifyReference && (
+                        <a
+                          href={verifyReference.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                        >
+                          {lang === 'tr' ? 'Kılavuz Referansını Doğrula' : 'Verify in Guideline'}
+                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                        </a>
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
 

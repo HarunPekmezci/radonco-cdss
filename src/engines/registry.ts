@@ -299,8 +299,8 @@ export const REGIMEN_CATALOG: Record<string, RegimenOption[]> = {
   'thorax.sclc': [
     {
       id: 'sclc-hyperfractionated',
-      label: '45 Gy / 30 fx · Akselere Hiperfraksiyone BID',
-      description: 'Turrisi: 1.5 Gy/fx, günde iki kez ve seanslar arasında en az 6 saat',
+      label: '45 Gy / 30 fx · Akselere Hiperfraksiyonasyon (30 fx BID)',
+      description: '1.5 Gy / fx (Günde 2 kez BID, ≥ 6 saat ara)',
       totalDoseGy: 45,
       fractions: 30,
       dosePerFractionGy: 1.5,
