@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   Activity,
@@ -10,12 +12,11 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 type PortalModule = {
   href: string;
-  title: string;
-  description: string;
-  badge: string;
+  cardKey: 'oar' | 'calculator' | 'assistant' | 'references' | 'disclaimer' | 'contact';
   icon: LucideIcon;
   accent: string;
 };
@@ -23,55 +24,46 @@ type PortalModule = {
 const modules: PortalModule[] = [
   {
     href: '/doz-kisitlari',
-    title: 'OAR Doz Kısıtları',
-    description: 'Kritik organları bölge ve fraksiyonasyon şemasına göre arayın, doğrulanmış kaynak bağlamını inceleyin.',
-    badge: 'QUANTEC · HyTEC',
+    cardKey: 'oar',
     icon: Activity,
     accent: 'text-cyan-300 bg-cyan-400/10 ring-cyan-300/20',
   },
   {
     href: '/doz-hesaplayici',
-    title: 'Radyobiyoloji Hesaplayıcı',
-    description: 'BED, EQD2, şema karşılaştırması ve tedavi arası telafi hesaplarını çalıştırın.',
-    badge: 'LQ Model',
+    cardKey: 'calculator',
     icon: Calculator,
     accent: 'text-violet-300 bg-violet-400/10 ring-violet-300/20',
   },
   {
     href: '/ai-asistan',
-    title: 'Onkoloji AI Asistanı',
-    description: 'Kanıt odaklı istem şablonları ve güvenli klinik soru-cevap çalışma alanı.',
-    badge: 'Evidence-aware',
+    cardKey: 'assistant',
     icon: Bot,
     accent: 'text-emerald-300 bg-emerald-400/10 ring-emerald-300/20',
   },
   {
     href: '/kaynakca',
-    title: 'Kaynakça ve Kanıt Atlası',
-    description: 'Kılavuzlar, dozimetri referansları ve temel klinik çalışmalar.',
-    badge: 'Guidelines · Trials',
+    cardKey: 'references',
     icon: BookOpen,
     accent: 'text-amber-300 bg-amber-400/10 ring-amber-300/20',
   },
   {
     href: '/yasal-uyari',
-    title: 'Yasal Uyarı',
-    description: 'Kullanım kapsamı, klinik sorumluluk ve hekim değerlendirmesi ilkeleri.',
-    badge: 'Clinical governance',
+    cardKey: 'disclaimer',
     icon: ShieldAlert,
     accent: 'text-rose-300 bg-rose-400/10 ring-rose-300/20',
   },
   {
     href: '/iletisim',
-    title: 'İletişim ve Katkı',
-    description: 'Geri bildirim, hata bildirimi veya protokol katkısı iletin.',
-    badge: 'Feedback',
+    cardKey: 'contact',
     icon: Mail,
     accent: 'text-sky-300 bg-sky-400/10 ring-sky-300/20',
   },
 ];
 
 export default function PortalPage() {
+  const { t } = useLanguage();
+  const titleSeparator = t.heroTitle.lastIndexOf(' ');
+
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-8 text-slate-100 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-7xl">
@@ -80,20 +72,20 @@ export default function PortalPage() {
           <div className="relative max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
               <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
-              Oncology decision &amp; dosimetry portal
+              {t.heroBadge}
             </div>
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-5xl">
-              RadOnco <span className="text-sky-400">CDSS</span>
+              {t.heroTitle.slice(0, titleSeparator)}{' '}
+              <span className="text-sky-400">{t.heroTitle.slice(titleSeparator + 1)}</span>
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
-              Radyasyon onkolojisi klinik karar desteği, dozimetri araçları ve kanıt kaynakları tek bir çalışma alanında.
-              Tüm çıktılar klinik değerlendirmeyi desteklemek içindir; hekim kararının yerini almaz.
+              {t.heroDescription}
             </p>
             <Link
               href="/cdss"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-950/30 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
             >
-              Karar Destek Matrisini Aç
+              {t.heroAction}
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -102,17 +94,18 @@ export default function PortalPage() {
         <section className="mt-10 sm:mt-12" aria-labelledby="tools-heading">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
-              <h2 id="tools-heading" className="text-lg font-semibold text-white">Klinik araçlar ve kaynaklar</h2>
-              <p className="mt-1 text-xs text-slate-400">Çalışma alanını seçerek devam edin.</p>
+              <h2 id="tools-heading" className="text-lg font-semibold text-white">{t.sectionTitle}</h2>
+              <p className="mt-1 text-xs text-slate-400">{t.sectionDescription}</p>
             </div>
             <span className="hidden rounded-full border border-slate-700 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:inline-flex">
-              RadOnco Portal
+              {t.portalBadge}
             </span>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {modules.map(module => {
               const Icon = module.icon;
+              const card = t.cards[module.cardKey];
               return (
                 <Link
                   key={module.href}
@@ -125,10 +118,10 @@ export default function PortalPage() {
                     </span>
                     <ArrowUpRight className="h-4 w-4 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
                   </div>
-                  <h3 className="mt-5 text-base font-semibold text-white">{module.title}</h3>
-                  <p className="mt-2 flex-1 text-xs leading-5 text-slate-400">{module.description}</p>
+                  <h3 className="mt-5 text-base font-semibold text-white">{card.title}</h3>
+                  <p className="mt-2 flex-1 text-xs leading-5 text-slate-400">{card.description}</p>
                   <span className="mt-4 w-fit rounded-md border border-slate-700/80 bg-slate-900/70 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-300">
-                    {module.badge}
+                    {card.badge}
                   </span>
                 </Link>
               );
