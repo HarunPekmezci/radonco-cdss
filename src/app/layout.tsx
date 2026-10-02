@@ -36,6 +36,8 @@ export default function RootLayout({
               <Footer />
             </div>
           </LanguageProvider>
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { ENGINE_REGISTRY, getEnginesByOrgan } from '../engines/registry';
-import type { CDSSResult, ClinicalCaseInput, JsonSchema, OrganSystem } from '../types/cdss';
+import { useMemo, useState } from 'react';
+import { getEnginesByOrgan } from '../engines/registry';
+import type { ClinicalCaseInput, JsonSchema, OrganSystem } from '../types/cdss';
 
 export type StagingOption = {
   value: string;
@@ -268,10 +268,11 @@ function coerceValue(propertyKey: string, value: unknown): unknown {
 
 export function useOncoStaging(initialOrgan: OrganSystem = 'thorax') {
   const [selectedOrgan, setSelectedOrgan] = useState<OrganSystem>(initialOrgan);
-  const [selectedEngineId, setSelectedEngineId] = useState<string>(
+  const [requestedEngineId, setRequestedEngineId] = useState<string>(
     initialOrgan === 'thorax' ? 'thorax-nsclc' : '',
   );
-  const [input, setInput] = useState<Record<string, unknown>>({
+  const [inputByEngine, setInputByEngine] = useState<Record<string, Record<string, unknown>>>(initialOrgan === 'thorax' ? {
+    'thorax.nsclc': {
     organSystem: 'thorax',
     disease: 'non-small-cell-lung-cancer',
     diagnosis: 'Evre IA KHDAK',
@@ -286,65 +287,48 @@ export function useOncoStaging(initialOrgan: OrganSystem = 'thorax') {
     resectability: 'resectable',
     actionableAlteration: 'no-actionable-alteration',
     performanceStatusECOG: 0,
-  });
-  const [result, setResult] = useState<CDSSResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+    },
+  } : {});
 
   const availableEngines = useMemo(() => getEnginesByOrgan(selectedOrgan), [selectedOrgan]);
 
   const engine = useMemo(() => {
     if (!availableEngines.length) return undefined;
-    const exact = availableEngines.find((item) => item.id === selectedEngineId);
+    const exact = availableEngines.find((item) => item.id === requestedEngineId);
     if (exact) return exact;
 
-    const normalizedId = selectedEngineId?.trim();
+    const normalizedId = requestedEngineId.trim();
     return availableEngines.find((item) => item.id === normalizedId || item.id.replace(/\./g, '-') === normalizedId?.replace(/\./g, '-')) ?? availableEngines[0];
-  }, [availableEngines, selectedEngineId]);
-
-  useEffect(() => {
-    if (!availableEngines.length) return;
-    if (!selectedEngineId || !availableEngines.some((item) => item.id === selectedEngineId || item.id.replace(/\./g, '-') === selectedEngineId.replace(/\./g, '-'))) {
-      setSelectedEngineId(availableEngines[0].id);
-    }
-  }, [availableEngines, selectedEngineId]);
-
-  useEffect(() => {
-    if (!engine) {
-      setInput((current) => ({
-        ...current,
-        organSystem: selectedOrgan,
-      }));
-      return;
-    }
-
-    const defaults = {
-      ...(engine.defaults ?? {}),
-      organSystem: engine.defaults?.organSystem ?? selectedOrgan,
-      disease: engine.defaults?.disease ?? '',
-      diagnosis: engine.defaults?.diagnosis ?? '',
-    } as Record<string, unknown>;
-
-    setInput((current) => ({
-      ...defaults,
-      ...current,
-      organSystem: defaults.organSystem,
-      disease: defaults.disease,
-      diagnosis: current.diagnosis ?? defaults.diagnosis ?? '',
-    }));
-  }, [engine, selectedOrgan]);
+  }, [availableEngines, requestedEngineId]);
+  const selectedEngineId = engine?.id ?? requestedEngineId;
+  const input = useMemo<Record<string, unknown>>(() => {
+    if (!engine) return { organSystem: selectedOrgan, disease: '', diagnosis: '' };
+    return {
+      ...engine.defaults,
+      ...(inputByEngine[engine.id] ?? {}),
+      organSystem: engine.defaults.organSystem ?? selectedOrgan,
+      disease: engine.defaults.disease ?? '',
+      diagnosis: inputByEngine[engine.id]?.diagnosis ?? engine.defaults.diagnosis ?? '',
+    };
+  }, [engine, inputByEngine, selectedOrgan]);
 
   const stagingOptions = useMemo(() => parseStagingOptions(engine?.inputSchema), [engine]);
   const riskFields = useMemo(() => parseRiskFields(engine?.inputSchema), [engine]);
 
-  const updateField = (key: string, value: unknown) => {
-    setInput((current) => ({
+  const updateInput = (update: (current: Record<string, unknown>) => Record<string, unknown>) => {
+    if (!engine) return;
+    setInputByEngine((current) => ({
       ...current,
-      [key]: coerceValue(key, value),
+      [engine.id]: update(current[engine.id] ?? input),
     }));
   };
 
+  const updateField = (key: string, value: unknown) => {
+    updateInput((current) => ({ ...current, [key]: coerceValue(key, value) }));
+  };
+
   const applyTnmSelection = (group: 't' | 'n' | 'm', value: string) => {
-    setInput((current) => {
+    updateInput((current) => {
       const next = { ...current };
       const schemaProperties = normalizeSchemaProperties(engine?.inputSchema);
 
@@ -395,11 +379,9 @@ export function useOncoStaging(initialOrgan: OrganSystem = 'thorax') {
     }));
   }, [input, stagingOptions]);
 
-  useEffect(() => {
+  const evaluation = useMemo(() => {
     if (!engine) {
-      setResult(null);
-      setError(null);
-      return;
+      return { result: null, error: null };
     }
 
     try {
@@ -409,12 +391,9 @@ export function useOncoStaging(initialOrgan: OrganSystem = 'thorax') {
         disease: String(input.disease ?? engine.defaults?.disease ?? ''),
       };
 
-      const evaluated = engine.evaluate(preparedInput);
-      setResult(evaluated);
-      setError(null);
+      return { result: engine.evaluate(preparedInput), error: null };
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : 'Motor değerlendirmesi sırasında hata oluştu.');
-      setResult(null);
+      return { result: null, error: caughtError instanceof Error ? caughtError.message : 'Motor değerlendirmesi sırasında hata oluştu.' };
     }
   }, [engine, input, selectedOrgan]);
 
@@ -424,13 +403,13 @@ export function useOncoStaging(initialOrgan: OrganSystem = 'thorax') {
     engine,
     availableEngines,
     selectedEngineId,
-    setSelectedEngineId,
+    setSelectedEngineId: setRequestedEngineId,
     input,
     updateField,
     applyTnmSelection,
     tnmColumns,
     riskFields,
-    result,
-    error,
+    result: evaluation.result,
+    error: evaluation.error,
   };
 }

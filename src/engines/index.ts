@@ -16,10 +16,12 @@ export * from './breast';
 import { EngineOutput, DoseRegimen } from '../types';
 import guidelinesData from '../data/clinicalGuidelines.json';
 
+type LegacyEngineInput = Record<string, string | number | boolean | null | undefined>;
+
 // ============================================================================
 // 1. PROSTAT MOTORU (DİNAMİK JSON DESTEKLİ)
 // ============================================================================
-export function runProstateEngine(data: any): EngineOutput {
+export function runProstateEngine(data: LegacyEngineInput): EngineOutput {
   const p1 = Number(data.gleasonP1) || 3;
   const p2 = Number(data.gleasonP2) || 4;
   const sum = p1 + p2;
@@ -45,7 +47,7 @@ export function runProstateEngine(data: any): EngineOutput {
   else if (data.clinicalT === 'cT2b' || data.clinicalT === 'cT2c' || psa >= 10) stage = 'Evre IIA';
 
   const isHigh = data.hasM1 || data.hasN1 || effectiveT3b || data.clinicalT === 'cT4' || p1 === 5 || isup >= 4 || psa > 20;
-  const isUnfav = (isup === 3 || data.positiveCoresPercent >= 50 || (isup === 2 && psa >= 10));
+  const isUnfav = (isup === 3 || Number(data.positiveCoresPercent ?? 0) >= 50 || (isup === 2 && psa >= 10));
 
   const dbRegimens = (guidelinesData.guidelines.prostate?.regimens || []) as DoseRegimen[];
   
@@ -100,9 +102,8 @@ export function runProstateEngine(data: any): EngineOutput {
 // ============================================================================
 // 2. MESANE MOTORU
 // ============================================================================
-export function runBladderEngine(data: any): EngineOutput {
-  const isHigh = data.hasM1 || data.nodalStatus !== 'cN0' || String(data.clinicalT).includes('4');
-  const isIdeal = data.completeTurbt && !data.hydronephrosis && !data.hasCis && data.nodalStatus === 'cN0' && !data.hasM1;
+export function runBladderEngine(data: LegacyEngineInput): EngineOutput {
+  const isIdeal = Boolean(data.completeTurbt && !data.hydronephrosis && !data.hasCis && data.nodalStatus === 'cN0' && !data.hasM1);
   const regimens: DoseRegimen[] = [
     { categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Trimodalite', regimenName: 'Mesane Koruma (64 Gy / 32 fx)', totalDoseGy: 64.0, fractionCount: 32, dosePerFractionGy: 2.0, alphaBeta: 10.0, bedGy: 76.8, eqd2Gy: 64.0, targetVolumeCTV: 'Mesane + Tümör Boost', volumeUnionHierarchy: 'PTV = CTV + 15 mm', gtvToCtvMargin: '15 mm', ctvToPtvMargin: '15 mm', boostDoseDetails: 'Sisplatin eşzamanlı', clinicalIndication: 'Standart mesane koruma', preferredBadge: isIdeal && !data.poorBladderCapacity },
     { categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Hipofraksiyone', regimenName: 'BCON Şeması (55 Gy / 20 fx)', totalDoseGy: 55.0, fractionCount: 20, dosePerFractionGy: 2.75, alphaBeta: 10.0, bedGy: 70.1, eqd2Gy: 58.4, targetVolumeCTV: 'Tüm Mesane', volumeUnionHierarchy: 'PTV = CTV + 15 mm', gtvToCtvMargin: 'Mesane Duvarı', ctvToPtvMargin: '15 mm', clinicalIndication: '4 haftalık alternatif', preferredBadge: !isIdeal && !data.hasM1 && !data.poorBladderCapacity }
@@ -115,18 +116,18 @@ export function runBladderEngine(data: any): EngineOutput {
 // ============================================================================
 // 3. BÖBREK (RCC) MOTORU
 // ============================================================================
-export function runKidneyRccEngine(data: any): EngineOutput {
+export function runKidneyRccEngine(data: LegacyEngineInput): EngineOutput {
   const isPerif = data.locationPolarity === 'PERIPHERAL_CORTICAL';
   const regimens: DoseRegimen[] = [
-    { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'Tek Doz SBRT', regimenName: 'Renal SBRT (26 Gy / 1 fx)', totalDoseGy: 26.0, fractionCount: 1, dosePerFractionGy: 26.0, alphaBeta: 2.6, bedGy: 286.0, eqd2Gy: 161.7, targetVolumeCTV: 'Renal Kitle (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 3-5 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '3-5 mm', clinicalIndication: 'Periferik küçük kitleler', preferredBadge: isPerif && data.tumorSizeMm <= 40 },
-    { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: '3 Fx SBRT', regimenName: 'Renal SBRT (42 Gy / 3 fx)', totalDoseGy: 42.0, fractionCount: 3, dosePerFractionGy: 14.0, alphaBeta: 2.6, bedGy: 268.0, eqd2Gy: 151.7, targetVolumeCTV: 'Renal Kitle (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 5 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '5 mm', clinicalIndication: 'Santral / Hiler kitleler', preferredBadge: !isPerif || data.tumorSizeMm > 40 }
+    { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'Tek Doz SBRT', regimenName: 'Renal SBRT (26 Gy / 1 fx)', totalDoseGy: 26.0, fractionCount: 1, dosePerFractionGy: 26.0, alphaBeta: 2.6, bedGy: 286.0, eqd2Gy: 161.7, targetVolumeCTV: 'Renal Kitle (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 3-5 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '3-5 mm', clinicalIndication: 'Periferik küçük kitleler', preferredBadge: isPerif && Number(data.tumorSizeMm ?? 0) <= 40 },
+    { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: '3 Fx SBRT', regimenName: 'Renal SBRT (42 Gy / 3 fx)', totalDoseGy: 42.0, fractionCount: 3, dosePerFractionGy: 14.0, alphaBeta: 2.6, bedGy: 268.0, eqd2Gy: 151.7, targetVolumeCTV: 'Renal Kitle (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 5 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '5 mm', clinicalIndication: 'Santral / Hiler kitleler', preferredBadge: !isPerif || Number(data.tumorSizeMm ?? 0) > 40 }
   ];
   let stage = 'Evre I (T1)';
   if (data.hasM1) stage = 'Evre IV (cM1)';
   else if (data.nodalStatus === 'cN1') stage = 'Evre III (cN1)';
-  else if (data.tumorSizeMm > 100) stage = 'Evre II (T2b)';
-  else if (data.tumorSizeMm > 70) stage = 'Evre II (T2a)';
-  else if (data.tumorSizeMm > 40) stage = 'Evre I (T1b)';
+  else if (Number(data.tumorSizeMm ?? 0) > 100) stage = 'Evre II (T2b)';
+  else if (Number(data.tumorSizeMm ?? 0) > 70) stage = 'Evre II (T2a)';
+  else if (Number(data.tumorSizeMm ?? 0) > 40) stage = 'Evre I (T1b)';
 
   return { ajccStage: stage, stageSummary: data.isSolitaryKidney || data.lowGfr ? 'Nefron Koruma Zorunlu' : 'İnoperabl Primer RCC', color: data.lowGfr ? 'bg-orange-100 text-orange-900 border-orange-400' : 'bg-blue-50 text-blue-900 border-blue-300', strategy: data.lowGfr || data.isSolitaryKidney ? 'Düşük GFR / Soliter Böbrek: Nefron koruyucu ablatif SBRT.' : 'Ablatif Renal SBRT.', systemic: data.hasM1 ? 'TKI + İmmünoterapi.' : 'Gerekmez.', regimens, url: 'https://www.nccn.org', ref: 'I収RT / NCCN Kidney' };
 }
@@ -134,7 +135,7 @@ export function runKidneyRccEngine(data: any): EngineOutput {
 // ============================================================================
 // 4. REKTUM MOTORU
 // ============================================================================
-export function runRectumEngine(data: any): EngineOutput {
+export function runRectumEngine(data: LegacyEngineInput): EngineOutput {
   const isHigh = String(data.clinicalT).includes('4') || data.mrfThreatened || data.nodalStatus === 'cN2' || data.emviPositive;
   const regimens: DoseRegimen[] = data.hasM1 
     ? [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Palyatif', regimenName: 'Palyatif (30 Gy / 10 fx)', totalDoseGy: 30, fractionCount: 10, dosePerFractionGy: 3, alphaBeta: 10, bedGy: 39, eqd2Gy: 32.5, targetVolumeCTV: 'Tümör', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: '10mm', ctvToPtvMargin: '5mm', clinicalIndication: 'Semptomatik lokal kontrol', preferredBadge: true }] 
@@ -148,7 +149,7 @@ export function runRectumEngine(data: any): EngineOutput {
 // ============================================================================
 // 5. ANAL KANAL MOTORU
 // ============================================================================
-export function runAnalCanalEngine(data: any): EngineOutput {
+export function runAnalCanalEngine(data: LegacyEngineInput): EngineOutput {
   const dose = String(data.clinicalT).includes('3') || String(data.clinicalT).includes('4') || data.nodalStatus !== 'N0' ? 54.0 : 50.4;
   const regimens: DoseRegimen[] = [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Nigro Protokolü', regimenName: `SIB KRT (${dose} Gy)`, totalDoseGy: dose, fractionCount: dose === 54 ? 30 : 28, dosePerFractionGy: 1.8, alphaBeta: 10.0, bedGy: dose * 1.18, eqd2Gy: dose, targetVolumeCTV: 'Primer + İnguinal/Pelvik LN', volumeUnionHierarchy: 'PTV_Primer ∪ PTV_Elektif(45 Gy)', gtvToCtvMargin: '15-20 mm', ctvToPtvMargin: '5 mm', clinicalIndication: 'Organ Koruma', preferredBadge: true }];
   return { ajccStage: data.hasM1 ? 'Evre IV' : 'Evre II-III', stageSummary: data.hivPositive ? 'Anal Kanser (HIV+ / İmmünkompromize)' : 'Anal Skuamöz Karsinom', color: data.hivPositive ? 'bg-orange-50 text-orange-900 border-orange-400' : 'bg-rose-50 text-rose-900 border-rose-300', strategy: data.hivPositive ? 'Eşzamanlı KRT. ⚠️ HIV Pozitifliği: CD4+ sayımı >200 olmalı, antiretroviral tedaviye devam edilmeli.' : 'Eşzamanlı KRT (Mitomisin+5FU).', systemic: 'Mitomisin-C + 5-FU/Kapesitabin.', regimens, url: 'https://www.nccn.org', ref: 'ACT II' };
@@ -157,7 +158,7 @@ export function runAnalCanalEngine(data: any): EngineOutput {
 // ============================================================================
 // 6. ÖZOFAGUS MOTORU
 // ============================================================================
-export function runEsophagusEngine(data: any): EngineOutput {
+export function runEsophagusEngine(data: LegacyEngineInput): EngineOutput {
   const isNeoadj = data.intent === 'NEOADJUVANT_CROSS';
   const regimens: DoseRegimen[] = isNeoadj ? [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'CROSS', regimenName: 'Neoadjuvan KRT (41.4 Gy / 23 fx)', totalDoseGy: 41.4, fractionCount: 23, dosePerFractionGy: 1.8, alphaBeta: 10.0, bedGy: 48.85, eqd2Gy: 40.7, targetVolumeCTV: 'Özofagus + LN', volumeUnionHierarchy: 'PTV = CTV + 5 mm', gtvToCtvMargin: 'Boyuna 3-4 cm', ctvToPtvMargin: '5 mm', clinicalIndication: 'Rezekabl Torasik Özofagus', preferredBadge: true }] : [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Definitif KRT', regimenName: 'KRT (50.4 Gy / 28 fx)', totalDoseGy: 50.4, fractionCount: 28, dosePerFractionGy: 1.8, alphaBeta: 10.0, bedGy: 59.5, eqd2Gy: 49.6, targetVolumeCTV: 'Özofagus + LN', volumeUnionHierarchy: 'PTV = CTV + 5 mm', gtvToCtvMargin: 'Boyuna 3-5 cm', ctvToPtvMargin: '5 mm', clinicalIndication: 'Servikal/İnoperabl Özofagus', preferredBadge: true }];
   return { ajccStage: data.hasM1 ? 'Evre IV' : 'Evre II-III', stageSummary: isNeoadj ? 'CROSS Neoadjuvan' : 'Definitif KRT', color: 'bg-amber-50 text-amber-900 border-amber-300', strategy: isNeoadj ? 'KRT -> Özofajektomi.' : 'Definitif KRT.', systemic: isNeoadj ? 'Paklitaksel + Karboplatin.' : 'Sisplatin + 5-FU.', regimens, url: 'https://www.nccn.org', ref: 'CROSS Trial' };
@@ -166,7 +167,7 @@ export function runEsophagusEngine(data: any): EngineOutput {
 // ============================================================================
 // 7. PANKREAS MOTORU
 // ============================================================================
-export function runPancreasEngine(data: any): EngineOutput {
+export function runPancreasEngine(data: LegacyEngineInput): EngineOutput {
   const isBorderline = data.resectability === 'BORDERLINE_RESECTABLE';
   const regimens: DoseRegimen[] = [
     { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'Pankreas SBRT', regimenName: 'SBRT (33-40 Gy / 5 fx)', totalDoseGy: 40.0, fractionCount: 5, dosePerFractionGy: 8.0, alphaBeta: 10.0, bedGy: 72.0, eqd2Gy: 60.0, targetVolumeCTV: 'Pankreas Kitle + Damar Teması (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 3 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '3 mm', clinicalIndication: 'FOLFIRINOX sonrası konsolidasyon SBRT', preferredBadge: true }
@@ -177,7 +178,7 @@ export function runPancreasEngine(data: any): EngineOutput {
 // ============================================================================
 // 8. KARACİĞER MOTORU
 // ============================================================================
-export function runLiverEngine(data: any): EngineOutput {
+export function runLiverEngine(data: LegacyEngineInput): EngineOutput {
   const isChildA = data.childPughScore === 'CLASS_A';
   const regimens: DoseRegimen[] = isChildA ? [
     { categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'Karaciğer SBRT', regimenName: 'SBRT (50 Gy / 5 fx)', totalDoseGy: 50.0, fractionCount: 5, dosePerFractionGy: 10.0, alphaBeta: 10.0, bedGy: 100.0, eqd2Gy: 83.3, targetVolumeCTV: 'Karaciğer Lezyonu (GTV=CTV)', volumeUnionHierarchy: 'PTV = ITV + 5 mm', gtvToCtvMargin: '0 mm', ctvToPtvMargin: '5 mm (ITV)', clinicalIndication: 'Child-Pugh A siroz veya oligometastaz', preferredBadge: true }
@@ -192,7 +193,7 @@ export function runLiverEngine(data: any): EngineOutput {
 // ============================================================================
 // 9. KHDAK (AKCİĞER) MOTORU
 // ============================================================================
-export function runLungNsclcEngine(data: any): EngineOutput {
+export function runLungNsclcEngine(data: LegacyEngineInput): EngineOutput {
   const isN2 = data.nodalStatus === 'cN2' || data.nodalStatus === 'cN3';
   const regimens: DoseRegimen[] = data.hasM1 
     ? [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Palyatif', regimenName: 'Palyatif RT (30 Gy)', totalDoseGy: 30, fractionCount: 10, dosePerFractionGy: 3, alphaBeta: 10, bedGy: 39, eqd2Gy: 32.5, targetVolumeCTV: 'Kitle', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: '5mm', ctvToPtvMargin: '5mm', clinicalIndication: 'Palyasyon', preferredBadge: true }] 
@@ -208,7 +209,7 @@ export function runLungNsclcEngine(data: any): EngineOutput {
 // ============================================================================
 // 10. KHAK MOTORU
 // ============================================================================
-export function runLungSclcEngine(data: any): EngineOutput {
+export function runLungSclcEngine(data: LegacyEngineInput): EngineOutput {
   const isLim = data.stageExtent === 'LIMITED_STAGE';
   const regimens: DoseRegimen[] = isLim 
     ? [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'BID KRT', regimenName: 'KRT (45 Gy / 30 fx BID)', totalDoseGy: 45, fractionCount: 30, dosePerFractionGy: 1.5, alphaBeta: 10, bedGy: 51.75, eqd2Gy: 43.1, targetVolumeCTV: 'Primer+Nodal', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: '5mm', ctvToPtvMargin: '5mm', clinicalIndication: 'Standart', preferredBadge: true }] 
@@ -220,7 +221,7 @@ export function runLungSclcEngine(data: any): EngineOutput {
 // ============================================================================
 // 11. NAZOFARİNKS MOTORU
 // ============================================================================
-export function runNasopharynxEngine(data: any): EngineOutput {
+export function runNasopharynxEngine(data: LegacyEngineInput): EngineOutput {
   const regimens: DoseRegimen[] = [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: '3 Kademeli SIB', regimenName: 'SIB-IMRT (70/60/54 Gy)', totalDoseGy: 70, fractionCount: 33, dosePerFractionGy: 2.12, alphaBeta: 10, bedGy: 84.8, eqd2Gy: 70.7, targetVolumeCTV: 'GTV+Boyun', volumeUnionHierarchy: 'PTV_70 ⊂ PTV_60 ⊂ PTV_54', gtvToCtvMargin: '5-10mm', ctvToPtvMargin: '3mm', clinicalIndication: 'Standart SIB', preferredBadge: true }];
   let stage = 'Evre II-IVA';
   if (data.hasM1) stage = 'Evre IVB';
@@ -231,7 +232,7 @@ export function runNasopharynxEngine(data: any): EngineOutput {
 // ============================================================================
 // 12. HİPOFARİNKS MOTORU
 // ============================================================================
-export function runHypopharynxEngine(data: any): EngineOutput {
+export function runHypopharynxEngine(data: LegacyEngineInput): EngineOutput {
   const regimens: DoseRegimen[] = [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'SIB-IMRT', regimenName: 'Definitif KRT (70/63/56 Gy)', totalDoseGy: 70, fractionCount: 35, dosePerFractionGy: 2, alphaBeta: 10, bedGy: 84, eqd2Gy: 70, targetVolumeCTV: 'Primer+Boyun LN', volumeUnionHierarchy: 'PTV_70 ⊂ PTV_56', gtvToCtvMargin: '10mm', ctvToPtvMargin: '3-5mm', clinicalIndication: 'Organ Koruma', preferredBadge: true }];
   let stage = 'Evre III-IVA';
   if (data.hasM1) stage = 'Evre IVC';
@@ -243,7 +244,7 @@ export function runHypopharynxEngine(data: any): EngineOutput {
 // ============================================================================
 // 13. SERVİKS MOTORU
 // ============================================================================
-export function runCervixEngine(data: any): EngineOutput {
+export function runCervixEngine(data: LegacyEngineInput): EngineOutput {
   let stage = 'FIGO IB1';
   if (data.hasM1) stage = 'FIGO IVB';
   else if (data.bladderRectumInv) stage = 'FIGO IVA';
@@ -252,8 +253,8 @@ export function runCervixEngine(data: any): EngineOutput {
   else if (data.pelvicWallOrHydronephrosis) stage = 'FIGO IIIB';
   else if (data.vaginalLowerThird) stage = 'FIGO IIIA';
   else if (data.parametrialInvasion) stage = 'FIGO IIB';
-  else if (data.tumorSizeMm > 40) stage = 'FIGO IB3';
-  else if (data.tumorSizeMm > 20) stage = 'FIGO IB2';
+  else if (Number(data.tumorSizeMm ?? 0) > 40) stage = 'FIGO IB3';
+  else if (Number(data.tumorSizeMm ?? 0) > 20) stage = 'FIGO IB2';
 
   const regimens: DoseRegimen[] = [
     { categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'EBRT + SIB', regimenName: 'EMBRACE II KRT (45 Gy) + SIB', totalDoseGy: 45, fractionCount: 25, dosePerFractionGy: 1.8, alphaBeta: 10, bedGy: 53.1, eqd2Gy: 44.3, targetVolumeCTV: 'Serviks, Uterus, Parametriyum, LN', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: 'Anatomik', ctvToPtvMargin: '5mm', clinicalIndication: 'Küratif', preferredBadge: true }, 
@@ -265,7 +266,7 @@ export function runCervixEngine(data: any): EngineOutput {
 // ============================================================================
 // 14. ENDOMETRİYUM MOTORU
 // ============================================================================
-export function runEndometriumEngine(data: any): EngineOutput {
+export function runEndometriumEngine(data: LegacyEngineInput): EngineOutput {
   const isHigh = data.stage === 'STAGE_III_HIGH_RISK_NODAL' || (data.grade === 3 && data.deepMyometrialInvasion);
   const isHIR = data.stage === 'STAGE_I_HIGH_INTERMEDIATE' || (data.lvsiPositive && data.deepMyometrialInvasion);
   const regimens: DoseRegimen[] = isHigh 
@@ -278,10 +279,11 @@ export function runEndometriumEngine(data: any): EngineOutput {
 // ============================================================================
 // 15. MEME MOTORU (DİNAMİK JSON DESTEKLİ)
 // ============================================================================
-export function runBreastEngine(data: any): EngineOutput {
+export function runBreastEngine(data: LegacyEngineInput): EngineOutput {
   const isTNBC = !data.erPositive && !data.prPositive && !data.her2Positive;
   const subtype = isTNBC ? 'Triple Negative' : data.her2Positive ? 'HER2 Pozitif' : 'Luminal';
-  const rni = data.positiveNodes >= 4 ? 'Kapsamlı RNI' : data.positiveNodes >= 1 ? 'RNI (Supraklavikuler)' : 'RNI Gerekmez';
+  const positiveNodes = Number(data.positiveNodes ?? 0);
+  const rni = positiveNodes >= 4 ? 'Kapsamlı RNI' : positiveNodes >= 1 ? 'RNI (Supraklavikuler)' : 'RNI Gerekmez';
   
   const dbRegimens = (guidelinesData.guidelines.breast?.regimens || []) as DoseRegimen[];
   
@@ -298,23 +300,23 @@ export function runBreastEngine(data: any): EngineOutput {
   };
 
   const regimens: DoseRegimen[] = [
-    { ...fastForward, preferredBadge: data.positiveNodes === 0 },
-    { ...startB, preferredBadge: data.positiveNodes > 0 }
+    { ...fastForward, preferredBadge: positiveNodes === 0 },
+    { ...startB, preferredBadge: positiveNodes > 0 }
   ];
 
-  let strategy = data.brcaMutated ? 'BRCA Mutasyonu mevcut: BCT yerine Bilateral Mastektomi düşünülmelidir. PMRT ± RNI.' : data.surgery === 'BCT' ? 'WBI ± Boost.' : 'PMRT + RNI.';
+  const strategy = data.brcaMutated ? 'BRCA Mutasyonu mevcut: BCT yerine Bilateral Mastektomi düşünülmelidir. PMRT ± RNI.' : data.surgery === 'BCT' ? 'WBI ± Boost.' : 'PMRT + RNI.';
   let systemic = 'Kemoterapi Öncelikli.';
   if (data.erPositive) systemic = data.menopausalStatus === 'PRE' ? 'Ovaryan Süpresyon + Tamoksifen.' : 'Aromataz İnhibitörü.';
 
-  return { ajccStage: data.hasM1 ? 'Evre IV' : data.positiveNodes > 3 ? 'Evre IIIC' : data.positiveNodes > 0 ? 'Evre II/IIIA' : 'Evre I', stageSummary: subtype, color: isTNBC || data.brcaMutated ? 'bg-rose-50 text-rose-900 border-rose-300' : 'bg-emerald-50 text-emerald-800 border-emerald-300', strategy, systemic, regimens, url: guidelinesData.guidelines.breast?.referenceUrl || 'https://www.astro.org', ref: guidelinesData.guidelines.breast?.reference || 'ASTRO / NCCN' };
+  return { ajccStage: data.hasM1 ? 'Evre IV' : positiveNodes > 3 ? 'Evre IIIC' : positiveNodes > 0 ? 'Evre II/IIIA' : 'Evre I', stageSummary: subtype, color: isTNBC || data.brcaMutated ? 'bg-rose-50 text-rose-900 border-rose-300' : 'bg-emerald-50 text-emerald-800 border-emerald-300', strategy, systemic, regimens, url: guidelinesData.guidelines.breast?.referenceUrl || 'https://www.astro.org', ref: guidelinesData.guidelines.breast?.reference || 'ASTRO / NCCN' };
 }
 
 // ============================================================================
 // 16. GLİOM MOTORU
 // ============================================================================
-export function runGliomaEngine(data: any): EngineOutput {
+export function runGliomaEngine(data: LegacyEngineInput): EngineOutput {
   const isGrade4 = data.idhStatus === 'WILDTYPE' || data.cdkn2aHomozygousLoss || data.histologyGrade === 4;
-  const isElderly = data.patientAge >= 70 || data.kpsScore < 70;
+  const isElderly = Number(data.patientAge ?? 0) >= 70 || Number(data.kpsScore ?? 100) < 70;
   const regimens: DoseRegimen[] = isGrade4 
     ? (isElderly 
       ? [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Hipofraksiyone', regimenName: 'Yaşlı Şeması (40.05 Gy)', totalDoseGy: 40.05, fractionCount: 15, dosePerFractionGy: 2.67, alphaBeta: 10, bedGy: 50.7, eqd2Gy: 42.3, targetVolumeCTV: 'Kavite+Rezidü', volumeUnionHierarchy: 'PTV=CTV+3mm', gtvToCtvMargin: '15mm', ctvToPtvMargin: '3mm', clinicalIndication: 'Kırılgan', preferredBadge: true }] 
@@ -327,8 +329,8 @@ export function runGliomaEngine(data: any): EngineOutput {
 // ============================================================================
 // 17. MENENJİOM MOTORU
 // ============================================================================
-export function runMeningiomaEngine(data: any): EngineOutput {
-  const canDoSRS = data.whoGrade === 1 && data.tumorSizeMm <= 30 && !data.isOpticChiasmClose && !data.severeMassEffect;
+export function runMeningiomaEngine(data: LegacyEngineInput): EngineOutput {
+  const canDoSRS = data.whoGrade === 1 && Number(data.tumorSizeMm ?? 0) <= 30 && !data.isOpticChiasmClose && !data.severeMassEffect;
   const regimens: DoseRegimen[] = canDoSRS 
     ? [{ categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'SRS', regimenName: 'Tek Seans SRS (12-14 Gy)', totalDoseGy: 14, fractionCount: 1, dosePerFractionGy: 14, alphaBeta: 3, bedGy: 79.3, eqd2Gy: 47.6, targetVolumeCTV: 'Tümör', volumeUnionHierarchy: 'PTV=CTV+1mm', gtvToCtvMargin: '0mm', ctvToPtvMargin: '1mm', clinicalIndication: 'Küçük benign', preferredBadge: true }] 
     : [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Fraksiyone IMRT', regimenName: `IMRT (${data.whoGrade === 1 ? '54 Gy' : '59.4-66 Gy'})`, totalDoseGy: data.whoGrade === 1 ? 54 : 60, fractionCount: data.whoGrade === 1 ? 30 : 33, dosePerFractionGy: 1.8, alphaBeta: 3, bedGy: 86.4, eqd2Gy: 51.8, targetVolumeCTV: 'GTV + dural kuyruk', volumeUnionHierarchy: 'PTV=CTV+2-3mm', gtvToCtvMargin: '5mm', ctvToPtvMargin: '2-3mm', clinicalIndication: 'Standart Fraksiyone', preferredBadge: true }];
@@ -339,7 +341,7 @@ export function runMeningiomaEngine(data: any): EngineOutput {
 // ============================================================================
 // 18. YUMUŞAK DOKU SARKOMU MOTORU
 // ============================================================================
-export function runSarcomaEngine(data: any): EngineOutput {
+export function runSarcomaEngine(data: LegacyEngineInput): EngineOutput {
   const isPreop = data.setting === 'PREOPERATIVE';
   const regimens: DoseRegimen[] = isPreop ? [
     { categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Preop RT', regimenName: 'Preoperatif STS (50 Gy / 25 fx)', totalDoseGy: 50.0, fractionCount: 25, dosePerFractionGy: 2.0, alphaBeta: 4.0, bedGy: 75.0, eqd2Gy: 50.0, targetVolumeCTV: 'GTV + Boyuna 3-4 cm, radyal 1.5 cm', volumeUnionHierarchy: 'PTV = CTV + 5-7 mm', gtvToCtvMargin: 'Boyuna 30-40 mm, radyal 15 mm', ctvToPtvMargin: '5-7 mm', clinicalIndication: 'Preoperatif standart', preferredBadge: true }
@@ -352,7 +354,7 @@ export function runSarcomaEngine(data: any): EngineOutput {
 // ============================================================================
 // 19. KUTANÖZ MELANOM MOTORU
 // ============================================================================
-export function runMelanomaEngine(data: any): EngineOutput {
+export function runMelanomaEngine(data: LegacyEngineInput): EngineOutput {
   const regimens: DoseRegimen[] = data.setting === 'BRAIN_METASTASIS' 
     ? [{ categoryRank: '3_ULTRA_HIPOFRAKSIYONE_SBRT', modalityDisplay: 'SRS', regimenName: 'Beyin Met SRS (18-24 Gy)', totalDoseGy: 21.0, fractionCount: 1, dosePerFractionGy: 21.0, alphaBeta: 2.5, bedGy: 197.4, eqd2Gy: 109.7, targetVolumeCTV: 'GTV', volumeUnionHierarchy: 'PTV=CTV+1mm', gtvToCtvMargin: '0mm', ctvToPtvMargin: '1mm', clinicalIndication: 'Ablatif', preferredBadge: true }] 
     : [{ categoryRank: '2_HIPOFRAKSIYONE', modalityDisplay: 'Adjuvan', regimenName: 'Adjuvan Nodal RT (48 Gy / 20 fx)', totalDoseGy: 48.0, fractionCount: 20, dosePerFractionGy: 2.4, alphaBeta: 2.5, bedGy: 94.1, eqd2Gy: 52.3, targetVolumeCTV: 'Lenf Nodu Havzası', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: 'Cerrahi yatak', ctvToPtvMargin: '5mm', clinicalIndication: 'Nodal nüks önleme', preferredBadge: true }];
@@ -363,7 +365,7 @@ export function runMelanomaEngine(data: any): EngineOutput {
 // ============================================================================
 // 20. NON-MELANOMA CİLT (BCC / cSCC) MOTORU
 // ============================================================================
-export function runNmscEngine(data: any): EngineOutput {
+export function runNmscEngine(data: LegacyEngineInput): EngineOutput {
   const regimens: DoseRegimen[] = [{ categoryRank: '1_KONVANSIYONEL', modalityDisplay: 'Definitif RT', regimenName: 'Fraksiyone RT (60-66 Gy)', totalDoseGy: 60.0, fractionCount: 30, dosePerFractionGy: 2.0, alphaBeta: 8.0, bedGy: 75.0, eqd2Gy: 60.0, targetVolumeCTV: 'Primer / Yatak', volumeUnionHierarchy: 'PTV=CTV+5mm', gtvToCtvMargin: '10-15mm', ctvToPtvMargin: '5mm', clinicalIndication: 'Yüksek Risk / R1', preferredBadge: true }];
   return { ajccStage: data.hasM1 ? 'Evre IV' : 'Evre I-III', stageSummary: data.immunosuppressed ? 'İmmünosuprese BCC/cSCC' : 'BCC / cSCC', color: data.immunosuppressed ? 'bg-orange-100 text-orange-950 font-bold border-orange-400' : 'bg-amber-50 text-amber-900 border-amber-300', strategy: data.immunosuppressed ? '⚠️ Transplant/İmmünosuprese hasta: Agresif seyreder, Adjuvan RT şiddetle önerilir.' : 'Cerrahi veya Definitif/Adjuvan RT.', systemic: 'Cemiplimab.', regimens, url: 'https://www.nccn.org', ref: 'NCCN NMSC' };
 }
@@ -371,7 +373,7 @@ export function runNmscEngine(data: any): EngineOutput {
 // ============================================================================
 // 21. PALYATİF KEMİK MOTORU
 // ============================================================================
-export function runBonePalliativeEngine(data: any): EngineOutput {
+export function runBonePalliativeEngine(data: LegacyEngineInput): EngineOutput {
   const isSbrt = data.clinicalScenario === 'OLIGOMET_SPINE_SBRT';
   const isCordComp = data.clinicalScenario === 'SPINAL_CORD_COMPRESSION';
   const lifeEx = data.lifeExpectancyMonths;
@@ -386,8 +388,8 @@ export function runBonePalliativeEngine(data: any): EngineOutput {
 // ============================================================================
 // 22. MİDE (GASTRİK KANSER) MOTORU
 // ============================================================================
-export function runStomachEngine(data: any): EngineOutput {
-  const isM1 = data.hasM1;
+export function runStomachEngine(data: LegacyEngineInput): EngineOutput {
+  const isM1 = Boolean(data.hasM1);
   const isGej = data.location === 'GEJ';
   const isSuboptimalOrR1 = data.surgeryStatus === 'SUBOPTIMAL_D0_D1' || data.resectionMargin === 'R1';
   const isD2R0 = data.surgeryStatus === 'D2_RESECTION' && data.resectionMargin === 'R0';
