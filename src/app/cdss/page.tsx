@@ -4163,6 +4163,8 @@ export default function RadoncoCDSSPage() {
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
@@ -4183,6 +4185,26 @@ export default function RadoncoCDSSPage() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !exportMenuRef.current?.contains(event.target)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsExportMenuOpen(false);
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isExportMenuOpen]);
   const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
@@ -10602,53 +10624,79 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </div>
 
             {/* KOPYALANABİLİR RAPOR PANELİ */}
-            <div className="pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-end gap-2">
-              {researchExportNotice && (
-                <div role="status" className="mr-auto rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                  {researchExportNotice}
+            {researchExportNotice && (
+              <div role="status" className="mt-4 rounded-xl border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-[11px] font-semibold text-emerald-200">
+                {researchExportNotice}
+              </div>
+            )}
+            <div className="mt-8 flex w-full flex-col gap-3 border-t border-slate-800/80 pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="w-full sm:w-auto">
+                {isGuidedMode && guidedStep === 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setGuidedStep(3)}
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 sm:w-auto"
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                    Geri (Back)
+                  </button>
+                )}
+              </div>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                <div ref={exportMenuRef} className="relative">
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={isExportMenuOpen}
+                    aria-controls="cdss-export-menu"
+                    onClick={() => setIsExportMenuOpen(open => !open)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 sm:w-auto"
+                  >
+                    <Download className="h-4 w-4" aria-hidden="true" />
+                    Dışa Aktar / Export
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isExportMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                  </button>
+                  {isExportMenuOpen && (
+                    <div
+                      id="cdss-export-menu"
+                      className="absolute bottom-full right-0 z-30 mb-2 flex w-64 flex-col rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsExportMenuOpen(false);
+                          exportResearchCohort();
+                        }}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      >
+                        <Download className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                        <span>{lang === 'tr' ? 'Excel Kohortuna Kaydet (.xlsx)' : 'Save to Cohort & Export Excel'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsExportMenuOpen(false);
+                          printBoardSummary();
+                        }}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      >
+                        <Printer className="h-4 w-4 shrink-0 text-sky-400" aria-hidden="true" />
+                        <span>{lang === 'tr' ? 'PDF Konsey Özeti Yazdır' : 'Print Board Summary PDF'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-              {isGuidedMode && guidedStep === 4 && (
                 <button
                   type="button"
-                  onClick={() => setGuidedStep(3)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-3.5 py-2 text-xs font-semibold text-slate-200 transition hover:border-sky-500/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  onClick={copyToClipboard}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:w-auto"
                 >
-                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                  {lang === 'tr' ? 'Prognoza Dön' : 'Back to Prognosis'}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={exportResearchCohort}
-                className="flex items-center gap-2 rounded-md bg-[#107C41] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0b6334] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Cohort & Export Excel'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={printBoardSummary}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-[#111c2e] px-3.5 py-2 text-xs font-semibold text-slate-200 shadow-sm transition-all hover:bg-[#182842] hover:text-white"
-              >
-                <Printer className="h-4 w-4 text-sky-400" aria-hidden="true" />
-                <span>{lang === 'en' ? 'Print Board Summary (PDF)' : 'Konsey Raporu (Yazdır / PDF)'}</span>
-              </button>
-              <button
-                onClick={copyToClipboard}
-                className={`flex items-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-md transition-colors hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
-                  isGuidedMode && guidedStep === 4 ? 'px-5 py-3 text-sm' : 'px-4 py-2 text-xs'
-                }`}
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                <span>
+                  {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
                   {copied
-                    ? (lang === 'tr' ? 'Rapor Kopyalandı!' : 'Report Copied!')
-                    : isGuidedMode && guidedStep === 4
-                      ? (lang === 'tr' ? 'Klinik Özeti Panoya Kopyala' : 'Copy Clinical Summary to Clipboard')
-                      : (lang === 'tr' ? 'Klinik Reçete Raporunu Kopyala' : 'Copy Clinical Prescription Report')}
-                </span>
-              </button>
+                    ? (lang === 'tr' ? 'Kopyalandı!' : 'Copied!')
+                    : (lang === 'tr' ? 'Klinik Özeti Kopyala' : 'Copy Summary')}
+                </button>
+              </div>
             </div>
           </div>
         </section>
