@@ -8338,14 +8338,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   };
   const prescriptionTargetBadge = translatePrescriptionBadge(evaluatedDecision.targetVolumeBadge, `Hedef: ${prescriptionTarget}`);
   const prescriptionTechniqueBadge = translatePrescriptionBadge(evaluatedDecision.techniqueBadge, `Teknik & Hareket: ${activeScheme.technique}`);
-  const getConventionalFxBadge = () => {
-    if (selectedOrgan === 'breast') return '25 fx';
-    if (selectedOrgan === 'thorax') return isSclcTurrisiScheme ? '45 Gy' : '30-33 fx';
-    if (selectedOrgan === 'prostate') return '39-40 fx';
-    if (selectedOrgan === 'gis') return '25-28 fx';
-    if (selectedOrgan === 'head-neck') return '33-35 fx';
-    return '25-35 fx';
-  };
   const breastNodalSummary = selectedOrgan === 'breast'
     ? breastHistology === 'Duktal Karsinoma In Situ (DCIS)'
       ? 'RNI: Elektif Nodal Yapılmaz (DCIS)'
@@ -8796,7 +8788,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 flex h-auto min-h-0 min-w-0 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs leading-snug text-amber-200">
+        <div className="col-span-12 w-full h-auto min-h-0 py-2.5 px-4 text-xs rounded-lg flex items-center gap-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-200/90">
           <ShieldAlert className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
           <p className="min-w-0 truncate" title={lang === 'tr'
             ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
@@ -10414,7 +10406,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         title: isSclcTurrisiScheme
                           ? lang === 'tr' ? 'Akselere Hiperfraksiyonasyon (30 fx BID)' : 'Accelerated Hyperfractionation (30 fx BID)'
                           : lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
-                        badge: getConventionalFxBadge(),
+                        badge: isSclcTurrisiScheme ? '45 Gy' : undefined,
                         detail: isSclcTurrisiScheme
                           ? lang === 'tr' ? '1.5 Gy / fx (Günde 2 kez BID, ≥ 6 saat ara)' : '1.5 Gy / fx (Twice daily BID, ≥ 6 hours apart)'
                           : '1.8 - 2.0 Gy / fx',
@@ -10443,7 +10435,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           <span className="flex items-center gap-1.5 text-xs font-bold">
                             {regimen === 'sbrt' ? '⚡' : regimen === 'moderate' ? '🎯' : regimen === 'sib' ? '🧬' : '🛡️'} {card.title}
                           </span>
-                          <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>
+                          {card.badge && <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>}
                         </div>
                         <div className="text-[10px] opacity-80">{card.detail}</div>
                       </button>
