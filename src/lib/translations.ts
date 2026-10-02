@@ -32,7 +32,7 @@ export type TranslationDictionary = {
     contouring: { title: string; description: string; badges: string[] };
     palliative: { title: string; description: string; badges: string[] };
     references: { title: string; description: string; badges: string[] };
-    cdss: { title: string; description: string; badges: string[] };
+    toxicity: { title: string; description: string; badges: string[] };
   };
   rapidProtocols: {
     quickCaseId: 'case-05' | 'case-26' | 'case-01' | 'case-21';
@@ -93,10 +93,10 @@ export const translations: Record<Language, TranslationDictionary> = {
         description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve Faz III çalışmalar.',
         badges: ['Kılavuzlar', 'Faz III'],
       },
-      cdss: {
-        title: 'Klinik Karar Destek Sihirbazı (CDSS)',
-        description: '13+ organ grubu için TNM evreleme, risk gruplaması ve tedavi matrisi.',
-        badges: ['Kategori 1 Kanıt', '13 Organ'],
+      toxicity: {
+        title: 'Toksisite & Yan Etki Değerlendirme (CTCAE v5.0)',
+        description: 'Radyasyon dermatiti, pnömonit, özofajit, mukozit ve proktit için CTCAE derecelendirmesi ve medikal yönetim rehberi.',
+        badges: ['CTCAE v5.0', 'Akut & Geç Toksisite'],
       },
     },
     rapidProtocols: [
@@ -179,10 +179,10 @@ export const translations: Record<Language, TranslationDictionary> = {
         description: 'Current NCCN 2025, ASTRO, and ESTRO guidelines and phase III studies.',
         badges: ['Guidelines', 'Phase III'],
       },
-      cdss: {
-        title: 'Clinical Decision Support Wizard (CDSS)',
-        description: 'TNM staging, risk grouping, and treatment matrix across 13+ organ groups.',
-        badges: ['Category 1 Evidence', '13 Organs'],
+      toxicity: {
+        title: 'Toxicity & Adverse Effects Assessment (CTCAE v5.0)',
+        description: 'CTCAE grading and medical management guidance for radiation dermatitis, pneumonitis, esophagitis, mucositis, and proctitis.',
+        badges: ['CTCAE v5.0', 'Acute & Late Toxicity'],
       },
     },
     rapidProtocols: [

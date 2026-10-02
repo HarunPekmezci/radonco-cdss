@@ -6,9 +6,9 @@ import {
   ArrowUpRight,
   BookOpen,
   Calculator,
+  HeartPulse,
   Radiation,
   Siren,
-  Stethoscope,
   Target,
   Zap,
 } from 'lucide-react';
@@ -17,7 +17,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 type PortalModule = {
   href: string;
-  cardKey: 'oar' | 'calculator' | 'contouring' | 'palliative' | 'references' | 'cdss';
+  cardKey: 'oar' | 'calculator' | 'contouring' | 'palliative' | 'references' | 'toxicity';
   icon: LucideIcon;
   accent: string;
 };
@@ -54,10 +54,10 @@ const modules: PortalModule[] = [
     accent: 'text-amber-300 bg-amber-400/10 ring-amber-300/20',
   },
   {
-    href: '/cdss',
-    cardKey: 'cdss',
-    icon: Stethoscope,
-    accent: 'text-sky-300 bg-sky-400/10 ring-sky-300/20',
+    href: '/cdss?tab=toxicity',
+    cardKey: 'toxicity',
+    icon: HeartPulse,
+    accent: 'text-rose-300 bg-rose-400/10 ring-rose-300/20',
   },
 ];
 
