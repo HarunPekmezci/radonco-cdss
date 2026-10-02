@@ -139,15 +139,6 @@ const parseMedicalReport = (text: string): ParsedReportData => {
   return result;
 };
 
-const AI_PLATFORMS = [
-  { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com' },
-  { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com' },
-  { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai' },
-  { id: 'notebooklm', name: 'NotebookLM', url: 'https://notebooklm.google.com' },
-  { id: 'claude', name: 'Claude', url: 'https://claude.ai' },
-  { id: 'grok', name: 'Grok', url: 'https://x.ai' },
-] as const;
-
 const GeminiIcon = ({ className = 'h-4 w-4' }: { className?: string }) => {
   const gradientId = useId();
   return (
@@ -3974,7 +3965,7 @@ const getServerGuidedModeSnapshot = () => true;
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
-  const { language: lang, setLanguage: setLang } = useLanguage();
+  const { language: lang } = useLanguage();
   const isGuidedMode = useSyncExternalStore(
     subscribeToViewMode,
     getGuidedModeSnapshot,
@@ -4011,10 +4002,6 @@ export default function RadoncoCDSSPage() {
     if (!isGuidedMode) return;
     document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [guidedStep, isGuidedMode]);
-
-  const changeLanguage = (nextLanguage: 'tr' | 'en') => {
-    setLang(nextLanguage);
-  };
 
   // ==========================================
   // ANA ORGAN VE EVRE DURUMU
@@ -4227,8 +4214,6 @@ export default function RadoncoCDSSPage() {
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [isExportMenuOpen]);
-  const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
-  const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
   const [copiedContext, setCopiedContext] = useState<boolean>(false);
 
@@ -8563,92 +8548,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <span aria-hidden="true">📖</span>
             <span className="hidden sm:inline">{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}</span>
           </button>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsAiDropdownOpen(open => !open)}
-              aria-expanded={isAiDropdownOpen}
-              aria-haspopup="menu"
-              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700 sm:px-3"
-            >
-              {selectedAi ? (
-                <>
-                  <AiLogo id={selectedAi.id} className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline">{selectedAi.name}</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5 animate-pulse text-blue-500" aria-hidden="true" />
-                  <span className="hidden sm:inline">{lang === 'tr' ? 'AI Asistan' : 'AI Assistant'}</span>
-                </>
-              )}
-              <span className="ml-0.5 text-[10px] text-slate-400" aria-hidden="true">▾</span>
-            </button>
-
-            {isAiDropdownOpen && (
-              <div
-                className="absolute right-0 z-50 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 py-1.5 shadow-xl"
-                role="menu"
-                aria-label={lang === 'tr' ? 'Yapay zeka platformları' : 'AI platforms'}
-              >
-                <div className="mb-1 border-b border-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-700/60">
-                  {lang === 'tr' ? 'Yapay Zeka Seçin' : 'Select AI Model'}
-                </div>
-                {AI_PLATFORMS.map(platform => {
-                  const isCurrent = selectedAi?.id === platform.id;
-                  return (
-                    <button
-                      key={platform.id}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setSelectedAi(platform);
-                        setIsAiDropdownOpen(false);
-                        copyCasePrompt();
-                        const width = 480;
-                        const height = window.screen.availHeight || 900;
-                        const left = Math.max(0, (window.screen.availWidth || 1920) - width);
-                        window.open(
-                          platform.url,
-                          'radonc_ai_dock',
-                          `width=${width},height=${height},left=${left},top=0,menubar=no,status=no`,
-                        );
-                      }}
-                      className={`flex w-full items-center justify-between rounded-xl p-2 text-left text-xs transition-all ${
-                        isCurrent
-                          ? 'bg-blue-50 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
-                          : 'text-slate-300 hover:bg-slate-800/60'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <AiLogo id={platform.id} className="h-4 w-4 shrink-0" />
-                        <span>{platform.name}</span>
-                      </span>
-                      {isCurrent && <span className="text-xs font-bold text-blue-600 dark:text-blue-400" aria-label={lang === 'tr' ? 'Seçili' : 'Selected'}>✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-0.5 text-xs font-semibold" aria-label={lang === 'tr' ? 'Dil' : 'Language'}>
-            <button
-              type="button"
-              onClick={() => changeLanguage('en')}
-              aria-pressed={lang === 'en'}
-              className={`px-2 py-1 rounded-md transition ${lang === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              onClick={() => changeLanguage('tr')}
-              aria-pressed={lang === 'tr'}
-              className={`px-2 py-1 rounded-md transition ${lang === 'tr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
-            >
-              TR
-            </button>
-          </div>
           <Show when="signed-out">
             <SignInButton mode="redirect">
               <button type="button" className="rounded-md border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700">
