@@ -8779,24 +8779,24 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 text-xs leading-relaxed text-amber-100/80">
-          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
-          <p>
+        <div className="col-span-12 flex min-w-0 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs leading-snug text-amber-200/90">
+          <ShieldAlert className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+          <p className="min-w-0">
             {lang === 'tr'
               ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
               : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
           </p>
         </div>
-        <div className="col-span-12 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-[#0e1726] p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-          <span className="text-xs font-semibold text-slate-300">
+        <div className="col-span-12 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2 sm:px-4">
+          <span className="text-xs font-semibold leading-none text-slate-300">
             {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
           </span>
-          <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-700 bg-[#080d18] p-1" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
+          <div className="flex max-w-full items-center gap-1 rounded-lg border border-slate-700 bg-[#080d18] p-0.5" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
             <button
               type="button"
               aria-pressed={isGuidedMode}
               onClick={() => setViewMode(true)}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+              className={`rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
                 isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -8806,7 +8806,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               type="button"
               aria-pressed={!isGuidedMode}
               onClick={() => setViewMode(false)}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+              className={`rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
                 !isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
