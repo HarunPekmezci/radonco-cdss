@@ -5,27 +5,56 @@ import Link from 'next/link';
 import { ArrowUpRight, Search, ShieldAlert, SlidersHorizontal } from 'lucide-react';
 import { oarConstraintsData } from '@/data/oarConstraintsData';
 import type { OARFractionation, OARRegion } from '@/types/oar-guide';
+import { useLanguage } from '@/context/LanguageContext';
 
 type RegionFilter = 'all' | OARRegion | 'pelvis-palliative';
 type FractionationFilter = 'all' | 'konvansiyonel' | 'hipofraksiyon' | 'sbrt' | 'srs';
+type UiLanguage = 'tr' | 'en';
 
-const regions: { id: RegionFilter; label: string }[] = [
-  { id: 'all', label: 'Tümü' },
-  { id: 'kranial', label: 'Kranial & MSS' },
-  { id: 'bas-boyun', label: 'Baş-Boyun' },
-  { id: 'toraks', label: 'Toraks' },
-  { id: 'abdomen', label: 'Abdomen & GİS' },
-  { id: 'pelvis', label: 'Pelvis (GÜS & Jinekoloji)' },
-  { id: 'omurilik', label: 'Omurilik & Kemik' },
+const regions: { id: RegionFilter; label_tr: string; label_en: string }[] = [
+  { id: 'all', label_tr: 'Tümü', label_en: 'All' },
+  { id: 'kranial', label_tr: 'Kranial & MSS', label_en: 'Cranial & CNS' },
+  { id: 'bas-boyun', label_tr: 'Baş-Boyun', label_en: 'Head & Neck' },
+  { id: 'toraks', label_tr: 'Toraks', label_en: 'Thorax' },
+  { id: 'abdomen', label_tr: 'Abdomen & GİS', label_en: 'Abdomen & GI' },
+  { id: 'pelvis', label_tr: 'Pelvis (GÜS & Jinekoloji)', label_en: 'Pelvis (GU & GYN)' },
+  { id: 'omurilik', label_tr: 'Omurilik & Kemik', label_en: 'Spine & Bone' },
 ];
 
-const fractionations: { id: FractionationFilter; label: string }[] = [
-  { id: 'all', label: 'Tüm şemalar' },
-  { id: 'konvansiyonel', label: 'Konvansiyonel' },
-  { id: 'hipofraksiyon', label: 'Hipofraksiyon' },
-  { id: 'sbrt', label: 'SBRT (3–5 fx)' },
-  { id: 'srs', label: 'SRS (1–3 fx)' },
+const fractionations: { id: FractionationFilter; label_tr: string; label_en: string }[] = [
+  { id: 'all', label_tr: 'Tüm şemalar', label_en: 'All Regimens' },
+  { id: 'konvansiyonel', label_tr: 'Konvansiyonel', label_en: 'Conventional' },
+  { id: 'hipofraksiyon', label_tr: 'Hipofraksiyon', label_en: 'Hypofractionation' },
+  { id: 'sbrt', label_tr: 'SBRT (3–5 fx)', label_en: 'SBRT (3–5 fx)' },
+  { id: 'srs', label_tr: 'SRS (1–3 fx)', label_en: 'SRS (1–3 fx)' },
 ];
+
+const organNamesEn: Record<string, string> = {
+  'Beyin sapı': 'Brainstem',
+  'Optik sinirler / kiazma': 'Optic nerves / chiasm',
+  'Beyin / kritik yapılar': 'Brain / critical structures',
+  'Parotis (en az bir bez)': 'Parotid gland (at least one)',
+  Koklea: 'Cochlea',
+  'Optik yapılar / beyin sapı / mandibula': 'Optic structures / brainstem / mandible',
+  'Bilateral akciğer (GTV hariç)': 'Both lungs (excluding GTV)',
+  'Kalp / LAD': 'Heart / LAD',
+  Özofagus: 'Esophagus',
+  'Sağlam karaciğer (toplam karaciğer - GTV)': 'Uninvolved liver (total liver - GTV)',
+  'Mide / duodenum': 'Stomach / duodenum',
+  'Mide / duodenum / ince bağırsak / santral safra yolları': 'Stomach / duodenum / small bowel / central bile ducts',
+  'Kontralateral böbrek': 'Contralateral kidney',
+  'Bağırsak / duodenum': 'Bowel / duodenum',
+  'Peritoneal boşluk / bowel bag': 'Peritoneal cavity / bowel bag',
+  'Tek tek ince bağırsak ansları': 'Individual small-bowel loops',
+  Rektum: 'Rectum',
+  Mesane: 'Bladder',
+  'Spinal kord': 'Spinal cord',
+  'Spinal kord / thecal sac': 'Spinal cord / thecal sac',
+};
+
+const organLabel = (organ: string, language: UiLanguage) => (
+  language === 'en' ? organNamesEn[organ] ?? organ : organ
+);
 
 const regionMatches = (filter: RegionFilter, region: OARRegion) => {
   if (filter === 'all') return true;
@@ -40,10 +69,10 @@ const fractionationMatches = (filter: FractionationFilter, fractionation: OARFra
   return filter === fractionation;
 };
 
-const fractionationLabel = (fractionation: OARFractionation) => {
+const fractionationLabel = (fractionation: OARFractionation, language: UiLanguage) => {
   switch (fractionation) {
-    case 'konvansiyonel': return 'Konvansiyonel (1.8–2 Gy)';
-    case 'hipofraksiyon': return 'Hipofraksiyon';
+    case 'konvansiyonel': return language === 'en' ? 'Conventional (1.8–2 Gy)' : 'Konvansiyonel (1.8–2 Gy)';
+    case 'hipofraksiyon': return language === 'en' ? 'Hypofractionation' : 'Hipofraksiyon';
     case 'sbrt-2fx': return 'SBRT · 2 fx';
     case 'sbrt-3fx': return 'SBRT · 3 fx';
     case 'sbrt-5fx': return 'SBRT · 5 fx';
@@ -53,26 +82,29 @@ const fractionationLabel = (fractionation: OARFractionation) => {
 };
 
 export default function DoseConstraintsPage() {
+  const { language } = useLanguage();
   const [region, setRegion] = useState<RegionFilter>('all');
   const [fractionation, setFractionation] = useState<FractionationFilter>('all');
   const [query, setQuery] = useState('');
 
   const filteredItems = useMemo(() => {
-    const terms = query.trim().toLocaleLowerCase('tr-TR').split(/\s+/).filter(Boolean);
+    const locale = language === 'tr' ? 'tr-TR' : 'en-US';
+    const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
     return oarConstraintsData.filter(item => {
       if (!regionMatches(region, item.region) || !fractionationMatches(fractionation, item.fractionation)) return false;
       const searchable = [
         item.organ,
+        organLabel(item.organ, language),
         item.metric,
         item.limit,
         item.endpoint,
         item.source,
         item.context,
-        fractionationLabel(item.fractionation),
-      ].join(' ').toLocaleLowerCase('tr-TR');
+        fractionationLabel(item.fractionation, language),
+      ].join(' ').toLocaleLowerCase(locale);
       return terms.every(term => searchable.includes(term));
     });
-  }, [fractionation, query, region]);
+  }, [fractionation, language, query, region]);
 
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
@@ -80,16 +112,25 @@ export default function DoseConstraintsPage() {
         <header className="mb-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-            Dozimetri rehberi
+            {language === 'en' ? 'DOSIMETRY GUIDE' : 'DOZİMETRİ REHBERİ'}
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Kritik Organ Doz Kısıtları</h1>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {language === 'en' ? 'Organs at Risk (OAR) Dose Constraints' : 'Kritik Organ Doz Kısıtları'}
+          </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her satırdaki klinik bağlam ve kullanılan DVH metriği birlikte değerlendirilmelidir.
+            {language === 'en'
+              ? 'Explore evidence-based references contextualized by organ, anatomy, and fractionation. Assess clinical endpoint and DVH metrics in conjunction.'
+              : 'Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her satırdaki klinik bağlam ve kullanılan DVH metriği birlikte değerlendirilmelidir.'}
           </p>
         </header>
 
-        <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-5" aria-label="OAR filtreleri">
-          <label htmlFor="oar-search" className="sr-only">Organ, metrik veya toksisite ara</label>
+        <section
+          className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-5"
+          aria-label={language === 'en' ? 'OAR filters' : 'OAR filtreleri'}
+        >
+          <label htmlFor="oar-search" className="sr-only">
+            {language === 'en' ? 'Search organs, metrics, or toxicity' : 'Organ, metrik veya toksisite ara'}
+          </label>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
             <input
@@ -97,13 +138,17 @@ export default function DoseConstraintsPage() {
               type="search"
               value={query}
               onChange={event => setQuery(event.target.value)}
-              placeholder="Organ, Dmax, V20Gy veya toksisite ara..."
+              placeholder={language === 'en'
+                ? 'Search by organ, Dmax, V20Gy, or toxicity...'
+                : 'Organ, Dmax, V20Gy veya toksisite ara...'}
               className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
             />
           </div>
 
           <div className="mt-4">
-            <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Anatomik bölge</h2>
+            <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {language === 'en' ? 'Anatomical Region' : 'Anatomik Bölge'}
+            </h2>
             <div className="flex gap-2 overflow-x-auto pb-1">
               {regions.map(item => (
                 <button
@@ -113,14 +158,16 @@ export default function DoseConstraintsPage() {
                   aria-pressed={region === item.id}
                   className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold transition ${region === item.id ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-200' : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-white'}`}
                 >
-                  {item.label}
+                  {language === 'en' ? item.label_en : item.label_tr}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="mt-4">
-            <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Fraksiyonasyon</h2>
+            <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {language === 'en' ? 'Fractionation' : 'Fraksiyonasyon'}
+            </h2>
             <div className="flex flex-wrap gap-2">
               {fractionations.map(item => (
                 <button
@@ -130,13 +177,15 @@ export default function DoseConstraintsPage() {
                   aria-pressed={fractionation === item.id}
                   className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${fractionation === item.id ? 'border-violet-500/60 bg-violet-500/10 text-violet-200' : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-white'}`}
                 >
-                  {item.label}
+                  {language === 'en' ? item.label_en : item.label_tr}
                 </button>
               ))}
             </div>
           </div>
           <p className="mt-4 text-xs text-slate-500" aria-live="polite">
-            {filteredItems.length} {filteredItems.length === 1 ? 'kayıt' : 'kayıt'} gösteriliyor
+            {language === 'en'
+              ? `Showing ${filteredItems.length} records`
+              : `${filteredItems.length} kayıt gösteriliyor`}
           </p>
         </section>
 
@@ -146,31 +195,43 @@ export default function DoseConstraintsPage() {
               <article key={item.id} className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-base font-semibold text-white">{item.organ}</h2>
-                    <p className="mt-1 text-[11px] font-medium text-slate-500">{fractionationLabel(item.fractionation)} · α/β {item.alphaBeta ?? '—'}</p>
+                    <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
+                    <p className="mt-1 text-[11px] font-medium text-slate-500">{fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}</p>
                   </div>
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${item.priority === 'hard' ? 'border-rose-400/30 bg-rose-400/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'}`}>
                     <ShieldAlert className="h-3 w-3" aria-hidden="true" />
-                    {item.priority === 'hard' ? 'Zorunlu · Hard' : 'Optimal · Soft'}
+                    {item.priority === 'hard'
+                      ? (language === 'en' ? 'Mandatory · Hard' : 'Zorunlu · Hard')
+                      : 'Optimal · Soft'}
                   </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 rounded-xl border border-slate-800 bg-[#0a0f1d] p-3">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Dozimetrik kriter</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      {language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}
+                    </div>
                     <div className="mt-1 text-sm font-semibold text-cyan-200">{item.metric}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Referans sınır</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      {language === 'en' ? 'Reference Limit' : 'Referans Sınır'}
+                    </div>
                     <div className="mt-1 max-w-64 text-sm font-bold text-white">{item.limit}</div>
                   </div>
                 </div>
 
                 <div className="mt-3 space-y-2 text-xs leading-5">
-                  <p><span className="font-semibold text-slate-300">Klinik endpoint: </span><span className="text-slate-400">{item.endpoint}</span></p>
-                  <p><span className="font-semibold text-slate-300">Bağlam: </span><span className="text-slate-400">{item.context}</span></p>
+                  <p>
+                    <span className="font-semibold text-slate-300">{language === 'en' ? 'Clinical endpoint: ' : 'Klinik endpoint: '}</span>
+                    <span className="text-slate-400">{item.endpoint}</span>
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-300">{language === 'en' ? 'Context: ' : 'Bağlam: '}</span>
+                    <span className="text-slate-400">{item.context}</span>
+                  </p>
                   <p className="text-slate-500">
-                    Kaynak:{' '}
+                    {language === 'en' ? 'Source: ' : 'Kaynak: '}
                     {item.sourceUrl ? (
                       <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200">{item.source}</a>
                     ) : item.source}
@@ -184,7 +245,7 @@ export default function DoseConstraintsPage() {
                   }}
                   className="mt-4 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15"
                 >
-                  Doz Motorunda Hesapla
+                  {language === 'en' ? 'Calculate in Dose Engine' : 'Doz Motorunda Hesapla'}
                   <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </Link>
               </article>
@@ -192,12 +253,16 @@ export default function DoseConstraintsPage() {
           </div>
         ) : (
           <div className="mt-4 rounded-2xl border border-dashed border-slate-700 bg-[#0e1726] p-8 text-center text-sm text-slate-400">
-            Filtrelerle eşleşen bir doz kısıtı bulunamadı.
+            {language === 'en'
+              ? 'No dose constraints match the selected filters.'
+              : 'Filtrelerle eşleşen bir doz kısıtı bulunamadı.'}
           </div>
         )}
 
         <p className="mt-5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-5 text-amber-100/70">
-          Bu tablo kaynak ve fraksiyonasyon bağlamından bağımsız evrensel reçete değildir. Hedef hacmi, organ konturu, eşzamanlı tedavi, önceki RT ve güncel protokol doğrulanmalıdır.
+          {language === 'en'
+            ? 'This table is not a universal prescription independent of source and fractionation context. Verify target volume, organ contours, concurrent treatment, prior RT, and current protocol.'
+            : 'Bu tablo kaynak ve fraksiyonasyon bağlamından bağımsız evrensel reçete değildir. Hedef hacmi, organ konturu, eşzamanlı tedavi, önceki RT ve güncel protokol doğrulanmalıdır.'}
         </p>
       </div>
     </main>
