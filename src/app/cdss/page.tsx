@@ -1908,7 +1908,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   ],
 };
 
-type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'gis' | 'gynecology' | 'sarcoma-palliative';
+type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'renal' | 'gis' | 'gynecology' | 'sarcoma-palliative';
 type QuickCaseRegimen = 'clinical' | 'sbrt' | 'moderate' | 'sib' | 'conventional';
 type QuickCasePreset = {
   id: string;
@@ -1955,12 +1955,15 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
   { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
+  { id: 'case-23', category: 'renal', title_tr: 'Küçük primer RCC (≤4 cm, T1a) - FASTRACK II', title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx • Ablatif primer SABR', detail_en: 'Medically inoperable • 26 Gy / 1 fx • Ablative primary SABR', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sbrt' },
 ];
 
-type GuidedQuickCaseId = 'case-01' | 'case-02' | 'case-05' | 'case-06' | 'case-11' | 'case-12';
 type GuidedStep = 1 | 2 | 3 | 4;
 
-const GUIDED_QUICK_SCENARIOS: Record<GuidedQuickCaseId, { title_tr: string; title_en: string }> = {
+const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_en: string }>> = {
   'case-05': {
     title_tr: 'Erken Evre MKC Sonrası (FAST-Forward 26 Gy/5 fx)',
     title_en: 'Early-stage Post-BCS (FAST-Forward 26 Gy/5fx)',
@@ -1985,12 +1988,23 @@ const GUIDED_QUICK_SCENARIOS: Record<GuidedQuickCaseId, { title_tr: string; titl
     title_tr: 'Yüksek Risk (78 Gy + Uzun Süreli ADT)',
     title_en: 'High-Risk (78 Gy + Long-term ADT)',
   },
+  'case-23': {
+    title_tr: 'Küçük Primer RCC (≤4 cm, T1a) - FASTRACK II',
+    title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II',
+  },
+  'case-24': {
+    title_tr: 'Büyük Primer RCC (>4–10 cm, T1b–T2) - FASTRACK II',
+    title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II',
+  },
+  'case-25': {
+    title_tr: 'Oligometastatik / Rekürren RCC',
+    title_en: 'Oligometastatic / Recurrent RCC',
+  },
+  'case-26': {
+    title_tr: 'Ultra-hipofraksiyone Prostat SBRT (36.25 Gy/5 fx)',
+    title_en: 'Ultra-hypofractionated Prostate SBRT (36.25 Gy/5fx)',
+  },
 };
-
-const guidedQuickCases = QUICK_CASE_PRESETS.filter(
-  (preset): preset is QuickCasePreset & { id: GuidedQuickCaseId } =>
-    Object.prototype.hasOwnProperty.call(GUIDED_QUICK_SCENARIOS, preset.id),
-);
 
 const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]> = {
   'benign-ho': [
@@ -4052,6 +4066,7 @@ export default function RadoncoCDSSPage() {
   const [bladderHistology, setBladderHistology] = useState<'urothelial' | 'non-urothelial'>('urothelial');
   const [renalHistology, setRenalHistology] = useState<'clear-cell' | 'papillary' | 'chromophobe'>('clear-cell');
   const [renalDiseaseSetting, setRenalDiseaseSetting] = useState<'primary-inoperable' | 'oligometastatic'>('primary-inoperable');
+  const [renalTumorSizeCm, setRenalTumorSizeCm] = useState('3');
 
   // ==========================================
   // 3. MEME RİSK FAKTÖRLERİ
@@ -4332,6 +4347,7 @@ export default function RadoncoCDSSPage() {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
     setSelectedSubsite('');
+    setSelectedQuickCaseId(null);
     setPatientAgeYears('');
     setSelectedRegimen('clinical');
     setSelectedSchemeId('');
@@ -4394,6 +4410,7 @@ export default function RadoncoCDSSPage() {
     if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
     if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
     setSelectedSubsite(subKey);
+    setSelectedQuickCaseId(null);
     setPatientAgeYears('');
     setSelectedRegimen('clinical');
     setIsMobileDrawerOpen(false);
@@ -4606,9 +4623,9 @@ export default function RadoncoCDSSPage() {
   };
 
   const handleQuickCaseSelect = (preset: QuickCasePreset) => {
-    setSelectedQuickCaseId(preset.id);
     handleSubsiteChange(preset.subsite);
     setSelectedOrgan(preset.organ);
+    setSelectedQuickCaseId(preset.id);
     setSelectedSchemeId('');
     setSelectedRegimen(preset.regimen);
     setPatientAgeYears('');
@@ -4690,6 +4707,25 @@ export default function RadoncoCDSSPage() {
         setHasECE(true);
         setHasSVI(false);
         break;
+      case 'case-23':
+        setRenalDiseaseSetting('primary-inoperable');
+        setRenalTumorSizeCm('3.5');
+        break;
+      case 'case-24':
+        setRenalDiseaseSetting('primary-inoperable');
+        setRenalTumorSizeCm('8');
+        break;
+      case 'case-25':
+        setRenalDiseaseSetting('oligometastatic');
+        break;
+      case 'case-26':
+        setGleasonPrimary('3');
+        setGleasonSecondary('4');
+        setPsaLevel('8.5');
+        setPositiveCorePercent('35');
+        setHasECE(false);
+        setHasSVI(false);
+        break;
       case 'case-13':
         setBladderTurbtComplete(true);
         setBladderTmtSuitable(true);
@@ -4736,13 +4772,17 @@ export default function RadoncoCDSSPage() {
     setSelectedM(database.M.some(option => option.code === preset.m) ? preset.m : database.M[0]?.code ?? preset.m);
     setSelectedRegimen(preset.regimen);
     setActiveMobilePanel('prescription');
-    if (isGuidedMode) setGuidedStep(3);
+    if (isGuidedMode) setGuidedStep(2);
   };
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
     if (selectedOrgan === 'bone-sarcoma') return preset.category === 'sarcoma-palliative';
     if (selectedOrgan === 'sarcoma') return preset.id === 'case-20';
     if (selectedOrgan === 'palliative') return preset.id === 'case-21' || preset.id === 'case-22';
+    if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-kidney') return preset.category === 'renal';
+    if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-prostate') {
+      return preset.category === 'gus' && preset.subsite === 'prostate-prostate';
+    }
 
     const categoryByOrgan: Partial<Record<OrganId, QuickCaseCategoryId>> = {
       thorax: 'thorax',
@@ -4753,6 +4793,18 @@ export default function RadoncoCDSSPage() {
       gynecology: 'gynecology',
     };
     return preset.category === categoryByOrgan[selectedOrgan];
+  });
+
+  const activeGuidedSubsite = ORGAN_TREE[selectedOrgan].some(subsite => subsite.id === selectedSubsite)
+    ? selectedSubsite
+    : null;
+  const guidedScenarioPresets = currentOrganPresets.filter(preset => {
+    if (!activeGuidedSubsite) return true;
+    if (selectedOrgan === 'cns' && activeGuidedSubsite === 'cns-gbm') return preset.id === 'case-08';
+    if (selectedOrgan === 'breast') {
+      return ['breast-idc', 'breast-ilc', 'breast-metaplastic'].includes(activeGuidedSubsite);
+    }
+    return preset.subsite === activeGuidedSubsite;
   });
 
   const commandPaletteGroups = useMemo(() => {
@@ -6543,7 +6595,14 @@ export default function RadoncoCDSSPage() {
 
       if (gusSubtype === 'kidney') {
         const primaryRcc = renalDiseaseSetting === 'primary-inoperable';
-        const sizeBasedFractionation = selectedT === 'T1a' ? 'single' : selectedT === 'T1b' ? 'three' : 'ineligible';
+        const renalDiameterCm = Number.parseFloat(renalTumorSizeCm);
+        const sizeBasedFractionation = !Number.isFinite(renalDiameterCm) || renalDiameterCm <= 0
+          ? 'ineligible'
+          : renalDiameterCm <= 4
+            ? 'single'
+            : renalDiameterCm <= 10
+              ? 'three'
+              : 'ineligible';
         if (primaryRcc && sizeBasedFractionation === 'ineligible') {
           const notApplicable: DoseScheme = {
             id: 'rcc-primary-outside-fastrack-size',
@@ -6555,8 +6614,8 @@ export default function RadoncoCDSSPage() {
             alphaBeta: 10,
             technique: lang === 'tr' ? 'Multidisipliner değerlendirme' : 'Multidisciplinary assessment',
             indication: lang === 'tr'
-              ? 'Seçilen T2/T3 kategorisi T1a/T1b boyuta dayalı basit doz seçimlerinin dışındadır. SABR düşünülmeden tümör boyutu, renal ven/perirenal yayılım, performans ve güncel renal SBRT protokolü gözden geçirilmelidir.'
-              : 'The selected T2/T3 category is outside the simple T1a/T1b size-based choice. Review tumour size, renal vein/perirenal extension, fitness and current renal SBRT protocol before considering SABR.',
+              ? 'FASTRACK II için tümör çapı ≤10 cm olmalıdır. Çapı ve renal ven/perirenal yayılımı doğrulayın; uygunluk, performans durumu ve güncel renal SBRT protokolü multidisipliner değerlendirilmelidir.'
+              : 'FASTRACK II requires a tumour diameter ≤10 cm. Verify diameter and renal vein/perirenal extension; eligibility, fitness and the current renal SBRT protocol require multidisciplinary review.',
             targetVolumes: [],
             oars: [],
             evidence: 'FASTRACK II (Lancet Oncol 2024), DOI: 10.1016/S1470-2045(24)00020-2; eviQ protocol 4381',
@@ -6578,8 +6637,8 @@ export default function RadoncoCDSSPage() {
           technique: lang === 'tr' ? 'Solunum hareketi yönetimi ve görüntü kılavuzlu SABR; OAR yakınlığına göre uyarlayın' : 'Image-guided SABR with respiratory motion management; adapt to OAR proximity',
           indication: primaryRcc
             ? lang === 'tr'
-              ? `Biyopsiyle doğrulanmış, medikal olarak inoperabl veya cerrahi riski yüksek primer RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'}). FASTRACK II, ≤4 cm tümörlerde 26 Gy × 1 ve >4–10 cm tümörlerde 42 Gy / 3 fx kullandı. Doz seçimi boyuta dayanır; gerçek çapı, eGFR'yi ve uygunluğu doğrulayın.`
-              : `Biopsy-confirmed, medically inoperable or high-surgical-risk primary RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'} by selected T category). FASTRACK II delivered 26 Gy x1 for tumours ≤4 cm and 42 Gy in 3 fx for tumours >4–10 cm. The selection is size-based; verify actual tumour diameter, eGFR and eligibility.`
+              ? `Biyopsiyle doğrulanmış, medikal olarak inoperabl veya cerrahi riski yüksek primer RCC (${renalDiameterCm <= 4 ? '≤4 cm' : '>4–10 cm'}). FASTRACK II, ≤4 cm tümörlerde 26 Gy × 1 ve >4–10 cm tümörlerde 42 Gy / 3 fx kullandı. Seçilen çapı (${renalDiameterCm} cm), eGFR'yi ve uygunluğu doğrulayın.`
+              : `Biopsy-confirmed, medically inoperable or high-surgical-risk primary RCC (${renalDiameterCm <= 4 ? '≤4 cm' : '>4–10 cm'}). FASTRACK II delivered 26 Gy x1 for tumours ≤4 cm and 42 Gy in 3 fx for tumours >4–10 cm. Verify the selected diameter (${renalDiameterCm} cm), eGFR and eligibility.`
             : lang === 'tr'
               ? 'Konsey değerlendirmesi sonrası seçilmiş oligometastatik hastalık veya immünoterapi altında oligoprogresyon için örnek 35 Gy / 5 fx. Primer RCC’de FASTRACK II şeması değildir.'
               : 'Example 35 Gy / 5 fx for selected oligometastatic disease or oligoprogression during immunotherapy after MDT review. Not a primary RCC FASTRACK II regimen.',
@@ -8887,18 +8946,32 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   : 'Choose an organ and subsite from the anatomic menu, or start with one of the common clinical scenarios.'}
               </p>
             </div>
+            <div className="mb-6 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setGuidedStep(2)}
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 sm:w-auto"
+              >
+                {lang === 'tr' ? 'Evreleme ve Patolojiye Devam' : 'Continue to Staging & Pathology'}
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
             <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
               {lang === 'tr' ? 'Hızlı Klinik Senaryolar' : 'Quick Clinical Scenarios'}
             </h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-              {guidedQuickCases.map(preset => {
+              {guidedScenarioPresets.map(preset => {
                 const scenario = GUIDED_QUICK_SCENARIOS[preset.id];
+                const scenarioTitle = lang === 'tr'
+                  ? scenario?.title_tr ?? preset.title_tr
+                  : scenario?.title_en ?? preset.title_en;
+                const scenarioDetail = lang === 'tr' ? preset.detail_tr : preset.detail_en;
                 return (
                   <button
                     key={preset.id}
                     type="button"
                     onClick={() => handleQuickCaseSelect(preset)}
-                    aria-label={`${lang === 'tr' ? scenario.title_tr : scenario.title_en}. ${lang === 'tr' ? preset.detail_tr : preset.detail_en}`}
+                    aria-label={`${scenarioTitle}. ${scenarioDetail}`}
                     className={`flex min-h-36 flex-col items-start justify-between gap-3 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
                       selectedQuickCaseId === preset.id
                         ? 'border-amber-400 bg-amber-500/15 shadow-lg shadow-amber-950/20'
@@ -8909,14 +8982,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       {reportOrganNames[preset.organ]}
                     </span>
                     <span className="text-sm font-bold leading-snug text-white">
-                      {lang === 'tr' ? scenario.title_tr : scenario.title_en}
+                      {scenarioTitle}
                     </span>
                     <span className="text-xs leading-relaxed text-slate-300">
-                      {lang === 'tr' ? preset.detail_tr : preset.detail_en}
+                      {scenarioDetail}
                     </span>
                   </button>
                 );
               })}
+              {guidedScenarioPresets.length === 0 && (
+                <p className="col-span-full rounded-xl border border-slate-700/80 bg-[#111c2e] px-4 py-5 text-sm text-slate-400">
+                  {lang === 'tr'
+                    ? 'Bu organ için hızlı senaryo bulunmuyor. Klinik profili soldaki menüden seçip evrelemeye devam edebilirsiniz.'
+                    : 'No quick scenarios are available for this organ. Select the clinical profile from the sidebar and continue to staging.'}
+                </p>
+              )}
             </div>
             <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-xs text-slate-300">
@@ -8930,14 +9010,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </span>{' '}
                 <span className="text-slate-400">{tText(activeScheme.indication)}</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setGuidedStep(2)}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-              >
-                {lang === 'tr' ? 'Evreleme ve Patolojiye Devam' : 'Continue to Staging & Pathology'}
-                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-              </button>
             </div>
           </section>
         )}
@@ -9628,11 +9700,25 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </select>
                 </label>
                 {renalDiseaseSetting === 'primary-inoperable' && (
+                  <>
+                    <label className="block text-slate-300">
+                      {lang === 'tr' ? 'Primer tümör çapı (cm; FASTRACK II doz seçimi)' : 'Primary tumour diameter (cm; FASTRACK II dose selection)'}
+                      <input
+                        type="number"
+                        min="0.1"
+                        max="30"
+                        step="0.1"
+                        value={renalTumorSizeCm}
+                        onChange={event => setRenalTumorSizeCm(event.currentTarget.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100"
+                      />
+                    </label>
                   <p className="rounded-lg border border-amber-700/40 bg-amber-950/20 p-2 text-[10px] leading-relaxed text-amber-200">
                     {lang === 'tr'
                       ? 'FASTRACK II doz seçimi gerçek tümör çapına göre yapılır: ≤4 cm için 26 Gy × 1; >4–10 cm için 42 Gy / 3 fx. T kategorisi tek başına tümör çapının yerine geçmez.'
                       : 'FASTRACK II dose selection is by actual tumour diameter: ≤4 cm, 26 Gy × 1; >4–10 cm, 42 Gy / 3 fx. T category alone does not replace measured tumour size.'}
                   </p>
+                  </>
                 )}
               </div>
             )}
