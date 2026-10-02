@@ -9,7 +9,6 @@ const navigation = [
   { href: '/cdss', labelKey: 'cdss' },
   { href: '/doz-kisitlari', labelKey: 'constraints' },
   { href: '/doz-hesaplayici', labelKey: 'calculator' },
-  { href: '/ai-asistan', labelKey: 'assistant' },
   { href: '/kaynakca', labelKey: 'references' },
   { href: '/yasal-uyari', labelKey: 'disclaimer' },
   { href: '/gizlilik', labelKey: 'privacy' },

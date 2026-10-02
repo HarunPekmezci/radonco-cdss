@@ -5,7 +5,6 @@ export type TranslationDictionary = {
     cdss: string;
     constraints: string;
     calculator: string;
-    assistant: string;
     references: string;
     disclaimer: string;
     privacy: string;
@@ -27,7 +26,6 @@ export type TranslationDictionary = {
   cards: {
     oar: { title: string; description: string; badge: string };
     calculator: { title: string; description: string; badge: string };
-    assistant: { title: string; description: string; badge: string };
     references: { title: string; description: string; badge: string };
     disclaimer: { title: string; description: string; badge: string };
     contact: { title: string; description: string; badge: string };
@@ -40,7 +38,6 @@ export const translations: Record<Language, TranslationDictionary> = {
       cdss: 'CDSS',
       constraints: 'Doz Kısıtları',
       calculator: 'Doz Hesaplayıcı',
-      assistant: 'AI Asistan',
       references: 'Kaynakça',
       disclaimer: 'Yasal Uyarı',
       privacy: 'Gizlilik',
@@ -67,11 +64,6 @@ export const translations: Record<Language, TranslationDictionary> = {
         description: 'BED, EQD2, şema karşılaştırması ve tedavi arası telafi hesaplarını çalıştırın.',
         badge: 'LQ Model',
       },
-      assistant: {
-        title: 'Onkoloji AI Asistanı',
-        description: 'Kanıt odaklı istem şablonları ve güvenli klinik soru-cevap çalışma alanı.',
-        badge: 'Kanıt odaklı',
-      },
       references: {
         title: 'Kaynakça ve Kanıt Atlası',
         description: 'Kılavuzlar, dozimetri referansları ve temel klinik çalışmaları keşfedin.',
@@ -94,7 +86,6 @@ export const translations: Record<Language, TranslationDictionary> = {
       cdss: 'CDSS',
       constraints: 'OAR Constraints',
       calculator: 'Dose Calculator',
-      assistant: 'AI Assistant',
       references: 'References',
       disclaimer: 'Disclaimer',
       privacy: 'Privacy',
@@ -120,11 +111,6 @@ export const translations: Record<Language, TranslationDictionary> = {
         title: 'Radiobiology Calculator',
         description: 'Calculate BED, EQD2, compare fractionation schemes, and estimate treatment-break compensation.',
         badge: 'LQ Model',
-      },
-      assistant: {
-        title: 'Oncology AI Assistant',
-        description: 'An evidence-led prompt library and a safe clinical question-and-answer workspace.',
-        badge: 'Evidence-aware',
       },
       references: {
         title: 'References & Evidence Atlas',

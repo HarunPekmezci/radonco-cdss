@@ -5,7 +5,6 @@ import {
   Activity,
   ArrowUpRight,
   BookOpen,
-  Bot,
   Calculator,
   Mail,
   Radiation,
@@ -16,7 +15,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 type PortalModule = {
   href: string;
-  cardKey: 'oar' | 'calculator' | 'assistant' | 'references' | 'disclaimer' | 'contact';
+  cardKey: 'oar' | 'calculator' | 'references' | 'disclaimer' | 'contact';
   icon: LucideIcon;
   accent: string;
 };
@@ -33,12 +32,6 @@ const modules: PortalModule[] = [
     cardKey: 'calculator',
     icon: Calculator,
     accent: 'text-violet-300 bg-violet-400/10 ring-violet-300/20',
-  },
-  {
-    href: '/ai-asistan',
-    cardKey: 'assistant',
-    icon: Bot,
-    accent: 'text-emerald-300 bg-emerald-400/10 ring-emerald-300/20',
   },
   {
     href: '/kaynakca',
@@ -102,15 +95,15 @@ export default function PortalPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {modules.map(module => {
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            {modules.map((module, index) => {
               const Icon = module.icon;
               const card = t.cards[module.cardKey];
               return (
                 <Link
                   key={module.href}
                   href={module.href}
-                  className="group flex min-h-48 flex-col rounded-2xl border border-slate-800 bg-[#0e1726] p-5 transition hover:-translate-y-0.5 hover:border-slate-600 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                  className={`group flex min-h-48 flex-col rounded-2xl border border-slate-800 bg-[#0e1726] p-5 transition hover:-translate-y-0.5 hover:border-slate-600 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 lg:col-span-2 ${index === 3 ? 'lg:col-start-2' : ''} ${index === 4 ? 'sm:col-span-2 sm:w-1/2 sm:justify-self-center lg:col-start-4 lg:w-auto' : ''}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
