@@ -83,6 +83,9 @@ export type {
   MaxillaryHistology,
   MaxillaryStage,
   MaxillarySurgery,
+  MaxillaryTCategory,
+  MaxillaryNCategory,
+  MaxillarySurgicalMargin,
   MaxillaryMolecularFinding,
 } from './maxillarySinusEngine';
 export {

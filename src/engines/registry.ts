@@ -78,7 +78,7 @@ const ENGINE_DISPLAY_LABELS: Record<string, string> = {
   'head-neck.hypopharynx': 'Hipofarenks',
   'head-neck.oral-cavity': 'Ağız Kavitesi',
   'head-neck.salivary-gland': 'Tükrük Bezi',
-  'head-neck.maxillary-sinus': 'Maksiller Sinüs',
+  'head-neck.maxillary-sinus': 'Baş-Boyun · Paranazal Sinüs · Maksiller Sinüs',
   'head-neck.thyroid': 'Tiroid',
   'gynecology.cervix': 'Serviks',
   'gynecology.endometrial': 'Endometriyum',
@@ -503,16 +503,77 @@ const GENERIC_FORM_SCHEMA: CDSSFormField[] = [
   },
 ];
 
+const MAXILLARY_SINUS_FORM_SCHEMA: CDSSFormField[] = [
+  {
+    key: 'setting',
+    label: 'Tedavi durumu',
+    type: 'select',
+    options: [
+      { value: 'newly-diagnosed', label: 'Yeni tanı' },
+      { value: 'postoperative', label: 'Postoperatif' },
+      { value: 'definitive', label: 'Definitif / inoperabl' },
+      { value: 'recurrent', label: 'Nüks' },
+      { value: 'metastatic', label: 'Metastatik' },
+    ],
+  },
+  {
+    key: 'histology',
+    label: 'Histoloji',
+    type: 'select',
+    options: [
+      { value: 'squamous-cell', label: 'Skuamöz hücreli karsinom (SCC)' },
+      { value: 'adenoid-cystic', label: 'Adenoid kistik karsinom (ACC)' },
+    ],
+  },
+  {
+    key: 'tCategory',
+    label: 'T evresi',
+    type: 'select',
+    options: ['T1', 'T2', 'T3', 'T4a', 'T4b'].map(value => ({ value, label: value })),
+  },
+  {
+    key: 'nCategory',
+    label: 'N evresi',
+    type: 'select',
+    options: ['N0', 'N1', 'N2a', 'N2b', 'N2c', 'N3a', 'N3b'].map(value => ({ value, label: value })),
+  },
+  {
+    key: 'surgicalMargin',
+    label: 'Cerrahi sınır',
+    type: 'select',
+    options: [
+      { value: 'not-applicable', label: 'Değerlendirilmedi / henüz cerrahi yok' },
+      { value: 'R0', label: 'R0 (negatif)' },
+      { value: 'R1', label: 'R1 (mikroskopik pozitif)' },
+      { value: 'inoperable', label: 'İnoperabl' },
+    ],
+  },
+  { key: 'extranodalExtension', label: 'Ekstrakapsüler yayılım (ENE / ECE)', type: 'boolean' },
+  { key: 'boneErosion', label: 'Kemik erozyonu', type: 'boolean' },
+  { key: 'perineuralInvasion', label: 'Perinöral invazyon', type: 'boolean' },
+];
+
 function toRegisteredEngine(engine: DecisionEngine<ClinicalCaseInput>): RegisteredEngine {
   const organSystem = deriveOrganSystem(engine.id);
   const disease = deriveDisease(engine.id);
+  const isMaxillarySinus = engine.id === 'head-neck.maxillary-sinus';
 
   return Object.assign(engine, {
-    formSchema: GENERIC_FORM_SCHEMA,
+    formSchema: isMaxillarySinus ? MAXILLARY_SINUS_FORM_SCHEMA : GENERIC_FORM_SCHEMA,
     defaults: {
       organSystem,
       disease,
       diagnosis: '',
+      ...(isMaxillarySinus ? {
+        setting: 'newly-diagnosed',
+        histology: 'squamous-cell',
+        tCategory: 'T1',
+        nCategory: 'N0',
+        surgicalMargin: 'not-applicable',
+        extranodalExtension: false,
+        boneErosion: false,
+        perineuralInvasion: false,
+      } : {}),
     },
   });
 }

@@ -108,6 +108,16 @@ const refs = {
   glioblastoma: reference('EANO guidelines for diffuse gliomas', 'https://www.nature.com/articles/s41571-020-00447-z', 'EANO'),
   brain: reference('ASTRO Brain Metastases Guideline', 'https://www.practicalradonc.org/article/S1879-8500(22)00052-2/fulltext', 'ASTRO'),
   headNeck: reference('ASTRO HPV-positive Oropharyngeal Cancer Guideline', 'https://www.practicalradonc.org/article/S1879-8500(18)30068-6/fulltext', 'ASTRO'),
+  maxillarySinusNccn: {
+    ...reference('NCCN Head and Neck Cancers Guidelines', 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1437', 'NCCN'),
+    evidenceLevel: '2A' as const,
+  },
+  maxillarySinusPooledAnalysis: {
+    organization: 'other' as const,
+    title: 'EORTC 22931 / RTOG 9501 pooled analysis of postoperative chemoradiotherapy',
+    url: 'https://doi.org/10.1056/NEJMoa040529',
+    evidenceLevel: '1' as const,
+  },
   palliative: reference('ASTRO Bone Metastases Guideline', 'https://www.practicalradonc.org/article/S1879-8500(16)30188-4/fulltext', 'ASTRO'),
 };
 
@@ -188,6 +198,14 @@ export const REGIMEN_CATALOGS: Record<string, RegimenCatalog> = {
       scheme('surgical-cavity', 'Cerrahi kavite SRT: 27–30 Gy / 3 fx', 'adjuvant', 27, 3, 'Rezeksiyon kavitesi ve cerrahi trakt; fraksiyone stereotaktik yaklaşım.', refs.brain, 'brain', 'SRS'),
       scheme('whole-brain', 'WBRT: 30 Gy / 10 fx', 'palliative', 30, 10, 'Çoklu/yaygın metastaz; tüm beyin, hipokampal koruma uygunlukla.', refs.brain, 'brain'),
       scheme('palliative-wbrt', 'Palyatif WBRT: 20 Gy / 5 fx', 'palliative', 20, 5, 'Yaygın semptomatik beyin metastazlarında kısa süreli palyatif tedavi.', refs.brain, 'brain', 'moderate-hypofractionation'),
+    ],
+  },
+  'head-neck.maxillary-sinus': {
+    defaultSchemeId: 'postoperative-r0-60',
+    schemes: [
+      scheme('postoperative-ene-r1-66', 'ENE+ / R1 PORT + sisplatin: 66 Gy / 33 fx', 'adjuvant', 66, 33, 'Yüksek riskli tümör yatağı ve ENE+ nodal basin 66 Gy; elektif boyun 54-60 Gy / 30-33 fx; eşzamanlı sisplatin.', refs.maxillarySinusPooledAnalysis, 'head-neck'),
+      scheme('postoperative-r0-60', 'R0 / ENE(-) adjuvan RT: 60 Gy / 30 fx', 'adjuvant', 60, 30, 'Kemik erozyonu, perinöral invazyon veya T3-T4 hastalıkta maksiller sinüs cerrahi yatağı.', refs.maxillarySinusNccn, 'head-neck'),
+      scheme('definitive-70', 'Definitif KRT: 70 Gy / 35 fx', 'definitive', 70, 35, 'İnoperabl maksiller sinüs primeri ve gross nodal hastalık; eşzamanlı sisplatin.', refs.maxillarySinusNccn, 'head-neck'),
     ],
   },
   'head-neck.nasopharynx': {

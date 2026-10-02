@@ -12,10 +12,13 @@ import type {
   TNMStage,
 } from '../../types/cdss';
 
-export type MaxillarySetting = 'newly-diagnosed' | 'postoperative' | 'recurrent' | 'metastatic';
+export type MaxillarySetting = 'newly-diagnosed' | 'postoperative' | 'definitive' | 'recurrent' | 'metastatic';
 export type MaxillaryHistology = 'squamous-cell' | 'adenocarcinoma' | 'adenoid-cystic' | 'mucosal-melanoma' | 'olfactory-neuroblastoma' | 'other' | 'unknown';
 export type MaxillaryStage = 'I' | 'II' | 'III' | 'IVA' | 'IVB' | 'unknown';
+export type MaxillaryTCategory = 'T1' | 'T2' | 'T3' | 'T4' | 'T4a' | 'T4b' | 'unknown';
+export type MaxillaryNCategory = 'N0' | 'N1' | 'N2' | 'N2a' | 'N2b' | 'N2c' | 'N3' | 'N3a' | 'N3b' | 'unknown';
 export type MaxillarySurgery = 'none' | 'endoscopic-resection' | 'partial-maxillectomy' | 'total-maxillectomy' | 'craniofacial-resection' | 'neck-dissection' | 'unknown';
+export type MaxillarySurgicalMargin = 'R0' | 'R1' | 'R2' | 'RX' | 'inoperable' | 'not-applicable';
 export type MaxillaryMolecularFinding = 'NTRK-fusion' | 'HER2-positive' | 'EGFR-altered' | 'BRAF-altered' | 'PD-L1-positive' | 'MSI-H' | 'TMB-high' | 'none' | 'unknown';
 
 export interface MaxillarySinusInput extends ClinicalCaseInput {
@@ -26,15 +29,16 @@ export interface MaxillarySinusInput extends ClinicalCaseInput {
   stageGroup?: MaxillaryStage;
   histology?: MaxillaryHistology;
   surgeryType?: MaxillarySurgery;
-  surgicalMargin?: 'R0' | 'R1' | 'R2' | 'RX' | 'not-applicable';
-  tCategory?: string;
-  nCategory?: string;
+  surgicalMargin?: MaxillarySurgicalMargin;
+  tCategory?: MaxillaryTCategory;
+  nCategory?: MaxillaryNCategory;
   tumorSizeCm?: number;
   orbitalInvasion?: boolean;
   orbitalApexInvolvement?: boolean;
   skullBaseInvasion?: boolean;
   cavernousSinusInvolvement?: boolean;
   perineuralInvasion?: boolean;
+  boneErosion?: boolean;
   namedNerveInvasion?: boolean;
   positiveNodes?: number;
   extranodalExtension?: boolean;
@@ -70,7 +74,9 @@ const TRIALS: GuidelineReference[] = [
   { organization: 'other', title: 'PARADIGM: induction chemotherapy and chemoradiotherapy in locally advanced head and neck cancer', url: 'https://doi.org/10.1016/S0140-6736(13)61683-6', evidenceLevel: '2A' },
   { organization: 'other', title: 'RTOG 0912: proton therapy for sinonasal malignancies', url: 'https://clinicaltrials.gov/study/NCT01236547', evidenceLevel: '2B' },
   { organization: 'other', title: 'Larotrectinib in NTRK fusion-positive solid tumors', url: 'https://doi.org/10.1056/NEJMoa1812624', evidenceLevel: '1' },
+  { organization: 'other', title: 'EORTC 22931 / RTOG 9501 pooled analysis of postoperative chemoradiotherapy', url: 'https://doi.org/10.1056/NEJMoa040529', evidenceLevel: '1' },
 ];
+const EORTC_RTOG_POOLED_ANALYSIS = TRIALS[TRIALS.length - 1];
 
 export const MAXILLARY_SINUS_INPUT_JSON_SCHEMA: JsonSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -81,20 +87,21 @@ export const MAXILLARY_SINUS_INPUT_JSON_SCHEMA: JsonSchema = {
   properties: {
     organSystem: { type: 'string', enum: ['head-neck'] },
     disease: { type: 'string', enum: ['maxillary-sinus-cancer'] },
-    setting: { type: 'string', enum: ['newly-diagnosed', 'postoperative', 'recurrent', 'metastatic'] },
+    setting: { type: 'string', enum: ['newly-diagnosed', 'postoperative', 'definitive', 'recurrent', 'metastatic'] },
     stage: { type: 'object', additionalProperties: true },
     stageGroup: { type: 'string', enum: ['I', 'II', 'III', 'IVA', 'IVB', 'unknown'] },
     histology: { type: 'string', enum: ['squamous-cell', 'adenocarcinoma', 'adenoid-cystic', 'mucosal-melanoma', 'olfactory-neuroblastoma', 'other', 'unknown'] },
     surgeryType: { type: 'string' },
-    surgicalMargin: { type: 'string', enum: ['R0', 'R1', 'R2', 'RX', 'not-applicable'] },
-    tCategory: { type: 'string' },
-    nCategory: { type: 'string' },
+    surgicalMargin: { type: 'string', enum: ['R0', 'R1', 'R2', 'RX', 'inoperable', 'not-applicable'] },
+    tCategory: { type: 'string', enum: ['T1', 'T2', 'T3', 'T4', 'T4a', 'T4b', 'unknown'] },
+    nCategory: { type: 'string', enum: ['N0', 'N1', 'N2', 'N2a', 'N2b', 'N2c', 'N3', 'N3a', 'N3b', 'unknown'] },
     tumorSizeCm: { type: 'number' },
     orbitalInvasion: { type: 'boolean' },
     orbitalApexInvolvement: { type: 'boolean' },
     skullBaseInvasion: { type: 'boolean' },
     cavernousSinusInvolvement: { type: 'boolean' },
     perineuralInvasion: { type: 'boolean' },
+    boneErosion: { type: 'boolean' },
     namedNerveInvasion: { type: 'boolean' },
     positiveNodes: { type: 'number' },
     extranodalExtension: { type: 'boolean' },
@@ -149,9 +156,13 @@ const maxillaryTargets = (dose: Fractionation, recurrent = false): TargetVolume[
 const maxillaryOars: OARConstraint[] = [
   { organ: 'Spinal cord', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Head and neck spinal cord objective' },
   { organ: 'Brainstem', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Sinonasal brainstem objective' },
-  { organ: 'Optic nerves/chiasm', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Optic pathway objective' },
+  { organ: 'Optic chiasm', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Dmax < 54 Gy' },
+  { organ: 'Contralateral optic nerve', metric: 'Dmax', limit: 50, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Dmax < 50-54 Gy; mandatory visual sparing' },
+  { organ: 'Ipsilateral optic nerve', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Dmax < 54-55 Gy' },
+  { organ: 'Retina', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Dmax < 45 Gy' },
+  { organ: 'Lens', metric: 'Dmax', limit: 6, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Dmax < 6-8 Gy; cataract risk' },
+  { organ: 'Lacrimal gland', metric: 'Dmean', limit: 25, unit: 'Gy', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Dmean < 25-30 Gy; reduce severe dry eye risk' },
   { organ: 'Globe', metric: 'Dmean', limit: 35, unit: 'Gy', priority: 'optimal', source: 'protocol', sourceReference: 'Sinonasal globe preservation objective' },
-  { organ: 'Lens', metric: 'Dmax', limit: 10, unit: 'Gy', priority: 'optimal', source: 'protocol', sourceReference: 'Sinonasal lens objective' },
   { organ: 'Contralateral parotid', metric: 'Dmean', limit: 26, unit: 'Gy', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Salivary gland preservation objective' },
   { organ: 'Brachial plexus', metric: 'Dmax', limit: 66, unit: 'Gy', priority: 'mandatory', source: 'protocol', sourceReference: 'Head and neck nodal irradiation brachial plexus objective' },
 ];
@@ -182,53 +193,116 @@ export class MaxillarySinusDecisionEngine extends BaseDecisionEngine<MaxillarySi
     const warnings: string[] = [];
     let rtIndication: CDSSResult['rtIndication'] = 'not-indicated';
     let intent: CDSSResult['intent'] = 'curative';
-    const advanced = input.stageGroup === 'III' || input.stageGroup === 'IVA' || input.tCategory === 'T3' || input.tCategory === 'T4' || input.nCategory === 'N2' || input.nCategory === 'N3';
-    const highRisk = input.surgicalMargin === 'R1' || input.surgicalMargin === 'R2' || input.perineuralInvasion === true || input.namedNerveInvasion === true || input.orbitalApexInvolvement === true || input.skullBaseInvasion === true || input.extranodalExtension === true || Boolean(input.positiveNodes && input.positiveNodes > 0);
+    const tCategory = input.tCategory ?? input.stage?.t?.replace(/^[cpy]/i, '');
+    const nCategory = input.nCategory ?? input.stage?.n?.replace(/^[cpy]/i, '');
+    const t3OrHigher = ['T3', 'T4', 'T4a', 'T4b'].includes(tCategory ?? '');
+    const advanced = ['III', 'IVA', 'IVB'].includes(input.stageGroup ?? '')
+      || t3OrHigher
+      || ['N2', 'N2a', 'N2b', 'N2c', 'N3', 'N3a', 'N3b'].includes(nCategory ?? '');
+    const hasHighRiskPathology = input.surgicalMargin === 'R1' || input.extranodalExtension === true;
+    const isDefinitive = input.setting === 'definitive'
+      || (!['recurrent', 'metastatic'].includes(input.setting) && input.surgicalMargin === 'inoperable');
+    const hasStandardAdjuvantRisk = input.boneErosion === true || input.perineuralInvasion === true || t3OrHigher;
 
     if (input.priorHeadNeckRT) warnings.push('Önceki baş-boyun RT mevcut; optik yollar, göz, beyin sapı, spinal kord, karotis ve beyin kümülatif dozları hesaplanmalıdır.');
     if (input.orbitalApexInvolvement || input.cavernousSinusInvolvement) warnings.push('Orbital apeks/kavernöz sinüs tutulumu mevcut; nöro-oftalmolojik değerlendirme, yüksek çözünürlüklü MRI ve optik yapı doz optimizasyonu zorunludur.');
     if (input.namedNerveInvasion) rationale.push('Adlandırılmış sinir/perinöral yayılım mevcut; ilgili sinir trasesi ve kafa tabanı foramenleri CTV’ye eklenmelidir.');
 
-    if (input.setting === 'newly-diagnosed') {
-      const definitiveDose = fraction(66, 33, 'conventional', '66 Gy / 33 fx; seçilmiş inoperabl hastada sinonazal primer PTV66 ve risk alanları');
+    if (isDefinitive) {
+      const definitiveDose = fraction(70, 35, 'conventional', '70 Gy / 35 fx, 2.0 Gy/fx; definitif primer ve gross nodal hastalık');
       recommendations.push({
-        id: 'new-maxillary-sinus-cancer',
-        label: advanced ? 'Kraniofasiyal/endoskopik rezeksiyon + risk-adapte postoperatif RT veya seçilmiş definitif IMRT' : 'R0 hedefli maksillektomi/endoskopik rezeksiyon ve histolojiye göre adjuvan RT',
-        indication: highRisk ? 'indicated' : 'conditional',
-        intent: 'curative',
+        id: 'definitive-maxillary-sinus-cancer',
+        label: 'İnoperabl maksiller sinüs: definitif eşzamanlı kemoradyoterapi',
+        indication: 'indicated',
+        intent: 'definitive',
         fractionation: definitiveDose,
         targetVolumes: maxillaryTargets(definitiveDose),
         oarConstraints: maxillaryOars,
-        systemicTherapy: [systemic('concurrent', 'Seçilmiş yüksek riskli veya inoperabl hastada platin bazlı eşzamanlı KRT; rutin histoloji bağımlıdır', ['cisplatin veya carboplatin'], 'MDT, histoloji ve renal/işitme fonksiyonuna göre', '2B')],
+        systemicTherapy: [systemic('concurrent', 'Eşzamanlı sisplatin', ['Sisplatin 100 mg/m² üç haftada bir', 'Sisplatin 40 mg/m² haftalık'], '70 Gy / 35 fx ile eşzamanlı; renal, işitme ve performans durumu değerlendirilerek', '1')],
         rationale: [
-          'Maksiller sinüs kanserinde temel yaklaşım, orbit ve skull-base ilişkisini dikkate alan R0 hedefli endoskopik/parsiyel-total maksillektomi veya kraniofasiyal rezeksiyondur.',
-          'Pozitif marjin, orbital apeks/skull-base invazyonu, adlandırılmış sinir tutulumu, perinöral yayılım, nodal hastalık ve yüksek derece histoloji postoperatif RT lehinedir.',
-          'Postoperatif CTV primer cerrahi yatağı, tümörün preoperatif uzanımı, kemik/orbit risk alanları ve varsa sinir trasesini kapsamalıdır.',
-          'Sinonazal tümörlerde proton/IMRT, optik yollar ve göz dozlarını azaltmak için teknik seçeneklerdir; RTOG 0912 proton tabanlı yaklaşım için önemli bir çalışmadır.',
-          'Elektif boyun tedavisi histoloji, T/N evresi ve subsite riskine göre seçilir; rutin torasik ENI uygulanmaz.',
-        ],
-        guidelineReferences: references(TRIALS[0], TRIALS[1], TRIALS[2], TRIALS[3]),
-      });
-      rtIndication = highRisk ? 'indicated' : 'conditional';
-    } else if (input.setting === 'postoperative') {
-      const postoperativeDose = fraction(60, 30, 'conventional', '60 Gy / 30 fx; maksiller sinüs cerrahi yatağı ± perinöral/skull-base boost');
-      recommendations.push({
-        id: 'postoperative-maxillary-sinus-cancer',
-        label: highRisk ? 'Yüksek riskli postoperatif sinonazal IMRT/proton tedavisi' : 'Risk-adapte postoperatif maksiller sinüs yatağı RT veya izlem',
-        indication: highRisk ? 'indicated' : 'conditional',
-        intent: 'adjuvant',
-        fractionation: highRisk ? postoperativeDose : undefined,
-        targetVolumes: highRisk ? maxillaryTargets(postoperativeDose) : undefined,
-        oarConstraints: highRisk ? maxillaryOars : undefined,
-        systemicTherapy: highRisk ? [systemic('concurrent', 'Seçilmiş yüksek riskli hastada platin bazlı eşzamanlı tedavi', ['cisplatin veya carboplatin'], 'Pozitif marjin/nodal hastalıkta; histoloji ve organ fonksiyonuna göre', '2B')] : undefined,
-        rationale: [
-          'Pozitif/çok yakın marjin, perinöral veya adlandırılmış sinir tutulumu, orbital/skull-base invazyonu ve nodal hastalık postoperatif RT endikasyonunu güçlendirir.',
-          'Optik sinir/kiazma, retina, lens, göz ve beyin dozları ile hedef kapsamı arasında yüksek hassasiyetli IMRT/proton optimizasyonu gerekir.',
-          'Adenoid kistik karsinomda sinir trasesi boyunca kafa tabanına uzanan CTV, lokal kontrol için özellikle önemlidir.',
+          'İnoperabl veya definitif tedavi seçilen maksiller sinüs karsinomunda 70 Gy / 35 fx eşzamanlı sisplatin ile uygulanır.',
+          'Hedef hacimler, gross hastalık ve risk altındaki nodal seviyeler için ayrı ayrı tanımlanmalı; optik ve nörolojik OAR dozları önceliklendirilmelidir.',
+          'SCC ve ACC histolojileri için karar, rezektabilite, sinir/orbit/kafa tabanı yayılımı ve multidisipliner değerlendirmeye göre bireyselleştirilmelidir.',
         ],
         guidelineReferences: references(TRIALS[0], TRIALS[1], TRIALS[3]),
       });
-      rtIndication = highRisk ? 'indicated' : 'conditional';
+      rtIndication = 'indicated';
+      intent = 'definitive';
+    } else if (hasHighRiskPathology && !['recurrent', 'metastatic'].includes(input.setting)) {
+      const highRiskDose = fraction(66, 33, 'conventional', '66 Gy / 33 fx, 2.0 Gy/fx; high-risk tumor bed and ENE-positive nodal basin');
+      const electiveNeckDose = fraction(54, 30, 'conventional', '54-60 Gy / 30-33 fx; elective neck volume');
+      const highRiskTargets: TargetVolume[] = [
+        {
+          name: 'CTV-HR tumor bed',
+          description: 'High-risk resection bed; include the ENE-positive nodal basin when extranodal extension is present.',
+          dose: highRiskDose,
+          margin: 'Pathology- and imaging-adapted high-risk bed and involved nodal basin',
+        },
+        ...(input.extranodalExtension ? [{
+          name: 'CTV-ENE nodal basin',
+          description: 'Pathologically involved nodal basin with extranodal extension.',
+          dose: highRiskDose,
+          margin: 'Postoperative imaging and neck-dissection findings',
+        }] : []),
+        {
+          name: 'CTV-elective-neck',
+          description: 'Elective neck volume; select 54-60 Gy in 30-33 fractions according to nodal risk.',
+          dose: electiveNeckDose,
+          margin: 'Risk-adapted elective nodal levels',
+        },
+        {
+          name: 'PTV-HR',
+          description: 'High-risk tumor bed and ENE-positive nodal basin as applicable.',
+          dose: highRiskDose,
+          margin: 'Institutional image-guidance and setup protocol',
+        },
+      ];
+      recommendations.push({
+        id: 'maxillary-sinus-high-risk-postoperative-chemoradiation',
+        label: 'YÜKSEK RİSKLİ ADJUVAN EŞZAMANLI KEMORADYOTERAPİ (Kategori 1 Altın Standart)',
+        indication: 'indicated',
+        intent: 'adjuvant',
+        fractionation: highRiskDose,
+        targetVolumes: highRiskTargets,
+        oarConstraints: maxillaryOars,
+        systemicTherapy: [systemic('concurrent', 'Eşzamanlı sisplatin', ['Sisplatin 100 mg/m² üç haftada bir', 'Sisplatin 40 mg/m² haftalık'], '66 Gy / 33 fx PORT ile eşzamanlı; renal, işitme ve performans durumu değerlendirilerek', '1')],
+        rationale: [
+          'Ekstrakapsüler yayılım (ENE+) veya R1 cerrahi sınır saptandı -> Kategori 1 Eşzamanlı Sisplatin + 66 Gy PORT kesin endikedir.',
+          'Yüksek riskli tümör yatağı ve ENE pozitif nodal basin 66 Gy / 33 fx; elektif boyun hacmi 54-60 Gy / 30-33 fx ile tedavi edilir.',
+          'EORTC 22931 / RTOG 9501 havuzlanmış analiz bulguları doğrultusunda sisplatin uygunluğu, böbrek fonksiyonu, işitme ve performans durumu ile doğrulanmalıdır.',
+        ],
+        guidelineReferences: references(EORTC_RTOG_POOLED_ANALYSIS, TRIALS[0], TRIALS[1]),
+      });
+      rtIndication = 'indicated';
+      intent = 'adjuvant';
+    } else if (input.setting === 'postoperative') {
+      const postoperativeDose = fraction(60, 30, 'conventional', '60 Gy / 30 fx; maksiller sinüs cerrahi yatağı ± perinöral/skull-base boost');
+      const r0AndEneNegative = input.surgicalMargin === 'R0' && input.extranodalExtension !== true;
+      const adjuvantIndicated = r0AndEneNegative && hasStandardAdjuvantRisk;
+      recommendations.push({
+        id: 'postoperative-maxillary-sinus-cancer',
+        label: adjuvantIndicated
+          ? 'R0 / ENE(-): standart adjuvan RT 60 Gy / 30 fx'
+          : r0AndEneNegative
+            ? 'R0 / ENE(-): ek adjuvan RT risk özelliği yok; izlem'
+            : 'Postoperatif maksiller sinüs: patoloji ve cerrahi sınır değerlendirmesi gerekli',
+        indication: adjuvantIndicated ? 'indicated' : r0AndEneNegative ? 'not-indicated' : 'conditional',
+        intent: 'adjuvant',
+        fractionation: adjuvantIndicated ? postoperativeDose : undefined,
+        targetVolumes: adjuvantIndicated ? maxillaryTargets(postoperativeDose) : undefined,
+        oarConstraints: adjuvantIndicated ? maxillaryOars : undefined,
+        rationale: adjuvantIndicated
+          ? [
+              'R0 ve ENE(-) hastada kemik erozyonu, perinöral invazyon veya T3-T4 hastalık varsa 60 Gy / 30 fx adjuvan RT endikedir.',
+              'Optik sinir/kiazma, retina, lens, gözyaşı bezi ve beyin sapı dozları ile hedef kapsamı arasında IMRT/proton optimizasyonu gerekir.',
+              'Adenoid kistik karsinomda sinir trasesi boyunca kafa tabanına uzanan CTV lokal kontrol için önemlidir.',
+            ]
+          : r0AndEneNegative
+            ? ['R0 ve ENE(-) hastada kemik erozyonu, perinöral invazyon veya T3-T4 ölçütleri yoksa adjuvan RT rutin olarak endike değildir; izlem MDT ile planlanır.']
+            : ['R0/R1 durumu ve ENE patoloji sonucu doğrulanmadan adjuvan doz kararı verilmemelidir.'],
+        guidelineReferences: references(EORTC_RTOG_POOLED_ANALYSIS, TRIALS[0], TRIALS[1]),
+      });
+      rtIndication = adjuvantIndicated ? 'indicated' : r0AndEneNegative ? 'not-indicated' : 'conditional';
       intent = 'adjuvant';
     } else if (input.setting === 'recurrent') {
       const salvageDose = fraction(60, 30, 'conventional', '60 Gy / 30 fx; daha önce ışınlanmamış seçilmiş salvage alan');
@@ -252,7 +326,7 @@ export class MaxillarySinusDecisionEngine extends BaseDecisionEngine<MaxillarySi
       });
       rtIndication = input.symptomaticRecurrence ? 'indicated' : 'conditional';
       intent = 'salvage';
-    } else {
+    } else if (input.setting === 'metastatic') {
       const palliativeDose = fraction(30, 10, 'moderate-hypofractionation', '30 Gy / 10 fx; semptomatik sinonazal veya metastatik odak');
       recommendations.push({
         id: 'metastatic-maxillary-sinus-cancer',
@@ -271,6 +345,23 @@ export class MaxillarySinusDecisionEngine extends BaseDecisionEngine<MaxillarySi
       });
       rtIndication = input.symptomaticRecurrence ? 'indicated' : 'conditional';
       intent = 'palliative';
+    } else {
+      recommendations.push({
+        id: 'new-maxillary-sinus-cancer',
+        label: advanced
+          ? 'Lokal ileri maksiller sinüs kanseri: rezektabilite ve multimodal tedavi değerlendirmesi'
+          : 'Maksiller sinüs kanseri: histoloji ve evreye göre cerrahi değerlendirme',
+        indication: 'conditional',
+        intent: 'curative',
+        oarConstraints: maxillaryOars,
+        rationale: [
+          'Baş-boyun -> paranazal sinüs -> maksiller sinüs primerlerinde SCC ve ACC histolojileri, T/N evresi, orbit ve kafa tabanı ilişkisi multidisipliner değerlendirilmelidir.',
+          'R0 hedefli endoskopik/parsiyel-total maksillektomi veya kraniofasiyal rezeksiyon sonrası patolojiye göre adjuvan RT/kemoradyoterapi seçilir.',
+          'Görüntüleme ve patoloji sonrası ENE, marjin, kemik erozyonu ve perinöral invazyon bilgileri tamamlanmalıdır.',
+        ],
+        guidelineReferences: references(EORTC_RTOG_POOLED_ANALYSIS, TRIALS[0], TRIALS[1]),
+      });
+      rtIndication = 'conditional';
     }
 
     if (input.distantMetastases && input.distantMetastases.length > 0) {
