@@ -60,7 +60,7 @@ export default function SignInPage() {
   }[lang];
 
   return (
-    <div className={`min-h-screen w-full bg-[#070b14] text-slate-100 flex font-sans relative ${lang === 'en' ? 'en-mode' : 'tr-mode'}`}>
+    <div className={`auth-mosaic min-h-screen w-full text-slate-100 font-sans relative overflow-x-hidden ${lang === 'en' ? 'en-mode' : 'tr-mode'}`}>
       
       {/* BUTON METNİ, E-POSTA VE 6 AYRI OTP KUTUSU STİLLERİ */}
       <style dangerouslySetInnerHTML={{
@@ -172,7 +172,8 @@ export default function SignInPage() {
       {/* ==============================================================
           1. SOL SÜTUN (HERO + DVH KONSOLU)
          ============================================================== */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d] bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
+      <main className="mx-auto flex min-h-screen w-full max-w-[1600px] overflow-hidden border-x border-slate-800/40">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d]/90 bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
         {/* Üst Logo */}
         <div className="flex items-center gap-3">
@@ -408,6 +409,8 @@ export default function SignInPage() {
         </div>
 
       </div>
+
+      </main>
 
     </div>
   );

@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+.auth-mosaic {
+  background-color: #070b14;
+  background-image:
+    linear-gradient(rgb(148 163 184 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 0.045) 1px, transparent 1px),
+    repeating-conic-gradient(rgb(59 130 246 / 0.035) 0% 25%, transparent 0% 50%);
+  background-size: 48px 48px, 48px 48px, 96px 96px;
+}
+
 :root {
   --background: #f1f5f9;
   --foreground: #0f172a;

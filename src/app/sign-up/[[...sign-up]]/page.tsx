@@ -44,30 +44,22 @@ export default function SignUpPage() {
   }[lang];
 
   return (
-    <div className="min-h-screen w-full bg-[#070b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.15),transparent_70%)] text-slate-100 flex flex-col items-center justify-center p-4 font-sans relative">
-      
-      {/* ==============================================================
-          DİL SEÇİCİ (SAĞ ÜST KÖŞE - EN VARSAYILAN)
-         ============================================================== */}
-      <div className="fixed top-4 right-4 z-50">
-        <div className="flex items-center gap-1 bg-[#0e1726]/90 border border-slate-800 rounded-xl p-1 shadow-xl backdrop-blur-md text-xs font-semibold">
-          <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+    <div className="auth-mosaic min-h-screen w-full overflow-x-hidden font-sans text-slate-100">
+      <div className="fixed right-4 top-4 z-50">
+        <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726]/90 p-1 text-xs font-semibold shadow-xl backdrop-blur-md">
+          <Globe className="ml-1.5 mr-0.5 h-3.5 w-3.5 text-slate-400" />
           <button
             onClick={() => setLang('en')}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              lang === 'en'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+            className={`rounded-lg px-2.5 py-1 transition-all ${
+              lang === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             EN
           </button>
           <button
             onClick={() => setLang('tr')}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              lang === 'tr'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+            className={`rounded-lg px-2.5 py-1 transition-all ${
+              lang === 'tr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             TR
@@ -75,31 +67,52 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      {/* ==============================================================
-          ÜST KURUMSAL LOGO VE BAŞLIK
-         ============================================================== */}
-      <div className="w-full max-w-[460px] mb-4 flex flex-col items-center text-center">
-        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md mb-2.5 nuclear-box">
-          <Radiation className="w-8 h-8 nuclear-icon" />
-        </div>
-        
-        <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-          RadOnc CDSS
-        </h1>
-        <p className="text-xs text-slate-400 mt-0.5 font-medium">
-          {t.platformSubtitle}
-        </p>
+      <main className="mx-auto flex min-h-screen w-full max-w-[1600px] overflow-hidden border-x border-slate-800/40">
+        <section className="hidden lg:flex lg:w-1/2 flex-col justify-between border-r border-slate-800/80 bg-[#0a101d]/90 bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] p-12 xl:p-16">
+          <div className="flex items-center gap-3">
+            <div className="nuclear-box rounded-2xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-amber-400 shadow-md">
+              <Radiation className="nuclear-icon h-7 w-7" />
+            </div>
+            <div>
+              <span className="block text-lg font-extrabold tracking-tight text-white">RadOnc CDSS</span>
+              <span className="text-[11px] font-medium text-slate-400">{t.platformSubtitle}</span>
+            </div>
+          </div>
 
-        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-[11px] font-semibold text-blue-400">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-          {t.badge}
-        </div>
-      </div>
+          <div className="my-auto max-w-lg py-12">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
+              <ShieldCheck className="h-4 w-4" />
+              {t.badge}
+            </div>
+            <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
+              {lang === 'en' ? 'Clinical decisions, grounded in evidence.' : 'Kanıta dayalı klinik kararlar.'}
+            </h1>
+            <p className="mt-5 max-w-md text-sm leading-7 text-slate-400">
+              {lang === 'en'
+                ? 'Create an account to access the radiation oncology clinical decision support platform.'
+                : 'Radyasyon onkolojisi klinik karar destek platformuna erişmek için hesabınızı oluşturun.'}
+            </p>
+          </div>
 
-      {/* ==============================================================
-          KOYU TEMA CLERK KAYIT KARTI (SIGN-UP)
-         ============================================================== */}
-      <div className="w-full max-w-[460px] flex flex-col items-center">
+          <div className="text-xs font-medium tracking-wide text-slate-400">
+            <span className="font-semibold text-slate-200">{t.signature}</span>
+          </div>
+        </section>
+
+        <section className="flex min-h-screen w-full flex-col items-center justify-center bg-[#070b14]/75 p-4 sm:p-8 lg:w-1/2">
+          <div className="mb-6 flex flex-col items-center text-center lg:hidden">
+            <div className="nuclear-box mb-2.5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-400 shadow-md">
+              <Radiation className="nuclear-icon h-7 w-7" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">RadOnc CDSS</span>
+            <span className="mt-0.5 text-xs text-slate-400">{t.platformSubtitle}</span>
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 text-[11px] font-semibold text-blue-400">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t.badge}
+            </div>
+          </div>
+
+          <div className="flex w-full max-w-[460px] flex-col items-center">
         <SignUp
           appearance={({
             variables: {
@@ -151,10 +164,13 @@ export default function SignUpPage() {
         </div>
 
         {/* ALT İMZA */}
-        <div className="mt-5 text-center text-xs text-slate-400 font-medium">
+        <div className="mt-5 text-center text-xs text-slate-400 font-medium lg:hidden">
           <span className="text-slate-300 font-semibold">{t.signature}</span>
         </div>
       </div>
+
+        </section>
+      </main>
 
     </div>
   );
