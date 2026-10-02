@@ -7,7 +7,6 @@
 'use client';
 
 import React, { startTransition, useState, useMemo, useEffect, useEffectEvent, useRef, useCallback, useId, useSyncExternalStore } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Radiation,
@@ -1049,8 +1048,6 @@ const TRANSLATION_MAP: Record<string, string> = {
   'Radyobiyolojik Eşdeğerlik': 'Radiobiological Equivalence',
   'Eşlik Eden Sistemik Tedavi:': 'Concomitant Systemic Therapy:',
   'Kanıt ve Kılavuz': 'Evidence and Guidelines',
-  'Kılavuz & Kaynakça': 'Guidelines & References',
-  'Yasal Sorumluluk Reddi': 'Disclaimer',
   'Radyasyon Onkolojisi CDSS - Kaynakça ve Yasal Bilgiler': 'Radiation Oncology CDSS - References and Legal Information',
   'Landmark çalışmalar ve klinik başlıklar': 'Landmark Trials and Clinical Topics',
   'PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).': 'PACIFIC (stage III NSCLC), Turrisi and CONVERT (SCLC), and Lung-ART (postoperative thoracic radiotherapy).',
@@ -11498,30 +11495,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
         </div>
       )}
-
-      <footer className="min-h-10 w-full border-t border-slate-800 bg-[#131c31] px-4 py-1.5 flex items-center justify-between gap-3 transition-colors">
-        <p className="min-w-0 truncate text-[11px] text-slate-500 dark:text-slate-200">
-          {lang === 'tr'
-            ? '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır. Bu sistem klinik karar destek ve eğitim amaçlıdır.'
-            : '© 2026 RadOnc CDSS • NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® and DEGRO® are registered trademarks of their respective organizations. This system is intended for clinical decision support and educational purposes only.'}</p>
-        <div className="flex shrink-0 items-center gap-3">
-          <Link
-            href="/references"
-            className="whitespace-nowrap text-[11px] font-semibold text-blue-800 dark:text-blue-300 hover:underline"
-          >
-            {tText("\n            📚 Kılavuz & Kaynakça\n          ")}
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveReferenceTab('disclaimer');
-              setShowGuidelineModal(true);
-            }}
-            className="whitespace-nowrap text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:underline"
-          >
-            {tText("\n            ⚖️ Yasal Sorumluluk Reddi\n          ")}</button>
-        </div>
-      </footer>
 
       {/* ==========================================
           MODAL: KILAVUZ BİLGİ DOKÜMANI
