@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Radiation, ShieldCheck, LogIn, Globe, Building2 } from 'lucide-react';
+import { Radiation, ShieldCheck, LogIn, Globe } from 'lucide-react';
 
 export default function SignUpPage() {
   const [lang, setLang] = useState<'en' | 'tr'>('en');
@@ -27,18 +27,16 @@ export default function SignUpPage() {
   const t = {
     en: {
       platformSubtitle: 'Clinical Decision Support System',
-      badge: 'Institutional & Academic Registration',
-      institutionalNoticeTitle: 'Institutional Email Required',
-      institutionalNoticeText: 'Please register with your university (.edu, .edu.tr) or verified hospital email. Personal email domains (gmail, yahoo, etc.) are restricted.',
+      badge: 'Healthcare Professional Registration',
+      physicianNote: 'Platform intended for healthcare professionals and clinical oncologists.',
       hasAccount: 'Already have an account?',
       signIn: 'Sign In',
       signature: 'Designed by Harun PEKMEZCI, MD',
     },
     tr: {
       platformSubtitle: 'Klinik Karar Destek Sistemi',
-      badge: 'Kurumsal & Akademik Erişim Kaydı',
-      institutionalNoticeTitle: 'Kurumsal E-Posta Zorunluluğu',
-      institutionalNoticeText: 'Lütfen üniversite (.edu, .edu.tr) veya onaylı hastane e-postanız ile kaydolun. Kişisel e-posta adresleri (gmail, hotmail vb.) onaylanmamaktadır.',
+      badge: 'Sağlık Profesyoneli Kaydı',
+      physicianNote: 'Platform, sağlık profesyonelleri ve klinik onkologlar için tasarlanmıştır.',
       hasAccount: 'Zaten bir hesabınız var mı?',
       signIn: 'Giriş Yapın',
       signature: 'Dr. Harun PEKMEZCİ tarafından dizayn edildi',
@@ -99,21 +97,6 @@ export default function SignUpPage() {
       </div>
 
       {/* ==============================================================
-          KURUMSAL / AKADEMİK E-POSTA ZORUNLULUĞU BİLGİ KUTUSU
-         ============================================================== */}
-      <div className="w-full max-w-[460px] mb-3.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200 flex items-start gap-2.5 text-xs shadow-sm">
-        <Building2 className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-        <div>
-          <span className="font-bold text-amber-300 block mb-0.5">
-            {t.institutionalNoticeTitle}
-          </span>
-          <span className="text-[11px] text-amber-200/90 leading-relaxed block font-medium">
-            {t.institutionalNoticeText}
-          </span>
-        </div>
-      </div>
-
-      {/* ==============================================================
           KOYU TEMA CLERK KAYIT KARTI (SIGN-UP)
          ============================================================== */}
       <div className="w-full max-w-[460px] flex flex-col items-center">
@@ -146,6 +129,10 @@ export default function SignUpPage() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)}
         />
+
+        <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-500">
+          {t.physicianNote}
+        </p>
 
         {/* Zaten Hesabınız Var mı? -> Giriş Yap Bağlantısı */}
         <div className="mt-4 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">

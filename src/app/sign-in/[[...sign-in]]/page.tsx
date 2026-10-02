@@ -11,7 +11,7 @@ export default function SignInPage() {
   const t = {
     en: {
       platformSubtitle: 'Clinical Decision Support Platform',
-      badge: 'Authorized Oncology Physicians',
+      badge: 'For Healthcare Professionals',
       title1: 'Radiation Oncology',
       title2: 'Clinical Decision Support',
       title3: 'Platform',
@@ -30,11 +30,12 @@ export default function SignInPage() {
       noAccount: "Don't have an account?",
       signUp: 'Sign Up',
       mobileSubtitle: 'Clinical Decision Support System',
+      physicianNote: 'Platform intended for healthcare professionals and clinical oncologists.',
       signature: 'Designed by Harun PEKMEZCI, MD',
     },
     tr: {
       platformSubtitle: 'Klinik Karar Destek Platformu',
-      badge: 'Yetkili Onkoloji Hekimleri İçin',
+      badge: 'Sağlık Profesyonelleri İçin',
       title1: 'Radyasyon Onkolojisi',
       title2: 'Tedavi Karar Destek',
       title3: 'Platformu',
@@ -53,6 +54,7 @@ export default function SignInPage() {
       noAccount: 'Hesabınız yok mu?',
       signUp: 'Kayıt Olun',
       mobileSubtitle: 'Klinik Karar Destek Sistemi',
+      physicianNote: 'Platform, sağlık profesyonelleri ve klinik onkologlar için tasarlanmıştır.',
       signature: 'Dr. Harun PEKMEZCİ tarafından dizayn edildi',
     }
   }[lang];
@@ -381,6 +383,10 @@ export default function SignInPage() {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any)}
           />
+
+          <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-500">
+            {t.physicianNote}
+          </p>
 
           {/* Kayıt Ol Bağlantısı */}
           <div className="mt-5 p-3.5 rounded-2xl bg-[#0e1726]/80 border border-slate-800/80 w-full text-center flex items-center justify-center gap-2 text-xs text-slate-400">
