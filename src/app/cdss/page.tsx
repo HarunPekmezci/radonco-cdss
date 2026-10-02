@@ -8509,9 +8509,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           >
             <Menu className="h-4 w-4" aria-hidden="true" />
           </button>
-          <div className="shrink-0 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)] nuclear-box">
-            <Radiation className="w-6 h-6 nuclear-icon" aria-hidden="true" />
-          </div>
           <div className="min-w-0">
             <h1 className="truncate text-xs font-bold text-slate-900 dark:text-white sm:text-base">
               {lang === 'tr' ? 'Radyasyon Onkolojisi Klinik Karar Destek Sistemi' : 'Radiation Oncology Clinical Decision Support System'}

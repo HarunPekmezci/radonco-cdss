@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Radiation } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -44,6 +45,7 @@ const languages = [
 ] as const;
 
 export default function Navbar() {
+  const pathname = usePathname();
   const { language: currentLang, setLanguage, t } = useLanguage();
   const [isLanguageMenuOpen, setLangOpen] = useState(false);
   const languageMenuRef = useRef<HTMLDivElement>(null);
@@ -78,19 +80,28 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 bg-[#0B1120] text-slate-100">
       <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-white">
-          <Radiation className="h-5 w-5 text-amber-400" aria-hidden="true" />
+          <span className="nuclear-box flex shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
+            <Radiation className="h-6 w-6 nuclear-icon" aria-hidden="true" />
+          </span>
           <span>RadOnco <span className="text-sky-400">Portal</span></span>
         </Link>
         <nav aria-label={t.nav.mainNavigation} className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-2 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {navigation.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="shrink-0 rounded-lg px-2.5 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
-            >
-              {t.nav[item.labelKey]}
-            </Link>
-          ))}
+          {navigation.map(item => {
+            if (item.href === '/cdss' && !pathname.startsWith('/cdss')) return null;
+            const isActive = item.href === '/cdss' && pathname.startsWith('/cdss');
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? 'page' : undefined}
+                className={`shrink-0 rounded-lg px-2.5 py-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${
+                  isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                {t.nav[item.labelKey]}
+              </Link>
+            );
+          })}
         </nav>
         <div className="relative shrink-0" ref={languageMenuRef}>
           <button
