@@ -27,14 +27,12 @@ export default function RootLayout({
         formButtonPrimary: 'Sign in',
       }}
     >
-      <html lang="tr" className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">
-        <body className="min-h-screen antialiased bg-slate-100 text-slate-900 transition-colors duration-200 dark:bg-[#070b14] dark:text-slate-100">
+      <html lang="tr" className="dark">
+        <body className="min-h-screen flex flex-col bg-[#0B1120] text-slate-100 antialiased">
           <LanguageProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <div className="flex-1">{children}</div>
-              <Footer />
-            </div>
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
           </LanguageProvider>
           <Analytics />
           <SpeedInsights />
