@@ -129,6 +129,9 @@ export default function SignUpPage() {
             },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)}
+          routing="path"
+          path="/sign-up"
+          signInUrl="/sign-in"
         />
 
         <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-500">
