@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useId, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -45,6 +45,7 @@ import {
   Printer,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+import { useLanguage } from '@/context/LanguageContext';
 
 // ==========================================
 // 1. TİPLER VE KLİNİK VERİ MODELLERİ
@@ -1907,7 +1908,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   ],
 };
 
-type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'gis' | 'gynecology' | 'sarcoma-palliative';
+type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'renal' | 'gis' | 'gynecology' | 'sarcoma-palliative';
 type QuickCaseRegimen = 'clinical' | 'sbrt' | 'moderate' | 'sib' | 'conventional';
 type QuickCasePreset = {
   id: string;
@@ -1954,9 +1955,56 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
   { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
-  { id: 'case-23', category: 'gus', title_tr: 'Primer RCC ≤4 cm • FASTRACK II', title_en: 'Primary RCC ≤4 cm • FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx', detail_en: 'Medically inoperable • 26 Gy / 1 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'clinical' },
-  { id: 'case-24', category: 'gus', title_tr: 'Primer RCC >4–10 cm • FASTRACK II', title_en: 'Primary RCC >4–10 cm • FASTRACK II', detail_tr: 'Medikal inoperabl • 42 Gy / 3 fx', detail_en: 'Medically inoperable • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'clinical' },
+  { id: 'case-23', category: 'renal', title_tr: 'Küçük primer RCC (≤4 cm, T1a) - FASTRACK II', title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx • Ablatif primer SABR', detail_en: 'Medically inoperable • 26 Gy / 1 fx • Ablative primary SABR', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
+  { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sbrt' },
 ];
+
+type GuidedStep = 1 | 2 | 3 | 4;
+
+const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_en: string }>> = {
+  'case-05': {
+    title_tr: 'Erken Evre MKC Sonrası (FAST-Forward 26 Gy/5 fx)',
+    title_en: 'Early-stage Post-BCS (FAST-Forward 26 Gy/5fx)',
+  },
+  'case-06': {
+    title_tr: 'Yüksek Riskli Mastektomi Sonrası (PMRT)',
+    title_en: 'High-risk Postmastectomy (PMRT)',
+  },
+  'case-01': {
+    title_tr: 'Erken Periferik KHDAK (SBRT 54 Gy/3 fx)',
+    title_en: 'Early Peripheral NSCLC (SBRT 54 Gy/3fx)',
+  },
+  'case-02': {
+    title_tr: 'Lokal İleri Evre III (Eşzamanlı KRT)',
+    title_en: 'Locally Advanced Stage III (Concurrent CRT)',
+  },
+  'case-11': {
+    title_tr: 'Elverişli Orta Risk (60 Gy/20 fx Orta HipoFraksiyonasyon)',
+    title_en: 'Favorable Intermediate (Moderate Hypofractionation 60 Gy/20fx)',
+  },
+  'case-12': {
+    title_tr: 'Yüksek Risk (78 Gy + Uzun Süreli ADT)',
+    title_en: 'High-Risk (78 Gy + Long-term ADT)',
+  },
+  'case-23': {
+    title_tr: 'Küçük Primer RCC (≤4 cm, T1a) - FASTRACK II',
+    title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II',
+  },
+  'case-24': {
+    title_tr: 'Büyük Primer RCC (>4–10 cm, T1b–T2) - FASTRACK II',
+    title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II',
+  },
+  'case-25': {
+    title_tr: 'Oligometastatik / Rekürren RCC',
+    title_en: 'Oligometastatic / Recurrent RCC',
+  },
+  'case-26': {
+    title_tr: 'Ultra-hipofraksiyone Prostat SBRT (36.25 Gy/5 fx)',
+    title_en: 'Ultra-hypofractionated Prostate SBRT (36.25 Gy/5fx)',
+  },
+};
 
 const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]> = {
   'benign-ho': [
@@ -2452,27 +2500,6 @@ export interface PrognosticCriterion {
   value: string;
   points?: string;
 }
-
-const renderEvidenceWithDoiLinks = (evidence: string): React.ReactNode => {
-  const doiPattern = /\bDOI:\s*(10\.\d{4,9}\/[-._;()/:A-Z0-9]+[A-Z0-9])/gi;
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-
-  for (const match of evidence.matchAll(doiPattern)) {
-    const index = match.index ?? 0;
-    const doi = match[1];
-    if (index > lastIndex) parts.push(evidence.slice(lastIndex, index));
-    parts.push(
-      <a key={`${doi}-${index}`} href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200">
-        DOI: {doi}
-      </a>,
-    );
-    lastIndex = index + match[0].length;
-  }
-
-  if (lastIndex < evidence.length) parts.push(evidence.slice(lastIndex));
-  return parts;
-};
 
 const calculatePrognosticIndexBase = (
   organ: string,
@@ -3875,10 +3902,85 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 };
 
 
+type EvidenceReference = {
+  label: string;
+  url: string;
+};
+
+const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC-3|NCCN|ASTRO|ESTRO|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
+
+const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undefined => {
+  if (/FAST[-\s]?Forward/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(20)30932-6';
+  if (/PACIFIC/i.test(token)) return 'https://doi.org/10.1056/NEJMoa1709937';
+  if (/RAPIDO/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(20)30555-6';
+  if (/STAMPEDE/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30524-1';
+  if (/PORTEC-3/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30079-2';
+  if (/NCCN/i.test(token)) return 'https://www.nccn.org/guidelines';
+  if (/ASTRO/i.test(token)) {
+    return /breast|meme|whole breast/i.test(clinicalContext)
+      ? 'https://www.practicalradonc.org/article/S1879-8500(18)30116-6/fulltext'
+      : 'https://www.astro.org/provider-resources/guidelines';
+  }
+  if (/ESTRO/i.test(token)) return 'https://www.estro.org/Science/Guidelines';
+  if (/QUANTEC/i.test(token)) return 'https://doi.org/10.1016/j.ijrobp.2009.07.1753';
+  if (/DEGRO/i.test(token)) return 'https://www.degro.org/';
+  if (/ILROG/i.test(token)) return 'https://www.ilrog.org/';
+  if (/ESMO/i.test(token)) return 'https://www.esmo.org/guidelines';
+  if (/EANO/i.test(token)) return 'https://www.eano.eu/guidelines/';
+  if (/FIGO/i.test(token)) return 'https://www.figo.org/guidelines';
+
+  const doi = token.match(/DOI:\s*(10\.\d{4,9}\/[^\s;,]+)/i);
+  return doi ? `https://doi.org/${doi[1].replace(/[.)]+$/, '')}` : undefined;
+};
+
+const getEvidenceReferences = (scheme: DoseScheme, clinicalContext: string): EvidenceReference[] => {
+  const evidence = `${clinicalContext}; ${scheme.name}; ${scheme.evidence}`;
+  const references: EvidenceReference[] = [];
+
+  for (const token of evidence.match(evidenceLinkTokens) ?? []) {
+    const url = resolveEvidenceUrl(token, evidence);
+    if (!url || references.some(reference => reference.url === url)) continue;
+    references.push({
+      label: /FAST[-\s]?Forward/i.test(token)
+        ? 'FAST-Forward (Lancet 2020)'
+        : /ASTRO/i.test(token) && /breast|meme|whole breast/i.test(evidence)
+          ? 'ASTRO Whole Breast Irradiation Guideline'
+          : token,
+      url,
+    });
+  }
+
+  return references;
+};
+
+const CDSS_VIEW_MODE_STORAGE_KEY = 'radonco-cdss-view-mode';
+const CDSS_VIEW_MODE_CHANGE_EVENT = 'radonco:cdss-view-mode-change';
+
+const subscribeToViewMode = (onStoreChange: () => void) => {
+  window.addEventListener(CDSS_VIEW_MODE_CHANGE_EVENT, onStoreChange);
+  window.addEventListener('storage', onStoreChange);
+  return () => {
+    window.removeEventListener(CDSS_VIEW_MODE_CHANGE_EVENT, onStoreChange);
+    window.removeEventListener('storage', onStoreChange);
+  };
+};
+
+const getGuidedModeSnapshot = () => (
+  window.localStorage.getItem(CDSS_VIEW_MODE_STORAGE_KEY) !== 'full-matrix'
+);
+
+const getServerGuidedModeSnapshot = () => true;
+
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
-  const [lang, setLang] = useState<'en' | 'tr'>('en');
+  const { language: lang, setLanguage: setLang } = useLanguage();
+  const isGuidedMode = useSyncExternalStore(
+    subscribeToViewMode,
+    getGuidedModeSnapshot,
+    getServerGuidedModeSnapshot,
+  );
+  const [guidedStep, setGuidedStep] = useState<GuidedStep>(1);
   const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
@@ -3906,30 +4008,29 @@ export default function RadoncoCDSSPage() {
   }, []);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem('radonco-lang');
-    if (saved !== 'tr' && saved !== 'en') {
-      window.localStorage.setItem('radonco-lang', 'en');
-    }
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
+    if (!isGuidedMode) return;
+    document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [guidedStep, isGuidedMode]);
 
   const changeLanguage = (nextLanguage: 'tr' | 'en') => {
     setLang(nextLanguage);
-    document.documentElement.lang = nextLanguage;
-    window.localStorage.setItem('radonco-lang', nextLanguage);
   };
 
   // ==========================================
   // ANA ORGAN VE EVRE DURUMU
   // ==========================================
   const [selectedOrgan, setSelectedOrgan] = useState<OrganId>('thorax');
+  const [selectedQuickCaseId, setSelectedQuickCaseId] = useState<string | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>(['thorax']);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'parameters' | 'tnm' | 'prescription'>('parameters');
+  const setViewMode = (useGuidedMode: boolean) => {
+    window.localStorage.setItem(CDSS_VIEW_MODE_STORAGE_KEY, useGuidedMode ? 'guided' : 'full-matrix');
+    window.dispatchEvent(new Event(CDSS_VIEW_MODE_CHANGE_EVENT));
+    setGuidedStep(1);
+    setActiveMobilePanel('parameters');
+  };
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
@@ -3972,6 +4073,7 @@ export default function RadoncoCDSSPage() {
   const [bladderHistology, setBladderHistology] = useState<'urothelial' | 'non-urothelial'>('urothelial');
   const [renalHistology, setRenalHistology] = useState<'clear-cell' | 'papillary' | 'chromophobe'>('clear-cell');
   const [renalDiseaseSetting, setRenalDiseaseSetting] = useState<'primary-inoperable' | 'oligometastatic'>('primary-inoperable');
+  const [renalTumorSizeCm, setRenalTumorSizeCm] = useState('3');
 
   // ==========================================
   // 3. MEME RİSK FAKTÖRLERİ
@@ -4083,6 +4185,8 @@ export default function RadoncoCDSSPage() {
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
@@ -4103,6 +4207,26 @@ export default function RadoncoCDSSPage() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAiDockOpen, setIsAiDockOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !exportMenuRef.current?.contains(event.target)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsExportMenuOpen(false);
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isExportMenuOpen]);
   const [selectedAi, setSelectedAi] = useState<typeof AI_PLATFORMS[number] | null>(null);
   const [isAiDropdownOpen, setIsAiDropdownOpen] = useState<boolean>(false);
   const [activeAiTab, setActiveAiTab] = useState<'gemini' | 'chatgpt' | 'claude'>('gemini');
@@ -4230,6 +4354,7 @@ export default function RadoncoCDSSPage() {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
     setSelectedSubsite('');
+    setSelectedQuickCaseId(null);
     setPatientAgeYears('');
     setSelectedRegimen('clinical');
     setSelectedSchemeId('');
@@ -4292,6 +4417,7 @@ export default function RadoncoCDSSPage() {
     if (organ === 'pediatric' && subtype === 'medulloblastoma') setPediatricSubtype('Medulloblastom');
     if (organ === 'pediatric' && subtype === 'wilms') setPediatricSubtype('Wilms');
     setSelectedSubsite(subKey);
+    setSelectedQuickCaseId(null);
     setPatientAgeYears('');
     setSelectedRegimen('clinical');
     setIsMobileDrawerOpen(false);
@@ -4506,6 +4632,7 @@ export default function RadoncoCDSSPage() {
   const handleQuickCaseSelect = (preset: QuickCasePreset) => {
     handleSubsiteChange(preset.subsite);
     setSelectedOrgan(preset.organ);
+    setSelectedQuickCaseId(preset.id);
     setSelectedSchemeId('');
     setSelectedRegimen(preset.regimen);
     setPatientAgeYears('');
@@ -4587,6 +4714,25 @@ export default function RadoncoCDSSPage() {
         setHasECE(true);
         setHasSVI(false);
         break;
+      case 'case-23':
+        setRenalDiseaseSetting('primary-inoperable');
+        setRenalTumorSizeCm('3.5');
+        break;
+      case 'case-24':
+        setRenalDiseaseSetting('primary-inoperable');
+        setRenalTumorSizeCm('8');
+        break;
+      case 'case-25':
+        setRenalDiseaseSetting('oligometastatic');
+        break;
+      case 'case-26':
+        setGleasonPrimary('3');
+        setGleasonSecondary('4');
+        setPsaLevel('8.5');
+        setPositiveCorePercent('35');
+        setHasECE(false);
+        setHasSVI(false);
+        break;
       case 'case-13':
         setBladderTurbtComplete(true);
         setBladderTmtSuitable(true);
@@ -4637,6 +4783,7 @@ export default function RadoncoCDSSPage() {
     setSelectedM(database.M.some(option => option.code === preset.m) ? preset.m : database.M[0]?.code ?? preset.m);
     setSelectedRegimen(preset.regimen);
     setActiveMobilePanel('prescription');
+    if (isGuidedMode) setGuidedStep(2);
   };
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
@@ -4646,6 +4793,10 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'bone-sarcoma') return preset.category === 'sarcoma-palliative';
     if (selectedOrgan === 'sarcoma') return preset.id === 'case-20';
     if (selectedOrgan === 'palliative') return preset.id === 'case-21' || preset.id === 'case-22';
+    if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-kidney') return preset.category === 'renal';
+    if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-prostate') {
+      return preset.category === 'gus' && preset.subsite === 'prostate-prostate';
+    }
 
     const categoryByOrgan: Partial<Record<OrganId, QuickCaseCategoryId>> = {
       thorax: 'thorax',
@@ -4656,6 +4807,18 @@ export default function RadoncoCDSSPage() {
       gynecology: 'gynecology',
     };
     return preset.category === categoryByOrgan[selectedOrgan];
+  });
+
+  const activeGuidedSubsite = ORGAN_TREE[selectedOrgan].some(subsite => subsite.id === selectedSubsite)
+    ? selectedSubsite
+    : null;
+  const guidedScenarioPresets = currentOrganPresets.filter(preset => {
+    if (!activeGuidedSubsite) return true;
+    if (selectedOrgan === 'cns' && activeGuidedSubsite === 'cns-gbm') return preset.id === 'case-08';
+    if (selectedOrgan === 'breast') {
+      return ['breast-idc', 'breast-ilc', 'breast-metaplastic'].includes(activeGuidedSubsite);
+    }
+    return preset.subsite === activeGuidedSubsite;
   });
 
   const commandPaletteGroups = useMemo(() => {
@@ -6446,7 +6609,14 @@ export default function RadoncoCDSSPage() {
 
       if (gusSubtype === 'kidney') {
         const primaryRcc = renalDiseaseSetting === 'primary-inoperable';
-        const sizeBasedFractionation = selectedT === 'T1a' ? 'single' : selectedT === 'T1b' ? 'three' : 'ineligible';
+        const renalDiameterCm = Number.parseFloat(renalTumorSizeCm);
+        const sizeBasedFractionation = !Number.isFinite(renalDiameterCm) || renalDiameterCm <= 0
+          ? 'ineligible'
+          : renalDiameterCm <= 4
+            ? 'single'
+            : renalDiameterCm <= 10
+              ? 'three'
+              : 'ineligible';
         if (primaryRcc && sizeBasedFractionation === 'ineligible') {
           const notApplicable: DoseScheme = {
             id: 'rcc-primary-outside-fastrack-size',
@@ -6458,8 +6628,8 @@ export default function RadoncoCDSSPage() {
             alphaBeta: 10,
             technique: lang === 'tr' ? 'Multidisipliner değerlendirme' : 'Multidisciplinary assessment',
             indication: lang === 'tr'
-              ? 'Seçilen T2/T3 kategorisi T1a/T1b boyuta dayalı basit doz seçimlerinin dışındadır. SABR düşünülmeden tümör boyutu, renal ven/perirenal yayılım, performans ve güncel renal SBRT protokolü gözden geçirilmelidir.'
-              : 'The selected T2/T3 category is outside the simple T1a/T1b size-based choice. Review tumour size, renal vein/perirenal extension, fitness and current renal SBRT protocol before considering SABR.',
+              ? 'FASTRACK II için tümör çapı ≤10 cm olmalıdır. Çapı ve renal ven/perirenal yayılımı doğrulayın; uygunluk, performans durumu ve güncel renal SBRT protokolü multidisipliner değerlendirilmelidir.'
+              : 'FASTRACK II requires a tumour diameter ≤10 cm. Verify diameter and renal vein/perirenal extension; eligibility, fitness and the current renal SBRT protocol require multidisciplinary review.',
             targetVolumes: [],
             oars: [],
             evidence: 'FASTRACK II (Lancet Oncol 2024), DOI: 10.1016/S1470-2045(24)00020-2; eviQ protocol 4381',
@@ -6481,8 +6651,8 @@ export default function RadoncoCDSSPage() {
           technique: lang === 'tr' ? 'Solunum hareketi yönetimi ve görüntü kılavuzlu SABR; OAR yakınlığına göre uyarlayın' : 'Image-guided SABR with respiratory motion management; adapt to OAR proximity',
           indication: primaryRcc
             ? lang === 'tr'
-              ? `Biyopsiyle doğrulanmış, medikal olarak inoperabl veya cerrahi riski yüksek primer RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'}). FASTRACK II, ≤4 cm tümörlerde 26 Gy × 1 ve >4–10 cm tümörlerde 42 Gy / 3 fx kullandı. Doz seçimi boyuta dayanır; gerçek çapı, eGFR'yi ve uygunluğu doğrulayın.`
-              : `Biopsy-confirmed, medically inoperable or high-surgical-risk primary RCC (${selectedT === 'T1a' ? '≤4 cm' : '>4–7 cm'} by selected T category). FASTRACK II delivered 26 Gy x1 for tumours ≤4 cm and 42 Gy in 3 fx for tumours >4–10 cm. The selection is size-based; verify actual tumour diameter, eGFR and eligibility.`
+              ? `Biyopsiyle doğrulanmış, medikal olarak inoperabl veya cerrahi riski yüksek primer RCC (${renalDiameterCm <= 4 ? '≤4 cm' : '>4–10 cm'}). FASTRACK II, ≤4 cm tümörlerde 26 Gy × 1 ve >4–10 cm tümörlerde 42 Gy / 3 fx kullandı. Seçilen çapı (${renalDiameterCm} cm), eGFR'yi ve uygunluğu doğrulayın.`
+              : `Biopsy-confirmed, medically inoperable or high-surgical-risk primary RCC (${renalDiameterCm <= 4 ? '≤4 cm' : '>4–10 cm'}). FASTRACK II delivered 26 Gy x1 for tumours ≤4 cm and 42 Gy in 3 fx for tumours >4–10 cm. Verify the selected diameter (${renalDiameterCm} cm), eGFR and eligibility.`
             : lang === 'tr'
               ? 'Konsey değerlendirmesi sonrası seçilmiş oligometastatik hastalık veya immünoterapi altında oligoprogresyon için örnek 35 Gy / 5 fx. Primer RCC’de FASTRACK II şeması değildir.'
               : 'Example 35 Gy / 5 fx for selected oligometastatic disease or oligoprogression during immunotherapy after MDT review. Not a primary RCC FASTRACK II regimen.',
@@ -7620,6 +7790,7 @@ export default function RadoncoCDSSPage() {
     breastGrade,
     phyllodesMarginCm,
     phyllodesHighGrade,
+    renalTumorSizeCm,
     hnCrossesMidline,
     hnDistanceFromMidlineCm,
     hnTumorSizeCm,
@@ -7822,6 +7993,9 @@ export default function RadoncoCDSSPage() {
       selectedT,
     ],
   );
+  const prognosticOutcome = prognosticResult?.medianSurvivalOrRecurrence ?? '';
+  const hasLocalControlEstimate = /local control|lokal kontrol/i.test(prognosticOutcome);
+  const hasMedianOsEstimate = /median\s*(?:overall\s*)?(?:os|survival)/i.test(prognosticOutcome);
 
   const casePrompt = useMemo(
     () =>
@@ -8257,6 +8431,61 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       : selectedOrgan === 'cns'
         ? `${tText(gliomaGrade)} / KPS ${cnsKps}${gliomaRiskFactors.molecularHighRisk ? ' / IDH-wt or molecular high risk' : ''}`
         : '—';
+  const surgeryLogic = selectedOrgan === 'breast'
+    ? tText(breastSurgery)
+    : selectedOrgan === 'thorax'
+      ? thoraxSubtype === 'thymoma'
+        ? tText(thoraxSurgeryStatus)
+        : tText(thoraxSurgeryStatus)
+      : selectedOrgan === 'gis' && gisOrgan === 'SafraYollari'
+        ? tText(biliaryTreatmentSetting)
+        : selectedOrgan === 'cns'
+            ? tText(cnsResection)
+            : selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma'
+              ? tText(sarcomaSurgery)
+              : '';
+  const surgicalMarginLogic = selectedOrgan === 'breast'
+    ? tText(breastMargin)
+    : selectedOrgan === 'thorax' && thoraxSubtype === 'thymoma'
+      ? tText(thymomaMargin)
+      : selectedOrgan === 'gis' && gisOrgan === 'SafraYollari'
+        ? tText(biliaryMarginStatus)
+        : selectedOrgan === 'gis' && gisOrgan === 'Rektum'
+          ? tText(gisCrmStatus)
+          : selectedOrgan === 'skin'
+            ? tText(skinMargin)
+            : selectedOrgan === 'head-neck' && hnPositiveMargin
+              ? 'R1'
+              : (selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma') && sarcomaSurgery === 'Postop_R1'
+                ? 'R1'
+                : selectedOrgan === 'bone' && osteoScenario === 'Marjin_Pozitif_R1_R2'
+                  ? 'R1/R2'
+                  : '';
+  const selectedRisk = prognosticResult?.riskCategory
+    ?? (selectedOrgan === 'pediatric'
+      ? tText(pediatricRisk)
+      : selectedOrgan === 'gynecology' && gynSite === 'Endometriyum'
+        ? tText(endoRisk)
+        : selectedOrgan === 'skin' && (skinPerineuralInvasion || skinBoneInvasion)
+          ? [skinPerineuralInvasion && (lang === 'tr' ? 'Perinöral invazyon' : 'Perineural invasion'), skinBoneInvasion && (lang === 'tr' ? 'Kemik invazyonu' : 'Bone invasion')].filter(Boolean).join(' · ')
+          : '');
+  const clinicalDecisionFactors = [
+    { label: 'Tanı / Diagnosis', value: tText(reportDiagnosis) },
+    { label: 'Evre / Stage', value: `${selectedT}${selectedN}${selectedM}` },
+    { label: 'Histoloji / Histology', value: tText(reportHistology) },
+    ...(selectedRisk ? [{ label: 'Risk Grubu / Risk Category', value: tText(selectedRisk) }] : []),
+    ...(surgeryLogic ? [{ label: 'Cerrahi / Surgery', value: surgeryLogic }] : []),
+    ...(surgicalMarginLogic ? [{ label: 'Cerrahi Sınır / Margin', value: surgicalMarginLogic }] : []),
+    { label: 'Endikasyon / Indication', value: tText(activeScheme.indication) },
+    {
+      label: 'Önerilen Şema / Recommended Scheme',
+      value: `${tText(activeScheme.name)} · ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
+    },
+  ].filter(factor => factor.value.trim().length > 0);
+  const evidenceText = tText(activeScheme.evidence);
+  const evidenceContext = `${selectedOrgan} ${activeScheme.name} ${activeScheme.evidence}`;
+  const evidenceReferences = getEvidenceReferences(activeScheme, selectedOrgan);
+  const verifyReference = evidenceReferences[0];
 
   return (
     <>
@@ -8545,7 +8774,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
         />
       )}
-      <nav className={`${isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
+      <nav className={`${isGuidedMode && guidedStep !== 1 ? 'hidden' : isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
         <div className="mb-3 flex items-center justify-between px-2">
           <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300`}>
           {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
@@ -8639,34 +8868,200 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
-        <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
-          {[
-            { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
-            { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
-            { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
-          ].map(tab => (
+      <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
+        <div className="col-span-12 flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 text-xs leading-relaxed text-amber-100/80">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+          <p>
+            {lang === 'tr'
+              ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
+              : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
+          </p>
+        </div>
+        <div className="col-span-12 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-[#0e1726] p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+          <span className="text-xs font-semibold text-slate-300">
+            {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
+          </span>
+          <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-700 bg-[#080d18] p-1" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
             <button
-              key={tab.id}
               type="button"
-              role="tab"
-              aria-selected={activeMobilePanel === tab.id}
-              onClick={() => setActiveMobilePanel(tab.id)}
-              className={`flex h-9 items-center justify-center truncate rounded-lg px-1 text-center text-xs font-semibold transition-all ${
-                activeMobilePanel === tab.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-800'
+              aria-pressed={isGuidedMode}
+              onClick={() => setViewMode(true)}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {tab.label}
+              {lang === 'tr' ? 'Kılavuzlu Sihirbaz Modu' : 'Guided Wizard Mode'}
             </button>
-          ))}
+            <button
+              type="button"
+              aria-pressed={!isGuidedMode}
+              onClick={() => setViewMode(false)}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                !isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {lang === 'tr' ? 'Tam Matris Görünümü' : 'Full Matrix View'}
+            </button>
+          </div>
         </div>
+
+        {isGuidedMode && (
+          <nav className="col-span-12 mx-auto grid w-full max-w-7xl grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
+            {[
+              {
+                step: 1 as const,
+                title: lang === 'tr' ? 'Klinik Profil ve Tedavi Amacı' : 'Clinical Profile & Intent',
+              },
+              {
+                step: 2 as const,
+                title: lang === 'tr' ? 'Evreleme ve Patoloji' : 'Staging & Pathology',
+              },
+              {
+                step: 3 as const,
+                title: lang === 'tr' ? 'Prognostik İndeks ve Risk Sınıflaması' : 'Prognostic Index & Risk Stratification',
+              },
+              {
+                step: 4 as const,
+                title: lang === 'tr' ? 'Reçete ve Dozimetri' : 'Prescription & Dosimetry',
+              },
+            ].map(item => (
+              <button
+                key={item.step}
+                type="button"
+                aria-current={guidedStep === item.step ? 'step' : undefined}
+                onClick={() => setGuidedStep(item.step)}
+                className={`flex min-h-12 items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                  guidedStep === item.step
+                    ? 'border-sky-400/60 bg-sky-500/10 text-white shadow-sm'
+                    : guidedStep > item.step
+                      ? 'border-emerald-500/30 bg-emerald-500/[0.04] text-slate-200'
+                      : 'border-slate-800 bg-[#0e1726] text-slate-400 hover:border-slate-600 hover:text-slate-200'
+                }`}
+              >
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  guidedStep === item.step ? 'bg-sky-400 text-slate-950' : guidedStep > item.step ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {guidedStep > item.step ? <Check className="h-4 w-4" aria-hidden="true" /> : item.step}
+                </span>
+                <span className="text-xs font-semibold leading-snug">{item.title}</span>
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {isGuidedMode && guidedStep === 1 && (
+          <section id="guided-step-content" className="col-span-12 mx-auto w-full max-w-7xl rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6" aria-labelledby="guided-profile-title">
+            <div className="mb-4 flex flex-col gap-1">
+              <h2 id="guided-profile-title" className="text-base font-bold text-white">
+                {lang === 'tr' ? '1. Klinik Profil ve Tedavi Amacı' : '1. Clinical Profile & Intent'}
+              </h2>
+              <p className="text-xs leading-relaxed text-slate-400">
+                {lang === 'tr'
+                  ? 'Soldaki anatomik menüden organ ve alt başlığı seçin veya sık kullanılan klinik senaryolardan biriyle başlayın.'
+                  : 'Choose an organ and subsite from the anatomic menu, or start with one of the common clinical scenarios.'}
+              </p>
+            </div>
+            <div className="mb-6 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setGuidedStep(2)}
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 sm:w-auto"
+              >
+                {lang === 'tr' ? 'Evreleme ve Patolojiye Devam' : 'Continue to Staging & Pathology'}
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
+              {lang === 'tr' ? 'Hızlı Klinik Senaryolar' : 'Quick Clinical Scenarios'}
+            </h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+              {guidedScenarioPresets.map(preset => {
+                const scenario = GUIDED_QUICK_SCENARIOS[preset.id];
+                const scenarioTitle = lang === 'tr'
+                  ? scenario?.title_tr ?? preset.title_tr
+                  : scenario?.title_en ?? preset.title_en;
+                const scenarioDetail = lang === 'tr' ? preset.detail_tr : preset.detail_en;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleQuickCaseSelect(preset)}
+                    aria-label={`${scenarioTitle}. ${scenarioDetail}`}
+                    className={`flex min-h-36 flex-col items-start justify-between gap-3 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                      selectedQuickCaseId === preset.id
+                        ? 'border-amber-400 bg-amber-500/15 shadow-lg shadow-amber-950/20'
+                        : 'border-slate-700 bg-[#111c2e] hover:border-amber-400/60 hover:bg-[#15233a]'
+                    }`}
+                  >
+                    <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-sky-300">
+                      {reportOrganNames[preset.organ]}
+                    </span>
+                    <span className="text-sm font-bold leading-snug text-white">
+                      {scenarioTitle}
+                    </span>
+                    <span className="text-xs leading-relaxed text-slate-300">
+                      {scenarioDetail}
+                    </span>
+                  </button>
+                );
+              })}
+              {guidedScenarioPresets.length === 0 && (
+                <p className="col-span-full rounded-xl border border-slate-700/80 bg-[#111c2e] px-4 py-5 text-sm text-slate-400">
+                  {lang === 'tr'
+                    ? 'Bu organ için hızlı senaryo bulunmuyor. Klinik profili soldaki menüden seçip evrelemeye devam edebilirsiniz.'
+                    : 'No quick scenarios are available for this organ. Select the clinical profile from the sidebar and continue to staging.'}
+                </p>
+              )}
+            </div>
+            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 text-xs text-slate-300">
+                <span className="font-semibold text-slate-100">
+                  {lang === 'tr' ? 'Seçili profil:' : 'Selected profile:'}
+                </span>{' '}
+                {reportOrganNames[selectedOrgan]} · {tText(reportDiagnosis)}
+                <span className="mx-2 text-slate-600">|</span>
+                <span className="font-semibold text-slate-100">
+                  {lang === 'tr' ? 'Tedavi amacı / endikasyon:' : 'Treatment intent / indication:'}
+                </span>{' '}
+                <span className="text-slate-400">{tText(activeScheme.indication)}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!isGuidedMode && (
+          <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+            {[
+              { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
+              { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
+              { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeMobilePanel === tab.id}
+                onClick={() => setActiveMobilePanel(tab.id)}
+                className={`flex h-9 items-center justify-center truncate rounded-lg px-1 text-center text-xs font-semibold transition-all ${
+                  activeMobilePanel === tab.id
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
-        <aside className={`col-span-12 flex flex-col gap-2.5 lg:col-span-3 lg:gap-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`}>
+        <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
+          isGuidedMode
+            ? guidedStep === 2 ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
+            : `lg:col-span-3 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
+        }`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -9320,11 +9715,25 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </select>
                 </label>
                 {renalDiseaseSetting === 'primary-inoperable' && (
+                  <>
+                    <label className="block text-slate-300">
+                      {lang === 'tr' ? 'Primer tümör çapı (cm; FASTRACK II doz seçimi)' : 'Primary tumour diameter (cm; FASTRACK II dose selection)'}
+                      <input
+                        type="number"
+                        min="0.1"
+                        max="30"
+                        step="0.1"
+                        value={renalTumorSizeCm}
+                        onChange={event => setRenalTumorSizeCm(event.currentTarget.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100"
+                      />
+                    </label>
                   <p className="rounded-lg border border-amber-700/40 bg-amber-950/20 p-2 text-[10px] leading-relaxed text-amber-200">
                     {lang === 'tr'
                       ? 'FASTRACK II doz seçimi gerçek tümör çapına göre yapılır: ≤4 cm için 26 Gy × 1; >4–10 cm için 42 Gy / 3 fx. T kategorisi tek başına tümör çapının yerine geçmez.'
                       : 'FASTRACK II dose selection is by actual tumour diameter: ≤4 cm, 26 Gy × 1; >4–10 cm, 42 Gy / 3 fx. T category alone does not replace measured tumour size.'}
                   </p>
+                  </>
                 )}
               </div>
             )}
@@ -9805,31 +10214,41 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
-        <section className={`col-span-12 lg:col-span-4 flex flex-col gap-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`}>
-          {currentOrganPresets.length > 0 && (
+        <section className={`col-span-12 flex flex-col gap-4 ${
+          isGuidedMode
+            ? guidedStep === 2 ? 'lg:col-span-7 xl:max-w-[1100px]' : 'hidden'
+            : `lg:col-span-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`
+        }`}>
+          {!isGuidedMode && currentOrganPresets.length > 0 && (
             <div
-              className="mb-0 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
+              className="mb-0 flex flex-wrap items-center gap-2.5"
               role="group"
               aria-label={lang === 'en' ? 'Quick clinical scenarios' : 'Hızlı klinik senaryolar'}
             >
-              <span className="flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-amber-400">
+              <span className="flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 font-bold text-amber-400">
                 <span aria-hidden="true">⚡</span>
                 {lang === 'en' ? 'Quick Scenarios:' : 'Hızlı Vakalar:'}
               </span>
-              <div className="flex flex-nowrap items-center gap-1.5">
-                {currentOrganPresets.map(preset => (
+              {currentOrganPresets.map(preset => {
+                const isSelected = selectedQuickCaseId === preset.id;
+                return (
                   <button
                     key={preset.id}
                     type="button"
                     title={lang === 'en' ? preset.detail_en : preset.detail_tr}
                     onClick={() => handleQuickCaseSelect(preset)}
-                    className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-700/80 bg-[#111c2e] px-2.5 py-1 text-xs font-medium text-slate-200 shadow-sm transition-all hover:border-amber-500/60 hover:bg-[#182842] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    aria-pressed={isSelected}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-xs font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                      isSelected
+                        ? 'ring-1 ring-amber-400 border-amber-400/80 bg-amber-500/20 text-white'
+                        : 'border-slate-700/80 bg-slate-800/90 text-slate-100 hover:border-amber-400/60 hover:bg-slate-700/80'
+                    }`}
                   >
                     <span aria-hidden="true">{preset.badge || '🎯'}</span>
                     <span>{lang === 'en' ? preset.title_en : preset.title_tr}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-4 shadow-xl shadow-black/40">
@@ -9983,7 +10402,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
-        <section className={`col-span-12 lg:col-span-5 flex flex-col gap-4 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`}>
+        <section className={`col-span-12 flex flex-col gap-4 ${
+          isGuidedMode
+            ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-7xl' : 'hidden'
+            : `lg:col-span-5 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
+        }`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
@@ -9996,6 +10419,38 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.tag)}
               </span>
             </div>
+
+            {isGuidedMode && guidedStep === 4 && (
+              <div className="mb-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(2)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-[11px] font-semibold text-slate-300 transition hover:border-sky-500/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                  {lang === 'tr' ? 'Parametreleri Düzenle' : 'Modify Parameters (Edit)'}
+                </button>
+              </div>
+            )}
+
+            <section className="mb-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] p-3" aria-labelledby="decision-chain-heading">
+              <h3 id="decision-chain-heading" className="mb-2 text-[11px] font-bold uppercase tracking-wide text-sky-200">
+                {lang === 'tr'
+                  ? 'İzlenebilir Karar Zinciri (Triggered Decision Logic)'
+                  : 'Traceable Decision Chain (Triggered Decision Logic)'}
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {clinicalDecisionFactors.map((factor, index) => (
+                  <span
+                    key={`${factor.label}-${index}`}
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-[#0a0f1d]/80 px-2 py-1 text-[10px] leading-relaxed text-slate-200"
+                  >
+                    <span className="font-semibold text-slate-400">{factor.label}:</span>
+                    <span>{factor.value}</span>
+                  </span>
+                ))}
+              </div>
+            </section>
 
             {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
               <div className="mb-4">
@@ -10221,92 +10676,292 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.systemicTherapy)}
               </div>
             )}
-            <div className="text-[11px] text-slate-600 italic mb-4">
-              {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{renderEvidenceWithDoiLinks(tText(activeScheme.evidence))}
-            </div>
-
-            {prognosticResult && (
-              <div className="mt-4 rounded-xl bg-[#111c2e] border border-slate-700/80 p-4 shadow-md">
-                <div className="mb-3 flex items-center justify-between border-b border-slate-700/80 pb-2">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                    <span className="text-sky-300 font-bold text-xs">
-                      {lang === 'tr' ? 'Otomatik Prognostik İndeks' : 'Automated Prognostic Index'}
-                    </span>
-                  </div>
-                  <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[11px] font-bold text-sky-300">
-                    {prognosticResult.score}
-                  </span>
-                </div>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between gap-3 font-bold text-slate-300">
-                    <span>{tText(prognosticResult.indexName)}</span>
-                    <span className="text-right text-sky-300">{tText(prognosticResult.riskCategory)}</span>
-                  </div>
-                  <div className="font-mono text-[11px] text-slate-300">
-                    {tText(prognosticResult.medianSurvivalOrRecurrence)}
-                  </div>
-                  <div className="mt-2 rounded-xl border border-slate-700/80 bg-[#090e17] p-2.5 text-[11px] font-medium leading-relaxed text-slate-200">
-                    <strong>{lang === 'tr' ? 'Önerilen Strateji: ' : 'Recommended Strategy: '}</strong>
-                    {tText(prognosticResult.recommendation)}
-                  </div>
-                  <div className="mt-2.5 overflow-hidden rounded-xl border border-slate-700/70">
-                    <div className="border-b border-slate-700/70 bg-[#131f33] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-300">
-                      {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
-                    </div>
-                    <div className="divide-y divide-slate-700/60">
-                      {prognosticResult.criteria.map(criterion => (
-                        <div key={`${criterion.label_en}-${criterion.value}`} className="flex items-center justify-between gap-3 bg-[#131f33] px-2.5 py-1.5 text-[10px]">
-                          <span className="text-slate-300 font-medium text-xs">{lang === 'tr' ? criterion.label_tr : criterion.label_en}</span>
-                          <span className="text-right text-white font-mono font-semibold text-xs">
-                            {tText(criterion.value)}
-                            {criterion.points && <span className="ml-1 text-blue-600 dark:text-blue-400">[{criterion.points}]</span>}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+            <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
+              <div className="font-semibold text-slate-200">
+                {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
+                {evidenceText.split(evidenceLinkTokens).map((token, index) => {
+                  const url = resolveEvidenceUrl(token, evidenceContext);
+                  return url ? (
+                    <a
+                      key={`${token}-${index}`}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
+                    >
+                      {token}
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
+                  );
+                })}
               </div>
-            )}
-
-            {/* KOPYALANABİLİR RAPOR PANELİ */}
-            <div className="pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-end gap-2">
-              {researchExportNotice && (
-                <div role="status" className="mr-auto rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                  {researchExportNotice}
+              {evidenceReferences.length > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {evidenceReferences.map(reference => (
+                    <a
+                      key={reference.url}
+                      href={reference.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
+                    >
+                      {reference.label}
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ))}
+                  {verifyReference && (
+                    <a
+                      href={verifyReference.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                    >
+                      {lang === 'tr' ? 'Kılavuz Referansını Doğrula' : 'Verify in Guideline'}
+                      <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  )}
                 </div>
               )}
-              <button
-                type="button"
-                onClick={exportResearchCohort}
-                className="flex items-center gap-2 rounded-md bg-[#107C41] px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0b6334] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                <span>{lang === 'tr' ? 'Araştırma Veritabanına Kaydet & Excel İndir' : 'Save to Research Cohort & Export Excel'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={printBoardSummary}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-[#111c2e] px-3.5 py-2 text-xs font-semibold text-slate-200 shadow-sm transition-all hover:bg-[#182842] hover:text-white"
-              >
-                <Printer className="h-4 w-4 text-sky-400" aria-hidden="true" />
-                <span>{lang === 'en' ? 'Print Board Summary (PDF)' : 'Konsey Raporu (Yazdır / PDF)'}</span>
-              </button>
-              <button
-                onClick={copyToClipboard}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                <span>
+            </div>
+
+            {/* KOPYALANABİLİR RAPOR PANELİ */}
+            {researchExportNotice && (
+              <div role="status" className="mt-4 rounded-xl border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-[11px] font-semibold text-emerald-200">
+                {researchExportNotice}
+              </div>
+            )}
+            <div className="mt-8 flex w-full flex-col gap-3 border-t border-slate-800/80 pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="w-full sm:w-auto">
+                {isGuidedMode && guidedStep === 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setGuidedStep(3)}
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 sm:w-auto"
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                    Geri (Back)
+                  </button>
+                )}
+              </div>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                <div ref={exportMenuRef} className="relative">
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={isExportMenuOpen}
+                    aria-controls="cdss-export-menu"
+                    onClick={() => setIsExportMenuOpen(open => !open)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 sm:w-auto"
+                  >
+                    <Download className="h-4 w-4" aria-hidden="true" />
+                    Dışa Aktar / Export
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isExportMenuOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                  </button>
+                  {isExportMenuOpen && (
+                    <div
+                      id="cdss-export-menu"
+                      className="absolute bottom-full right-0 z-30 mb-2 flex w-64 flex-col rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsExportMenuOpen(false);
+                          exportResearchCohort();
+                        }}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      >
+                        <Download className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                        <span>{lang === 'tr' ? 'Excel Kohortuna Kaydet (.xlsx)' : 'Save to Cohort & Export Excel'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsExportMenuOpen(false);
+                          printBoardSummary();
+                        }}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                      >
+                        <Printer className="h-4 w-4 shrink-0 text-sky-400" aria-hidden="true" />
+                        <span>{lang === 'tr' ? 'PDF Konsey Özeti Yazdır' : 'Print Board Summary PDF'}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:w-auto"
+                >
+                  {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
                   {copied
-                    ? (lang === 'tr' ? 'Rapor Kopyalandı!' : 'Report Copied!')
-                    : (lang === 'tr' ? 'Klinik Reçete Raporunu Kopyala' : 'Copy Clinical Prescription Report')}
-                </span>
-              </button>
+                    ? (lang === 'tr' ? 'Kopyalandı!' : 'Copied!')
+                    : (lang === 'tr' ? 'Klinik Özeti Kopyala' : 'Copy Summary')}
+                </button>
+              </div>
             </div>
           </div>
         </section>
+        {(!isGuidedMode || guidedStep === 3) && (
+          <section
+            id="guided-prognostic-assessment"
+            className="col-span-12 mx-auto w-full max-w-7xl rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6"
+            aria-labelledby="prognostic-assessment-heading"
+          >
+            <div className="mb-4 flex flex-col gap-2 border-b border-slate-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
+                  {lang === 'tr' ? '3. ADIM' : 'STEP 3'}
+                </p>
+                <h2 id="prognostic-assessment-heading" className="text-lg font-bold text-white">
+                  {lang === 'tr'
+                    ? 'Prognostik İndeks ve Risk Sınıflaması'
+                    : 'Prognostic Index & Risk Stratification'}
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                  {lang === 'tr'
+                    ? 'Organ, evre ve girilmiş klinik değişkenlere uygun hesaplanan risk modelini ve kriterlerini inceleyin.'
+                    : 'Review the risk model selected from the organ, stage, and entered clinical variables, together with its criteria.'}
+                </p>
+              </div>
+              {prognosticResult && (
+                <span className="inline-flex w-fit items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200">
+                  <TrendingUp className="h-4 w-4" aria-hidden="true" />
+                  {lang === 'tr' ? 'Skor' : 'Score'}: {prognosticResult.score}
+                </span>
+              )}
+            </div>
+
+            {prognosticResult ? (
+              <>
+                <div className="mb-4 flex flex-col gap-2 rounded-xl border border-sky-500/25 bg-sky-500/[0.05] p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">{tText(prognosticResult.indexName)}</h3>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {lang === 'tr' ? 'Model risk grubu' : 'Model risk stratum'}
+                    </p>
+                  </div>
+                  <span className="rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-sm font-semibold text-sky-200">
+                    {tText(prognosticResult.riskCategory)}
+                  </span>
+                </div>
+
+                <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {lang === 'tr' ? 'Beklenen Lokal Kontrol' : 'Expected Local Control'}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {hasLocalControlEstimate
+                        ? tText(prognosticOutcome)
+                        : lang === 'tr'
+                          ? 'Bu model ayrı bir lokal kontrol tahmini sunmuyor.'
+                          : 'This model does not provide a separate local-control estimate.'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {hasMedianOsEstimate
+                        ? (lang === 'tr' ? 'Medyan Genel Sağkalım (OS)' : 'Median Overall Survival (OS)')
+                        : (lang === 'tr' ? 'Bildirilen Sağkalım / Nüks Sonucu' : 'Reported Survival / Recurrence Outcome')}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {prognosticOutcome
+                        ? tText(prognosticOutcome)
+                        : lang === 'tr'
+                          ? 'Bu model nicel bir sağkalım tahmini sunmuyor.'
+                          : 'This model does not provide a quantitative survival estimate.'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {lang === 'tr' ? 'Sistemik İlerleme Riski' : 'Systemic Progression Risk'}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {selectedM.startsWith('M1')
+                        ? tText(prognosticResult.riskCategory)
+                        : lang === 'tr'
+                          ? 'Seçili model bu riski ayrı bir olasılık olarak hesaplamıyor; model risk grubu yukarıda gösterilmiştir.'
+                          : 'The selected model does not calculate this as a separate probability; its overall risk stratum is shown above.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-slate-700/80">
+                  <div className="border-b border-slate-700/80 bg-[#131f33] px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-slate-300">
+                    {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
+                  </div>
+                  <div className="divide-y divide-slate-700/60">
+                    {prognosticResult.criteria.map(criterion => (
+                      <div key={`${criterion.label_en}-${criterion.value}`} className="flex flex-col gap-1 bg-[#111c2e] px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                        <span className="text-xs font-medium text-slate-300">
+                          {lang === 'tr' ? criterion.label_tr : criterion.label_en}
+                        </span>
+                        <span className="text-xs font-semibold text-white sm:text-right">
+                          {tText(criterion.value)}
+                          {criterion.points && <span className="ml-1 font-mono text-sky-300">[{criterion.points}]</span>}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
+                  {lang === 'tr'
+                    ? 'Tahminler yalnızca modelin açıkça raporladığı sonuçları gösterir. Model kapsamı ve girdileri klinik ekip tarafından doğrulanmalıdır.'
+                    : 'Only outcomes explicitly reported by the model are shown. The clinical team should verify model applicability and inputs.'}
+                </p>
+              </>
+            ) : (
+              <div role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm leading-relaxed text-amber-100/90">
+                {lang === 'tr'
+                  ? 'Seçili organ ve klinik alt tip için desteklenen bir prognostik model bulunamadı. Klinik riski bağımsız olarak değerlendirin.'
+                  : 'No supported prognostic model is available for the selected organ and clinical subtype. Assess clinical risk independently.'}
+              </div>
+            )}
+
+            {isGuidedMode && guidedStep === 3 && (
+              <div className="mt-5 flex flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(2)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  {lang === 'tr' ? 'Evrelemeye Dön' : 'Back to Staging'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(4)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  {lang === 'tr' ? 'Tedavi Reçetesine Devam Et' : 'Proceed to Treatment Prescription'}
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+        {isGuidedMode && guidedStep === 2 && (
+          <div className="col-span-12 mx-auto flex w-full max-w-[1800px] flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <button
+              type="button"
+              onClick={() => setGuidedStep(1)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              {lang === 'tr' ? '1. Adıma Dön' : 'Back to Step 1'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGuidedStep(3)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              {lang === 'tr' ? 'Prognostik Riski Hesapla' : 'Calculate Prognostic Risk'}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </main>
       </div>
 
