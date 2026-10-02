@@ -6,16 +6,18 @@ import {
   ArrowUpRight,
   BookOpen,
   Calculator,
-  Mail,
   Radiation,
-  ShieldAlert,
+  Siren,
+  Stethoscope,
+  Target,
+  Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 type PortalModule = {
   href: string;
-  cardKey: 'oar' | 'calculator' | 'references' | 'disclaimer' | 'contact';
+  cardKey: 'oar' | 'calculator' | 'contouring' | 'palliative' | 'references' | 'cdss';
   icon: LucideIcon;
   accent: string;
 };
@@ -34,21 +36,27 @@ const modules: PortalModule[] = [
     accent: 'text-violet-300 bg-violet-400/10 ring-violet-300/20',
   },
   {
+    href: '/cdss?tab=contouring',
+    cardKey: 'contouring',
+    icon: Target,
+    accent: 'text-emerald-300 bg-emerald-400/10 ring-emerald-300/20',
+  },
+  {
+    href: '/cdss?scenario=palliative',
+    cardKey: 'palliative',
+    icon: Siren,
+    accent: 'text-rose-300 bg-rose-400/10 ring-rose-300/20',
+  },
+  {
     href: '/kaynakca',
     cardKey: 'references',
     icon: BookOpen,
     accent: 'text-amber-300 bg-amber-400/10 ring-amber-300/20',
   },
   {
-    href: '/yasal-uyari',
-    cardKey: 'disclaimer',
-    icon: ShieldAlert,
-    accent: 'text-rose-300 bg-rose-400/10 ring-rose-300/20',
-  },
-  {
-    href: '/iletisim',
-    cardKey: 'contact',
-    icon: Mail,
+    href: '/cdss',
+    cardKey: 'cdss',
+    icon: Stethoscope,
     accent: 'text-sky-300 bg-sky-400/10 ring-sky-300/20',
   },
 ];
@@ -95,15 +103,15 @@ export default function PortalPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-            {modules.map((module, index) => {
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {modules.map(module => {
               const Icon = module.icon;
               const card = t.cards[module.cardKey];
               return (
                 <Link
                   key={module.href}
                   href={module.href}
-                  className={`group flex min-h-48 flex-col rounded-2xl border border-slate-800 bg-[#0e1726] p-5 transition hover:-translate-y-0.5 hover:border-slate-600 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 lg:col-span-2 ${index === 3 ? 'lg:col-start-2' : ''} ${index === 4 ? 'sm:col-span-2 sm:w-1/2 sm:justify-self-center lg:col-start-4 lg:w-auto' : ''}`}
+                  className="group flex min-h-52 flex-col rounded-xl border border-slate-800 bg-[#0e1726] p-5 transition duration-200 hover:-translate-y-0.5 hover:border-sky-500/50 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
@@ -111,14 +119,67 @@ export default function PortalPage() {
                     </span>
                     <ArrowUpRight className="h-4 w-4 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
                   </div>
-                  <h3 className="mt-5 text-base font-semibold text-white">{card.title}</h3>
+                  <h3 className="mt-5 text-base font-semibold leading-snug text-white">{card.title}</h3>
                   <p className="mt-2 flex-1 text-xs leading-5 text-slate-400">{card.description}</p>
-                  <span className="mt-4 w-fit rounded-md border border-slate-700/80 bg-slate-900/70 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-300">
-                    {card.badge}
-                  </span>
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {card.badges.map(badge => (
+                      <span key={badge} className="rounded-md border border-slate-700/80 bg-slate-900/70 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-300">
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
                 </Link>
               );
             })}
+          </div>
+        </section>
+
+        <section className="mt-12 border-t border-slate-800/80 pt-8 sm:mt-14 sm:pt-10" aria-labelledby="rapid-protocols-heading">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
+                <Zap className="h-3.5 w-3.5" aria-hidden="true" />
+                {t.portalBadge}
+              </div>
+              <h2 id="rapid-protocols-heading" className="text-lg font-semibold text-white sm:text-xl">
+                {t.rapidProtocolsTitle}
+              </h2>
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400 sm:text-sm">
+                {t.rapidProtocolsDescription}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {t.rapidProtocols.map(protocol => (
+              <Link
+                key={protocol.quickCaseId}
+                href={`/cdss?quickCase=${protocol.quickCaseId}`}
+                className="group flex min-h-56 flex-col rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-blue-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-blue-950/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 sm:p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-sky-400/20 bg-sky-400/5 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-sky-300">
+                    <Zap className="h-3 w-3" aria-hidden="true" />
+                    {protocol.tags[0]}
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-300" aria-hidden="true" />
+                </div>
+                <h3 className="mt-4 text-sm font-semibold leading-snug text-white">{protocol.title}</h3>
+                <p className="mt-3 text-lg font-bold tabular-nums text-sky-200">{protocol.dose}</p>
+                <p className="mt-2 flex-1 text-xs leading-5 text-slate-400">{protocol.details}</p>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {protocol.tags.slice(1).map(tag => (
+                    <span key={tag} className="rounded-md border border-slate-700/80 px-2 py-1 text-[9px] font-semibold tracking-wide text-slate-400">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <span className="mt-4 inline-flex items-center gap-1.5 border-t border-slate-800 pt-3 text-[11px] font-semibold text-slate-300 transition group-hover:text-blue-200">
+                  {t.rapidProtocolsLaunch}
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </Link>
+            ))}
           </div>
         </section>
       </div>

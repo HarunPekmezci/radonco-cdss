@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef, useCallback, useId, useSyncExternalStore } from 'react';
+import React, { startTransition, useState, useMemo, useEffect, useEffectEvent, useRef, useCallback, useId, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -4785,6 +4785,17 @@ export default function RadoncoCDSSPage() {
     setActiveMobilePanel('prescription');
     if (isGuidedMode) setGuidedStep(2);
   };
+
+  const launchQuickCaseFromUrl = useEffectEvent(() => {
+    const params = new URLSearchParams(window.location.search);
+    const caseId = params.get('quickCase') ?? (params.get('scenario') === 'palliative' ? 'case-21' : null);
+    const preset = QUICK_CASE_PRESETS.find(item => item.id === caseId);
+    if (preset) handleQuickCaseSelect(preset);
+  });
+
+  useEffect(() => {
+    startTransition(() => launchQuickCaseFromUrl());
+  }, []);
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
     if (selectedOrgan === 'prostate' && gusSubtype === 'kidney') {

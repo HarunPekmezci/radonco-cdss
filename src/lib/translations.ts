@@ -23,13 +23,24 @@ export type TranslationDictionary = {
   sectionTitle: string;
   sectionDescription: string;
   portalBadge: string;
+  rapidProtocolsTitle: string;
+  rapidProtocolsDescription: string;
+  rapidProtocolsLaunch: string;
   cards: {
-    oar: { title: string; description: string; badge: string };
-    calculator: { title: string; description: string; badge: string };
-    references: { title: string; description: string; badge: string };
-    disclaimer: { title: string; description: string; badge: string };
-    contact: { title: string; description: string; badge: string };
+    oar: { title: string; description: string; badges: string[] };
+    calculator: { title: string; description: string; badges: string[] };
+    contouring: { title: string; description: string; badges: string[] };
+    palliative: { title: string; description: string; badges: string[] };
+    references: { title: string; description: string; badges: string[] };
+    cdss: { title: string; description: string; badges: string[] };
   };
+  rapidProtocols: {
+    quickCaseId: 'case-05' | 'case-26' | 'case-01' | 'case-21';
+    title: string;
+    dose: string;
+    details: string;
+    tags: string[];
+  }[];
 };
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -53,33 +64,71 @@ export const translations: Record<Language, TranslationDictionary> = {
     sectionTitle: 'Klinik araçlar ve kaynaklar',
     sectionDescription: 'Çalışma alanını seçerek devam edin.',
     portalBadge: 'RadOnco Portal',
+    rapidProtocolsTitle: 'Sık Karşılaşılan Hızlı Klinik Protokoller (Rapid Protocols)',
+    rapidProtocolsDescription: 'Poliklinik pratiğinde en sık uygulanan kanıta dayalı hızlı fraksiyonasyon şablonları.',
+    rapidProtocolsLaunch: "CDSS'de vakayı aç",
     cards: {
       oar: {
-        title: 'OAR Doz Kısıtları',
-        description: 'Kritik organları bölge ve fraksiyonasyon şemasına göre arayın, doğrulanmış kaynak bağlamını inceleyin.',
-        badge: 'QUANTEC · HyTEC',
+        title: 'OAR Doz Kısıtları & Tolerans Atlası',
+        description: 'Kritik organ kısıtları, QUANTEC, HyTEC ve stereotaktik toleranslar.',
+        badges: ['QUANTEC', 'HyTEC'],
       },
       calculator: {
-        title: 'Radyobiyoloji Hesaplayıcı',
-        description: 'BED, EQD2, şema karşılaştırması ve tedavi arası telafi hesaplarını çalıştırın.',
-        badge: 'LQ Model',
+        title: 'Radyobiyoloji & Dozimetri Hesaplayıcı',
+        description: 'BED, EQD2, alfa/beta oranları ve fraksiyonasyon şeması dönüştürücü.',
+        badges: ['LQ Model', 'EQD2'],
+      },
+      contouring: {
+        title: 'Hedef Hacim & Konturlama Atlası',
+        description: 'eContour entegrasyonu, RTOG ve ESTRO hedef hacim konturlama rehberleri.',
+        badges: ['eContour', 'RTOG Consensus'],
+      },
+      palliative: {
+        title: 'Palyatif & Acil RT Protokolleri',
+        description: 'Kemik metastazı tek doz (8 Gy), kord basısı, VCSS ve hemostatik palyasyon.',
+        badges: ['Acil RT', 'ASTRO Palliative'],
       },
       references: {
-        title: 'Kaynakça ve Kanıt Atlası',
-        description: 'Kılavuzlar, dozimetri referansları ve temel klinik çalışmaları keşfedin.',
-        badge: 'Kılavuzlar · Çalışmalar',
+        title: 'Kaynakça ve Kanıt Kütüphanesi',
+        description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve Faz III çalışmalar.',
+        badges: ['Kılavuzlar', 'Faz III'],
       },
-      disclaimer: {
-        title: 'Yasal Uyarı',
-        description: 'Kullanım kapsamı, klinik sorumluluk ve hekim değerlendirmesi ilkeleri.',
-        badge: 'Klinik yönetişim',
-      },
-      contact: {
-        title: 'İletişim ve Katkı',
-        description: 'Geri bildirim, hata bildirimi veya protokol katkısı iletin.',
-        badge: 'Geri bildirim',
+      cdss: {
+        title: 'Klinik Karar Destek Sihirbazı (CDSS)',
+        description: '13+ organ grubu için TNM evreleme, risk gruplaması ve tedavi matrisi.',
+        badges: ['Kategori 1 Kanıt', '13 Organ'],
       },
     },
+    rapidProtocols: [
+      {
+        quickCaseId: 'case-05',
+        title: 'Meme Kanserinde Hipofraksiyonasyon',
+        dose: 'FAST-Forward · 26 Gy / 5 fx',
+        details: 'T1-2 N0 M0 · Adjuvan tüm meme RT',
+        tags: ['ADJUVAN', 'TÜM MEME'],
+      },
+      {
+        quickCaseId: 'case-26',
+        title: 'Prostat SBRT (Orta Risk)',
+        dose: '36.25 Gy / 5 fx',
+        details: 'Gün aşırı · PTV marjlı stereotaktik tedavi',
+        tags: ['PACE-B', 'GÜN AŞIRI'],
+      },
+      {
+        quickCaseId: 'case-01',
+        title: 'Erken Evre Periferik KHDAK SBRT',
+        dose: '54 Gy / 3 fx',
+        details: 'T1b N0 M0 · Küratif altın standart · BED10 = 151.2 Gy',
+        tags: ['KÜRATİF', 'PERİFERİK'],
+      },
+      {
+        quickCaseId: 'case-21',
+        title: 'Palyatif Kemik Metastazı',
+        dose: '8 Gy / 1 fx',
+        details: 'Hızlı ağrı kontrolü · Kategori 1 analjezik palyasyon',
+        tags: ['TEK FRAKSİYON', 'ASTRO'],
+      },
+    ],
   },
   en: {
     nav: {
@@ -101,32 +150,70 @@ export const translations: Record<Language, TranslationDictionary> = {
     sectionTitle: 'Clinical tools and resources',
     sectionDescription: 'Select a workspace to proceed.',
     portalBadge: 'RadOnco Portal',
+    rapidProtocolsTitle: 'Frequently Used Rapid Clinical Protocols',
+    rapidProtocolsDescription: 'Evidence-based, rapid fractionation templates commonly used in outpatient practice.',
+    rapidProtocolsLaunch: 'Open case in CDSS',
     cards: {
       oar: {
-        title: 'OAR Dose Constraints',
-        description: 'Search critical organs by region and fractionation scheme, and review verified source context.',
-        badge: 'QUANTEC · HyTEC',
+        title: 'OAR Dose Constraints & Tolerance Atlas',
+        description: 'Critical organ constraints, QUANTEC, HyTEC, and stereotactic tolerances.',
+        badges: ['QUANTEC', 'HyTEC'],
       },
       calculator: {
-        title: 'Radiobiology Calculator',
-        description: 'Calculate BED, EQD2, compare fractionation schemes, and estimate treatment-break compensation.',
-        badge: 'LQ Model',
+        title: 'Radiobiology & Dosimetry Calculator',
+        description: 'BED, EQD2, alpha/beta ratios, and a fractionation scheme converter.',
+        badges: ['LQ Model', 'EQD2'],
+      },
+      contouring: {
+        title: 'Target Volume & Contouring Atlas',
+        description: 'eContour integration and RTOG and ESTRO target-volume contouring guidance.',
+        badges: ['eContour', 'RTOG Consensus'],
+      },
+      palliative: {
+        title: 'Palliative & Emergency RT Protocols',
+        description: 'Single-fraction bone metastasis RT (8 Gy), cord compression, VCSS, and hemostatic palliation.',
+        badges: ['Emergency RT', 'ASTRO Palliative'],
       },
       references: {
-        title: 'References & Evidence Atlas',
-        description: 'Explore guidelines, dosimetry references, and landmark clinical studies.',
-        badge: 'Guidelines · Trials',
+        title: 'References & Evidence Library',
+        description: 'Current NCCN 2025, ASTRO, and ESTRO guidelines and phase III studies.',
+        badges: ['Guidelines', 'Phase III'],
       },
-      disclaimer: {
-        title: 'Legal Disclaimer',
-        description: 'Scope of use, clinical responsibility, and principles for clinician review.',
-        badge: 'Clinical governance',
-      },
-      contact: {
-        title: 'Contact & Feedback',
-        description: 'Send feedback, report an issue, or contribute a protocol.',
-        badge: 'Feedback',
+      cdss: {
+        title: 'Clinical Decision Support Wizard (CDSS)',
+        description: 'TNM staging, risk grouping, and treatment matrix across 13+ organ groups.',
+        badges: ['Category 1 Evidence', '13 Organs'],
       },
     },
+    rapidProtocols: [
+      {
+        quickCaseId: 'case-05',
+        title: 'Hypofractionation for Breast Cancer',
+        dose: 'FAST-Forward · 26 Gy / 5 fx',
+        details: 'T1-2 N0 M0 · Adjuvant whole-breast RT',
+        tags: ['ADJUVANT', 'WHOLE BREAST'],
+      },
+      {
+        quickCaseId: 'case-26',
+        title: 'Prostate SBRT (Intermediate Risk)',
+        dose: '36.25 Gy / 5 fx',
+        details: 'Alternate days · Stereotactic treatment with PTV margin',
+        tags: ['PACE-B', 'ALTERNATE DAYS'],
+      },
+      {
+        quickCaseId: 'case-01',
+        title: 'Early-Stage Peripheral NSCLC SBRT',
+        dose: '54 Gy / 3 fx',
+        details: 'T1b N0 M0 · Curative standard · BED10 = 151.2 Gy',
+        tags: ['CURATIVE', 'PERIPHERAL'],
+      },
+      {
+        quickCaseId: 'case-21',
+        title: 'Palliative Bone Metastasis',
+        dose: '8 Gy / 1 fx',
+        details: 'Rapid pain control · Category 1 analgesic palliation',
+        tags: ['SINGLE FRACTION', 'ASTRO'],
+      },
+    ],
   },
 };
