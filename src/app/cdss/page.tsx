@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useId, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -1957,6 +1957,41 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
 ];
 
+type GuidedQuickCaseId = 'case-01' | 'case-02' | 'case-05' | 'case-06' | 'case-11' | 'case-12';
+type GuidedStep = 1 | 2 | 3;
+
+const GUIDED_QUICK_SCENARIOS: Record<GuidedQuickCaseId, { title_tr: string; title_en: string }> = {
+  'case-05': {
+    title_tr: 'Erken Evre MKC Sonrası (FAST-Forward 26 Gy/5 fx)',
+    title_en: 'Early-stage Post-BCS (FAST-Forward 26 Gy/5fx)',
+  },
+  'case-06': {
+    title_tr: 'Yüksek Riskli Mastektomi Sonrası (PMRT)',
+    title_en: 'High-risk Postmastectomy (PMRT)',
+  },
+  'case-01': {
+    title_tr: 'Erken Periferik KHDAK (SBRT 54 Gy/3 fx)',
+    title_en: 'Early Peripheral NSCLC (SBRT 54 Gy/3fx)',
+  },
+  'case-02': {
+    title_tr: 'Lokal İleri Evre III (Eşzamanlı KRT)',
+    title_en: 'Locally Advanced Stage III (Concurrent CRT)',
+  },
+  'case-11': {
+    title_tr: 'Elverişli Orta Risk (60 Gy/20 fx Orta HipoFraksiyonasyon)',
+    title_en: 'Favorable Intermediate (Moderate Hypofractionation 60 Gy/20fx)',
+  },
+  'case-12': {
+    title_tr: 'Yüksek Risk (78 Gy + Uzun Süreli ADT)',
+    title_en: 'High-Risk (78 Gy + Long-term ADT)',
+  },
+};
+
+const guidedQuickCases = QUICK_CASE_PRESETS.filter(
+  (preset): preset is QuickCasePreset & { id: GuidedQuickCaseId } =>
+    Object.prototype.hasOwnProperty.call(GUIDED_QUICK_SCENARIOS, preset.id),
+);
+
 const BENIGN_CLINICAL_OPTIONS: Record<string, { value: string; label: string }[]> = {
   'benign-ho': [
     { value: 'preop', label: 'Preoperatif ilk 4 saat' },
@@ -3897,10 +3932,34 @@ const getEvidenceReferences = (scheme: DoseScheme, clinicalContext: string): Evi
   return references;
 };
 
+const CDSS_VIEW_MODE_STORAGE_KEY = 'radonco-cdss-view-mode';
+const CDSS_VIEW_MODE_CHANGE_EVENT = 'radonco:cdss-view-mode-change';
+
+const subscribeToViewMode = (onStoreChange: () => void) => {
+  window.addEventListener(CDSS_VIEW_MODE_CHANGE_EVENT, onStoreChange);
+  window.addEventListener('storage', onStoreChange);
+  return () => {
+    window.removeEventListener(CDSS_VIEW_MODE_CHANGE_EVENT, onStoreChange);
+    window.removeEventListener('storage', onStoreChange);
+  };
+};
+
+const getGuidedModeSnapshot = () => (
+  window.localStorage.getItem(CDSS_VIEW_MODE_STORAGE_KEY) !== 'full-matrix'
+);
+
+const getServerGuidedModeSnapshot = () => true;
+
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
   const { language: lang, setLanguage: setLang } = useLanguage();
+  const isGuidedMode = useSyncExternalStore(
+    subscribeToViewMode,
+    getGuidedModeSnapshot,
+    getServerGuidedModeSnapshot,
+  );
+  const [guidedStep, setGuidedStep] = useState<GuidedStep>(1);
   const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
   const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
@@ -3927,6 +3986,11 @@ export default function RadoncoCDSSPage() {
     document.documentElement.classList.add('dark');
   }, []);
 
+  useEffect(() => {
+    if (!isGuidedMode) return;
+    document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [guidedStep, isGuidedMode]);
+
   const changeLanguage = (nextLanguage: 'tr' | 'en') => {
     setLang(nextLanguage);
   };
@@ -3940,6 +4004,12 @@ export default function RadoncoCDSSPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'parameters' | 'tnm' | 'prescription'>('parameters');
+  const setViewMode = (useGuidedMode: boolean) => {
+    window.localStorage.setItem(CDSS_VIEW_MODE_STORAGE_KEY, useGuidedMode ? 'guided' : 'full-matrix');
+    window.dispatchEvent(new Event(CDSS_VIEW_MODE_CHANGE_EVENT));
+    setGuidedStep(1);
+    setActiveMobilePanel('parameters');
+  };
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
@@ -4644,6 +4714,7 @@ export default function RadoncoCDSSPage() {
     setSelectedM(database.M.some(option => option.code === preset.m) ? preset.m : database.M[0]?.code ?? preset.m);
     setSelectedRegimen(preset.regimen);
     setActiveMobilePanel('prescription');
+    if (isGuidedMode) setGuidedStep(3);
   };
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
@@ -8604,7 +8675,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
         />
       )}
-      <nav className={`${isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
+      <nav className={`${isGuidedMode && guidedStep !== 1 ? 'hidden' : isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
         <div className="mb-3 flex items-center justify-between px-2">
           <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300`}>
           {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
@@ -8698,7 +8769,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
+      <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
         <div className="col-span-12 flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 text-xs leading-relaxed text-amber-100/80">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
           <p>
@@ -8707,33 +8778,174 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
           </p>
         </div>
-        <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
-          {[
-            { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
-            { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
-            { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
-          ].map(tab => (
+        <div className="col-span-12 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-[#0e1726] p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+          <span className="text-xs font-semibold text-slate-300">
+            {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
+          </span>
+          <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-700 bg-[#080d18] p-1" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
             <button
-              key={tab.id}
               type="button"
-              role="tab"
-              aria-selected={activeMobilePanel === tab.id}
-              onClick={() => setActiveMobilePanel(tab.id)}
-              className={`flex h-9 items-center justify-center truncate rounded-lg px-1 text-center text-xs font-semibold transition-all ${
-                activeMobilePanel === tab.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-800'
+              aria-pressed={isGuidedMode}
+              onClick={() => setViewMode(true)}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {tab.label}
+              {lang === 'tr' ? 'Kılavuzlu Sihirbaz Modu' : 'Guided Wizard Mode'}
             </button>
-          ))}
+            <button
+              type="button"
+              aria-pressed={!isGuidedMode}
+              onClick={() => setViewMode(false)}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                !isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {lang === 'tr' ? 'Tam Matris Görünümü' : 'Full Matrix View'}
+            </button>
+          </div>
         </div>
+
+        {isGuidedMode && (
+          <nav className="col-span-12 grid grid-cols-1 gap-2 sm:grid-cols-3" aria-label={lang === 'tr' ? 'Klinik sihirbaz adımları' : 'Clinical wizard steps'}>
+            {[
+              {
+                step: 1 as const,
+                title: lang === 'tr' ? 'Klinik Profil ve Tedavi Amacı' : 'Clinical Profile & Intent',
+              },
+              {
+                step: 2 as const,
+                title: lang === 'tr' ? 'Evreleme ve Patoloji' : 'Staging & Pathology',
+              },
+              {
+                step: 3 as const,
+                title: lang === 'tr' ? 'Reçete ve Dozimetri' : 'Prescription & Dosimetry',
+              },
+            ].map(item => (
+              <button
+                key={item.step}
+                type="button"
+                aria-current={guidedStep === item.step ? 'step' : undefined}
+                onClick={() => setGuidedStep(item.step)}
+                className={`flex min-h-12 items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                  guidedStep === item.step
+                    ? 'border-sky-400/60 bg-sky-500/10 text-white shadow-sm'
+                    : guidedStep > item.step
+                      ? 'border-emerald-500/30 bg-emerald-500/[0.04] text-slate-200'
+                      : 'border-slate-800 bg-[#0e1726] text-slate-400 hover:border-slate-600 hover:text-slate-200'
+                }`}
+              >
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  guidedStep === item.step ? 'bg-sky-400 text-slate-950' : guidedStep > item.step ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {guidedStep > item.step ? <Check className="h-4 w-4" aria-hidden="true" /> : item.step}
+                </span>
+                <span className="text-xs font-semibold leading-snug">{item.title}</span>
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {isGuidedMode && guidedStep === 1 && (
+          <section id="guided-step-content" className="col-span-12 mx-auto w-full max-w-[1800px] rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6" aria-labelledby="guided-profile-title">
+            <div className="mb-4 flex flex-col gap-1">
+              <h2 id="guided-profile-title" className="text-base font-bold text-white">
+                {lang === 'tr' ? '1. Klinik Profil ve Tedavi Amacı' : '1. Clinical Profile & Intent'}
+              </h2>
+              <p className="text-xs leading-relaxed text-slate-400">
+                {lang === 'tr'
+                  ? 'Soldaki anatomik menüden organ ve alt başlığı seçin veya sık kullanılan klinik senaryolardan biriyle başlayın.'
+                  : 'Choose an organ and subsite from the anatomic menu, or start with one of the common clinical scenarios.'}
+              </p>
+            </div>
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300">
+              {lang === 'tr' ? 'Hızlı Klinik Senaryolar' : 'Quick Clinical Scenarios'}
+            </h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+              {guidedQuickCases.map(preset => {
+                const scenario = GUIDED_QUICK_SCENARIOS[preset.id];
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleQuickCaseSelect(preset)}
+                    aria-label={`${lang === 'tr' ? scenario.title_tr : scenario.title_en}. ${lang === 'tr' ? preset.detail_tr : preset.detail_en}`}
+                    className={`flex min-h-36 flex-col items-start justify-between gap-3 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                      selectedQuickCaseId === preset.id
+                        ? 'border-amber-400 bg-amber-500/15 shadow-lg shadow-amber-950/20'
+                        : 'border-slate-700 bg-[#111c2e] hover:border-amber-400/60 hover:bg-[#15233a]'
+                    }`}
+                  >
+                    <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-sky-300">
+                      {reportOrganNames[preset.organ]}
+                    </span>
+                    <span className="text-sm font-bold leading-snug text-white">
+                      {lang === 'tr' ? scenario.title_tr : scenario.title_en}
+                    </span>
+                    <span className="text-xs leading-relaxed text-slate-300">
+                      {lang === 'tr' ? preset.detail_tr : preset.detail_en}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 text-xs text-slate-300">
+                <span className="font-semibold text-slate-100">
+                  {lang === 'tr' ? 'Seçili profil:' : 'Selected profile:'}
+                </span>{' '}
+                {reportOrganNames[selectedOrgan]} · {tText(reportDiagnosis)}
+                <span className="mx-2 text-slate-600">|</span>
+                <span className="font-semibold text-slate-100">
+                  {lang === 'tr' ? 'Tedavi amacı / endikasyon:' : 'Treatment intent / indication:'}
+                </span>{' '}
+                <span className="text-slate-400">{tText(activeScheme.indication)}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGuidedStep(2)}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              >
+                {lang === 'tr' ? 'Evreleme ve Patolojiye Devam' : 'Continue to Staging & Pathology'}
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          </section>
+        )}
+
+        {!isGuidedMode && (
+          <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+            {[
+              { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
+              { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
+              { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeMobilePanel === tab.id}
+                onClick={() => setActiveMobilePanel(tab.id)}
+                className={`flex h-9 items-center justify-center truncate rounded-lg px-1 text-center text-xs font-semibold transition-all ${
+                  activeMobilePanel === tab.id
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ==========================================
             SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
            ========================================== */}
-        <aside className={`col-span-12 flex flex-col gap-2.5 lg:col-span-3 lg:gap-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`}>
+        <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
+          isGuidedMode
+            ? guidedStep === 2 ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
+            : `lg:col-span-3 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
+        }`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -9872,8 +10084,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
            ========================================== */}
-        <section className={`col-span-12 lg:col-span-4 flex flex-col gap-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`}>
-          {currentOrganPresets.length > 0 && (
+        <section className={`col-span-12 flex flex-col gap-4 ${
+          isGuidedMode
+            ? guidedStep === 2 ? 'lg:col-span-7 xl:max-w-[1100px]' : 'hidden'
+            : `lg:col-span-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`
+        }`}>
+          {!isGuidedMode && currentOrganPresets.length > 0 && (
             <div
               className="mb-0 flex flex-wrap items-center gap-2.5"
               role="group"
@@ -10056,7 +10272,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         {/* ==========================================
             SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
            ========================================== */}
-        <section className={`col-span-12 lg:col-span-5 flex flex-col gap-4 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`}>
+        <section className={`col-span-12 flex flex-col gap-4 ${
+          isGuidedMode
+            ? guidedStep === 3 ? 'lg:col-span-12 xl:mx-auto xl:w-full xl:max-w-[1600px]' : 'hidden'
+            : `lg:col-span-5 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
+        }`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
@@ -10069,6 +10289,19 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.tag)}
               </span>
             </div>
+
+            {isGuidedMode && guidedStep === 3 && (
+              <div className="mb-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(2)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-[11px] font-semibold text-slate-300 transition hover:border-sky-500/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                  {lang === 'tr' ? 'Parametreleri Düzenle' : 'Modify Parameters (Edit)'}
+                </button>
+              </div>
+            )}
 
             <section className="mb-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] p-3" aria-labelledby="decision-chain-heading">
               <h3 id="decision-chain-heading" className="mb-2 text-[11px] font-bold uppercase tracking-wide text-sky-200">
@@ -10431,18 +10664,42 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </button>
               <button
                 onClick={copyToClipboard}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className={`flex items-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-md transition-colors hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
+                  isGuidedMode && guidedStep === 3 ? 'px-5 py-3 text-sm' : 'px-4 py-2 text-xs'
+                }`}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 <span>
                   {copied
                     ? (lang === 'tr' ? 'Rapor Kopyalandı!' : 'Report Copied!')
-                    : (lang === 'tr' ? 'Klinik Reçete Raporunu Kopyala' : 'Copy Clinical Prescription Report')}
+                    : isGuidedMode && guidedStep === 3
+                      ? (lang === 'tr' ? 'Klinik Özeti Panoya Kopyala' : 'Copy Clinical Summary to Clipboard')
+                      : (lang === 'tr' ? 'Klinik Reçete Raporunu Kopyala' : 'Copy Clinical Prescription Report')}
                 </span>
               </button>
             </div>
           </div>
         </section>
+        {isGuidedMode && guidedStep === 2 && (
+          <div className="col-span-12 mx-auto flex w-full max-w-[1800px] flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <button
+              type="button"
+              onClick={() => setGuidedStep(1)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              {lang === 'tr' ? '1. Adıma Dön' : 'Back to Step 1'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGuidedStep(3)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              {lang === 'tr' ? 'Tedavi Planı Oluştur' : 'Generate Treatment Plan'}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </main>
       </div>
 
