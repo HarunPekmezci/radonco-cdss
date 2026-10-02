@@ -43,6 +43,7 @@ import {
   TrendingUp,
   Download,
   Printer,
+  ExternalLink,
 } from 'lucide-react';
 import { Show, SignInButton, SignOutButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
 
@@ -3844,6 +3845,48 @@ DEĞERLENDİRİLMESİ İSTENEN NOKTALAR:
 4. Bu klinik senaryoyu destekleyen güncel landmark Faz III çalışmalar hangileridir?`;
 };
 
+
+type EvidenceReference = {
+  label: string;
+  url: string;
+};
+
+const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|PORTEC-3|NCCN|ASTRO|ESTRO|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
+
+const resolveEvidenceUrl = (token: string): string | undefined => {
+  if (/FAST[-\s]?Forward/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(20)30932-6';
+  if (/PACIFIC/i.test(token)) return 'https://doi.org/10.1056/NEJMoa1709937';
+  if (/RAPIDO/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(20)30555-6';
+  if (/PORTEC-3/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30079-2';
+  if (/NCCN/i.test(token)) return 'https://www.nccn.org/guidelines';
+  if (/ASTRO/i.test(token)) return 'https://www.astro.org/provider-resources/guidelines';
+  if (/ESTRO/i.test(token)) return 'https://www.estro.org/Science/Guidelines';
+  if (/QUANTEC/i.test(token)) return 'https://doi.org/10.1016/j.ijrobp.2009.07.1753';
+  if (/DEGRO/i.test(token)) return 'https://www.degro.org/';
+  if (/ILROG/i.test(token)) return 'https://www.ilrog.org/';
+  if (/ESMO/i.test(token)) return 'https://www.esmo.org/guidelines';
+  if (/EANO/i.test(token)) return 'https://www.eano.eu/guidelines/';
+  if (/FIGO/i.test(token)) return 'https://www.figo.org/guidelines';
+
+  const doi = token.match(/DOI:\s*(10\.\d{4,9}\/[^\s;,]+)/i);
+  return doi ? `https://doi.org/${doi[1].replace(/[.)]+$/, '')}` : undefined;
+};
+
+const getEvidenceReferences = (scheme: DoseScheme): EvidenceReference[] => {
+  const evidence = `${scheme.name}; ${scheme.evidence}`;
+  const references: EvidenceReference[] = [];
+
+  for (const token of evidence.match(evidenceLinkTokens) ?? []) {
+    const url = resolveEvidenceUrl(token);
+    if (!url || references.some(reference => reference.url === url)) continue;
+    references.push({
+      label: /FAST[-\s]?Forward/i.test(token) ? 'FAST-Forward (Lancet 2020)' : token,
+      url,
+    });
+  }
+
+  return references;
+};
 
 export default function RadoncoCDSSPage() {
   const { isLoaded, user } = useUser();
@@ -8222,6 +8265,48 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       : selectedOrgan === 'cns'
         ? `${tText(gliomaGrade)} / KPS ${cnsKps}${gliomaRiskFactors.molecularHighRisk ? ' / IDH-wt or molecular high risk' : ''}`
         : '—';
+  const surgeryLogic = selectedOrgan === 'breast'
+    ? `${tText(breastSurgery)} · ${tText(breastMargin)} ${lang === 'tr' ? 'marjin' : 'margin'}`
+    : selectedOrgan === 'thorax'
+      ? thoraxSubtype === 'thymoma'
+        ? `${tText(thoraxSurgeryStatus)} · ${tText(thymomaMargin)}`
+        : tText(thoraxSurgeryStatus)
+      : selectedOrgan === 'gis' && gisOrgan === 'SafraYollari'
+        ? `${tText(biliaryTreatmentSetting)} · ${tText(biliaryMarginStatus)}`
+        : selectedOrgan === 'gis'
+          ? tText(gisCrmStatus)
+          : selectedOrgan === 'cns'
+            ? tText(cnsResection)
+            : selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma'
+              ? tText(sarcomaSurgery)
+              : selectedOrgan === 'skin'
+                ? tText(skinMargin)
+                : selectedOrgan === 'head-neck' && hnPositiveMargin
+                  ? (lang === 'tr' ? 'Pozitif marjin' : 'Positive margin')
+                  : '';
+  const selectedRisk = prognosticResult?.riskCategory
+    ?? (selectedOrgan === 'pediatric'
+      ? tText(pediatricRisk)
+      : selectedOrgan === 'gynecology' && gynSite === 'Endometriyum'
+        ? tText(endoRisk)
+        : selectedOrgan === 'skin' && (skinPerineuralInvasion || skinBoneInvasion)
+          ? [skinPerineuralInvasion && (lang === 'tr' ? 'Perinöral invazyon' : 'Perineural invasion'), skinBoneInvasion && (lang === 'tr' ? 'Kemik invazyonu' : 'Bone invasion')].filter(Boolean).join(' · ')
+          : '');
+  const clinicalDecisionFactors = [
+    { label: lang === 'tr' ? 'Bölge' : 'Site', value: tText(reportDiagnosis) },
+    { label: lang === 'tr' ? 'Evre' : 'Stage', value: `${selectedT} ${selectedN} ${selectedM}` },
+    { label: lang === 'tr' ? 'Histoloji' : 'Histology', value: tText(reportHistology) },
+    ...(selectedRisk ? [{ label: lang === 'tr' ? 'Risk' : 'Risk', value: tText(selectedRisk) }] : []),
+    ...(surgeryLogic ? [{ label: lang === 'tr' ? 'Cerrahi' : 'Surgery', value: surgeryLogic }] : []),
+    { label: lang === 'tr' ? 'Endikasyon' : 'Indication', value: tText(activeScheme.indication) },
+    {
+      label: lang === 'tr' ? 'Seçilen şema' : 'Selected scheme',
+      value: `${tText(activeScheme.name)} · ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
+    },
+  ].filter(factor => factor.value.trim().length > 0);
+  const evidenceText = tText(activeScheme.evidence);
+  const evidenceReferences = getEvidenceReferences(activeScheme);
+  const verifyReference = evidenceReferences[0];
 
   return (
     <>
@@ -8605,6 +8690,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
       <main className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-5">
+        <div className="col-span-12 flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-3.5 py-3 text-xs leading-relaxed text-amber-100/80">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+          <p>
+            {lang === 'tr'
+              ? 'Karar Destek Sistemi hekim değerlendirmesini desteklemek içindir; nihai klinik ve hukuki sorumluluk uygulayıcı hekime aittir.'
+              : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
+          </p>
+        </div>
         <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
           {[
             { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
@@ -9968,6 +10061,25 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </span>
             </div>
 
+            <section className="mb-4 rounded-xl border border-sky-500/25 bg-sky-500/[0.04] p-3" aria-labelledby="decision-chain-heading">
+              <h3 id="decision-chain-heading" className="mb-2 text-[11px] font-bold uppercase tracking-wide text-sky-200">
+                {lang === 'tr'
+                  ? 'Klinik Karar Zinciri (Triggered Decision Logic)'
+                  : 'Clinical Decision Chain (Triggered Decision Logic)'}
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {clinicalDecisionFactors.map((factor, index) => (
+                  <span
+                    key={`${factor.label}-${index}`}
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-[#0a0f1d]/80 px-2 py-1 text-[10px] leading-relaxed text-slate-200"
+                  >
+                    <span className="font-semibold text-slate-400">{factor.label}:</span>
+                    <span>{factor.value}</span>
+                  </span>
+                ))}
+              </div>
+            </section>
+
             {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
               <div className="mb-4">
                 <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
@@ -10190,8 +10302,54 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.systemicTherapy)}
               </div>
             )}
-            <div className="text-[11px] text-slate-600 italic mb-4">
-              {tText("\n              📚 ")}{lang === 'tr' ? 'Kanıt ve Kılavuz' : 'Evidence and Guidelines'}{tText(": ")}{tText(activeScheme.evidence)}
+            <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
+              <div className="font-semibold text-slate-200">
+                {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
+                {evidenceText.split(evidenceLinkTokens).map((token, index) => {
+                  const url = resolveEvidenceUrl(token);
+                  return url ? (
+                    <a
+                      key={`${token}-${index}`}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
+                    >
+                      {token}
+                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
+                  );
+                })}
+              </div>
+              {evidenceReferences.length > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {evidenceReferences.map(reference => (
+                    <a
+                      key={reference.url}
+                      href={reference.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
+                    >
+                      {reference.label}
+                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ))}
+                  {verifyReference && (
+                    <a
+                      href={verifyReference.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                    >
+                      {lang === 'tr' ? 'Kılavuz Referansını Doğrula ↗' : 'Verify in Guideline ↗'}
+                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {prognosticResult && (
