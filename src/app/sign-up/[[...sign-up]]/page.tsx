@@ -104,11 +104,11 @@ export default function SignUpPage() {
           appearance={({
             variables: {
               colorBackground: '#0e1726',
-              colorInputBackground: '#131f33',
+              colorInputBackground: '#1e293b',
               colorInputText: '#ffffff',
-              colorText: '#ffffff',
+              colorText: '#f8fafc',
               colorTextSecondary: '#94a3b8',
-              colorPrimary: '#2563eb',
+              colorPrimary: '#3b82f6',
             },
             elements: {
               socialButtons: '!hidden',
@@ -118,13 +118,14 @@ export default function SignUpPage() {
               footerAction: '!hidden',
 
               // Koyu Cam Şıklığında Kart
-              card: '!bg-[#0e1726] !border !border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
+              card: '!bg-[#0d1527] !border !border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
               headerTitle: '!text-white font-bold text-lg text-center',
               headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
               
-              formFieldLabel: '!text-slate-300 text-xs font-semibold',
-              formFieldInput: '!bg-[#131f33] !border-slate-700 !text-white rounded-xl py-2.5 px-3.5 text-sm focus:!border-blue-500',
-              formButtonPrimary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
+              formFieldLabel: '!text-slate-200 text-xs font-semibold',
+              formFieldInput: '!bg-slate-800/90 !text-white placeholder:!text-slate-400 !border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-medium focus:!border-blue-500',
+              phoneInputBox: '!bg-slate-800/90 !text-white !border-slate-700 focus-within:!border-blue-500',
+              formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
             },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)}
