@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  Activity, ArrowRight, Baby, Brain, Bone, Check, Clipboard, ClipboardCheck, Download, Droplet, Droplets, ExternalLink,
-  HandHeart, Heart, Moon, Radiation, Search, Shield, ShieldCheck, Sparkles, Sun, Target, User, UtensilsCrossed, Wind, Zap,
+  Activity, Baby, Brain, Bone, Clipboard, ClipboardCheck, Download, Droplet, Droplets, ExternalLink,
+  HandHeart, Heart, Moon, Radiation, Search, Shield, ShieldCheck, Sparkles, Sun, Target, User, UtensilsCrossed, Wind,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import type { AlternativeDoseScheme, CDSSResult, Fractionation, GuidelineReference, OrganSystem, OARConstraint, TargetVolume } from '../types/cdss';
 import { ENGINE_REGISTRY, getEnginesByOrgan, type CDSSFormField, type RegisteredEngine } from '../engines/registry';
@@ -78,9 +78,6 @@ function ResultPanel({ result, input }: { result: CDSSResult; input: Record<stri
   const [copied, setCopied] = useState(false);
   const schemes = result.alternativeDoseSchemes?.schemes ?? [];
   const [selectedRegimenId, setSelectedRegimenId] = useState(result.alternativeDoseSchemes?.defaultSchemeId ?? schemes[0]?.id ?? '');
-  useEffect(() => {
-    setSelectedRegimenId(result.alternativeDoseSchemes?.defaultSchemeId ?? schemes[0]?.id ?? '');
-  }, [result.engineId, result.summary, result.alternativeDoseSchemes?.defaultSchemeId, schemes.length]);
   const selectedRegimen = schemes.find((scheme) => scheme.id === selectedRegimenId) ?? schemes[0];
   const fractionation = selectedRegimen?.fractionation ?? dose(result);
   const download = (format: 'json' | 'csv') => {
@@ -138,12 +135,11 @@ function ResultPanel({ result, input }: { result: CDSSResult; input: Record<stri
 export default function CDSSDashboard(): JSX.Element {
   const initialOrgan: OrganSystem = 'thorax';
   const [organ, setOrgan] = useState<OrganSystem>(initialOrgan);
-  const [engineId, setEngineId] = useState(getEnginesByOrgan(initialOrgan)[0]?.id ?? ENGINE_REGISTRY[0].id);
-  const engine = useMemo<RegisteredEngine>(() => ENGINE_REGISTRY.find((item) => item.id === engineId) ?? getEnginesByOrgan(organ)[0] ?? ENGINE_REGISTRY[0], [engineId, organ]);
+  const [engineId, setEngineId] = useState(getEnginesByOrgan(initialOrgan)[0]?.id ?? Object.values(ENGINE_REGISTRY)[0].id);
+  const engine = useMemo<RegisteredEngine>(() => Object.values(ENGINE_REGISTRY).find((item) => item.id === engineId) ?? getEnginesByOrgan(organ)[0] ?? Object.values(ENGINE_REGISTRY)[0], [engineId, organ]);
   const [input, setInput] = useState<Record<string, unknown>>(engine.defaults);
   const [dark, setDark] = useState(true);
   const [search, setSearch] = useState('');
-  const [showTnm, setShowTnm] = useState(false);
   const engines = useMemo(() => getEnginesByOrgan(organ).filter((item) => item.name.toLocaleLowerCase('tr-TR').includes(search.toLocaleLowerCase('tr-TR'))), [organ, search]);
   const evaluation = useMemo(() => {
     try { return { result: engine.evaluate(input), error: null }; }
@@ -154,25 +150,6 @@ export default function CDSSDashboard(): JSX.Element {
   const selectOrgan = (nextOrgan: OrganSystem) => { const first = getEnginesByOrgan(nextOrgan)[0]; if (!first) return; setOrgan(nextOrgan); setEngineId(first.id); setInput(first.defaults); };
   const selectEngine = (next: RegisteredEngine) => { setEngineId(next.id); setInput(next.defaults); };
   const update = (field: CDSSFormField, raw: string) => setInput((current) => ({ ...current, [field.key]: asInput(raw, field) }));
-  const setStage = (axis: 'T' | 'N' | 'M', value: string) => setInput((current) => ({
-    ...current,
-    ...(axis === 'T' ? { clinicalT: value, pathologicT: value, tStage: value } : {}),
-    ...(axis === 'N' ? { nodalStatus: value, pathologicN: value, nStage: value } : {}),
-    ...(axis === 'M' ? { metastaticStatus: value, mStage: value } : {}),
-  }));
-  const stageValue = (axis: 'T' | 'N' | 'M'): string => {
-    const keys = axis === 'T' ? ['clinicalT', 'pathologicT', 'tStage'] : axis === 'N' ? ['nodalStatus', 'pathologicN', 'nStage'] : ['metastaticStatus', 'mStage'];
-    return String(keys.map((key) => input[key]).find((value) => value !== undefined) ?? '');
-  };
-  const stageCards = organ === 'gus'
-    ? { T: [['T1c', 'PSA yüksekliği'], ['T2a', 'Lobun yarısı'], ['T2b-c', 'İki lob'], ['T3a', 'Kapsül dışı'], ['T3b', 'Seminal vezikül'], ['T4', 'Komşu organ']], N: [['N0', 'Nodal negatif'], ['N1', 'Bölgesel nodal']], M: [['M0', 'Uzak metastaz yok'], ['M1', 'Uzak metastaz']] }
-    : { T: [['T1a', 'Küçük / sınırlı'], ['T1b', 'Erken invazyon'], ['T1c', 'Lokalize tümör'], ['T2', 'Komşu yapı sınırlı'], ['T3', 'İleri lokal uzanım'], ['T4', 'Komşu organ / yapı']], N: [['N0', 'Nodal negatif'], ['N1', 'Bölgesel nodal'], ['N2', 'İleri bölgesel'], ['N3', 'Kontralateral / ileri']], M: [['M0', 'Uzak metastaz yok'], ['M1', 'Uzak metastaz']] };
-  const primaryGleason = Number(input.gleasonPrimary ?? 0);
-  const secondaryGleason = Number(input.gleasonSecondary ?? 0);
-  const gleasonTotal = primaryGleason + secondaryGleason;
-  const gradeGroup = gleasonTotal >= 9 ? 5 : gleasonTotal === 8 ? 4 : gleasonTotal === 7 && primaryGleason === 4 ? 3 : gleasonTotal === 7 ? 2 : gleasonTotal === 6 ? 1 : 0;
-  const psa = Number(input.psaNgMl ?? 0);
-  const riskLabel = input.nodalStatus === 'N1' || input.metastaticStatus === 'M1' ? 'Bölgesel / metastatik' : input.clinicalT === 'T4' || input.clinicalT === 'T3b' || gradeGroup >= 4 || psa > 20 ? 'Yüksek / çok yüksek' : gradeGroup === 3 || psa >= 10 || Number(input.positiveCoresPercent ?? 0) >= 50 ? 'Orta - uygunsuz' : gradeGroup === 2 ? 'Orta - uygun' : 'Düşük';
   const renderField = (field: CDSSFormField): JSX.Element => {
     if (engine.id === 'gus.prostate' && (field.key === 'gleasonPrimary' || field.key === 'gleasonSecondary')) {
       return <label key={field.key} className="block text-xs text-slate-400">{field.key === 'gleasonSecondary' ? '+ Sekonder Gleason paterni' : field.label}<input type="number" min={1} max={5} value={String(input[field.key] ?? '')} onChange={(event) => update(field, event.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1a2d] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-indigo-400" /></label>;
@@ -184,7 +161,6 @@ export default function CDSSDashboard(): JSX.Element {
     return <label key={field.key} className="block text-xs text-slate-400">{field.label}{field.description ? <span className="ml-1 text-slate-600">({field.description})</span> : null}{field.type === 'boolean' ? <span className="mt-1 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a2d] px-3 py-2.5"><input type="checkbox" checked={Boolean(input[field.key])} onChange={(event) => update(field, String(event.target.checked))} className="accent-indigo-500" /> <span>{input[field.key] ? 'Var' : 'Yok'}</span></span> : field.type === 'select' ? <select value={String(input[field.key] ?? '')} onChange={(event) => update(field, event.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1a2d] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-indigo-400"><option value="">Seçiniz</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input type={field.type} value={String(input[field.key] ?? '')} onChange={(event) => update(field, event.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1a2d] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-indigo-400" />}</label>;
   };
   const visibleFields = engine.formSchema.filter((field) => !['stageGroup', 'clinicalT', 'nodalStatus', 'metastaticStatus', 'pathologicT', 'pathologicN'].includes(field.key));
-  const isMeningioma = engine.id === 'cns.meningioma';
   return (
     <main className={dark ? 'min-h-screen bg-[#07111f] text-slate-100' : 'min-h-screen bg-slate-50 text-slate-900'}>
       <div className="w-full px-4 py-4 lg:px-6">
@@ -196,28 +172,32 @@ export default function CDSSDashboard(): JSX.Element {
         <div className="grid w-full gap-6 lg:grid-cols-12">
           <aside className="space-y-5 lg:col-span-3">
             <section className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
-              <h3 className="mb-4 flex items-center gap-2 font-semibold"><Target size={18} className="text-indigo-300" /> Dozimetri özeti</h3>
-              {schemes.length ? <div className="mb-4"><p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Alternatif radyoterapi rejimleri</p><div className="flex gap-2 overflow-x-auto pb-1">{schemes.map((scheme) => <button key={scheme.id} type="button" onClick={() => setSelectedRegimenId(scheme.id)} className={`min-w-max rounded-xl border px-3 py-2 text-left text-xs transition ${selectedRegimenId === scheme.id ? 'border-emerald-300 bg-emerald-400/20 text-emerald-100 shadow-lg shadow-emerald-950/30' : 'border-white/10 bg-[#0b1a2d] text-slate-300 hover:border-indigo-300/50'}`}><strong className="block">{scheme.label}</strong><span className="mt-1 block text-[10px] text-slate-500">{scheme.fractionation.totalDoseGy} Gy · {scheme.fractionation.fractions} fx</span></button>)}</div></div> : null}
-              {fractionation ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[['Toplam', `${fractionation.totalDoseGy} Gy`], ['Doz/fx', `${fractionation.dosePerFractionGy} Gy`], ['Fx', String(fractionation.fractions)], [`BED${fractionation.alphaBetaTumor ?? 10}`, gy(fractionation.bedGy)], ['EQD2', gy(fractionation.eqd2Gy)], ['Teknik', fractionation.technique ?? '—']].map(([label, value]) => <div key={label} className="rounded-2xl border border-white/10 bg-[#0b1a2d] p-3"><span className="block text-xs text-slate-500">{label}</span><strong className="mt-2 block text-lg text-slate-100">{value}</strong></div>)}</div> : <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-slate-500">Bu karar dalında doz şeması önerilmedi.</p>}
-              {selectedRegimen ? <p className="mt-3 text-xs leading-5 text-slate-400"><strong className="text-indigo-200">{selectedRegimen.label}</strong> · {selectedRegimen.targetDescription}</p> : null}
+              <h2 className="mb-4 font-semibold">Klinik karar motoru</h2>
+              <label className="block text-xs text-slate-400">
+                Organ sistemi
+                <select value={organ} onChange={(event) => selectOrgan(event.target.value as OrganSystem)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1a2d] px-3 py-2.5 text-sm text-slate-100">
+                  {ORGAN_OPTIONS.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
+                </select>
+              </label>
+              <label className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-300">
+                <Search size={15} />
+                <input aria-label="Hastalık ara" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Hastalık ara..." className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-500" />
+              </label>
+              <div className="mt-3 space-y-1" role="listbox" aria-label="Klinik karar motorları">
+                {engines.map((item) => <button key={item.id} type="button" role="option" aria-selected={item.id === engine.id} onClick={() => selectEngine(item)} className={`w-full rounded-xl px-3 py-2 text-left text-xs transition ${item.id === engine.id ? 'bg-indigo-500/20 text-indigo-100' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}>{item.name}</button>)}
+              </div>
             </section>
             <section className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
-              <h3 className="mb-4 font-semibold">Klinik uyarılar</h3>
-              {result.warnings?.length ? <ul className="space-y-2 text-sm text-amber-200">{result.warnings.map((warning) => <li key={warning} className="rounded-xl bg-amber-400/10 p-3">⚠ {warning}</li>)}</ul> : <p className="flex items-center gap-2 rounded-xl bg-emerald-400/10 p-3 text-sm text-emerald-200"><ShieldCheck size={16} /> Kritik uyarı yok.</p>}
+              <h2 className="mb-4 font-semibold">Hasta ve hastalık özellikleri</h2>
+              <div className="space-y-3">
+                {visibleFields.map(renderField)}
+                {!visibleFields.length && <p className="text-sm text-slate-500">Bu motor için ek giriş alanı bulunmuyor.</p>}
+              </div>
             </section>
           </aside>
-          <main className="lg:col-span-9">
-            <section className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
-              <h3 className="mb-4 flex items-center gap-2 font-semibold"><Target size={18} className="text-indigo-300" /> Dozimetri özeti</h3>
-              {schemes.length ? <div className="mb-4"><p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Alternatif radyoterapi rejimleri</p><div className="flex gap-2 overflow-x-auto pb-1">{schemes.map((scheme) => <button key={scheme.id} type="button" onClick={() => setSelectedRegimenId(scheme.id)} className={`min-w-max rounded-xl border px-3 py-2 text-left text-xs transition ${selectedRegimenId === scheme.id ? 'border-emerald-300 bg-emerald-400/20 text-emerald-100 shadow-lg shadow-emerald-950/30' : 'border-white/10 bg-[#0b1a2d] text-slate-300 hover:border-indigo-300/50'}`}><strong className="block">{scheme.label}</strong><span className="mt-1 block text-[10px] text-slate-500">{scheme.fractionation.totalDoseGy} Gy · {scheme.fractionation.fractions} fx</span></button>)}</div></div> : null}
-              {fractionation ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[['Toplam', `${fractionation.totalDoseGy} Gy`], ['Doz/fx', `${fractionation.dosePerFractionGy} Gy`], ['Fx', String(fractionation.fractions)], [`BED${fractionation.alphaBetaTumor ?? 10}`, gy(fractionation.bedGy)], ['EQD2', gy(fractionation.eqd2Gy)], ['Teknik', fractionation.technique ?? '—']].map(([label, value]) => <div key={label} className="rounded-2xl border border-white/10 bg-[#0b1a2d] p-3"><span className="block text-xs text-slate-500">{label}</span><strong className="mt-2 block text-lg text-slate-100">{value}</strong></div>)}</div> : <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-slate-500">Bu karar dalında doz şeması önerilmedi.</p>}
-              {selectedRegimen ? <p className="mt-3 text-xs leading-5 text-slate-400"><strong className="text-indigo-200">{selectedRegimen.label}</strong> · {selectedRegimen.targetDescription}</p> : null}
-            </section>
-            <section className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
-              <h3 className="mb-4 font-semibold">Klinik uyarılar</h3>
-              {result.warnings?.length ? <ul className="space-y-2 text-sm text-amber-200">{result.warnings.map((warning) => <li key={warning} className="rounded-xl bg-amber-400/10 p-3">⚠ {warning}</li>)}</ul> : <p className="flex items-center gap-2 rounded-xl bg-emerald-400/10 p-3 text-sm text-emerald-200"><ShieldCheck size={16} /> Kritik uyarı yok.</p>}
-            </section>
-          </main>
+          <section className="lg:col-span-9">
+            {error ? <div role="alert" className="rounded-2xl border border-rose-400/30 bg-rose-400/10 p-5 text-sm text-rose-200">{error}</div> : result ? <ResultPanel result={result} input={input} /> : null}
+          </section>
         </div>
       </div>
     </main>

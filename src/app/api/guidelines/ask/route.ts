@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+interface GuidelineChunk {
+  source: string;
+  page: number | string;
+  content: string;
+  embedding: number[];
+}
+
+interface RankedGuidelineChunk extends GuidelineChunk {
+  score: number;
+}
+
+function isGuidelineChunk(value: unknown): value is GuidelineChunk {
+  if (typeof value !== 'object' || value === null) return false;
+  const chunk = value as Partial<GuidelineChunk>;
+  return typeof chunk.source === 'string'
+    && (typeof chunk.page === 'number' || typeof chunk.page === 'string')
+    && typeof chunk.content === 'string'
+    && Array.isArray(chunk.embedding)
+    && chunk.embedding.every((entry: unknown) => typeof entry === 'number');
+}
+
+function isNumberArray(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every((entry: unknown) => typeof entry === 'number');
+}
+
 function cosineSimilarity(vecA: number[], vecB: number[]) {
   let dotProduct = 0;
   let normA = 0;
@@ -16,7 +41,9 @@ function cosineSimilarity(vecA: number[], vecB: number[]) {
 
 export async function POST(req: Request) {
   try {
-    const { question, diseaseContext } = await req.json();
+    const body = await req.json() as { question?: unknown; diseaseContext?: unknown };
+    const question = typeof body.question === 'string' ? body.question.trim() : '';
+    const diseaseContext = typeof body.diseaseContext === 'string' ? body.diseaseContext : '';
     if (!question) {
       return NextResponse.json({ success: false, error: 'Soru iletilmedi.' }, { status: 400 });
     }
@@ -35,20 +62,24 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'nomic-embed-text', prompt: question })
     });
-    const embedData = await embedRes.json();
+    const embedData = await embedRes.json() as { embedding?: unknown };
+    if (!isNumberArray(embedData.embedding)) throw new Error('Sorgu embedding yanıtı geçersiz.');
     const qVec = embedData.embedding;
 
     // 2. Kılavuz pasajlarıyla karşılaştır (Top 3 getir)
-    const ragChunks = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-    const scoredChunks = ragChunks.map((chunk: any) => ({
+    const ragChunks: unknown = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+    if (!Array.isArray(ragChunks) || !ragChunks.every(isGuidelineChunk)) {
+      throw new Error('Kılavuz indeksi geçersiz biçimde.');
+    }
+    const scoredChunks: RankedGuidelineChunk[] = ragChunks.map((chunk) => ({
       ...chunk,
       score: cosineSimilarity(qVec, chunk.embedding)
     }));
 
-    scoredChunks.sort((a: any, b: any) => b.score - a.score);
+    scoredChunks.sort((a, b) => b.score - a.score);
     const topChunks = scoredChunks.slice(0, 3);
 
-    const contextText = topChunks.map((c: any, i: number) => 
+    const contextText = topChunks.map((c, i) =>
       `[Pasaj ${i+1} | Kaynak: ${c.source}, Sayfa: ${c.page}]:\n${c.content}`
     ).join('\n\n---\n\n');
 
@@ -71,15 +102,16 @@ ${contextText}`;
       })
     });
 
-    const llmData = await llmRes.json();
+    const llmData = await llmRes.json() as { response?: unknown };
+    if (typeof llmData.response !== 'string') throw new Error('Dil modeli yanıtı geçersiz.');
 
     return NextResponse.json({
       success: true,
       answer: llmData.response,
-      references: topChunks.map((c: any) => ({ source: c.source, page: c.page, score: c.score }))
+      references: topChunks.map((c) => ({ source: c.source, page: c.page, score: c.score }))
     });
 
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : 'Kılavuz sorgusu başarısız.' }, { status: 500 });
   }
 }
