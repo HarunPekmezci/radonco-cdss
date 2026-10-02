@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { ArrowLeftRight, ArrowUpDown, ArrowUpRight, Calculator, Info, RotateCcw, Target } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
+type NumericInput = number | '';
+
 type Schedule = {
-  totalDose: number;
-  fractions: number;
+  totalDose: NumericInput;
+  fractions: NumericInput;
 };
 
 type ReverseRegimen = {
@@ -20,27 +22,32 @@ type ReverseRegimen = {
 
 type ReverseSortKey = 'fractions' | 'dosePerFraction' | 'totalDose' | 'bed' | 'technique';
 type ViewTab = 'calculator' | 'atlas';
+type AtlasView = 'tumor' | 'oar';
 
 const presets = [
-  { id: 'acute-tumor', label_tr: 'Akut doku / Tümör (α/β = 10 Gy)', label_en: 'Acute tissue / Tumor (α/β = 10 Gy)', value: 10 },
-  { id: 'breast', label_tr: 'Meme Kanseri (α/β = 4.0 Gy)', label_en: 'Breast Cancer (α/β = 4.0 Gy)', value: 4 },
+  { id: 'acute-tumor', label_tr: 'Akut Doku / Standart Tümör (α/β = 10 Gy)', label_en: 'Acute Tissue / Standard Tumor (α/β = 10 Gy)', value: 10 },
   { id: 'late-oar', label_tr: 'Geç doku / Genel OAR (α/β = 3.0 Gy)', label_en: 'Late tissue / General OAR (α/β = 3.0 Gy)', value: 3 },
-  { id: 'rcc', label_tr: 'Böbrek Hücreli / RCC (α/β = 2.6 Gy)', label_en: 'Renal Cell / RCC (α/β = 2.6 Gy)', value: 2.6 },
-  { id: 'melanoma', label_tr: 'Melanom (α/β = 2.5 Gy)', label_en: 'Melanoma (α/β = 2.5 Gy)', value: 2.5 },
-  { id: 'cns-cord', label_tr: 'MSS / Kord (α/β = 2.0 Gy)', label_en: 'CNS / Cord (α/β = 2.0 Gy)', value: 2 },
   { id: 'prostate', label_tr: 'Prostat Adenokarsinom (α/β = 1.5 Gy)', label_en: 'Prostate Adenocarcinoma (α/β = 1.5 Gy)', value: 1.5 },
-  { id: 'lens', label_tr: 'Lens / Katarakt (α/β = 1.2 Gy)', label_en: 'Lens / Cataract (α/β = 1.2 Gy)', value: 1.2 },
+  { id: 'melanoma', label_tr: 'Melanom (α/β = 2.5 Gy)', label_en: 'Melanoma (α/β = 2.5 Gy)', value: 2.5 },
+  { id: 'rcc', label_tr: 'Böbrek Hücreli / RCC (α/β = 2.6 Gy)', label_en: 'Renal Cell / RCC (α/β = 2.6 Gy)', value: 2.6 },
+  { id: 'breast', label_tr: 'Meme Kanseri (α/β = 4.0 Gy)', label_en: 'Breast Cancer (α/β = 4.0 Gy)', value: 4 },
   { id: 'colorectal', label_tr: 'Kolorektal Kanser (α/β = 5.0 Gy)', label_en: 'Colorectal AdenoCA (α/β = 5.0 Gy)', value: 5 },
+  { id: 'lens', label_tr: 'Lens / Katarakt (α/β = 1.2 Gy)', label_en: 'Lens / Cataract (α/β = 1.2 Gy)', value: 1.2 },
+  { id: 'cns-cord', label_tr: 'MSS / Spinal Kord (α/β = 2.0 Gy)', label_en: 'CNS / Spinal Cord (α/β = 2.0 Gy)', value: 2 },
   { id: 'colon-oar', label_tr: 'Kolon & Bağırsak OAR (α/β = 3.0 Gy)', label_en: 'Colon & Bowel OAR (α/β = 3.0 Gy)', value: 3 },
 ] as const;
 
+const baselinePresetIds = new Set(['acute-tumor', 'late-oar']);
+const tumorPresetIds = new Set(['prostate', 'melanoma', 'rcc', 'breast', 'colorectal']);
+const oarPresetIds = new Set(['lens', 'cns-cord', 'colon-oar']);
+
 const fractionCounts = [1, 3, 5, 8, 10, 15, 20, 25, 28, 30, 35];
 
-const thresholdAtlas = [
+const tumorTargetAtlas = [
   {
     id: 'lung-sbrt',
-    title_tr: 'Akciğer SBRT (Ablatif)',
-    title_en: 'Lung SBRT (Ablative)',
+    title_tr: 'Erken Evre KHDAK SBRT',
+    title_en: 'Early-stage NSCLC SBRT',
     benchmark_tr: 'BED₁₀ ≥ 100 Gy · Onishi et al.; 3 yıllık lokal kontrol >%90',
     benchmark_en: 'BED₁₀ ≥ 100 Gy · Onishi et al.; >90% 3-year local control',
     source: 'Onishi et al.',
@@ -49,8 +56,8 @@ const thresholdAtlas = [
   },
   {
     id: 'prostate-definitive',
-    title_tr: 'Prostat Definitif',
-    title_en: 'Prostate Definitive',
+    title_tr: 'Prostat Adenokarsinom (Definitif)',
+    title_en: 'Prostate AdenoCA (Definitive)',
     benchmark_tr: 'EQD2₁.₅ ≥ 78–80 Gy · Doz eskalasyonu çalışmaları',
     benchmark_en: 'EQD2₁.₅ ≥ 78–80 Gy · Dose-escalation trials',
     source: 'Dose-escalation trials',
@@ -59,8 +66,8 @@ const thresholdAtlas = [
   },
   {
     id: 'cervix-hrctv',
-    title_tr: 'Serviks HR-CTV (EBRT + Brakiterapi)',
-    title_en: 'Cervix HR-CTV (EBRT + Brachytherapy)',
+    title_tr: 'Serviks Karsinomu (EBRT + BT HR-CTV)',
+    title_en: 'Cervix Carcinoma (EBRT + BT HR-CTV)',
     benchmark_tr: 'EQD2₁₀ ≥ 85–90 Gy · EMBRACE II',
     benchmark_en: 'EQD2₁₀ ≥ 85–90 Gy · EMBRACE II',
     source: 'EMBRACE II',
@@ -69,8 +76,8 @@ const thresholdAtlas = [
   },
   {
     id: 'breast-adjuvant',
-    title_tr: 'Meme Adjuvan',
-    title_en: 'Breast Adjuvant',
+    title_tr: 'Meme Kanseri (Adjuvan)',
+    title_en: 'Breast Cancer (Adjuvant)',
     benchmark_tr: 'EQD2₄ ≈ 46–50 Gy · FAST-Forward / START-B',
     benchmark_en: 'EQD2₄ ≈ 46–50 Gy · FAST-Forward / START-B',
     source: 'FAST-Forward / START-B',
@@ -79,8 +86,8 @@ const thresholdAtlas = [
   },
   {
     id: 'head-neck',
-    title_tr: 'Baş-Boyun Definitif',
-    title_en: 'Head & Neck Definitive',
+    title_tr: 'Baş-Boyun Skuamöz Hücreli Karsinom (Definitif)',
+    title_en: 'Head & Neck SCC (Definitive)',
     benchmark_tr: 'EQD2₁₀ ≥ 70 Gy',
     benchmark_en: 'EQD2₁₀ ≥ 70 Gy',
     source: 'Conventional definitive radiotherapy',
@@ -109,8 +116,8 @@ const thresholdAtlas = [
   },
   {
     id: 'colorectal-short-course',
-    title_tr: 'Kolorektal Kısa Dönem Neoadjuvan (RAPIDO)',
-    title_en: 'Rectal / Colon Neoadjuvant Short-Course (RAPIDO)',
+    title_tr: 'Kolorektal / Rektum Kısa Dönem (RAPIDO)',
+    title_en: 'Colorectal / Rectal Short-Course (RAPIDO)',
     benchmark_tr: 'Toplam 25 Gy (5 Gy × 5 fx) · EQD2₅ = 35.7 Gy · BED₅ = 50.0 Gy',
     benchmark_en: 'Total 25 Gy (5 Gy × 5 fx) · EQD2₅ = 35.7 Gy · BED₅ = 50.0 Gy',
     source: 'RAPIDO',
@@ -139,23 +146,78 @@ const thresholdAtlas = [
   },
 ] as const;
 
+const oarThresholds = [
+  {
+    id: 'spinal-cord',
+    title_tr: 'Omurilik',
+    title_en: 'Spinal Cord',
+    limits_tr: 'Konvansiyonel: Dmax < 45–50 Gy · 1 fx SRS: Dmax < 13–14 Gy',
+    limits_en: 'Conventional: Dmax < 45–50 Gy · 1 fx SRS: Dmax < 13–14 Gy',
+  },
+  {
+    id: 'brainstem',
+    title_tr: 'Beyin Sapı',
+    title_en: 'Brainstem',
+    limits_tr: 'Konvansiyonel: Dmax < 54 Gy · 1 fx SRS: D0.035cc < 10 Gy',
+    limits_en: 'Conventional: Dmax < 54 Gy · 1 fx SRS: D0.035cc < 10 Gy',
+  },
+  {
+    id: 'optic-apparatus',
+    title_tr: 'Optik Kiazma / Sinirler',
+    title_en: 'Optic Chiasm / Nerves',
+    limits_tr: 'Konvansiyonel: Dmax < 54–55 Gy · 1 fx SRS: Dmax < 8–10 Gy',
+    limits_en: 'Conventional: Dmax < 54–55 Gy · 1 fx SRS: Dmax < 8–10 Gy',
+  },
+  {
+    id: 'bilateral-lung',
+    title_tr: 'Bilateral Akciğer',
+    title_en: 'Bilateral Lung',
+    limits_tr: 'V20Gy < 30–35% · Ortalama akciğer dozu < 20 Gy',
+    limits_en: 'V20Gy < 30–35% · Mean lung dose < 20 Gy',
+  },
+  {
+    id: 'heart',
+    title_tr: 'Kalp',
+    title_en: 'Heart',
+    limits_tr: 'Ortalama doz < 20 Gy (memede < 4–5 Gy) · V30Gy < 45%',
+    limits_en: 'Mean dose < 20 Gy (breast: < 4–5 Gy) · V30Gy < 45%',
+  },
+  {
+    id: 'rectum',
+    title_tr: 'Rektum',
+    title_en: 'Rectum',
+    limits_tr: 'V70Gy < 15–20% · V50Gy < 50%',
+    limits_en: 'V70Gy < 15–20% · V50Gy < 50%',
+  },
+  {
+    id: 'small-bowel-colon',
+    title_tr: 'İnce Bağırsak / Kolon',
+    title_en: 'Small Bowel / Colon',
+    limits_tr: 'V45Gy < 195 cc · Dmax < 50 Gy',
+    limits_en: 'V45Gy < 195 cc · Dmax < 50 Gy',
+  },
+] as const;
+
 const initialReference: Schedule = { totalDose: 60, fractions: 30 };
 const initialAlternative: Schedule = { totalDose: 40, fractions: 15 };
 
 export type OarContext = { organ: string; metric: string; limit: string; fractionation: string };
 
-const calculate = (schedule: Schedule, alphaBeta: number) => {
+const calculate = (schedule: Schedule, alphaBetaInput: NumericInput) => {
+  const totalDose = typeof schedule.totalDose === 'number' ? schedule.totalDose : 0;
+  const fractions = typeof schedule.fractions === 'number' ? schedule.fractions : 0;
+  const alphaBeta = typeof alphaBetaInput === 'number' ? alphaBetaInput : 0;
   if (
-    !Number.isFinite(schedule.totalDose)
-    || !Number.isFinite(schedule.fractions)
-    || schedule.totalDose <= 0
-    || schedule.fractions <= 0
-    || !Number.isInteger(schedule.fractions)
+    !Number.isFinite(totalDose)
+    || !Number.isFinite(fractions)
+    || totalDose <= 0
+    || fractions <= 0
+    || !Number.isInteger(fractions)
     || !Number.isFinite(alphaBeta)
     || alphaBeta <= 0
   ) return null;
-  const dosePerFraction = schedule.totalDose / schedule.fractions;
-  const bed = schedule.totalDose * (1 + dosePerFraction / alphaBeta);
+  const dosePerFraction = totalDose / fractions;
+  const bed = totalDose * (1 + dosePerFraction / alphaBeta);
   const eqd2 = bed / (1 + 2 / alphaBeta);
   return { dosePerFraction, bed, eqd2 };
 };
@@ -189,8 +251,8 @@ const NumberField = ({
   step,
 }: {
   label: string;
-  value: number;
-  onChange: (value: number) => void;
+  value: NumericInput;
+  onChange: (value: NumericInput) => void;
   min: number;
   max: number;
   step: number;
@@ -204,45 +266,50 @@ const NumberField = ({
       step={step}
       value={value}
       onChange={event => {
-        const next = Number(event.target.value);
+        const raw = event.currentTarget.value;
+        if (raw === '') {
+          onChange('');
+          return;
+        }
+        const next = Number.parseFloat(raw);
         if (Number.isFinite(next)) onChange(next);
       }}
-      className="mt-1.5 w-full rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-400"
+      className="mt-1.5 w-full [appearance:textfield] rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
     />
   </label>
 );
 
 export default function DoseCalculator({ initialOarContext }: { initialOarContext: OarContext | null }) {
   const { language: lang } = useLanguage();
-  const [alphaBeta, setAlphaBeta] = useState(10);
+  const [alphaBeta, setAlphaBeta] = useState<NumericInput>(10);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>('acute-tumor');
   const [reference, setReference] = useState(initialReference);
   const [alternative, setAlternative] = useState(initialAlternative);
   const [activeTab, setActiveTab] = useState<ViewTab>('calculator');
-  const [targetEqd2, setTargetEqd2] = useState(72);
+  const [atlasView, setAtlasView] = useState<AtlasView>('tumor');
+  const [targetEqd2, setTargetEqd2] = useState<NumericInput>(72);
   const [reverseSortKey, setReverseSortKey] = useState<ReverseSortKey>('fractions');
   const [reverseSortDirection, setReverseSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const referenceResult = useMemo(() => calculate(reference, alphaBeta), [alphaBeta, reference]);
-  const alternativeResult = useMemo(() => calculate(alternative, alphaBeta), [alphaBeta, alternative]);
-  const reverseRegimens = useMemo(() => solveReverseRegimens(targetEqd2, alphaBeta), [alphaBeta, targetEqd2]);
+  const effectiveAlphaBeta = typeof alphaBeta === 'number' ? alphaBeta : 0;
+  const effectiveTarget = typeof targetEqd2 === 'number' ? targetEqd2 : 0;
+  const alphaBetaDisplay = alphaBeta === '' ? '—' : alphaBeta;
+  const referenceResult = useMemo(() => calculate(reference, effectiveAlphaBeta), [effectiveAlphaBeta, reference]);
+  const alternativeResult = useMemo(() => calculate(alternative, effectiveAlphaBeta), [alternative, effectiveAlphaBeta]);
+  const reverseRegimens = useMemo(
+    () => solveReverseRegimens(effectiveTarget, effectiveAlphaBeta),
+    [effectiveAlphaBeta, effectiveTarget],
+  );
   const sortedReverseRegimens = useMemo(() => [...reverseRegimens].sort((left, right) => {
     const comparison = reverseSortKey === 'technique'
       ? techniqueLabel(left.technique, lang).localeCompare(techniqueLabel(right.technique, lang))
       : left[reverseSortKey] - right[reverseSortKey];
     return reverseSortDirection === 'asc' ? comparison : -comparison;
   }), [lang, reverseRegimens, reverseSortDirection, reverseSortKey]);
-  const validSchedules = [reference, alternative].every(schedule =>
-    Number.isFinite(schedule.totalDose)
-    && Number.isFinite(schedule.fractions)
-    && schedule.totalDose > 0
-    && schedule.fractions > 0
-    && Number.isInteger(schedule.fractions)
-  );
-  const bedDelta = validSchedules && referenceResult && alternativeResult ? alternativeResult.bed - referenceResult.bed : null;
-  const eqd2Delta = validSchedules && referenceResult && alternativeResult ? alternativeResult.eqd2 - referenceResult.eqd2 : null;
+  const bedDelta = referenceResult && alternativeResult ? alternativeResult.bed - referenceResult.bed : null;
+  const eqd2Delta = referenceResult && alternativeResult ? alternativeResult.eqd2 - referenceResult.eqd2 : null;
 
-  const updateSchedule = (key: 'reference' | 'alternative', field: keyof Schedule, value: number) => {
+  const updateSchedule = (key: 'reference' | 'alternative', field: keyof Schedule, value: NumericInput) => {
     const setter = key === 'reference' ? setReference : setAlternative;
     setter(previous => ({ ...previous, [field]: value }));
   };
@@ -262,6 +329,25 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
       document.getElementById('alternative-schedule-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   };
+
+  const renderPresetPill = (preset: (typeof presets)[number]) => (
+    <button
+      key={preset.id}
+      type="button"
+      aria-pressed={selectedPresetId === preset.id}
+      onClick={() => {
+        setAlphaBeta(preset.value);
+        setSelectedPresetId(preset.id);
+      }}
+      className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+        selectedPresetId === preset.id
+          ? 'ring-1 ring-amber-400 border-amber-400/80 bg-amber-500/20 text-amber-200'
+          : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
+      }`}
+    >
+      {lang === 'en' ? preset.label_en : preset.label_tr}
+    </button>
+  );
 
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
@@ -325,44 +411,71 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
 
         {activeTab === 'calculator' ? (
           <>
-            <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-6">
-              <h2 className="text-sm font-semibold text-white">
-                {lang === 'en' ? 'Tissue α/β presets' : 'Doku α/β hazır değerleri'}
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {presets.map(preset => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    aria-pressed={selectedPresetId === preset.id}
-                    onClick={() => {
-                      setAlphaBeta(preset.value);
-                      setSelectedPresetId(preset.id);
-                    }}
-                    className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${selectedPresetId === preset.id ? 'border-violet-400/70 bg-violet-400/10 text-violet-100' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}
-                  >
-                    {lang === 'en' ? preset.label_en : preset.label_tr}
-                  </button>
-                ))}
+            <section className="mb-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-sm font-semibold text-white">
+                  {lang === 'en' ? 'General / Baseline Presets' : 'Temel Radyobiyolojik Referanslar'}
+                </h2>
+                <span className="w-fit rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[9px] font-bold tracking-wide text-amber-200">
+                  ⚡ GENEL STANDARTLAR / BASELINE PRESETS
+                </span>
               </div>
-              <label className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400">
-                {lang === 'en' ? 'Custom α/β (Gy)' : 'Özel α/β (Gy)'}
-                <input
-                  type="number"
-                  min="0.1"
-                  max="50"
-                  step="0.1"
-                  value={alphaBeta}
-                  onChange={event => {
-                    const next = Number(event.target.value);
-                    if (Number.isFinite(next) && next > 0) {
-                      setAlphaBeta(next);
-                      setSelectedPresetId(null);
-                    }
-                  }}
-                  className="w-24 rounded-lg border border-slate-700 bg-[#0a0f1d] px-2.5 py-1.5 text-xs text-white outline-none focus:border-violet-400"
-                />
-              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {presets.filter(preset => baselinePresetIds.has(preset.id)).map(renderPresetPill)}
+                <label className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0a0f1d]/70 px-3 py-2 text-xs font-medium text-slate-300">
+                  {lang === 'en' ? 'Custom α/β (Gy)' : 'Özel α/β (Gy)'}
+                  <input
+                    type="number"
+                    min="0.1"
+                    max="50"
+                    step="0.1"
+                    value={alphaBeta}
+                    onChange={event => {
+                      const raw = event.currentTarget.value;
+                      if (raw === '') {
+                        setAlphaBeta('');
+                        setSelectedPresetId(null);
+                        return;
+                      }
+                      const next = Number.parseFloat(raw);
+                      if (Number.isFinite(next) && next > 0) {
+                        setAlphaBeta(next);
+                        setSelectedPresetId(null);
+                      }
+                    }}
+                    className="w-20 [appearance:textfield] rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-white outline-none focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="mb-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-sm font-semibold text-white">
+                  {lang === 'en' ? 'Organ and Tumor Specific Presets' : 'Organ ve Tümöre Özgü Değerler'}
+                </h2>
+                <span className="w-fit rounded-full border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 text-[9px] font-bold tracking-wide text-violet-200">
+                  🧬 ORGAN & TÜMÖR SPESİFİK / SPECIFIC TISSUES
+                </span>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {lang === 'en' ? 'Specific Tumors' : 'Tümöre Özgü'}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {presets.filter(preset => tumorPresetIds.has(preset.id)).map(renderPresetPill)}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    {lang === 'en' ? 'Specific OARs / Critical Structures' : 'Özgül OAR / Kritik Yapılar'}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {presets.filter(preset => oarPresetIds.has(preset.id)).map(renderPresetPill)}
+                  </div>
+                </div>
+              </div>
             </section>
 
             <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -422,11 +535,11 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                   {card.result ? (
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">BED{alphaBeta}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">BED{alphaBetaDisplay}</div>
                         <div className="mt-1 text-xl font-bold text-white">{card.result.bed.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
                       </div>
                       <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-sky-300">EQD2{alphaBeta}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-sky-300">EQD2{alphaBetaDisplay}</div>
                         <div className="mt-1 text-xl font-bold text-white">{card.result.eqd2.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
                       </div>
                     </div>
@@ -448,8 +561,8 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               </div>
               {bedDelta !== null && eqd2Delta !== null ? (
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Delta label={`Δ BED${alphaBeta}`} value={bedDelta} language={lang} />
-                  <Delta label={`Δ EQD2${alphaBeta}`} value={eqd2Delta} language={lang} />
+                  <Delta label={`Δ BED${alphaBetaDisplay}`} value={bedDelta} language={lang} />
+                  <Delta label={`Δ EQD2${alphaBetaDisplay}`} value={eqd2Delta} language={lang} />
                 </div>
               ) : (
                 <p role="alert" className="mt-3 text-xs text-rose-300">
@@ -487,10 +600,15 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                     step="0.1"
                     value={targetEqd2}
                     onChange={event => {
-                      const next = Number(event.currentTarget.value);
-                      if (Number.isFinite(next) && next > 0) setTargetEqd2(next);
+                      const raw = event.currentTarget.value;
+                      if (raw === '') {
+                        setTargetEqd2('');
+                        return;
+                      }
+                      const next = Number.parseFloat(raw);
+                      if (Number.isFinite(next) && next >= 0) setTargetEqd2(next);
                     }}
-                    className="mt-1.5 w-full rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-400"
+                    className="mt-1.5 w-full [appearance:textfield] rounded-lg border border-slate-700 bg-[#0a0f1d] px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </label>
               </div>
@@ -529,7 +647,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 bg-[#0a0f1d]">
-                    {sortedReverseRegimens.map(row => (
+                    {sortedReverseRegimens.length ? sortedReverseRegimens.map(row => (
                       <tr key={row.fractions} className="text-slate-200">
                         <td className="px-3 py-2.5 font-mono">{row.fractions}</td>
                         <td className="px-3 py-2.5 font-mono">{row.dosePerFraction.toFixed(2)}</td>
@@ -546,53 +664,130 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )) : (
+                      <tr>
+                        <td colSpan={6} className="px-3 py-4 text-center text-xs text-slate-500">
+                          {lang === 'en'
+                            ? 'Enter a positive target EQD2 and α/β value to derive schedules.'
+                            : 'Şema türetmek için pozitif bir hedef EQD2 ve α/β değeri girin.'}
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </section>
           </>
         ) : (
-          <section className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-6" aria-labelledby="threshold-atlas-heading">
-            <header className="mb-4">
-              <h2 id="threshold-atlas-heading" className="text-lg font-bold text-white">
-                {lang === 'en' ? 'Curative & Ablative Threshold Atlas' : 'Terapötik Doz Eşik Rehberi'}
+          <div className="space-y-4">
+            <header className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
+              <h2 className="text-lg font-bold text-white">
+                {lang === 'en' ? 'Dose Benchmark Atlas' : 'Doz Eşik Rehberi'}
               </h2>
               <p className="mt-1 text-xs leading-5 text-slate-400">
                 {lang === 'en'
-                  ? 'Reference benchmarks from representative regimens and trials. Select a row to transfer its EQD2 target and α/β to the reverse solver.'
-                  : 'Örnek tedavi şemaları ve çalışmalardan doz eşikleri. EQD2 hedefini ve α/β değerini ters çözücüye aktarmak için bir satır seçin.'}
+                  ? 'Tumor targets are minimum floor doses; OAR constraints are maximum tolerance ceilings. They are kept in separate views.'
+                  : 'Tümör hedefleri asgari doz tabanlarını, OAR kısıtları ise azami tolerans tavanlarını gösterir. İki grup ayrı sunulur.'}
               </p>
+              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" role="tablist" aria-label={lang === 'en' ? 'Dose benchmark categories' : 'Doz eşik kategorileri'}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={atlasView === 'tumor'}
+                  onClick={() => setAtlasView('tumor')}
+                  className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition ${
+                    atlasView === 'tumor'
+                      ? 'border-emerald-500/40 bg-emerald-950/30 text-emerald-200'
+                      : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🎯 {lang === 'en' ? 'Tumor Target Doses (TCP)' : 'Tümör Hedef Dozları (TCP)'}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={atlasView === 'oar'}
+                  onClick={() => setAtlasView('oar')}
+                  className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition ${
+                    atlasView === 'oar'
+                      ? 'border-rose-500/40 bg-rose-950/30 text-rose-200'
+                      : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🛡️ {lang === 'en' ? 'Critical Organ Constraints (NTCP)' : 'Kritik Organ Kısıtları (NTCP)'}
+                </button>
+              </div>
             </header>
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-              {thresholdAtlas.map(item => (
-                <article key={item.id} className="flex flex-col rounded-xl border border-slate-800 bg-[#0a0f1d] p-4">
-                  <h3 className="text-sm font-semibold text-white">{lang === 'en' ? item.title_en : item.title_tr}</h3>
-                  <p className="mt-2 flex-1 text-xs leading-5 text-slate-300">
-                    {lang === 'en' ? item.benchmark_en : item.benchmark_tr}
+
+            {atlasView === 'tumor' ? (
+              <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 sm:p-6" aria-labelledby="tumor-target-benchmarks-heading">
+                <header className="mb-4">
+                  <h3 id="tumor-target-benchmarks-heading" className="text-sm font-bold text-emerald-300">
+                    🎯 TÜMÖR HEDEF DOZLARI / CURATIVE TARGET BENCHMARKS
+                  </h3>
+                  <p className="mt-2 text-xs leading-5 text-emerald-100/70">
+                    {lang === 'en'
+                      ? 'Minimum floor dose benchmarks for curative intent and local control (≥). Select a benchmark to load its EQD2 target into the Reverse Solver.'
+                      : 'Küratif amaç ve lokal kontrol için gereken asgari doz eşikleri (≥). EQD2 hedefini ters çözücüye aktarmak için bir eşik seçin.'}
                   </p>
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[10px] font-medium text-slate-500">
-                      {lang === 'en' ? 'Reference: ' : 'Referans: '}{item.source}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAlphaBeta(item.alphaBeta);
-                        setSelectedPresetId(presets.find(preset => preset.value === item.alphaBeta)?.id ?? null);
-                        setTargetEqd2(item.targetEqd2);
-                        setActiveTab('calculator');
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-violet-400/30 bg-violet-400/10 px-3 py-2 text-[11px] font-semibold text-violet-100 transition hover:border-violet-300/60 hover:bg-violet-400/20"
-                    >
-                      {lang === 'en' ? 'Send to Reverse Solver' : 'Hedef Dozu Çözücüye Aktar'}
-                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+                </header>
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  {tumorTargetAtlas.map(item => (
+                    <article key={item.id} className="flex flex-col rounded-xl border border-emerald-500/20 bg-[#0a0f1d]/70 p-4">
+                      <h4 className="text-sm font-semibold text-white">{lang === 'en' ? item.title_en : item.title_tr}</h4>
+                      <p className="mt-2 flex-1 text-xs leading-5 text-emerald-100/80">
+                        {lang === 'en' ? item.benchmark_en : item.benchmark_tr}
+                      </p>
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[10px] font-medium text-slate-400">
+                          {lang === 'en' ? 'Reference: ' : 'Referans: '}{item.source}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAlphaBeta(item.alphaBeta);
+                            setSelectedPresetId(presets.find(preset => preset.value === item.alphaBeta)?.id ?? null);
+                            setTargetEqd2(item.targetEqd2);
+                            setActiveTab('calculator');
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-[11px] font-semibold text-emerald-200 transition hover:border-emerald-300/60 hover:bg-emerald-500/20"
+                        >
+                          {lang === 'en' ? 'Send to Reverse Solver' : 'Hedef Dozu Çözücüye Aktar'}
+                          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <section className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-4 sm:p-6" aria-labelledby="oar-safety-constraints-heading">
+                <header className="mb-4">
+                  <h3 id="oar-safety-constraints-heading" className="text-sm font-bold text-rose-300">
+                    🛡️ KRİTİK ORGAN TOLERANS SINIRLARI / OAR SAFETY CONSTRAINTS
+                  </h3>
+                  <p className="mt-2 text-xs leading-5 text-rose-100/70">
+                    {lang === 'en'
+                      ? 'Maximum ceiling doses that should not be exceeded to reduce normal-tissue toxicity risk (≤).'
+                      : 'Normal doku toksisite riskini azaltmak için aşılmaması gereken azami doz tavanları (≤).'}
+                  </p>
+                </header>
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  {oarThresholds.map(item => (
+                    <article key={item.id} className="rounded-xl border border-rose-500/20 bg-[#0a0f1d]/70 p-4">
+                      <h4 className="text-sm font-semibold text-white">{lang === 'en' ? item.title_en : item.title_tr}</h4>
+                      <p className="mt-2 text-xs leading-5 text-rose-100/80">
+                        {lang === 'en' ? item.limits_en : item.limits_tr}
+                      </p>
+                      <span className="mt-3 inline-flex rounded-full border border-rose-400/20 bg-rose-400/5 px-2.5 py-1 text-[10px] font-semibold text-rose-200">
+                        {lang === 'en' ? 'Reference ceiling · Not an EQD2 target' : 'Referans üst sınır · EQD2 hedefi değildir'}
+                      </span>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         )}
 
         <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs leading-5 text-amber-100/70">
