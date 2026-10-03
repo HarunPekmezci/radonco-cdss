@@ -78,7 +78,7 @@ export default function Navbar() {
   const activeLanguage = languages.find(item => item.code === currentLang) ?? languages[0];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0B1120] text-slate-100">
+    <header className="sticky top-0 z-[60] bg-[#0B1120] text-slate-100">
       <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-white">
           <span className="nuclear-box flex shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
@@ -137,7 +137,7 @@ export default function Navbar() {
               <div
                 role="menu"
                 aria-label={t.nav.languagePicker}
-                className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
+                className="absolute right-0 top-full z-[100] mt-2 w-44 rounded-xl border border-slate-700/80 bg-[#0d1527] p-1.5 shadow-2xl backdrop-blur-xl"
               >
                 {languages.map(option => (
                   <button
