@@ -81,12 +81,12 @@ export default function Navbar() {
     <header className="sticky top-0 z-[60] bg-[#0B1120] text-slate-100">
       <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-bold tracking-tight text-white">
-          <span className="nuclear-box flex shrink-0 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.12)]">
-            <Radiation className="h-6 w-6 nuclear-icon" aria-hidden="true" />
+          <span className="nuclear-box flex shrink-0 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-xl text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.24)]">
+            <Radiation className="h-5 w-5 nuclear-icon" aria-hidden="true" />
           </span>
-          <span>RadOnco <span className="text-sky-400">Portal</span></span>
+          <span>RadOnco Portal</span>
         </Link>
-        <nav aria-label={t.nav.mainNavigation} className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-2 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav aria-label={t.nav.mainNavigation} className="relative z-50 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-2 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navigation.map(item => {
             if (item.href === '/cdss' && !pathname.startsWith('/cdss')) return null;
             const isActive = item.href === '/cdss' && pathname.startsWith('/cdss');

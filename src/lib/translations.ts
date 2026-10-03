@@ -30,12 +30,12 @@ export type TranslationDictionary = {
     oar: { title: string; description: string; badges: string[] };
     calculator: { title: string; description: string; badges: string[] };
     contouring: { title: string; description: string; badges: string[] };
-    palliative: { title: string; description: string; badges: string[] };
+    prognostic: { title: string; description: string; badges: string[] };
     references: { title: string; description: string; badges: string[] };
     toxicity: { title: string; description: string; badges: string[] };
   };
   rapidProtocols: {
-    quickCaseId: 'case-05' | 'case-26' | 'case-01' | 'case-21';
+    quickCaseId: 'case-06' | 'case-27' | 'case-02' | 'case-21';
     title: string;
     dose: string;
     details: string;
@@ -64,7 +64,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     sectionTitle: 'Klinik araçlar ve kaynaklar',
     sectionDescription: 'Çalışma alanını seçerek devam edin.',
     portalBadge: 'RadOnco Portal',
-    rapidProtocolsTitle: 'Sık Karşılaşılan Hızlı Klinik Protokoller (Rapid Protocols)',
+    rapidProtocolsTitle: 'Sık Karşılaşılan Hızlı Klinik Protokoller',
     rapidProtocolsDescription: 'Poliklinik pratiğinde en sık uygulanan kanıta dayalı hızlı fraksiyonasyon şablonları.',
     rapidProtocolsLaunch: "CDSS'de vakayı aç",
     cards: {
@@ -81,51 +81,51 @@ export const translations: Record<Language, TranslationDictionary> = {
       contouring: {
         title: 'Hedef Hacim & Konturlama Atlası',
         description: 'eContour entegrasyonu, RTOG ve ESTRO hedef hacim konturlama rehberleri.',
-        badges: ['eContour', 'RTOG Consensus'],
+        badges: ['eContour', 'RTOG'],
       },
-      palliative: {
-        title: 'Palyatif & Acil RT Protokolleri',
-        description: 'Kemik metastazı tek doz (8 Gy), kord basısı, VCSS ve hemostatik palyasyon.',
-        badges: ['Acil RT', 'ASTRO Palliative'],
+      prognostic: {
+        title: 'Klinik Skorlama & Prognostik İndeksler',
+        description: 'DS-GPA, CAPRA ve RPA klinik karar destek araçları.',
+        badges: ['DS-GPA', 'CAPRA', 'RPA'],
       },
       references: {
         title: 'Kaynakça ve Kanıt Kütüphanesi',
         description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve Faz III çalışmalar.',
-        badges: ['Kılavuzlar', 'Faz III'],
+        badges: ['NCCN 2025', 'Faz III'],
       },
       toxicity: {
-        title: 'Toksisite & Yan Etki Değerlendirme (CTCAE v5.0)',
+        title: 'Toksisite & Yan Etki Değerlendirme',
         description: 'Radyasyon dermatiti, pnömonit, özofajit, mukozit ve proktit için CTCAE derecelendirmesi ve medikal yönetim rehberi.',
-        badges: ['CTCAE v5.0', 'Akut & Geç Toksisite'],
+        badges: ['CTCAE v5.0', 'Akut & Geç'],
       },
     },
     rapidProtocols: [
       {
-        quickCaseId: 'case-05',
-        title: 'Meme Kanserinde Hipofraksiyonasyon',
-        dose: 'FAST-Forward · 26 Gy / 5 fx',
-        details: 'T1-2 N0 M0 · Adjuvan tüm meme RT',
-        tags: ['ADJUVAN', 'TÜM MEME'],
+        quickCaseId: 'case-06',
+        title: 'Meme / Göğüs Duvarı',
+        dose: '50 Gy / 25 fx',
+        details: 'Adjuvan tüm meme / post-mastektomi',
+        tags: ['ADJUVAN', 'GÖĞÜS DUVARI'],
       },
       {
-        quickCaseId: 'case-26',
-        title: 'Prostat SBRT (Orta Risk)',
-        dose: '36.25 Gy / 5 fx',
-        details: 'Gün aşırı · PTV marjlı stereotaktik tedavi',
-        tags: ['PACE-B', 'GÜN AŞIRI'],
+        quickCaseId: 'case-27',
+        title: 'Prostat SIB',
+        dose: '70 Gy / 56 Gy / 28 fx',
+        details: 'Ilımlı hipofraksiyonasyon + entegre boost',
+        tags: ['SIB', '28 FRAKSİYON'],
       },
       {
-        quickCaseId: 'case-01',
-        title: 'Erken Evre Periferik KHDAK SBRT',
-        dose: '54 Gy / 3 fx',
-        details: 'T1b N0 M0 · Küratif altın standart · BED10 = 151.2 Gy',
-        tags: ['KÜRATİF', 'PERİFERİK'],
+        quickCaseId: 'case-02',
+        title: 'Konvansiyonel Toraks (AC)',
+        dose: '60 Gy / 30 fx',
+        details: 'Lokal İleri KHDAK eşzamanlı KRT',
+        tags: ['KEMORADYOTERAPİ', 'KHDAK'],
       },
       {
         quickCaseId: 'case-21',
         title: 'Palyatif Kemik Metastazı',
         dose: '8 Gy / 1 fx',
-        details: 'Hızlı ağrı kontrolü · Kategori 1 analjezik palyasyon',
+        details: 'Tek fraksiyon hızlı analjezik palyasyon',
         tags: ['TEK FRAKSİYON', 'ASTRO'],
       },
     ],
@@ -169,49 +169,49 @@ export const translations: Record<Language, TranslationDictionary> = {
         description: 'eContour integration and RTOG and ESTRO target-volume contouring guidance.',
         badges: ['eContour', 'RTOG Consensus'],
       },
-      palliative: {
-        title: 'Palliative & Emergency RT Protocols',
-        description: 'Single-fraction bone metastasis RT (8 Gy), cord compression, VCSS, and hemostatic palliation.',
-        badges: ['Emergency RT', 'ASTRO Palliative'],
+      prognostic: {
+        title: 'Clinical Scoring & Prognostic Indices',
+        description: 'DS-GPA, CAPRA, and RPA clinical decision support tools.',
+        badges: ['DS-GPA', 'CAPRA', 'RPA'],
       },
       references: {
         title: 'References & Evidence Library',
         description: 'Current NCCN 2025, ASTRO, and ESTRO guidelines and phase III studies.',
-        badges: ['Guidelines', 'Phase III'],
+        badges: ['NCCN 2025', 'Phase III'],
       },
       toxicity: {
-        title: 'Toxicity & Adverse Effects Assessment (CTCAE v5.0)',
+        title: 'Toxicity & Adverse Effects Assessment',
         description: 'CTCAE grading and medical management guidance for radiation dermatitis, pneumonitis, esophagitis, mucositis, and proctitis.',
-        badges: ['CTCAE v5.0', 'Acute & Late Toxicity'],
+        badges: ['CTCAE v5.0', 'Acute & Late'],
       },
     },
     rapidProtocols: [
       {
-        quickCaseId: 'case-05',
-        title: 'Hypofractionation for Breast Cancer',
-        dose: 'FAST-Forward · 26 Gy / 5 fx',
-        details: 'T1-2 N0 M0 · Adjuvant whole-breast RT',
-        tags: ['ADJUVANT', 'WHOLE BREAST'],
+        quickCaseId: 'case-06',
+        title: 'Breast / Chest Wall',
+        dose: '50 Gy / 25 fx',
+        details: 'Adjuvant whole breast / post-mastectomy',
+        tags: ['ADJUVANT', 'CHEST WALL'],
       },
       {
-        quickCaseId: 'case-26',
-        title: 'Prostate SBRT (Intermediate Risk)',
-        dose: '36.25 Gy / 5 fx',
-        details: 'Alternate days · Stereotactic treatment with PTV margin',
-        tags: ['PACE-B', 'ALTERNATE DAYS'],
+        quickCaseId: 'case-27',
+        title: 'Prostate SIB',
+        dose: '70 Gy / 56 Gy / 28 fx',
+        details: 'Moderate hypofractionation + integrated boost',
+        tags: ['SIB', '28 FRACTIONS'],
       },
       {
-        quickCaseId: 'case-01',
-        title: 'Early-Stage Peripheral NSCLC SBRT',
-        dose: '54 Gy / 3 fx',
-        details: 'T1b N0 M0 · Curative standard · BED10 = 151.2 Gy',
-        tags: ['CURATIVE', 'PERIPHERAL'],
+        quickCaseId: 'case-02',
+        title: 'Conventional Thorax (AC)',
+        dose: '60 Gy / 30 fx',
+        details: 'Locally advanced NSCLC concurrent CRT',
+        tags: ['CHEMORADIOTHERAPY', 'NSCLC'],
       },
       {
         quickCaseId: 'case-21',
         title: 'Palliative Bone Metastasis',
         dose: '8 Gy / 1 fx',
-        details: 'Rapid pain control · Category 1 analgesic palliation',
+        details: 'Single-fraction rapid analgesic palliation',
         tags: ['SINGLE FRACTION', 'ASTRO'],
       },
     ],

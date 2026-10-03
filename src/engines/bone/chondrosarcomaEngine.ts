@@ -104,8 +104,8 @@ const fraction = (totalDoseGy: number, fractions: number, className: Fractionati
 });
 const targets = (dose: Fractionation, metastasis = false): TargetVolume[] => [
   { name: 'GTV', description: metastasis ? 'Makroskopik primer, rezidüel hastalık veya seçilmiş akciğer/kemik metastazı.' : 'MRI/CT/PET ile belirlenen kondrosarkom ve postoperatif yatak.', dose, margin: 'Başlangıç görüntüleme, cerrahi klipler ve anatomik füzyonla' },
-  { name: 'CTV', description: 'Primer tümör yatağı ve subklinik kemik/soft-tissue yayılım alanı; kritik organ komşuluğuna göre bireyselleştirilir.', dose, margin: 'Genellikle 1-2 cm; pelvis/spinde longitudinal yayılım ve kafa tabanı perinöral yolları dikkate alınır' },
-  { name: 'PTV', description: 'Immobilizasyon, MRI/CT füzyon ve günlük IGRT belirsizliği.', dose, margin: 'IMRT/proton için 3-5 mm; stereotaktik metastazda 1-3 mm' },
+  { name: 'CTV', description: 'Primer tümör yatağı ve subklinik kemik/soft-tissue yayılım alanı; kritik organ komşuluğuna göre bireyselleştirilir.', dose, margin: metastasis ? 'GTV->CTV 0 mm (anatomik kompartman)' : 'Genellikle 1-2 cm; pelvis/spinde longitudinal yayılım ve kafa tabanı perinöral yolları dikkate alınır' },
+  { name: 'PTV', description: 'Immobilizasyon, MRI/CT füzyon ve günlük IGRT belirsizliği.', dose, margin: metastasis ? 'CTV->PTV +3-5 mm (IGRT)' : 'IMRT/proton için 3-5 mm; stereotaktik metastazda 1-3 mm' },
 ];
 const oars: OARConstraint[] = [
   { organ: 'Spinal cord', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Spinal chondrosarcoma planning objective' },

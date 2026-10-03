@@ -108,8 +108,8 @@ const fraction = (totalDoseGy: number, fractions: number, className: Fractionati
 });
 const targets = (dose: Fractionation, metastatic = false): TargetVolume[] => [
   { name: 'GTV', description: metastatic ? 'Makroskopik primer, rezidüel hastalık veya seçilmiş akciğer/kemik metastazı.' : 'Başlangıç MRI/BT/PET ile tanımlanan primer kemik tümörü ve postoperatif yatak.', dose, margin: 'Başlangıç görüntüleme, cerrahi klipler ve kemik anatomisiyle füzyon' },
-  { name: 'CTV', description: 'Tümör yatağı, biyopsi yolu ve mikroskopik kemik/soft-tissue yayılım alanı.', dose, margin: 'Genellikle longitudinal 2-3 cm ve radial 1-2 cm; eklem/anatomik bariyer ve protokole göre' },
-  { name: 'PTV', description: 'Pediatrik immobilizasyon, kurulum ve hareket belirsizliği.', dose, margin: 'Genellikle 3-5 mm; torasik metastazda 4D-CT ve IGRT ile' },
+  { name: 'CTV', description: 'Tümör yatağı, biyopsi yolu ve mikroskopik kemik/soft-tissue yayılım alanı.', dose, margin: metastatic ? 'GTV->CTV 0 mm (anatomik kompartman)' : 'Genellikle longitudinal 2-3 cm ve radial 1-2 cm; eklem/anatomik bariyer ve protokole göre' },
+  { name: 'PTV', description: 'Pediatrik immobilizasyon, kurulum ve hareket belirsizliği.', dose, margin: metastatic ? 'CTV->PTV +3-5 mm (IGRT)' : 'Genellikle 3-5 mm; torasik metastazda 4D-CT ve IGRT ile' },
 ];
 const oars: OARConstraint[] = [
   { organ: 'Spinal cord', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Spinal/para-spinal osteosarcoma RT objective' },

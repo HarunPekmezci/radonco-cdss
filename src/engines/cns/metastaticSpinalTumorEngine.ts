@@ -155,13 +155,13 @@ const spinalTargets = (dose: Fractionation, postoperative = false): TargetVolume
     name: 'CTV',
     description: 'İlgili vertebra ve riskli epidural/paraspinal uzanım; rutin tüm omurga veya elektif nodal ışınlama yoktur.',
     dose,
-    margin: postoperative ? 'Cerrahi yatak ve riskli vertebral anatomiyi içerecek şekilde yaklaşık 5-10 mm' : 'İlgili vertebra(lar), pedikül/lamina ve epidural risk alanına göre',
+    margin: 'GTV->CTV 0 mm (ilgili anatomik kompartman; postop yatak ve epidural/paraspinal uzanım dahil)',
   },
   {
     name: 'PTV',
     description: 'Spinal immobilizasyon, solunum ve günlük IGRT belirsizliği.',
     dose,
-    margin: 'Konvansiyonel RT için 5-10 mm; SBRT için yaklaşık 2-5 mm',
+    margin: 'CTV->PTV +3-5 mm (IGRT; immobilizasyon ve hareket belirsizliğini doğrulayın)',
   },
 ];
 

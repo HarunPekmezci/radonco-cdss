@@ -1832,6 +1832,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
     { id: 'head-neck-nasopharynx', name_tr: 'Nazofarenks (NPC)', name_en: 'Nasopharynx (NPC)' },
     { id: 'head-neck-oropharynx', name_tr: 'Orofarenks (OPC)', name_en: 'Oropharynx (OPC)' },
     { id: 'head-neck-larynx', name_tr: 'Larenks Kanseri', name_en: 'Larynx Cancer' },
+    { id: 'head-neck-maxillary-sinus', name_tr: 'Maksiller Sinüs', name_en: 'Maxillary Sinus' },
     { id: 'head-neck-oral-cavity', name_tr: 'Oral Kavite', name_en: 'Oral Cavity' },
     { id: 'head-neck-salivary', name_tr: 'Tükürük Bezi Kanserleri', name_en: 'Salivary Gland Cancer' },
   ],
@@ -1922,6 +1923,26 @@ type QuickCasePreset = {
   regimen: QuickCaseRegimen;
 };
 
+interface ArchivedClinicalCase {
+  id: string;
+  savedAt: string;
+  patientId: string;
+  age: string;
+  gender: string;
+  diagnosis: string;
+  stage: string;
+  prescription: string;
+  bed: string;
+  eqd2: string;
+}
+
+const isArchivedClinicalCase = (value: unknown): value is ArchivedClinicalCase => {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return ['id', 'savedAt', 'patientId', 'age', 'gender', 'diagnosis', 'stage', 'prescription', 'bed', 'eqd2']
+    .every(key => typeof record[key] === 'string');
+};
+
 type CommandPaletteItem =
   | { id: string; kind: 'organ'; title: string; subtitle: string; searchText: string; organ: OrganId; subsite: string; histologyId?: string }
   | { id: string; kind: 'protocol'; title: string; subtitle: string; searchText: string; preset: QuickCasePreset }
@@ -1930,7 +1951,7 @@ type CommandPaletteItem =
 const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'sbrt' },
   { id: 'case-02', category: 'thorax', title_tr: 'Lokal ileri KHDAK', title_en: 'Locally advanced NSCLC', detail_tr: 'Evre IIIA cT2 N2 M0 • Eşzamanlı KRT 60 Gy + PACIFIC', detail_en: 'Stage IIIA cT2 N2 M0 • Concurrent CRT 60 Gy + PACIFIC', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T2a', n: 'N2', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'clinical' },
-  { id: 'case-03', category: 'thorax', title_tr: 'Sınırlı evre KHAK', title_en: 'Limited-stage SCLC', detail_tr: 'T2 N1 M0 • Turrisi erken eşzamanlı KRT 45 Gy BID / 30 fx', detail_en: 'T2 N1 M0 • Turrisi early concurrent CRT 45 Gy BID / 30 fx', organ: 'thorax', subsite: 'thorax-sclc', t: 'T2', n: 'N1', m: 'M0', regimen: 'clinical' },
+  { id: 'case-03', category: 'thorax', title_tr: 'Sınırlı evre KHAK', title_en: 'Limited-stage SCLC', detail_tr: 'T2 N1 M0 • Turrisi akselere hiperfraksiyonasyon 1.5 Gy BID / 30 fx (≥ 6 saat ara)', detail_en: 'T2 N1 M0 • Turrisi accelerated hyperfractionation 1.5 Gy BID / 30 fx (≥ 6 hours apart)', organ: 'thorax', subsite: 'thorax-sclc', t: 'T2', n: 'N1', m: 'M0', regimen: 'clinical' },
   { id: 'case-04', category: 'thorax', title_tr: 'Timoma, Masaoka evre II', title_en: 'Thymoma, Masaoka stage II', detail_tr: 'R0 rezeksiyon • Adjuvan PORT 50 Gy', detail_en: 'R0 resection • Adjuvant PORT 50 Gy', organ: 'thorax', subsite: 'thorax-thymoma', t: 'Masaoka-II', n: 'N0', m: 'M0', histologyId: 'thymoma', regimen: 'clinical' },
   { id: 'case-05', category: 'breast', title_tr: 'Erken evre standart meme', title_en: 'Early-stage breast cancer', detail_tr: 'pT1c pN0 M0 • Postmenopoz • FAST-Forward 26 Gy / 5 fx', detail_en: 'pT1c pN0 M0 • Postmenopausal • FAST-Forward 26 Gy / 5 fx', organ: 'breast', subsite: 'breast-breast', t: 'T1c', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sbrt' },
   { id: 'case-06', category: 'breast', title_tr: 'Yüksek riskli lokal ileri PMRT', title_en: 'High-risk locally advanced PMRT', detail_tr: 'pT3 pN2a M0 • Mastektomi • Göğüs duvarı + RNI 50 Gy / 25 fx', detail_en: 'pT3 pN2a M0 • Mastectomy • Chest wall + RNI 50 Gy / 25 fx', organ: 'breast', subsite: 'breast-breast', t: 'T3', n: 'N2', m: 'M0', histologyId: 'breast-nst', regimen: 'conventional' },
@@ -1954,6 +1975,7 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
   { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
   { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sbrt' },
+  { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib' },
 ];
 
 type GuidedStep = 1 | 2 | 3 | 4;
@@ -1998,6 +2020,10 @@ const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_e
   'case-26': {
     title_tr: 'Ultra-hipofraksiyone Prostat SBRT (36.25 Gy/5 fx)',
     title_en: 'Ultra-hypofractionated Prostate SBRT (36.25 Gy/5fx)',
+  },
+  'case-27': {
+    title_tr: 'Yüksek Riskli Prostat SIB (70/56 Gy/28 fx)',
+    title_en: 'High-Risk Prostate SIB (70/56 Gy/28fx)',
   },
 };
 
@@ -2153,6 +2179,33 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
         source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091',
         context: 'Konvansiyonel toraks RT; plan ve hasta faktörlerine göre değerlendirilir.',
         contextEn: 'Conventional thoracic RT; interpret with plan and patient factors.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Özofagus',
+        metric: 'Dmean',
+        limit: '< 34 Gy',
+        source: 'QUANTEC esophageal toxicity review (2010)',
+        context: 'Konvansiyonel toraks RT; doz-hacim ilişkisini ve eşzamanlı tedaviyi birlikte değerlendirin.',
+        contextEn: 'Conventional thoracic RT; consider dose-volume exposure and concurrent treatment.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Kalp',
+        metric: 'Dmean / V30',
+        limit: 'Dmean < 20 Gy; V30 < 46%',
+        source: 'QUANTEC cardiac review (2010), DOI: 10.1016/j.ijrobp.2009.04.093',
+        context: 'Kardiyak doz mümkün olduğunca azaltılmalı; hasta ve plan bağlamında yorumlayın.',
+        contextEn: 'Minimize cardiac dose and interpret in the context of the patient and plan.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Brakiyal pleksus',
+        metric: 'Dmax',
+        limit: '< 66 Gy',
+        source: 'QUANTEC / thoracic RT planning reference',
+        context: 'Konvansiyonel fraksiyonasyon; yeniden ışınlama ve fraksiyonasyon değişikliğinde sınırı doğrudan aktarmayın.',
+        contextEn: 'Conventional fractionation; do not transfer this limit directly to re-irradiation or altered fractionation.',
         classification: 'dose-volume-reference',
       },
       {
@@ -2317,6 +2370,106 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
     }];
   }
 
+  if (organ === 'thorax' && scheme.fractionCount <= 5) {
+    return [
+      {
+        organ: 'Proksimal bronş ağacı',
+        metric: 'Dmax',
+        limit: '< 105% of prescription',
+        source: 'AAPM TG-101; HyTEC thoracic SBRT',
+        context: 'Merkezi/ultramerkezi SBRT için seçilen fraksiyon protokolüyle doğrulayın.',
+        contextEn: 'Verify against the selected fractionation protocol for central/ultracentral SBRT.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: 'Göğüs duvarı / kaburga',
+        metric: 'V30Gy',
+        limit: '< 30 cc',
+        source: 'AAPM TG-101; HyTEC thoracic SBRT',
+        context: 'SBRT doz-hacim hedefi; reçete ve fraksiyon sayısıyla birlikte değerlendirin.',
+        contextEn: 'SBRT dose-volume objective; interpret with prescription and fraction count.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: 'Özofagus',
+        metric: 'Fraksiyona özgü doz-hacim metriği',
+        limit: 'Seçilen SBRT protokolüne göre doğrulayın',
+        source: 'AAPM TG-101; HyTEC thoracic SBRT',
+        context: 'Konvansiyonel Dmean eşiği SBRT için kullanılamaz.',
+        contextEn: 'The conventional-fractionation Dmean threshold is not applicable to SBRT.',
+        classification: 'context-note',
+      },
+      {
+        organ: 'Kalp',
+        metric: 'Fraksiyona özgü doz-hacim metriği',
+        limit: 'Dozu ALARA; seçilen SBRT protokolünü doğrulayın',
+        source: 'AAPM TG-101; HyTEC thoracic SBRT',
+        context: 'Konvansiyonel Dmean/V30 eşikleri SBRT için doğrudan kullanılmamalıdır.',
+        contextEn: 'Conventional Dmean/V30 thresholds should not be transferred directly to SBRT.',
+        classification: 'context-note',
+      },
+    ];
+  }
+
+  if (organ === 'cns') {
+    return [
+      {
+        organ: 'Koklea',
+        metric: 'Dmean / SRS Dmax',
+        limit: 'Dmean < 45 Gy; SRS Dmax < 9 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519; AAPM TG-101',
+        context: 'SRS sınırı fraksiyon sayısı ve kontur tanımıyla doğrulanmalıdır.',
+        contextEn: 'Verify SRS limits against fraction count and contour definition.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Hipofiz',
+        metric: 'Dmax',
+        limit: '< 54 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Konvansiyonel fraksiyonasyon için referans; SRS ve yeniden ışınlama için ayrı protokol gerekir.',
+        contextEn: 'Conventional-fractionation reference; use a separate protocol for SRS and re-irradiation.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Optik sinirler / kiazma',
+        metric: 'Dmax / SRS Dmax',
+        limit: 'Dmax < 54 Gy; SRS < 8-10 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519; AAPM TG-101',
+        context: 'SRS eşiği fraksiyon sayısına göre seçilmelidir.',
+        contextEn: 'Select the SRS limit according to fraction count.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Hipokampus (HA-WBRT)',
+        metric: 'D100% / Dmax',
+        limit: 'D100% ≤ 9 Gy; Dmax ≤ 16 Gy',
+        source: 'NRG CC001 hippocampal-avoidance WBRT trial',
+        context: 'Yalnızca hipokampus korumalı WBRT planlamasında; hedef kapsamı ve protokol uygunsa.',
+        contextEn: 'For hippocampal-avoidance WBRT only, when target coverage and protocol permit.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: 'Lens',
+        metric: 'Dmax',
+        limit: '< 7 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Lens konturu ve tedavi geometrisine göre doz minimizasyonu.',
+        contextEn: 'Minimize dose based on lens contour and treatment geometry.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Retina',
+        metric: 'Dmax',
+        limit: '< 45 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Konvansiyonel fraksiyonasyon referansı; göz yapılarının konturları doğrulanmalıdır.',
+        contextEn: 'Conventional-fractionation reference; verify ocular structure contours.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+  }
+
   if (organ === 'head-neck' && conventionalFractionation) {
     return [
       {
@@ -2345,6 +2498,60 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
         context: 'Konvansiyonel baş-boyun RT; hedef kapsamı ve bez konturu dikkate alınır.',
         contextEn: 'Conventional head-and-neck RT; consider target coverage and gland contour.',
         classification: 'dose-volume-reference',
+      },
+      {
+        organ: 'Mandibula',
+        metric: 'Dmax',
+        limit: '< 70 Gy',
+        source: 'Head-and-neck planning reference; verify institutional protocol',
+        context: 'Diş sağlığı, cerrahi, hedef komşuluğu ve fraksiyonasyona göre planı doğrulayın.',
+        contextEn: 'Verify with dental status, surgery, target proximity and fractionation.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Tiroid',
+        metric: 'V30Gy',
+        limit: '< 50%',
+        source: 'Head-and-neck planning reference',
+        context: 'Tiroid fonksiyon takibi ve başlangıç durumu dikkate alınmalıdır.',
+        contextEn: 'Consider baseline thyroid function and follow-up.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Oral kavite',
+        metric: 'Dmean',
+        limit: '< 35 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Hedef kapsamı ve ağız boşluğu kontur tanımıyla birlikte yorumlayın.',
+        contextEn: 'Interpret with target coverage and oral-cavity contour definition.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Faringeal konstriktörler (PCM)',
+        metric: 'Dmean',
+        limit: '< 50 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Disfaji riskini azaltma hedefi; ilgili konstriktör alt yapılarının konturunu doğrulayın.',
+        contextEn: 'Dysphagia-reduction objective; verify contours of relevant constrictor substructures.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Larenks',
+        metric: 'Dmean',
+        limit: '< 45 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: 'Hedef kapsamı ve fonksiyonel larenks hacmine göre planı değerlendirin.',
+        contextEn: 'Evaluate with target coverage and functional larynx volume.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: 'Submandibular / parotis bezleri',
+        metric: 'Dmean',
+        limit: '< 26 Gy',
+        source: 'QUANTEC parotid (2010), DOI: 10.1016/j.ijrobp.2009.06.090',
+        context: 'En az bir bezin korunması, tümör konumu ve hedef kapsamına bağlıdır.',
+        contextEn: 'Preservation of at least one gland depends on tumor location and target coverage.',
+        classification: 'planning-aim',
       },
       {
         organ: 'Koklea',
@@ -2415,18 +2622,6 @@ const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseSch
       source: 'PENTEC publications; apply the organ-specific model and population',
       context: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
       contextEn: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'cns') {
-    return [{
-      organ: 'Brain / optic structures / brainstem',
-      metric: 'SRS, FSRT or conventional RT',
-      limit: 'Use fraction- and prior-RT-specific HyTEC/TG-101 protocol; no generic value',
-      source: 'HyTEC brain SRS (2021), DOI: 10.1016/j.ijrobp.2020.08.013; AAPM TG-101',
-      context: 'NRG CC001 hippocampal limits apply only to HA-WBRT 30 Gy / 10 fx.',
-      contextEn: 'NRG CC001 hippocampal limits apply only to HA-WBRT 30 Gy / 10 fx.',
       classification: 'context-note',
     }];
   }
@@ -4010,7 +4205,8 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   const [selectedOrgan, setSelectedOrgan] = useState<OrganId>('thorax');
   const [selectedQuickCaseId, setSelectedQuickCaseId] = useState<string | null>(null);
-  const [openCategories, setOpenCategories] = useState<string[]>(['thorax']);
+  const [openCategories, setOpenCategories] = useState<string[]>(['emergencies', 'thorax']);
+  const [isAnatomicRegionsOpen, setIsAnatomicRegionsOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'parameters' | 'tnm' | 'prescription'>('parameters');
@@ -4024,6 +4220,11 @@ export default function RadoncoCDSSPage() {
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
   const [patientAgeYears, setPatientAgeYears] = useState<string>('');
+  const [patientGender, setPatientGender] = useState<string>('');
+  const [patientId, setPatientId] = useState<string>('');
+  const [favoritePresetIds, setFavoritePresetIds] = useState<string[]>([]);
+  const [caseArchive, setCaseArchive] = useState<ArchivedClinicalCase[]>([]);
+  const [isCaseArchiveOpen, setIsCaseArchiveOpen] = useState(false);
   const [selectedSubsite, setSelectedSubsite] = useState<string>('benign-ho');
   const [benignClinicalStatus, setBenignClinicalStatus] = useState<string>('postop-24h');
 
@@ -4094,7 +4295,7 @@ export default function RadoncoCDSSPage() {
   // ==========================================
   // 5. BAŞ-BOYUN ALT BAŞLIKLARI
   // ==========================================
-  const [hnSubsite, setHnSubsite] = useState<'nasopharynx' | 'oropharynx' | 'larynx' | 'hypopharynx' | 'oral-cavity' | 'salivary'>('nasopharynx');
+  const [hnSubsite, setHnSubsite] = useState<'nasopharynx' | 'oropharynx' | 'larynx' | 'hypopharynx' | 'maxillary-sinus' | 'oral-cavity' | 'salivary'>('nasopharynx');
   const [hnLarynxSubsite, setHnLarynxSubsite] = useState<'Erken_Glottik_T1_T2' | 'Lokal_Ileri_T3_T4'>('Erken_Glottik_T1_T2');
   const [hnCrossesMidline, setHnCrossesMidline] = useState<boolean>(false);
   const [hnDistanceFromMidlineCm, setHnDistanceFromMidlineCm] = useState<string>('2');
@@ -4176,6 +4377,57 @@ export default function RadoncoCDSSPage() {
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      let storageError = '';
+      try {
+        const stored = window.localStorage.getItem('radonco_favorite_presets');
+        if (stored) {
+          const parsed: unknown = JSON.parse(stored);
+          if (!Array.isArray(parsed) || parsed.some(id =>
+            typeof id !== 'string' || !QUICK_CASE_PRESETS.some(preset => preset.id === id)
+          )) {
+            throw new Error('Stored favorite presets have an invalid format.');
+          }
+          setFavoritePresetIds(parsed);
+        }
+      } catch (error) {
+        console.error('Favorite presets could not be loaded from browser storage.', error);
+        storageError = 'Favoriler yüklenemedi; tarayıcı depolama alanını kontrol edin.';
+      }
+
+      try {
+        const stored = window.localStorage.getItem('radonco_clinical_case_archive');
+        if (stored) {
+          const parsed: unknown = JSON.parse(stored);
+          if (!Array.isArray(parsed) || !parsed.every(isArchivedClinicalCase)) {
+            throw new Error('Stored clinical case archive has an invalid format.');
+          }
+          setCaseArchive(parsed);
+        }
+      } catch (error) {
+        console.error('Clinical case archive could not be loaded from browser storage.', error);
+        storageError = 'Vaka arşivi yüklenemedi; tarayıcı depolama alanını kontrol edin.';
+      }
+      if (storageError) setResearchExportNotice(storageError);
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  const toggleFavoritePreset = (presetId: string) => {
+    const next = favoritePresetIds.includes(presetId)
+      ? favoritePresetIds.filter(id => id !== presetId)
+      : [...favoritePresetIds, presetId];
+    try {
+      window.localStorage.setItem('radonco_favorite_presets', JSON.stringify(next));
+    } catch (error) {
+      console.error('Favorite presets could not be saved to browser storage.', error);
+      setResearchExportNotice('Favoriler kaydedilemedi; tarayıcı depolama alanını kontrol edin.');
+      return;
+    }
+    setFavoritePresetIds(next);
+  };
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
@@ -4726,6 +4978,14 @@ export default function RadoncoCDSSPage() {
         setHasECE(false);
         setHasSVI(false);
         break;
+      case 'case-27':
+        setGleasonPrimary('4');
+        setGleasonSecondary('4');
+        setPsaLevel('24');
+        setPositiveCorePercent('60');
+        setHasECE(true);
+        setHasSVI(false);
+        break;
       case 'case-13':
         setBladderTurbtComplete(true);
         setBladderTmtSuitable(true);
@@ -4787,6 +5047,20 @@ export default function RadoncoCDSSPage() {
 
   useEffect(() => {
     startTransition(() => launchQuickCaseFromUrl());
+  }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const tab = new URLSearchParams(window.location.search).get('tab');
+      if (tab === 'contouring') {
+        setViewMode(true);
+        setGuidedStep(4);
+      } else if (tab === 'prognostic') {
+        setViewMode(true);
+        setGuidedStep(3);
+      }
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, []);
 
   const currentOrganPresets = QUICK_CASE_PRESETS.filter(preset => {
@@ -5256,7 +5530,7 @@ export default function RadoncoCDSSPage() {
           const isBid = sclcTiming === 'Erken_BID_45Gy';
           const sclcChest: DoseScheme = {
             id: isBid ? 'sclc-turrisi-45' : 'sclc-convert-60',
-            name: isBid ? '45 Gy / 30 fx BID (Turrisi Erken Günde İki Kez)' : '60-66 Gy / 30-33 fx QD (CONVERT Günlük Standart)',
+            name: isBid ? 'Akselere Hiperfraksiyonasyon (1.5 Gy BID / 30 fx, ≥ 6 saat ara) · Turrisi' : '60-66 Gy QD (CONVERT Günlük Standart)',
             tag: isBid ? '⚡ Turrisi Altın Standart' : '🎯 CONVERT Günlük',
             totalDoseGy: isBid ? 45 : 60,
             fractionCount: isBid ? 30 : 30,
@@ -5598,12 +5872,13 @@ export default function RadoncoCDSSPage() {
       const lungSbrtTargets = (doseGy: number) => breathingMotion === 'DIBH'
         ? [
             { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: "Derin inspiryum BT'deki primer parankimal kitle" },
-            { name: 'PTV_SBRT', doseGy, marginMm: "GTV + 3-5 mm (Doğrudan GTV'den)", anatomical: 'DIBH altında set-up ve intra-fraksiyon güvenlik marjini' },
+            { name: 'ITV_DIBH', doseGy, marginMm: 'GTV->ITV: DIBH / gating ile artık solunum hareketini doğrulayın', anatomical: 'Hareket yönetimi ve 4D-CT doğrulamasına göre' },
+            { name: 'PTV_SBRT', doseGy, marginMm: 'ITV->PTV +3 mm (DIBH / gating)', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
           ]
         : [
             { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: 'Parankimal primer kitle (BT/PET füzyonu)' },
-            { name: 'ITV_4D', doseGy, marginMm: 'GTV + 4D solunum fazları zarfı', anatomical: 'Tümörün solunum siklusu boyunca kat ettiği hareket hacmi (MIP)' },
-            { name: 'PTV_SBRT', doseGy, marginMm: 'ITV + 4-5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
+            { name: 'ITV_4D', doseGy, marginMm: 'GTV->ITV: 4D-CT solunum hareket zarfı', anatomical: 'Tümörün solunum siklusu boyunca kat ettiği hareket hacmi (MIP)' },
+            { name: 'PTV_SBRT', doseGy, marginMm: 'ITV->PTV +5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
           ];
       const lungSbrtTechnique = breathingMotion === 'DIBH'
         ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT (Optik Yüzey Rehberliği) / VMAT'
@@ -6207,6 +6482,41 @@ export default function RadoncoCDSSPage() {
         };
       }
 
+      if (hnSubsite === 'maxillary-sinus') {
+        const highRiskAdjuvant = hnENE || hnPositiveMargin;
+        const dose = highRiskAdjuvant ? 66 : 60;
+        const maxillarySinusScheme: DoseScheme = {
+          id: 'maxillary-sinus-postoperative',
+          name: `${dose} Gy / ${dose / 2} fx (${highRiskAdjuvant ? 'Kategori 1 eşzamanlı kemoradyoterapi' : 'adjuvan radyoterapi'})`,
+          tag: highRiskAdjuvant ? 'Kategori 1 · ENE+ / R1' : 'Maksiller Sinüs',
+          totalDoseGy: dose,
+          fractionCount: dose / 2,
+          fractionDoseGy: 2,
+          alphaBeta: 10,
+          technique: 'IMRT / VMAT · IGRT',
+          indication: highRiskAdjuvant
+            ? 'ENE+ veya R1 cerrahi sınır: Kategori 1 adjuvan eşzamanlı sisplatin ve 66 Gy / 33 fx.'
+            : 'Maksiller sinüs histolojisi, evresi, cerrahi ve risk özelliklerine göre multidisipliner değerlendirme.',
+          targetVolumes: [
+            { name: 'CTV_Primary_High_Risk', doseGy: dose, marginMm: 'High-risk CTV->PTV +3-5 mm', anatomical: 'Cerrahi yatak / primer tümör yatağı' },
+            { name: 'CTV_Elective_Nodal', doseGy: highRiskAdjuvant ? 54 : 50, marginMm: 'Elective nodal CTV->PTV +5 mm', anatomical: 'Patoloji ve başlangıç görüntülemeye göre elektif boyun' },
+          ],
+          oars: [],
+          systemicTherapy: highRiskAdjuvant ? 'Eşzamanlı sisplatin (uygunluk ve kurum protokolüne göre).' : undefined,
+          evidence: 'EORTC 22931 (NEJM 2004), RTOG 9501 (NEJM 2004)',
+        };
+        return {
+          statusText: highRiskAdjuvant
+            ? 'KATEGORİ 1: ENE+ / R1 · 66 Gy / 33 fx + EŞZAMANLI SİSPLATİN'
+            : 'Maksiller Sinüs: Histoloji, evre ve risk bilgileriyle MDT değerlendirmesi',
+          badgeClass: highRiskAdjuvant
+            ? 'bg-rose-950/60 text-rose-100 border-rose-500/60'
+            : 'bg-sky-950/60 text-sky-100 border-sky-500/40',
+          primaryScheme: maxillarySinusScheme,
+          alternativeSchemes: [maxillarySinusScheme],
+        };
+      }
+
       if (hnSubsite === 'oral-cavity') {
         const highRiskAdjuvant = hnENE || hnPositiveMargin;
         const oralCavityDose = highRiskAdjuvant ? 66 : 60;
@@ -6225,8 +6535,8 @@ export default function RadoncoCDSSPage() {
               ? 'Tümör çapı >1 cm veya DOI >5 mm olduğunda elektif boyun tedavisi/diseksiyonu değerlendirilir; iyi lateralize tümörde ipsilateral alan yeterli olabilir.'
               : 'İyi lateralize, düşük riskli oral kavite tümöründe ipsilateral elektif boyun alanı veya uygun cerrahi yaklaşım multidisipliner değerlendirilir.',
           targetVolumes: [
-            { name: 'PTV_Primary_Bed', doseGy: oralCavityDose, marginMm: 'Cerrahi yatak + klinik marjin', anatomical: 'Primer rezeksiyon yatağı ve patolojiye göre yüksek risk alanı' },
-            ...(electiveNeckIndicated || selectedN !== 'N0' ? [{ name: 'PTV_Elective_Neck', doseGy: 54, marginMm: bilateralNeck ? 'Bilateral boyun' : 'İpsilateral, iyi lateralize tümörde', anatomical: `${bilateralNeck ? 'Bilateral' : 'Lateralize tümörde ipsilateral'} Level I-IV boyun${hnENE || selectedN === 'N2' || selectedN === 'N3' ? ' + Level V' : ''}` }] : []),
+            { name: 'PTV_Primary_Bed', doseGy: oralCavityDose, marginMm: 'High-risk CTV->PTV +3-5 mm', anatomical: 'Primer rezeksiyon yatağı ve patolojiye göre yüksek risk alanı' },
+            ...(electiveNeckIndicated || selectedN !== 'N0' ? [{ name: 'PTV_Elective_Neck', doseGy: 54, marginMm: 'Elective nodal CTV->PTV +5 mm', anatomical: `${bilateralNeck ? 'Bilateral' : 'Lateralize tümörde ipsilateral'} Level I-IV boyun${hnENE || selectedN === 'N2' || selectedN === 'N3' ? ' + Level V' : ''}` }] : []),
             ...(hnENE || selectedN === 'N2' || selectedN === 'N3' ? [{ name: 'PTV_Nodal_High_Risk_Boost', doseGy: selectedN === 'N3' ? 70 : 66, marginMm: 'Tutulu nod yatağı / SIB', anatomical: `Level V dahil yüksek riskli nodal alan; ${selectedN === 'N3' ? '70 Gy' : '66 Gy'} SIB boost` }] : []),
           ],
           oars: [
@@ -6261,9 +6571,9 @@ export default function RadoncoCDSSPage() {
         technique: 'VMAT / IMRT (Eşzamanlı Entegre Boost)',
         indication: `${hnSubsite === 'larynx' && hnLarynxSubsite === 'Lokal_Ileri_T3_T4' ? 'Lokal ileri supraglottik/glottik' : 'Lokal ileri baş-boyun'} kanserinde definitif kemoradyoterapi. ${hnSubsite === 'nasopharynx' ? 'Bilateral Level II-Vb ve retrofaringeal lenf nodları (RPN) zorunlu hedef hacimdir.' : bilateralNeck ? 'Bilateral Level II-IV kapsanır; nazofarenkste Level II-Vb ve RPN, oral kavitede Level I-IV uygulanır.' : 'İyi lateralize oral kavite primerinde ipsilateral Level I-III; DOI >5 mm ise Level IV eklenir.'} ${hnENE || selectedN === 'N2' || selectedN === 'N3' ? 'ENE+ veya N2-N3 varlığında Level V dahil edilir ve tutulu nod yatağına 66-70 Gy SIB boost uygulanır.' : ''}`,
         targetVolumes: [
-          { name: 'PTV_High (GTV)', doseGy: 70, marginMm: 'GTV + 5 mm', anatomical: 'Primer kitle ve makroskopik tutulu lenf nodları' },
+          { name: 'PTV_High (GTV)', doseGy: 70, marginMm: 'High-risk CTV->PTV +3-5 mm', anatomical: 'Primer kitle ve makroskopik tutulu lenf nodları' },
           { name: 'PTV_Mid (Subklinik)', doseGy: 60, marginMm: 'Yüksek risk nodlar', anatomical: 'Primer komşuluğu ve tutulu nod istasyonu' },
-          { name: 'PTV_Low (Elektif)', doseGy: 54, marginMm: bilateralNeck ? 'Bilateral boyun' : 'İpsilateral boyun', anatomical: hnSubsite === 'nasopharynx' ? 'Bilateral Level II-Vb + retrofaringeal lenf nodları (RPN)' : `${bilateralNeck ? 'Bilateral' : 'İpsilateral'} Level II-IV${hnENE || selectedN === 'N2' || selectedN === 'N3' ? ' + Level V' : ''}` },
+          { name: 'PTV_Low (Elektif)', doseGy: 54, marginMm: 'Elective nodal CTV->PTV +5 mm', anatomical: hnSubsite === 'nasopharynx' ? 'Bilateral Level II-Vb + retrofaringeal lenf nodları (RPN)' : `${bilateralNeck ? 'Bilateral' : 'İpsilateral'} Level II-IV${hnENE || selectedN === 'N2' || selectedN === 'N3' ? ' + Level V' : ''}` },
           ...(hnENE || selectedN === 'N2' || selectedN === 'N3' ? [{ name: 'PTV_Nodal_High_Risk_Boost', doseGy: selectedN === 'N3' ? 70 : 66, marginMm: 'Tutulu nod yatağı / SIB', anatomical: `Level V dahil tutulu nod yatağı; ${selectedN === 'N3' ? '70 Gy' : '66 Gy'} SIB boost` }] : []),
         ],
         oars: [
@@ -6805,7 +7115,7 @@ export default function RadoncoCDSSPage() {
         targetVolumes: [
           { name: 'GTV_Prostate', doseGy: 36.25, marginMm: '0 mm', anatomical: 'Prostat bezi; varsa dominant intraprostatik lezyon (DIL) / nodül boostu' },
           { name: 'CTV_Prostate', doseGy: 36.25, marginMm: 'Anatomik', anatomical: 'Prostat ± seminal veziküller, risk uyarlamalı' },
-          { name: 'PTV_Prostate', doseGy: 36.25, marginMm: '3-5 mm; rektum yönünde 3 mm', anatomical: 'Günlük IGRT ve prostat hareket güvenlik marjini' },
+          { name: 'PTV_Prostate', doseGy: 36.25, marginMm: 'CTV->PTV +4-5 mm; posterior +3 mm with SpaceOAR', anatomical: 'Günlük IGRT ve prostat hareket güvenlik marjini' },
         ],
         oars: [{ organ: 'Rektum V36Gy', metric: 'V36Gy', limit: '< 1 cc', source: 'PACE-B' }],
         evidence: 'PACE-B Trial (NEJM 2024)',
@@ -7901,7 +8211,7 @@ export default function RadoncoCDSSPage() {
       prostate: {
         sbrt: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5 },
         moderate: { name: 'Moderate Hypofractionation (CHHiP / PROFIT)', totalDoseGy: 60, fractionCount: 20, fractionDoseGy: 3, alphaBeta: 1.5 },
-        sib: { name: 'SIB Boost: Pelvis 46 Gy + Prostate 70 Gy', totalDoseGy: 70, fractionCount: 28, fractionDoseGy: 2.5, alphaBeta: 1.5 },
+        sib: { name: 'SIB Boost: Prostate 70 Gy + Pelvic Nodes 56 Gy / 28 fx', totalDoseGy: 70, fractionCount: 28, fractionDoseGy: 2.5, alphaBeta: 1.5 },
         conventional: { name: 'Conventional Prostate RT', totalDoseGy: 78, fractionCount: 39, fractionDoseGy: 2, alphaBeta: 1.5 },
       },
       thorax: {
@@ -7910,7 +8220,9 @@ export default function RadoncoCDSSPage() {
         sib: { name: 'Concurrent Chemoradiotherapy (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
         conventional: isSclcTurrisiScheme
           ? {
-              name: lang === 'tr' ? '45 Gy / 30 fx BID (Akselere Hiperfraksiyonasyon - Turrisi)' : '45 Gy / 30 fx BID (Accelerated Hyperfractionation - Turrisi)',
+              name: lang === 'tr'
+                ? 'Akselere Hiperfraksiyonasyon (1.5 Gy BID / 30 fx, ≥ 6 saat ara) · Turrisi'
+                : 'Accelerated hyperfractionation (1.5 Gy BID / 30 fx, ≥ 6 hours apart) · Turrisi',
               totalDoseGy: 45,
               fractionCount: 30,
               fractionDoseGy: 1.5,
@@ -7942,11 +8254,19 @@ export default function RadoncoCDSSPage() {
         if (selectedOrgan === 'breast' && selectedRegimen === 'sib' && /boost|tumor.?bed|kavite/i.test(`${volume.name} ${volume.anatomical}`)) {
           return { ...volume, doseGy: 48 };
         }
+        if (selectedOrgan === 'prostate' && selectedRegimen === 'sib' && /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)) {
+          return { ...volume, doseGy: 56 };
+        }
         return {
           ...volume,
           doseGy: volume.doseGy === baseActiveScheme.totalDoseGy ? regimen.totalDoseGy : volume.doseGy,
         };
-      }),
+      }).concat(selectedOrgan === 'prostate' && selectedRegimen === 'sib' ? [{
+        name: 'PTV_Pelvic_Nodes',
+        doseGy: 56,
+        marginMm: 'Elective nodal CTV->PTV +5 mm',
+        anatomical: 'Pelvik elektif lenf nodları; uygun evreleme ve görüntülemeyle',
+      }] : []),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology, lang]);
@@ -8258,11 +8578,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     window.requestAnimationFrame(() => window.print());
   };
 
-  const exportResearchCohort = () => {
-    const now = new Date();
-    const pad = (value: number) => String(value).padStart(2, '0');
-    const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const dateForFile = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+  const saveCaseToArchive = () => {
     const organNames: Record<OrganId, string> = {
       thorax: 'Akciğer/Toraks',
       prostate: 'GÜS',
@@ -8292,84 +8608,73 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             : selectedOrgan === 'hematologic'
               ? hematologicSubtype
               : selectedSubsite || organNames[selectedOrgan];
-    const biomarkerRisk = [
-      selectedOrgan === 'breast' ? `ER${breastER ? '+' : '-'}, PR${breastPR ? '+' : '-'}, HER2${breastHER2 ? '+' : '-'}, Ki67 %${breastKi67}, Grade ${breastGrade}` : '',
-      selectedOrgan === 'cns' && cnsSubtype === 'glioma' ? [
-        gliomaRiskFactors.age40 ? 'Yaş >=40' : '',
-        gliomaRiskFactors.subtotalResection ? 'STR/Biyopsi' : '',
-        gliomaRiskFactors.largeOrCrossing ? '>=5 cm/orta hat geçişi' : '',
-        gliomaRiskFactors.neurologicSymptoms ? 'Nörolojik defisit/dirençli nöbet' : '',
-        gliomaRiskFactors.molecularHighRisk ? 'IDH-wt/CDKN2A/B yüksek risk' : '',
-      ].filter(Boolean).join('; ') : '',
-      selectedOrgan === 'skin' ? `Marjin ${skinMargin}, derinlik ${skinDepthMm} mm, PNI ${skinPerineuralInvasion ? '+' : '-'}` : '',
-      selectedOrgan === 'cns' ? `KPS ${cnsKps}, ${cnsResection}, ${cnsSymptoms}` : '',
-    ].filter(Boolean).join(' | ');
-    const headers = [
-      'Kayıt_No', 'Tarih_Saat', 'Anatomik_Bolge', 'Tani_Histoloji', 'T_Evresi', 'N_Evresi', 'M_Evresi',
-      'Klinik_Evre', 'Performans_KPS_ECOG', 'Biyobelirtecler_Risk_Faktorleri', 'Prognostik_Indeks_Adi',
-      'Prognostik_Skor', 'Risk_Grubu', 'Beklenen_Sagkalim_Orani', 'Endike_Radyoterapi_Semasi',
-      'Toplam_Doz_Gy', 'Fraksiyon_Sayisi', 'Fraksiyon_Basi_Doz_Gy', 'Teknik', 'Alfa_Beta_Orani',
-      'BED_Gy', 'EQD2_Gy', 'Es_Zamanli_Sistemik_Tedavi',
-    ];
-    type ResearchRow = Record<string, string | number>;
-    let cohort: ResearchRow[] = [];
-    const stored = window.localStorage.getItem('radonco_research_cohort');
-    if (stored) {
-      try {
-        const parsed: unknown = JSON.parse(stored);
-        if (!Array.isArray(parsed) || parsed.some(item => typeof item !== 'object' || item === null)) {
-          throw new Error('Stored research cohort is not an array of objects.');
-        }
-        cohort = parsed as ResearchRow[];
-      } catch (error) {
-        console.error('Research cohort could not be read; starting a new cohort.', error);
-        cohort = [];
-      }
+    const now = new Date();
+    const record: ArchivedClinicalCase = {
+      id: window.crypto.randomUUID(),
+      savedAt: now.toISOString(),
+      patientId: patientId.trim() || `LOCAL-${now.getTime()}`,
+      age: patientAgeYears,
+      gender: patientGender,
+      diagnosis,
+      stage: `${selectedT} ${selectedN} ${selectedM}`,
+      prescription: `${activeScheme.name} · ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
+      bed: radiobiologyByAlphaBeta.find(item => item.ab === 10)?.bed ?? radiobiology.bed,
+      eqd2: radiobiologyByAlphaBeta.find(item => item.ab === 10)?.eqd2 ?? radiobiology.eqd2,
+    };
+    const nextArchive = [record, ...caseArchive];
+    try {
+      window.localStorage.setItem('radonco_clinical_case_archive', JSON.stringify(nextArchive));
+    } catch (error) {
+      console.error('Clinical case could not be saved to browser storage.', error);
+      setResearchExportNotice('Vaka arşive kaydedilemedi; tarayıcı depolama alanı dolu veya kullanılamıyor.');
+      return;
     }
-    const researchPrognostic = prognosticResult || {
-      indexName: 'Hesaplanmadı',
-      score: '',
-      riskCategory: 'Belirlenmedi',
-      medianSurvivalOrRecurrence: '',
+    setCaseArchive(nextArchive);
+    setResearchExportNotice('');
+    setIsCaseArchiveOpen(true);
+  };
+
+  const removeArchivedCase = (caseId: string) => {
+    const nextArchive = caseArchive.filter(record => record.id !== caseId);
+    try {
+      window.localStorage.setItem('radonco_clinical_case_archive', JSON.stringify(nextArchive));
+    } catch (error) {
+      console.error('Clinical case could not be removed from browser storage.', error);
+      setResearchExportNotice('Vaka arşivden silinemedi; tarayıcı depolama alanını kontrol edin.');
+      return;
+    }
+    setCaseArchive(nextArchive);
+  };
+
+  const exportCaseArchive = () => {
+    if (caseArchive.length === 0) {
+      setResearchExportNotice('Dışa aktarılacak vaka bulunmuyor.');
+      return;
+    }
+    const headers = ['Hasta_ID', 'Yaş', 'Cinsiyet', 'Tanı', 'Evre', 'Reçete', 'BED10_Gy', 'EQD2_10_Gy', 'Kaydedilme_Tarihi'];
+    const csvEscape = (value: string) => {
+      const safeValue = /^[=+\-@]/.test(value) ? `'${value}` : value;
+      return `"${safeValue.replaceAll('"', '""')}"`;
     };
-    const row: ResearchRow = {
-      Kayıt_No: cohort.length + 1,
-      Tarih_Saat: timestamp,
-      Anatomik_Bolge: organNames[selectedOrgan],
-      Tani_Histoloji: diagnosis,
-      T_Evresi: selectedT,
-      N_Evresi: selectedN,
-      M_Evresi: selectedM,
-      Klinik_Evre: evaluatedDecision.statusText,
-      Performans_KPS_ECOG: `KPS: ${cnsKps} / ECOG: -`,
-      Biyobelirtecler_Risk_Faktorleri: biomarkerRisk,
-      Prognostik_Indeks_Adi: researchPrognostic.indexName,
-      Prognostik_Skor: researchPrognostic.score,
-      Risk_Grubu: researchPrognostic.riskCategory,
-      Beklenen_Sagkalim_Orani: researchPrognostic.medianSurvivalOrRecurrence,
-      Endike_Radyoterapi_Semasi: activeScheme.name,
-      Toplam_Doz_Gy: activeScheme.totalDoseGy,
-      Fraksiyon_Sayisi: activeScheme.fractionCount,
-      Fraksiyon_Basi_Doz_Gy: activeScheme.fractionDoseGy,
-      Teknik: activeScheme.technique,
-      Alfa_Beta_Orani: radiobiology.ab,
-      BED_Gy: radiobiology.bed,
-      EQD2_Gy: radiobiology.eqd2,
-      Es_Zamanli_Sistemik_Tedavi: activeScheme.systemicTherapy || '',
-    };
-    cohort = [...cohort, row];
-    window.localStorage.setItem('radonco_research_cohort', JSON.stringify(cohort));
-    const csvEscape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
-    const csv = `\uFEFF${headers.join(',')}\n${cohort.map(item => headers.map(header => csvEscape(item[header] ?? '')).join(',')).join('\n')}`;
+    const csvRows = caseArchive.map(record => [
+      record.patientId,
+      record.age,
+      record.gender,
+      record.diagnosis,
+      record.stage,
+      record.prescription,
+      record.bed,
+      record.eqd2,
+      record.savedAt,
+    ]);
+    const csv = `\uFEFF${headers.join(',')}\n${csvRows.map(row => row.map(csvEscape).join(',')).join('\n')}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `radonco_hasta_kohortu_${dateForFile}.csv`;
+    anchor.download = `radonco_klinik_vaka_arsivi_${new Date().toISOString().slice(0, 10)}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setResearchExportNotice(`Hasta araştırma kohortuna eklendi (Toplam: ${cohort.length} hasta). Excel dosyası güncellendi.`);
-    window.setTimeout(() => setResearchExportNotice(''), 5000);
   };
 
   const prescriptionTarget = selectedOrgan === 'breast' && breastHistology !== 'Malign Filloides Tümörü'
@@ -8552,7 +8857,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     },
   ].filter(factor => factor.value.trim().length > 0);
   const evidenceText = tText(activeScheme.evidence);
-  const evidenceContext = `${selectedOrgan} ${activeScheme.name} ${activeScheme.evidence}`;
   const evidenceReferences = getEvidenceReferences(activeScheme, selectedOrgan);
   const verifyReference = evidenceReferences[0];
 
@@ -8742,7 +9046,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       <nav className={`${isGuidedMode && guidedStep !== 1 ? 'hidden' : isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
         <div className="mb-3 flex items-center justify-between px-2">
           <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300`}>
-          {lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Region'}
+          {lang === 'tr' ? 'Klinik Navigasyon' : 'Clinical Navigation'}
           </span>
           <button
             type="button"
@@ -8763,7 +9067,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
         <div className="flex flex-col gap-1">
         {[
-          { id: 'emergencies', name_tr: 'Onkolojik Aciller', name_en: 'Oncologic Emergencies', icon: ShieldAlert, color: 'text-rose-400' },
+          { id: 'emergencies', name_tr: 'Acil Radyoterapi', name_en: 'Emergency Radiotherapy', icon: ShieldAlert, color: 'text-rose-400' },
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
           { id: 'prostate', name_tr: 'GÜS', name_en: 'Genitourinary (GU)', icon: Droplets, color: 'text-blue-700' },
           { id: 'breast', name_tr: 'Meme', name_en: 'Breast', icon: CircleDot, color: 'text-pink-700' },
@@ -8776,14 +9080,28 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           { id: 'skin', name_tr: 'Cilt', name_en: 'Skin Cancers', icon: Shield, color: 'text-yellow-700' },
           { id: 'hematologic', name_tr: 'Hematolojik', name_en: 'Hematologic', icon: Droplet, color: 'text-red-700' },
           { id: 'pediatric', name_tr: 'Pediatrik', name_en: 'Pediatric Tumors', icon: Baby, color: 'text-emerald-700' },
-          { id: 'palliative', name_tr: 'Palyatif', name_en: 'Palliative RT', icon: HandHeart, color: 'text-teal-700' },
+          { id: 'palliative', name_tr: 'Palyatif Radyoterapi', name_en: 'Palliative Radiotherapy', icon: HandHeart, color: 'text-teal-300' },
           { id: 'benign', name_tr: 'Benign', name_en: 'Benign Conditions', icon: ShieldCheck, color: 'text-emerald-700' },
         ].map(item => {
+          if (item.id !== 'emergencies' && item.id !== 'thorax' && !isAnatomicRegionsOpen) return null;
           const Icon = item.icon;
           const isActive = selectedOrgan === item.id;
           const displayName = lang === 'en' ? item.name_en : item.name_tr;
           return (
             <div key={item.id}>
+              {item.id === 'thorax' && (
+                <button
+                  type="button"
+                  aria-expanded={isAnatomicRegionsOpen}
+                  onClick={() => setIsAnatomicRegionsOpen(open => !open)}
+                  className={`${isSidebarCollapsed ? 'lg:hidden' : ''} mb-1 mt-2 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800/60 hover:text-slate-200`}
+                >
+                  <span>📁 {lang === 'tr' ? 'Anatomik Bölgeler' : 'Anatomic Regions'}</span>
+                  <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${isAnatomicRegionsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                </button>
+              )}
+              {(item.id === 'emergencies' || isAnatomicRegionsOpen) && (
+              <>
               <button
                 type="button"
                 onClick={() => {
@@ -8830,6 +9148,41 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   })}
                 </div>
               )}
+              </>
+              )}
+              {item.id === 'emergencies' && (
+                <section className="mb-3 mt-2 rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-2" aria-label={lang === 'tr' ? 'Favori klinik senaryolar' : 'Favorite clinical scenarios'}>
+                  <h2 className={`${isSidebarCollapsed ? 'lg:hidden' : ''} mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-amber-300`}>
+                    ⭐ {lang === 'tr' ? 'Favorilerim' : 'Favorites'}
+                  </h2>
+                  {QUICK_CASE_PRESETS.filter(preset => favoritePresetIds.includes(preset.id)).map(preset => (
+                    <div key={preset.id} className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleQuickCaseSelect(preset)}
+                        className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-left text-[10px] font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white"
+                        title={lang === 'tr' ? preset.title_tr : preset.title_en}
+                      >
+                        <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{lang === 'tr' ? preset.title_tr : preset.title_en}</span>
+                        <span className={`${isSidebarCollapsed ? 'hidden lg:inline' : 'hidden'}`} aria-hidden="true">⭐</span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`${lang === 'tr' ? 'Favorilerden çıkar' : 'Remove favorite'}: ${lang === 'tr' ? preset.title_tr : preset.title_en}`}
+                        onClick={() => toggleFavoritePreset(preset.id)}
+                        className="rounded p-1 text-amber-300 hover:bg-amber-400/10"
+                      >
+                        <span aria-hidden="true">⭐</span>
+                      </button>
+                    </div>
+                  ))}
+                  {favoritePresetIds.length === 0 && (
+                    <p className={`${isSidebarCollapsed ? 'lg:hidden' : ''} px-1 py-1 text-[10px] text-slate-400`}>
+                      {lang === 'tr' ? 'Senaryoların yanındaki ☆ ile ekleyin.' : 'Add scenarios with the ☆ button.'}
+                    </p>
+                  )}
+                </section>
+              )}
             </div>
           );
         })}
@@ -8850,7 +9203,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
           </p>
         </div>
-        <div className="col-span-12 flex h-12 min-h-0 min-w-0 items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
+        <div className="col-span-12 flex h-11 min-h-0 min-w-0 items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
           <span className="hidden shrink-0 text-xs font-semibold leading-none text-slate-300 sm:inline">
             {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
           </span>
@@ -8876,6 +9229,43 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               {lang === 'tr' ? 'Tam Matris Görünümü' : 'Full Matrix View'}
             </button>
           </div>
+        </div>
+        <div className="col-span-12 grid grid-cols-1 gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-2 sm:grid-cols-3" aria-label={lang === 'tr' ? 'İsteğe bağlı hasta bilgileri' : 'Optional patient information'}>
+          <label className="text-[10px] font-semibold text-slate-300">
+            {lang === 'tr' ? 'Yaş / Age' : 'Age / Yaş'}
+            <input
+              type="number"
+              min="0"
+              max="120"
+              value={patientAgeYears}
+              onChange={event => setPatientAgeYears(event.currentTarget.value)}
+              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-500"
+              placeholder={lang === 'tr' ? 'İsteğe bağlı' : 'Optional'}
+            />
+          </label>
+          <label className="text-[10px] font-semibold text-slate-300">
+            {lang === 'tr' ? 'Cinsiyet / Gender' : 'Gender / Cinsiyet'}
+            <select
+              value={patientGender}
+              onChange={event => setPatientGender(event.currentTarget.value)}
+              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100"
+            >
+              <option value="">{lang === 'tr' ? 'Belirtilmedi' : 'Not specified'}</option>
+              <option value="Kadın">{lang === 'tr' ? 'Kadın' : 'Female'}</option>
+              <option value="Erkek">{lang === 'tr' ? 'Erkek' : 'Male'}</option>
+              <option value="Diğer">{lang === 'tr' ? 'Diğer' : 'Other'}</option>
+            </select>
+          </label>
+          <label className="text-[10px] font-semibold text-slate-300">
+            {lang === 'tr' ? 'Protokol / Hasta ID' : 'Protocol / Patient ID'}
+            <input
+              type="text"
+              value={patientId}
+              onChange={event => setPatientId(event.currentTarget.value)}
+              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-500"
+              placeholder={lang === 'tr' ? 'İsteğe bağlı, kimliksizleştirilmiş ID' : 'Optional, pseudonymized ID'}
+            />
+          </label>
         </div>
 
         {isGuidedMode && (
@@ -8955,27 +9345,37 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   : scenario?.title_en ?? preset.title_en;
                 const scenarioDetail = lang === 'tr' ? preset.detail_tr : preset.detail_en;
                 return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => handleQuickCaseSelect(preset)}
-                    aria-label={`${scenarioTitle}. ${scenarioDetail}`}
-                    className={`flex min-h-36 flex-col items-start justify-between gap-3 rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
-                      selectedQuickCaseId === preset.id
-                        ? 'border-amber-400 bg-amber-500/15 shadow-lg shadow-amber-950/20'
-                        : 'border-slate-700 bg-[#111c2e] hover:border-amber-400/60 hover:bg-[#15233a]'
-                    }`}
-                  >
-                    <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-sky-300">
-                      {reportOrganNames[preset.organ]}
-                    </span>
-                    <span className="text-sm font-bold leading-snug text-white">
-                      {scenarioTitle}
-                    </span>
-                    <span className="text-xs leading-relaxed text-slate-300">
-                      {scenarioDetail}
-                    </span>
-                  </button>
+                  <div key={preset.id} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickCaseSelect(preset)}
+                      aria-label={`${scenarioTitle}. ${scenarioDetail}`}
+                      className={`flex min-h-36 w-full flex-col items-start justify-between gap-3 rounded-2xl border p-4 pr-14 text-left transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                        selectedQuickCaseId === preset.id
+                          ? 'border-amber-400 bg-amber-500/15 shadow-lg shadow-amber-950/20'
+                          : 'border-slate-700 bg-[#111c2e] hover:border-amber-400/60 hover:bg-[#15233a]'
+                      }`}
+                    >
+                      <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-sky-300">
+                        {reportOrganNames[preset.organ]}
+                      </span>
+                      <span className="text-sm font-bold leading-snug text-white">
+                        {scenarioTitle}
+                      </span>
+                      <span className="text-xs leading-relaxed text-slate-300">
+                        {scenarioDetail}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`${favoritePresetIds.includes(preset.id) ? (lang === 'tr' ? 'Favorilerden çıkar' : 'Remove from favorites') : (lang === 'tr' ? 'Favorilere ekle' : 'Add to favorites')}: ${scenarioTitle}`}
+                      aria-pressed={favoritePresetIds.includes(preset.id)}
+                      onClick={() => toggleFavoritePreset(preset.id)}
+                      className="absolute right-3 top-3 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-lg text-amber-300 hover:border-amber-400/60"
+                    >
+                      <span aria-hidden="true">{favoritePresetIds.includes(preset.id) ? '⭐' : '☆'}</span>
+                    </button>
+                  </div>
                 );
               })}
               {guidedScenarioPresets.length === 0 && (
@@ -9033,7 +9433,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
             ? guidedStep === 2 ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
-            : `lg:col-span-3 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
+            : `lg:col-span-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
@@ -9595,7 +9995,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     {tText("\n                    Derin invazyon (DOI, mm)\n                    ")}<input type="number" min="0" step="0.1" value={hnDoiMm} onChange={e => setHnDoiMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />
                   </label>
                 </div>
-                {hnSubsite === 'oral-cavity' && (
+                {(hnSubsite === 'oral-cavity' || hnSubsite === 'maxillary-sinus') && (
                   <div className="grid grid-cols-2 gap-2">
                     <label className="flex items-center gap-2 text-slate-700">
                       <input type="checkbox" checked={hnENE} onChange={e => setHnENE(e.currentTarget.checked)} />
@@ -10191,7 +10591,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ? guidedStep === 2 ? 'lg:col-span-7 xl:max-w-[1100px]' : 'hidden'
             : `lg:col-span-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`
         }`}>
-          {!isGuidedMode && currentOrganPresets.length > 0 && (
+          {!isGuidedMode && selectedOrgan !== 'emergencies' && currentOrganPresets.length > 0 && (
             <div
               className="mb-0 flex flex-wrap items-center gap-2.5"
               role="group"
@@ -10204,21 +10604,31 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               {currentOrganPresets.map(preset => {
                 const isSelected = selectedQuickCaseId === preset.id;
                 return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    title={lang === 'en' ? preset.detail_en : preset.detail_tr}
-                    onClick={() => handleQuickCaseSelect(preset)}
-                    aria-pressed={isSelected}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-xs font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
-                      isSelected
-                        ? 'ring-1 ring-amber-400 border-amber-400/80 bg-amber-500/20 text-white'
-                        : 'border-slate-700/80 bg-slate-800/90 text-slate-100 hover:border-amber-400/60 hover:bg-slate-700/80'
-                    }`}
-                  >
-                    <span aria-hidden="true">{preset.badge || '🎯'}</span>
-                    <span>{lang === 'en' ? preset.title_en : preset.title_tr}</span>
-                  </button>
+                  <div key={preset.id} className="inline-flex items-stretch gap-1">
+                    <button
+                      type="button"
+                      title={lang === 'en' ? preset.detail_en : preset.detail_tr}
+                      onClick={() => handleQuickCaseSelect(preset)}
+                      aria-pressed={isSelected}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-xs font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+                        isSelected
+                          ? 'ring-1 ring-amber-400 border-amber-400/80 bg-amber-500/20 text-white'
+                          : 'border-slate-700/80 bg-slate-800/90 text-slate-100 hover:border-amber-400/60 hover:bg-slate-700/80'
+                      }`}
+                    >
+                      <span aria-hidden="true">{preset.badge || '🎯'}</span>
+                      <span>{lang === 'en' ? preset.title_en : preset.title_tr}</span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`${favoritePresetIds.includes(preset.id) ? (lang === 'tr' ? 'Favorilerden çıkar' : 'Remove from favorites') : (lang === 'tr' ? 'Favorilere ekle' : 'Add to favorites')}: ${lang === 'tr' ? preset.title_tr : preset.title_en}`}
+                      aria-pressed={favoritePresetIds.includes(preset.id)}
+                      onClick={() => toggleFavoritePreset(preset.id)}
+                      className="rounded-lg border border-slate-700/80 bg-slate-800/90 px-2 text-amber-300 hover:border-amber-400/60 hover:bg-slate-700/80"
+                    >
+                      <span aria-hidden="true">{favoritePresetIds.includes(preset.id) ? '⭐' : '☆'}</span>
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -10238,14 +10648,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </span>
               </div>
               {selectedOrgan === 'benign' || selectedOrgan === 'palliative' || selectedOrgan === 'emergencies'
-                ? <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold ${selectedOrgan === 'emergencies' ? 'border-rose-300 bg-rose-50 text-rose-900' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>{selectedOrgan === 'emergencies' ? (lang === 'tr' ? 'ACİL' : 'URGENT') : (lang === 'tr' ? 'TNM uygulanmaz' : 'TNM not applicable')}</span>
+                ? <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold ${selectedOrgan === 'emergencies' ? 'border-rose-500/40 bg-rose-950/50 text-rose-200' : 'border-emerald-500/40 bg-emerald-950/40 text-emerald-200'}`}>{selectedOrgan === 'emergencies' ? (lang === 'tr' ? 'ACİL' : 'URGENT') : (lang === 'tr' ? 'TNM uygulanmaz' : 'TNM not applicable')}</span>
                 : <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-sky-400 border border-slate-700">{selectedT} {selectedN} {selectedM}</span>}
             </div>
 
             {selectedOrgan === 'benign' || selectedOrgan === 'palliative' || selectedOrgan === 'emergencies' ? (
               selectedOrgan === 'benign' ? (
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-slate-700">
+                <p className="text-xs font-semibold text-slate-100">
                   {tText(SUBSITES.benign?.find(subsite => subsite.id === selectedSubsite)?.name)}
                 </p>
                 <div className="grid grid-cols-1 gap-2">
@@ -10260,7 +10670,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         className={`flex items-center justify-between rounded-md border p-2.5 text-left text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                           isSelected
                             ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-semibold ring-1 ring-emerald-500/20'
-                            : 'border-slate-200/80 bg-slate-50/70 text-slate-700 hover:bg-slate-100'
+                            : 'border-slate-700 bg-slate-900/70 text-slate-200 hover:bg-slate-800'
                         }`}
                       >
                         {tText(option.label)}
@@ -10385,7 +10795,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
             ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-7xl' : 'hidden'
-            : `lg:col-span-5 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
+            : `lg:col-span-4 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
 
@@ -10669,66 +11079,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
-              {isSclcTurrisiScheme ? (
+              <p className="font-semibold text-slate-200">
+                {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
+                {evidenceText}
+              </p>
+              {(verifyReference || isSclcTurrisiScheme) && (
                 <a
-                  href="https://doi.org/10.1056/NEJM199901283400403"
+                  href={isSclcTurrisiScheme ? 'https://doi.org/10.1056/NEJM199901283400403' : verifyReference.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
                 >
-                  📖 NCCN SCLC / Turrisi Kanıtı (NEJM)
-                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  {isSclcTurrisiScheme
+                    ? 'Turrisi et al. · NEJM 1999 (DOI)'
+                    : lang === 'tr' ? `Kanıtı doğrula · ${verifyReference?.label}` : `Verify evidence · ${verifyReference?.label}`}
+                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                 </a>
-              ) : (
-                <>
-                  <div className="font-semibold text-slate-200">
-                    {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
-                    {evidenceText.split(evidenceLinkTokens).map((token, index) => {
-                      const url = resolveEvidenceUrl(token, evidenceContext);
-                      return url ? (
-                        <a
-                          key={`${token}-${index}`}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-0.5 text-sky-300 underline decoration-sky-300/40 underline-offset-2 hover:text-sky-200"
-                        >
-                          {token}
-                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                        </a>
-                      ) : (
-                        <React.Fragment key={`evidence-text-${index}`}>{token}</React.Fragment>
-                      );
-                    })}
-                  </div>
-                  {evidenceReferences.length > 0 && (
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      {evidenceReferences.map(reference => (
-                        <a
-                          key={reference.url}
-                          href={reference.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-sky-300 transition hover:border-sky-500/50 hover:text-sky-200"
-                        >
-                          {reference.label}
-                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                        </a>
-                      ))}
-                      {verifyReference && (
-                        <a
-                          href={verifyReference.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
-                        >
-                          {lang === 'tr' ? 'Kılavuz Referansını Doğrula' : 'Verify in Guideline'}
-                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </>
               )}
             </div>
 
@@ -10774,12 +11140,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         type="button"
                         onClick={() => {
                           setIsExportMenuOpen(false);
-                          exportResearchCohort();
+                          saveCaseToArchive();
                         }}
                         className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                       >
-                        <Download className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
-                        <span>{lang === 'tr' ? 'Excel Kohortuna Kaydet (.xlsx)' : 'Save to Cohort & Export Excel'}</span>
+                        <BookOpen className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+                        <span>{lang === 'tr' ? 'Vaka Arşivine Ekle' : 'Add to Case Archive'}</span>
                       </button>
                       <button
                         type="button"
@@ -11570,6 +11936,88 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {isCaseArchiveOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-sm">
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="case-archive-title"
+            className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-700 bg-[#0d1527] shadow-2xl"
+          >
+            <header className="flex items-center justify-between gap-3 border-b border-slate-800 px-4 py-3 sm:px-6">
+              <h2 id="case-archive-title" className="text-base font-bold text-white sm:text-lg">
+                📁 {lang === 'tr' ? 'Klinik Vaka Arşivi' : 'Clinical Case Archive'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsCaseArchiveOpen(false)}
+                aria-label={lang === 'tr' ? 'Vaka arşivini kapat' : 'Close case archive'}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+              >
+                <XCircle className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </header>
+            <p className="border-b border-slate-800 bg-slate-900/50 px-4 py-2 text-[11px] leading-relaxed text-amber-100/80 sm:px-6">
+              {lang === 'tr'
+                ? 'Kayıtlar yalnızca bu tarayıcının localStorage alanında tutulur ve sunucuya gönderilmez. Depolama şifreli değildir; mümkünse kimliksiz ID kullanın, cihaz erişimini koruyun ve yerel mevzuat uyumunu kurumunuzla doğrulayın.'
+                : 'Records stay in this browser localStorage and are not sent to a server. Storage is not encrypted; use pseudonymous IDs where possible, protect device access, and confirm local regulatory compliance with your institution.'}
+            </p>
+            <div className="flex-1 space-y-2 overflow-y-auto p-3 sm:p-5">
+              {caseArchive.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">
+                  {lang === 'tr' ? 'Henüz arşivlenmiş vaka yok.' : 'No cases have been archived yet.'}
+                </p>
+              ) : caseArchive.map(record => (
+                <article key={record.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-semibold text-white">
+                        {record.diagnosis} · {record.patientId}
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-300">
+                        {lang === 'tr' ? 'Evre' : 'Stage'}: {record.stage}
+                        {record.age && ` · ${record.age} ${lang === 'tr' ? 'yaş' : 'years'}`}
+                        {record.gender && ` · ${record.gender}`}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-200">{record.prescription}</p>
+                      <p className="mt-1 font-mono text-[11px] text-sky-200">
+                        BED₁₀ {record.bed} Gy · EQD2₁₀ {record.eqd2} Gy
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeArchivedCase(record.id)}
+                      aria-label={`${lang === 'tr' ? 'Arşivden sil' : 'Remove from archive'}: ${record.patientId}`}
+                      className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-rose-500/10 hover:text-rose-300"
+                    >
+                      <XCircle className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <footer className="flex flex-col-reverse gap-2 border-t border-slate-800 p-3 sm:flex-row sm:justify-end sm:px-5">
+              <button
+                type="button"
+                onClick={() => setIsCaseArchiveOpen(false)}
+                className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+              >
+                {lang === 'tr' ? 'Kapat' : 'Close'}
+              </button>
+              <button
+                type="button"
+                disabled={caseArchive.length === 0}
+                onClick={exportCaseArchive}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                {lang === 'tr' ? "Excel'e Aktar (.csv)" : 'Export for Excel (.csv)'}
+              </button>
+            </footer>
+          </section>
         </div>
       )}
 
