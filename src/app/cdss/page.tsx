@@ -9306,7 +9306,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
          ========================================== */}
-      <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 content-start gap-3 xl:gap-5">
+      <main id="cdss-main-content" className="flex-1 min-w-0 overflow-x-hidden bg-[#0a0f1d] p-3 sm:p-4 xl:p-6 grid grid-cols-1 lg:grid-cols-12 content-start gap-3 xl:gap-5 w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
         <div className="col-span-12 w-full h-auto min-h-0 py-2 px-3.5 text-xs flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200/90 leading-tight">
           <ShieldAlert className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
           <p className="min-w-0 truncate" title={lang === 'tr'
@@ -9383,7 +9383,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
 
         {isGuidedMode && (
-          <nav className="col-span-12 mx-auto grid w-full max-w-7xl grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
+          <nav className="col-span-12 mx-auto grid w-full max-w-[1720px] grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
             {[
               {
                 step: 1 as const,
@@ -9427,7 +9427,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         )}
 
         {isGuidedMode && guidedStep === 1 && (
-          <section id="guided-step-content" className="col-span-12 mx-auto w-full max-w-7xl rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6" aria-labelledby="guided-profile-title">
+          <section id="guided-step-content" className="col-span-12 mx-auto w-full max-w-[1720px] rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6" aria-labelledby="guided-profile-title">
             <div className="mb-4 flex flex-col gap-1">
               <h2 id="guided-profile-title" className="text-base font-bold text-white">
                 {lang === 'tr' ? '1. Klinik Profil ve Tedavi Amacı' : '1. Clinical Profile & Intent'}
@@ -9546,7 +9546,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
-            ? guidedStep === 2 ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
+            ? (guidedStep === 2 || guidedStep === 3) ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
                     : `lg:col-span-5 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
@@ -10695,6 +10695,145 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
+          {(!isGuidedMode || guidedStep === 2 || guidedStep === 3) && (
+          <section
+            id="guided-prognostic-assessment"
+            className="w-full rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6"
+            aria-labelledby="prognostic-assessment-heading"
+          >
+            <div className="mb-4 flex flex-col gap-2 border-b border-slate-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
+                  {lang === 'tr' ? '3. ADIM' : 'STEP 3'}
+                </p>
+                <h2 id="prognostic-assessment-heading" className="text-lg font-bold text-white">
+                  {lang === 'tr'
+                    ? 'Prognostik İndeks ve Risk Sınıflaması'
+                    : 'Prognostic Index & Risk Stratification'}
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                  {lang === 'tr'
+                    ? 'Organ, evre ve girilmiş klinik değişkenlere uygun hesaplanan risk modelini ve kriterlerini inceleyin.'
+                    : 'Review the risk model selected from the organ, stage, and entered clinical variables, together with its criteria.'}
+                </p>
+              </div>
+              {prognosticResult && (
+                <span className="inline-flex w-fit items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200">
+                  <TrendingUp className="h-4 w-4" aria-hidden="true" />
+                  {lang === 'tr' ? 'Skor' : 'Score'}: {prognosticResult.score}
+                </span>
+              )}
+            </div>
+
+            {prognosticResult ? (
+              <>
+                <div className="mb-4 flex flex-col gap-2 rounded-xl border border-sky-500/25 bg-sky-500/[0.05] p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">{tText(prognosticResult.indexName)}</h3>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {lang === 'tr' ? 'Model risk grubu' : 'Model risk stratum'}
+                    </p>
+                  </div>
+                  <span className="rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-sm font-semibold text-sky-200">
+                    {tText(prognosticResult.riskCategory)}
+                  </span>
+                </div>
+
+                <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {lang === 'tr' ? 'Beklenen Lokal Kontrol' : 'Expected Local Control'}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {hasLocalControlEstimate
+                        ? tText(prognosticOutcome)
+                        : lang === 'tr'
+                          ? 'Bu model ayrı bir lokal kontrol tahmini sunmuyor.'
+                          : 'This model does not provide a separate local-control estimate.'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {hasMedianOsEstimate
+                        ? (lang === 'tr' ? 'Medyan Genel Sağkalım (OS)' : 'Median Overall Survival (OS)')
+                        : (lang === 'tr' ? 'Bildirilen Sağkalım / Nüks Sonucu' : 'Reported Survival / Recurrence Outcome')}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {prognosticOutcome
+                        ? tText(prognosticOutcome)
+                        : lang === 'tr'
+                          ? 'Bu model nicel bir sağkalım tahmini sunmuyor.'
+                          : 'This model does not provide a quantitative survival estimate.'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {lang === 'tr' ? 'Sistemik İlerleme Riski' : 'Systemic Progression Risk'}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-100">
+                      {selectedM.startsWith('M1')
+                        ? tText(prognosticResult.riskCategory)
+                        : lang === 'tr'
+                          ? 'Seçili model bu riski ayrı bir olasılık olarak hesaplamıyor; model risk grubu yukarıda gösterilmiştir.'
+                          : 'The selected model does not calculate this as a separate probability; its overall risk stratum is shown above.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-slate-700/80">
+                  <div className="border-b border-slate-700/80 bg-[#131f33] px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-slate-300">
+                    {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
+                  </div>
+                  <div className="divide-y divide-slate-700/60">
+                    {prognosticResult.criteria.map(criterion => (
+                      <div key={`${criterion.label_en}-${criterion.value}`} className="flex flex-col gap-1 bg-[#111c2e] px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                        <span className="text-xs font-medium text-slate-300">
+                          {lang === 'tr' ? criterion.label_tr : criterion.label_en}
+                        </span>
+                        <span className="text-xs font-semibold text-white sm:text-right">
+                          {tText(criterion.value)}
+                          {criterion.points && <span className="ml-1 font-mono text-sky-300">[{criterion.points}]</span>}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
+                  {lang === 'tr'
+                    ? 'Tahminler yalnızca modelin açıkça raporladığı sonuçları gösterir. Model kapsamı ve girdileri klinik ekip tarafından doğrulanmalıdır.'
+                    : 'Only outcomes explicitly reported by the model are shown. The clinical team should verify model applicability and inputs.'}
+                </p>
+              </>
+            ) : (
+              <div role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm leading-relaxed text-amber-100/90">
+                {lang === 'tr'
+                  ? 'Seçili organ ve klinik alt tip için desteklenen bir prognostik model bulunamadı. Klinik riski bağımsız olarak değerlendirin.'
+                  : 'No supported prognostic model is available for the selected organ and clinical subtype. Assess clinical risk independently.'}
+              </div>
+            )}
+
+            {isGuidedMode && guidedStep === 3 && (
+              <div className="mt-5 flex flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(2)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  {lang === 'tr' ? 'Evrelemeye Dön' : 'Back to Staging'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGuidedStep(4)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  {lang === 'tr' ? 'Tedavi Reçetesine Devam Et' : 'Proceed to Treatment Prescription'}
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </section>
+        )}
         </aside>
 
         {/* ==========================================
@@ -10908,7 +11047,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
-            ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-7xl' : 'hidden'
+            ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-[1720px]' : 'hidden'
                     : `lg:col-span-7 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
@@ -11297,145 +11436,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </div>
           </div>
         </section>
-        {(!isGuidedMode || guidedStep === 3) && (
-          <section
-            id="guided-prognostic-assessment"
-            className="col-span-12 mx-auto w-full max-w-7xl rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6"
-            aria-labelledby="prognostic-assessment-heading"
-          >
-            <div className="mb-4 flex flex-col gap-2 border-b border-slate-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
-                  {lang === 'tr' ? '3. ADIM' : 'STEP 3'}
-                </p>
-                <h2 id="prognostic-assessment-heading" className="text-lg font-bold text-white">
-                  {lang === 'tr'
-                    ? 'Prognostik İndeks ve Risk Sınıflaması'
-                    : 'Prognostic Index & Risk Stratification'}
-                </h2>
-                <p className="mt-1 text-xs leading-relaxed text-slate-400">
-                  {lang === 'tr'
-                    ? 'Organ, evre ve girilmiş klinik değişkenlere uygun hesaplanan risk modelini ve kriterlerini inceleyin.'
-                    : 'Review the risk model selected from the organ, stage, and entered clinical variables, together with its criteria.'}
-                </p>
-              </div>
-              {prognosticResult && (
-                <span className="inline-flex w-fit items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200">
-                  <TrendingUp className="h-4 w-4" aria-hidden="true" />
-                  {lang === 'tr' ? 'Skor' : 'Score'}: {prognosticResult.score}
-                </span>
-              )}
-            </div>
-
-            {prognosticResult ? (
-              <>
-                <div className="mb-4 flex flex-col gap-2 rounded-xl border border-sky-500/25 bg-sky-500/[0.05] p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-white">{tText(prognosticResult.indexName)}</h3>
-                    <p className="mt-1 text-xs text-slate-400">
-                      {lang === 'tr' ? 'Model risk grubu' : 'Model risk stratum'}
-                    </p>
-                  </div>
-                  <span className="rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-sm font-semibold text-sky-200">
-                    {tText(prognosticResult.riskCategory)}
-                  </span>
-                </div>
-
-                <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {lang === 'tr' ? 'Beklenen Lokal Kontrol' : 'Expected Local Control'}
-                    </p>
-                    <p className="text-sm font-semibold text-slate-100">
-                      {hasLocalControlEstimate
-                        ? tText(prognosticOutcome)
-                        : lang === 'tr'
-                          ? 'Bu model ayrı bir lokal kontrol tahmini sunmuyor.'
-                          : 'This model does not provide a separate local-control estimate.'}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {hasMedianOsEstimate
-                        ? (lang === 'tr' ? 'Medyan Genel Sağkalım (OS)' : 'Median Overall Survival (OS)')
-                        : (lang === 'tr' ? 'Bildirilen Sağkalım / Nüks Sonucu' : 'Reported Survival / Recurrence Outcome')}
-                    </p>
-                    <p className="text-sm font-semibold text-slate-100">
-                      {prognosticOutcome
-                        ? tText(prognosticOutcome)
-                        : lang === 'tr'
-                          ? 'Bu model nicel bir sağkalım tahmini sunmuyor.'
-                          : 'This model does not provide a quantitative survival estimate.'}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-slate-700 bg-[#111c2e] p-3">
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {lang === 'tr' ? 'Sistemik İlerleme Riski' : 'Systemic Progression Risk'}
-                    </p>
-                    <p className="text-sm font-semibold text-slate-100">
-                      {selectedM.startsWith('M1')
-                        ? tText(prognosticResult.riskCategory)
-                        : lang === 'tr'
-                          ? 'Seçili model bu riski ayrı bir olasılık olarak hesaplamıyor; model risk grubu yukarıda gösterilmiştir.'
-                          : 'The selected model does not calculate this as a separate probability; its overall risk stratum is shown above.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="overflow-hidden rounded-xl border border-slate-700/80">
-                  <div className="border-b border-slate-700/80 bg-[#131f33] px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-slate-300">
-                    {lang === 'tr' ? 'Hesaplama Kriterleri' : 'Calculation Criteria'}
-                  </div>
-                  <div className="divide-y divide-slate-700/60">
-                    {prognosticResult.criteria.map(criterion => (
-                      <div key={`${criterion.label_en}-${criterion.value}`} className="flex flex-col gap-1 bg-[#111c2e] px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                        <span className="text-xs font-medium text-slate-300">
-                          {lang === 'tr' ? criterion.label_tr : criterion.label_en}
-                        </span>
-                        <span className="text-xs font-semibold text-white sm:text-right">
-                          {tText(criterion.value)}
-                          {criterion.points && <span className="ml-1 font-mono text-sky-300">[{criterion.points}]</span>}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
-                  {lang === 'tr'
-                    ? 'Tahminler yalnızca modelin açıkça raporladığı sonuçları gösterir. Model kapsamı ve girdileri klinik ekip tarafından doğrulanmalıdır.'
-                    : 'Only outcomes explicitly reported by the model are shown. The clinical team should verify model applicability and inputs.'}
-                </p>
-              </>
-            ) : (
-              <div role="status" className="rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm leading-relaxed text-amber-100/90">
-                {lang === 'tr'
-                  ? 'Seçili organ ve klinik alt tip için desteklenen bir prognostik model bulunamadı. Klinik riski bağımsız olarak değerlendirin.'
-                  : 'No supported prognostic model is available for the selected organ and clinical subtype. Assess clinical risk independently.'}
-              </div>
-            )}
-
-            {isGuidedMode && guidedStep === 3 && (
-              <div className="mt-5 flex flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                <button
-                  type="button"
-                  onClick={() => setGuidedStep(2)}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#111c2e] px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-[#182842] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-                >
-                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                  {lang === 'tr' ? 'Evrelemeye Dön' : 'Back to Staging'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGuidedStep(4)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                >
-                  {lang === 'tr' ? 'Tedavi Reçetesine Devam Et' : 'Proceed to Treatment Prescription'}
-                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </div>
-            )}
-          </section>
-        )}
         {isGuidedMode && guidedStep === 2 && (
           <div className="col-span-12 mx-auto flex w-full max-w-[1800px] flex-col-reverse gap-2 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <button

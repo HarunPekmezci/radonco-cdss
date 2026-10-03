@@ -123,7 +123,7 @@ export default function DoseConstraintsPage() {
 
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
-      <div className="mx-auto max-w-7xl">
+      <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
         <header className="mb-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -152,11 +152,9 @@ export default function DoseConstraintsPage() {
             <input
               id="oar-search"
               type="search"
-              value={query}
+              value={query ?? ''}
               onChange={event => setQuery(event.target.value)}
-              placeholder={language === 'en'
-                ? 'Search by organ, Dmax, V20Gy, or toxicity...'
-                : 'Organ, Dmax, V20Gy veya toksisite ara...'}
+              placeholder="Kritik organ veya doz metriği ara..."
               className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
             />
           </div>
