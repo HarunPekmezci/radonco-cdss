@@ -106,19 +106,44 @@ const fraction = (totalDoseGy: number, fractions: number, className: Fractionati
   class: className, totalDoseGy, fractions, dosePerFractionGy: totalDoseGy / fractions, schedule, technique,
   alphaBetaTumor: 10, bedGy: totalDoseGy * (1 + totalDoseGy / fractions / 10), eqd2Gy: totalDoseGy * ((totalDoseGy / fractions + 10) / 12),
 });
-const targets = (dose: Fractionation, site: PalliativeSite): TargetVolume[] => [
-  { name: 'GTV', description: `Görüntülenebilir/klinik semptomatik ${site} metastatik veya tümör hedefi.`, dose, margin: 'Semptom, kontrastlı görüntüleme, PET/CT veya MRI ile' },
-  { name: 'CTV', description: 'GTV çevresindeki mikroskopik hastalık ve anatomik risk alanı; elektif nodal alan rutin değildir.', dose, margin: 'Anatomik bariyer ve protokole göre 0.5-1.5 cm; spinal kord/epidural hastalıkta MRI temelli' },
-  { name: 'PTV', description: 'Kurulum, solunum/hareket ve günlük IGRT belirsizlikleri.', dose, margin: 'Konvansiyonel 5-10 mm; SBRT/SRS için immobilizasyon ve IGRT ile 1-3 mm' },
+const targets = (dose: Fractionation, site: PalliativeSite): TargetVolume[] => {
+  if (site === 'bone' || site === 'spine') {
+    return [
+      { name: 'GTV', description: `Görüntülenebilir/klinik semptomatik ${site} metastatik hedefi.`, dose, margin: 'Semptom, kontrastlı görüntüleme, PET/CT veya MRI ile' },
+      { name: 'CTV', description: 'GTV çevresindeki anatomik risk alanı; elektif nodal alan rutin değildir.', dose, margin: 'GTV->CTV 0 mm (anatomik); spinal kord/epidural hastalıkta MRI temelli' },
+      { name: 'PTV', description: 'Kurulum ve günlük IGRT belirsizlikleri.', dose, margin: 'CTV->PTV +3-5 mm' },
+    ];
+  }
+  if (site === 'brain') {
+    return [
+      { name: 'GTV', description: 'Kontrastlı MRI ile tanımlanan beyin metastazı.', dose, margin: 'T1 kontrastlı MRI + ince kesit BT füzyonu' },
+      { name: 'CTV', description: 'SRS/FSRT için GTV=CTV; WBRT/HA-WBRT için tüm beyin parankimi.', dose, margin: 'SRS: GTV=CTV 0 mm; HA-WBRT: hipokampus kaçınma bölgesi hariç tüm beyin' },
+      { name: 'PTV', description: 'SRS immobilizasyon ve IGRT belirsizlikleri.', dose, margin: 'SRS/FSRT 1-2 mm; HA-WBRT 3 mm' },
+    ];
+  }
+  return [
+    { name: 'GTV', description: `Görüntülenebilir/klinik semptomatik ${site} metastatik veya tümör hedefi.`, dose, margin: 'Semptom, kontrastlı görüntüleme, PET/CT veya MRI ile' },
+    { name: 'CTV', description: 'GTV çevresindeki mikroskopik hastalık ve anatomik risk alanı; elektif nodal alan rutin değildir.', dose, margin: 'Anatomik bariyer ve protokole göre 0.5-1.5 cm; spinal kord/epidural hastalıkta MRI temelli' },
+    { name: 'PTV', description: 'Kurulum, solunum/hareket ve günlük IGRT belirsizlikleri.', dose, margin: 'Konvansiyonel 5-10 mm; SBRT/SRS için immobilizasyon ve IGRT ile 1-3 mm' },
+  ];
+};
+const boneOars: OARConstraint[] = [
+  { organ: 'Spinal cord', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Palliative spine RT; cumulative re-irradiation required; Dmax <= 45-50 Gy' },
 ];
-const oars: OARConstraint[] = [
-  { organ: 'Spinal cord', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Palliative spine RT; cumulative re-irradiation required' },
-  { organ: 'Brainstem', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Brain SRS/FSRT objective' },
-  { organ: 'Optic pathways', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Brain SRS/FSRT objective' },
-  { organ: 'Lung', metric: 'V20', limit: 30, unit: '%', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Thoracic palliative planning objective' },
-  { organ: 'Esophagus', metric: 'Dmean', limit: 34, unit: 'Gy', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Thoracic palliative planning objective' },
-  { organ: 'Heart', metric: 'Dmean', limit: 26, unit: 'Gy', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Thoracic palliative planning objective' },
+const brainOars: OARConstraint[] = [
+  { organ: 'Brainstem', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Brain SRS/FSRT objective; Dmax < 54 Gy' },
+  { organ: 'Optic chiasm', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Optic chiasm; Dmax < 54 Gy' },
+  { organ: 'Optic nerves', metric: 'Dmax', limit: 54, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Optic nerves; Dmax < 54 Gy' },
+  { organ: 'Cochlea', metric: 'Dmean', limit: 45, unit: 'Gy', priority: 'optimal', source: 'QUANTEC', sourceReference: 'Cochlea; Dmean < 45 Gy' },
+  { organ: 'Hippocampus', metric: 'D100%', limit: 9, unit: 'Gy', priority: 'optimal', source: 'RTOG_0933', sourceReference: 'HA-WBRT hippocampal avoidance; D100% <= 9 Gy' },
 ];
+const softTissueOars: OARConstraint[] = [
+  { organ: 'Liver', metric: 'Dmean', limit: 30, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Liver; Dmean < 30 Gy' },
+  { organ: 'Kidneys (bilateral)', metric: 'Dmean', limit: 18, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Bilateral kidneys; Dmean < 15-18 Gy' },
+  { organ: 'Small bowel', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Small bowel / stomach; Dmax < 45 Gy' },
+  { organ: 'Stomach', metric: 'Dmax', limit: 45, unit: 'Gy', priority: 'mandatory', source: 'QUANTEC', sourceReference: 'Small bowel / stomach; Dmax < 45 Gy' },
+];
+const oars: OARConstraint[] = [...boneOars, ...brainOars, ...softTissueOars];
 const references = (...extra: GuidelineReference[]): GuidelineReference[] => [NCCN, ASTRO, ESTRO, ...extra];
 
 export class PalliativeRadiotherapyDecisionEngine extends BaseDecisionEngine<PalliativeRadiotherapyInput> {
@@ -169,7 +194,7 @@ export class PalliativeRadiotherapyDecisionEngine extends BaseDecisionEngine<Pal
         id: 'brain-palliation', label: poorPrognosis ? 'Destek tedavisi ± kısa beyin RT; QUARTZ benzeri seçilmiş yaklaşım' : 'SRS/FSRT veya seçilmiş WBRT ve sistemik tedavi',
         indication: input.brainMetastases || symptoms.includes('seizure') || symptoms.includes('neurologic-deficit') ? 'indicated' : 'conditional',
         intent: 'palliative', fractionation: poorPrognosis ? fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; yalnızca beklenen fayda varsa') : dose,
-        targetVolumes: targets(poorPrognosis ? fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx') : dose, 'brain'), oarConstraints: oars,
+            targetVolumes: targets(poorPrognosis ? fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx') : dose, 'brain'), oarConstraints: brainOars,
         rationale: [
           'SRS/FSRT; lezyon sayısı, toplam hacim, boyut, yerleşim, performans ve sistemik tedavi seçeneklerine göre seçilir. SRS için uygun olmayan yaygın hastalıkta WBRT değerlendirilir.',
           'WBRT seçilirse uygun hastada hipokampal kaçınma (HA-WBRT) ve memantin ile bilişsel korunma planlanmalıdır; hipokampus yakınındaki metastazlar uygunluğu dışlayabilir.',
@@ -189,15 +214,16 @@ export class PalliativeRadiotherapyDecisionEngine extends BaseDecisionEngine<Pal
       rtIndication = 'consider';
     } else {
       const dose = poorPrognosis ? fraction(8, 1, 'single-fraction', '8 Gy / 1 fx; kısa yaşam beklentisi ve hızlı semptom kontrolü') : fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; yaygın semptomatik metastaz veya obstrüksiyon/kanama');
-      recommendations.push({
-        id: 'standard-palliative-rt', label: 'Semptom, hedef anatomisi ve yaşam beklentisine göre palyatif RT',
-        indication: symptoms.length > 0 ? 'indicated' : 'conditional', intent: 'palliative', fractionation: dose,
-        targetVolumes: targets(dose, input.site), oarConstraints: oars,
-        rationale: ['ASTRO kemik metastazı kılavuzu 8 Gy/1 fx, 20 Gy/5 fx, 24 Gy/6 fx veya 30 Gy/10 fx seçeneklerinin hasta ve hedefe göre kullanılmasını destekler.', 'Kanama, ağrı, obstrüksiyon ve dispne için hedef hacim semptomu oluşturan lezyonla sınırlanmalı; elektif nodal ışınlama rutin değildir.', 'Mediastinal/akciğer olgularında 60-66 Gy/30-33 fx eşzamanlı KRT ve konsolidasyon immünoterapisi palyatif RT’nin varsayılan yaklaşımı değildir; yalnızca farklı definitif amaçlı seçilmiş olgular için düşünülür.'],
-        guidelineReferences: references(TRIALS[0], TRIALS[1]),
-      });
-      rtIndication = symptoms.length > 0 ? 'indicated' : 'conditional';
-    }
+              const siteOars = input.site === 'bone' || input.site === 'spine' ? boneOars : softTissueOars;
+          recommendations.push({
+            id: 'standard-palliative-rt', label: 'Semptom, hedef anatomisi ve yaşam beklentisine göre palyatif RT',
+            indication: symptoms.length > 0 ? 'indicated' : 'conditional', intent: 'palliative', fractionation: dose,
+            targetVolumes: targets(dose, input.site), oarConstraints: siteOars,
+            rationale: ['ASTRO kemik metastazı kılavuzu 8 Gy/1 fx, 20 Gy/5 fx, 24 Gy/6 fx veya 30 Gy/10 fx seçeneklerinin hasta ve hedefe göre kullanılmasını destekler.', 'Kanama, ağrı, obstrüksiyon ve dispne için hedef hacim semptomu oluşturan lezyonla sınırlanmalı; elektif nodal ışınlama rutin değildir.', "Mediastinal/akciğer olgularında 60-66 Gy/30-33 fx eşzamanlı KRT ve konsolidasyon immünoterapisi palyatif RT'nin varsayılan yaklaşımı değildir; yalnızca farklı definitif amaçlı seçilmiş olgular için düşünülür."],
+            guidelineReferences: references(TRIALS[0], TRIALS[1]),
+          });
+          rtIndication = symptoms.length > 0 ? 'indicated' : 'conditional';
+        }
     if (input.systemicTherapy?.length || input.molecularTargets?.length) rationale.push('Sistemik tedavi, cerrahi rezektabilite/marjin ve EGFR/ALK gibi moleküler hedefler ilgili primer tümör MDT’si ile RT zamanlamasına göre koordine edilmelidir; RT bunların yerine geçmez.');
     rationale.push('Palyatif RT kararı semptom yükü, performans, beklenen yaşam, hedef güvenliği, hastanın tercihleri ve erken destek/palyatif bakım entegrasyonuyla birlikte verilmelidir.');
     return {

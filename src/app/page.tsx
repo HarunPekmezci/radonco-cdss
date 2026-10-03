@@ -64,8 +64,8 @@ export default function PortalPage() {
   const titleSeparator = t.heroTitle.lastIndexOf(' ');
 
   return (
-    <main className="min-h-screen bg-[#0B1120] bg-grid-slate-800/[0.12] px-3 py-8 text-slate-100 sm:px-6 sm:py-12">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#0B1120] bg-grid-slate-800/[0.12] py-8 text-slate-100 sm:py-12">
+      <div className="w-full max-w-[1536px] mx-auto px-6 sm:px-10 lg:px-16">
         <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-[#111c2e] via-[#0e1726] to-[#0B1120] p-6 shadow-2xl shadow-black/20 sm:p-10">
           <div className="pointer-events-none absolute -right-12 -top-20 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl" />
           <div className="relative max-w-3xl">

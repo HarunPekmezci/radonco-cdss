@@ -42,6 +42,7 @@ import {
   TrendingUp,
   Download,
   Printer,
+  Star,
 } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
@@ -1940,6 +1941,29 @@ const isArchivedClinicalCase = (value: unknown): value is ArchivedClinicalCase =
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
   return ['id', 'savedAt', 'patientId', 'age', 'gender', 'diagnosis', 'stage', 'prescription', 'bed', 'eqd2']
+    .every(key => typeof record[key] === 'string');
+};
+
+interface CustomFavoriteCase {
+  id: string;
+  label: string;
+  savedAt: string;
+  organ: string;
+  subsite: string;
+  selectedT: string;
+  selectedN: string;
+  selectedM: string;
+  selectedSchemeId: string;
+  selectedRegimen: string;
+  patientAgeYears: string;
+  patientGender: string;
+  patientId: string;
+}
+
+const isCustomFavoriteCase = (value: unknown): value is CustomFavoriteCase => {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return ['id', 'label', 'savedAt', 'organ', 'subsite', 'selectedT', 'selectedN', 'selectedM']
     .every(key => typeof record[key] === 'string');
 };
 
@@ -4223,7 +4247,8 @@ export default function RadoncoCDSSPage() {
   const [patientGender, setPatientGender] = useState<string>('');
   const [patientId, setPatientId] = useState<string>('');
   const [favoritePresetIds, setFavoritePresetIds] = useState<string[]>([]);
-  const [caseArchive, setCaseArchive] = useState<ArchivedClinicalCase[]>([]);
+    const [customFavorites, setCustomFavorites] = useState<CustomFavoriteCase[]>([]);
+    const [caseArchive, setCaseArchive] = useState<ArchivedClinicalCase[]>([]);
   const [isCaseArchiveOpen, setIsCaseArchiveOpen] = useState(false);
   const [selectedSubsite, setSelectedSubsite] = useState<string>('benign-ho');
   const [benignClinicalStatus, setBenignClinicalStatus] = useState<string>('postop-24h');
@@ -4410,10 +4435,24 @@ export default function RadoncoCDSSPage() {
         console.error('Clinical case archive could not be loaded from browser storage.', error);
         storageError = 'Vaka arşivi yüklenemedi; tarayıcı depolama alanını kontrol edin.';
       }
-      if (storageError) setResearchExportNotice(storageError);
-    }, 0);
-    return () => window.clearTimeout(timeout);
-  }, []);
+
+        try {
+          const stored = window.localStorage.getItem('radonco_custom_favorites');
+          if (stored) {
+            const parsed: unknown = JSON.parse(stored);
+            if (!Array.isArray(parsed) || !parsed.every(isCustomFavoriteCase)) {
+              throw new Error('Stored custom favorites have an invalid format.');
+            }
+            setCustomFavorites(parsed);
+          }
+        } catch (error) {
+          console.error('Custom favorites could not be loaded from browser storage.', error);
+          storageError = 'Özel favoriler yüklenemedi; tarayıcı depolama alanını kontrol edin.';
+        }
+        if (storageError) setResearchExportNotice(storageError);
+      }, 0);
+      return () => window.clearTimeout(timeout);
+    }, []);
 
   const toggleFavoritePreset = (presetId: string) => {
     const next = favoritePresetIds.includes(presetId)
@@ -4428,6 +4467,60 @@ export default function RadoncoCDSSPage() {
     }
     setFavoritePresetIds(next);
   };
+
+    const saveCurrentCaseToFavorites = (label?: string) => {
+      const customCase: CustomFavoriteCase = {
+            id: `custom-${crypto.randomUUID()}`,
+        label: label?.trim() || `Özel Vaka ${new Date().toLocaleString('tr-TR')}`,
+        savedAt: new Date().toISOString(),
+        organ: selectedOrgan,
+        subsite: selectedSubsite,
+        selectedT,
+        selectedN,
+        selectedM,
+        selectedSchemeId,
+        selectedRegimen,
+        patientAgeYears,
+        patientGender,
+        patientId,
+      };
+      const next = [...customFavorites, customCase];
+      try {
+        window.localStorage.setItem('radonco_custom_favorites', JSON.stringify(next));
+      } catch (error) {
+        console.error('Custom favorite could not be saved to browser storage.', error);
+        setResearchExportNotice('Özel vaka kaydedilemedi; tarayıcı depolama alanını kontrol edin.');
+        return;
+      }
+      setCustomFavorites(next);
+      setResearchExportNotice(`"${customCase.label}" favorilere eklendi.`);
+    };
+
+    const restoreCustomFavorite = (fav: CustomFavoriteCase) => {
+      setSelectedOrgan(fav.organ as OrganId);
+      setSelectedSubsite(fav.subsite);
+      setSelectedT(fav.selectedT);
+      setSelectedN(fav.selectedN);
+      setSelectedM(fav.selectedM);
+      setSelectedSchemeId(fav.selectedSchemeId);
+      setSelectedRegimen(fav.selectedRegimen as QuickCaseRegimen);
+      setPatientAgeYears(fav.patientAgeYears);
+      setPatientGender(fav.patientGender);
+      setPatientId(fav.patientId);
+      setResearchExportNotice(`"${fav.label}" yüklendi.`);
+    };
+
+    const removeCustomFavorite = (id: string) => {
+      const next = customFavorites.filter(f => f.id !== id);
+      try {
+        window.localStorage.setItem('radonco_custom_favorites', JSON.stringify(next));
+      } catch (error) {
+        console.error('Custom favorite could not be removed from browser storage.', error);
+        setResearchExportNotice('Favori silinemedi; tarayıcı depolama alanını kontrol edin.');
+        return;
+      }
+      setCustomFavorites(next);
+    };
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
@@ -9176,7 +9269,28 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       </button>
                     </div>
                   ))}
-                  {favoritePresetIds.length === 0 && (
+                  {customFavorites.map(fav => (
+                    <div key={fav.id} className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => restoreCustomFavorite(fav)}
+                        className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-left text-[10px] font-medium text-emerald-200 transition hover:bg-slate-800 hover:text-white"
+                        title={`${fav.label} (${fav.organ} / ${fav.subsite} ${fav.selectedT}${fav.selectedN}${fav.selectedM})`}
+                      >
+                        <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>★ {fav.label}</span>
+                        <span className={`${isSidebarCollapsed ? 'hidden lg:inline' : 'hidden'}`} aria-hidden="true">★</span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`${lang === 'tr' ? 'Özel favoriyi sil' : 'Remove custom favorite'}: ${fav.label}`}
+                        onClick={() => removeCustomFavorite(fav.id)}
+                        className="rounded p-1 text-rose-300 hover:bg-rose-400/10"
+                      >
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                  ))}
+                  {favoritePresetIds.length === 0 && customFavorites.length === 0 && (
                     <p className={`${isSidebarCollapsed ? 'lg:hidden' : ''} px-1 py-1 text-[10px] text-slate-400`}>
                       {lang === 'tr' ? 'Senaryoların yanındaki ☆ ile ekleyin.' : 'Add scenarios with the ☆ button.'}
                     </p>
@@ -9428,12 +9542,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         )}
 
         {/* ==========================================
-            SOL SÜTUN (3 KOLON): PATOLOJİ, ALT BAŞLIKLAR & RİSK FAKTÖRLERİ
+                    SOL SÜTUN (~42%): PARAMETRELER, EVRELEME, HIZLI VAKALAR, PROGNOSTİK
            ========================================== */}
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
             ? guidedStep === 2 ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
-            : `lg:col-span-4 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
+                    : `lg:col-span-5 ${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3 shadow-sm dark:border-blue-800/60 dark:from-blue-950/40 dark:to-indigo-950/20">
             <div className="mb-1.5 flex items-center justify-between">
@@ -10584,12 +10698,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </aside>
 
         {/* ==========================================
-            ORTA SÜTUN (4 KOLON): KAYDIRMASIZ AÇIK TABLO MATRİSİ
+                    ORTA SÜTUN: GİZLİ (TNM TABLOSU SOL SÜTUNA TAŞINDI)
            ========================================== */}
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
             ? guidedStep === 2 ? 'lg:col-span-7 xl:max-w-[1100px]' : 'hidden'
-            : `lg:col-span-4 ${activeMobilePanel !== 'tnm' ? 'hidden lg:flex' : ''}`
+                    : 'hidden lg:hidden'
         }`}>
           {!isGuidedMode && selectedOrgan !== 'emergencies' && currentOrganPresets.length > 0 && (
             <div
@@ -10790,12 +10904,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </section>
 
         {/* ==========================================
-            SAĞ SÜTUN (5 KOLON): REAKTİF KARAR VE ÇOKLU REJİMLER
+                    SAĞ SÜTUN (~58%): DOZİMETRİ ÖZETİ, ICRU 83 HEDEF HACİMLER, OAR KISITLARI
            ========================================== */}
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
             ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-7xl' : 'hidden'
-            : `lg:col-span-4 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
+                    : `lg:col-span-7 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
         }`}>
           <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
 
@@ -11161,6 +11275,14 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     </div>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => saveCurrentCaseToFavorites()}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:w-auto"
+                >
+                  <Star className="h-4 w-4 text-amber-400 fill-amber-400" aria-hidden="true" />
+                  [ ⭐ Bu Vakayı Favorilere Ekle ]
+                </button>
                 <button
                   type="button"
                   onClick={copyToClipboard}

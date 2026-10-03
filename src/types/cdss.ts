@@ -166,6 +166,7 @@ export type OARSourceReference =
   | 'HyTEC'
   | 'RTOG_0617'
   | 'RTOG_0813'
+  | 'RTOG_0933'
   | 'protocol'
   | 'institutional'
   | 'other';
