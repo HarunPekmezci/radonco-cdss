@@ -133,31 +133,48 @@ export class PalliativeRadiotherapyDecisionEngine extends BaseDecisionEngine<Pal
     const rationale: string[] = [];
     const warnings: string[] = [];
     const symptoms = input.symptoms ?? [];
-    const urgent = input.setting === 'urgent-emergency' || input.spinalCordCompression === true || input.epiduralSpinalCordCompression === true || input.airwayOrEsophagealObstruction === true || input.bleedingRisk === true;
+    const emergencyFeatures = input.setting === 'urgent-emergency'
+      || input.spinalCordCompression === true
+      || input.epiduralSpinalCordCompression === true
+      || input.airwayOrEsophagealObstruction === true
+      || input.bleedingRisk === true;
     const poorPrognosis = input.performance === 'poor' || input.performance === 'actively-dying' || (input.expectedSurvivalMonths !== undefined && input.expectedSurvivalMonths < 3);
     let rtIndication: CDSSResult['rtIndication'] = 'consider';
     const intent: CDSSResult['intent'] = 'palliative';
     if (input.priorRadiotherapy) warnings.push('Re-irradiation mevcut; önceki plan/kümülatif BED, spinal kord, beyin sapı, optik yollar, akciğer, özofagus ve kalp dozları mutlaka doğrulanmalıdır.');
     if (input.spinalInstability || input.pathologicFracture || input.impendingFracture) warnings.push('Mekanik instabilite/kırık riski için ortopedi veya spinal cerrahi değerlendirmesi; RT tek başına mekanik stabilite sağlamaz.');
-    if (urgent) warnings.push('Acil semptom/organ tehdidi mevcut; steroid, analjezi, hava yolu/kanama yönetimi ve cerrahi girişim gereksinimi RT ile eşzamanlı değerlendirilmelidir.');
+    if (emergencyFeatures) {
+      warnings.push('Bu acil durum elektif palyatif motorunda dozlandırılmaz. emergencies.oncologic-emergencies motoruna yönlendirin ve stabilizasyonu/ilgili uzmanlık değerlendirmesini geciktirmeyin.');
+      return {
+        schemaVersion: '1.0', engineId: this.id, engineVersion: this.version, caseId: input.caseId, organSystem: 'palliative',
+        rtIndication: 'consider', intent, summary: 'Acil onkolojik durum; elektif palyatif RT planı üretilmedi.',
+        recommendations: [{
+          id: 'route-to-oncologic-emergency-engine',
+          label: 'Onkolojik Aciller motoruna yönlendir',
+          indication: 'consider',
+          intent: 'palliative',
+          rationale: ['Spinal kord basısı, hava yolu/özofagus obstrüksiyonu, kanama veya urgent-emergency girdileri elektif palyatif planlamadan ayrıdır.'],
+          guidelineReferences: references(),
+        }],
+        rationale: ['Acil stabilizasyon, cerrahi/endoskopik/girişimsel tedavi gereksinimi ve acil fraksiyonasyon ayrı acil vaka motorunda değerlendirilmelidir.'],
+        warnings,
+        uncertainties: ['Acil senaryo, klinik stabilite, görüntüleme, histoloji, önceki RT ve cerrahi uygunluk doğrulanmalıdır.'],
+        confidence: 0.9, guidelineReferences: references(...TRIALS),
+      };
+    }
 
-    if (urgent && (input.site === 'spine' || input.spinalCordCompression)) {
-      const dose = fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; spinal kord basısı veya nörolojik tehdit için');
-      recommendations.push({
-        id: 'urgent-spine-palliation', label: 'Acil spinal MRI, cerrahi/stabilizasyon değerlendirmesi ve hızlı spinal RT',
-        indication: 'indicated', intent: 'palliative', fractionation: dose, targetVolumes: targets(dose, 'spine'), oarConstraints: oars,
-        rationale: ['MSCC/epidural hastalıkta kontrastlı tüm spinal MRI, kortikosteroid ve nöroşirürji-spinal cerrahi görüşü geciktirilmemelidir.', 'Cerrahiye uygun olmayan veya RT sonrası stabilizasyon gereken hastada 20 Gy/5 fx veya yaşam beklentisine göre 8 Gy/1 fx düşünülebilir.'],
-        guidelineReferences: references(TRIALS[1], TRIALS[2]),
-      });
-      rtIndication = 'indicated';
-    } else if (input.site === 'brain' || input.brainMetastases) {
+    if (input.site === 'brain' || input.brainMetastases) {
       const dose = input.numberOfTargets !== undefined && input.numberOfTargets <= 4 && !poorPrognosis ? fraction(27, 3, 'SRS', '27 Gy / 3 fx; seçilmiş sınırlı beyin metastazı') : fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; seçilmiş beyin metastazı veya semptomatik hedef');
       recommendations.push({
         id: 'brain-palliation', label: poorPrognosis ? 'Destek tedavisi ± kısa beyin RT; QUARTZ benzeri seçilmiş yaklaşım' : 'SRS/FSRT veya seçilmiş WBRT ve sistemik tedavi',
         indication: input.brainMetastases || symptoms.includes('seizure') || symptoms.includes('neurologic-deficit') ? 'indicated' : 'conditional',
         intent: 'palliative', fractionation: poorPrognosis ? fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; yalnızca beklenen fayda varsa') : dose,
         targetVolumes: targets(poorPrognosis ? fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx') : dose, 'brain'), oarConstraints: oars,
-        rationale: ['Sınırlı sayıda iyi performanslı hastada SRS/FSRT; çok sayıda/yaygın hastalıkta sistemik tedavi ve seçilmiş WBRT değerlendirilir.', 'Kötü prognozda WBRT otomatik değildir; QUARTZ verileri destek tedavisiyle birlikte beklenen yaşam ve semptom yararının tartılmasını destekler.'],
+        rationale: [
+          'SRS/FSRT; lezyon sayısı, toplam hacim, boyut, yerleşim, performans ve sistemik tedavi seçeneklerine göre seçilir. SRS için uygun olmayan yaygın hastalıkta WBRT değerlendirilir.',
+          'WBRT seçilirse uygun hastada hipokampal kaçınma (HA-WBRT) ve memantin ile bilişsel korunma planlanmalıdır; hipokampus yakınındaki metastazlar uygunluğu dışlayabilir.',
+          'Kötü prognozda WBRT otomatik değildir; QUARTZ verileri destek tedavisiyle birlikte beklenen yaşam ve semptom yararının tartılmasını destekler.',
+        ],
         guidelineReferences: references(TRIALS[3], TRIALS[4]),
       });
       rtIndication = 'indicated';
@@ -173,13 +190,13 @@ export class PalliativeRadiotherapyDecisionEngine extends BaseDecisionEngine<Pal
     } else {
       const dose = poorPrognosis ? fraction(8, 1, 'single-fraction', '8 Gy / 1 fx; kısa yaşam beklentisi ve hızlı semptom kontrolü') : fraction(20, 5, 'moderate-hypofractionation', '20 Gy / 5 fx; yaygın semptomatik metastaz veya obstrüksiyon/kanama');
       recommendations.push({
-        id: 'standard-palliative-rt', label: urgent ? 'Semptomatik hedefe kısa palyatif RT ve destek tedavisi' : 'Semptom, hedef anatomisi ve yaşam beklentisine göre palyatif RT',
-        indication: symptoms.length > 0 || urgent ? 'indicated' : 'conditional', intent: 'palliative', fractionation: dose,
+        id: 'standard-palliative-rt', label: 'Semptom, hedef anatomisi ve yaşam beklentisine göre palyatif RT',
+        indication: symptoms.length > 0 ? 'indicated' : 'conditional', intent: 'palliative', fractionation: dose,
         targetVolumes: targets(dose, input.site), oarConstraints: oars,
         rationale: ['ASTRO kemik metastazı kılavuzu 8 Gy/1 fx, 20 Gy/5 fx, 24 Gy/6 fx veya 30 Gy/10 fx seçeneklerinin hasta ve hedefe göre kullanılmasını destekler.', 'Kanama, ağrı, obstrüksiyon ve dispne için hedef hacim semptomu oluşturan lezyonla sınırlanmalı; elektif nodal ışınlama rutin değildir.', 'Mediastinal/akciğer olgularında 60-66 Gy/30-33 fx eşzamanlı KRT ve konsolidasyon immünoterapisi palyatif RT’nin varsayılan yaklaşımı değildir; yalnızca farklı definitif amaçlı seçilmiş olgular için düşünülür.'],
         guidelineReferences: references(TRIALS[0], TRIALS[1]),
       });
-      rtIndication = symptoms.length > 0 || urgent ? 'indicated' : 'conditional';
+      rtIndication = symptoms.length > 0 ? 'indicated' : 'conditional';
     }
     if (input.systemicTherapy?.length || input.molecularTargets?.length) rationale.push('Sistemik tedavi, cerrahi rezektabilite/marjin ve EGFR/ALK gibi moleküler hedefler ilgili primer tümör MDT’si ile RT zamanlamasına göre koordine edilmelidir; RT bunların yerine geçmez.');
     rationale.push('Palyatif RT kararı semptom yükü, performans, beklenen yaşam, hedef güvenliği, hastanın tercihleri ve erken destek/palyatif bakım entegrasyonuyla birlikte verilmelidir.');

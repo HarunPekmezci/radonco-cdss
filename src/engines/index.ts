@@ -8,6 +8,7 @@ export * from './gynecology';
 export * from './skin';
 export * from './pediatric-age';
 export * from './palliative';
+export * from './emergencies';
 export * from './bone';
 export * from './hematologic';
 export * from './registry';

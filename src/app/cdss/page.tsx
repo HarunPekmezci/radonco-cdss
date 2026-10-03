@@ -66,6 +66,7 @@ export type OrganId =
   | 'hematologic'
   | 'pediatric'
   | 'palliative'
+  | 'emergencies'
   | 'benign';
 
 interface ParsedReportData {
@@ -1790,6 +1791,13 @@ const SUBSITES: Partial<Record<OrganId, { id: string; name: string }[]>> = {
 };
 
 const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: string }>> = {
+  emergencies: [
+    { id: 'emergency-mscc', name_tr: 'Spinal Kord Basısı (MSCC)', name_en: 'Spinal Cord Compression (MSCC)' },
+    { id: 'emergency-svcs', name_tr: 'Vena Kava Superior Sendromu (VCSS / SVCS)', name_en: 'Superior Vena Cava Syndrome (SVCS)' },
+    { id: 'emergency-airway', name_tr: 'Akut Havayolu Obstrüksiyonu (Trakea & Karina)', name_en: 'Acute Airway Obstruction (Trachea & Carina)' },
+    { id: 'emergency-hemorrhage', name_tr: 'Masif Hemoraji / Hemostatik RT', name_en: 'Major Hemorrhage / Hemostatic RT' },
+    { id: 'emergency-icp', name_tr: 'Akut KİBAS & Beyin Herniasyonu', name_en: 'Acute Raised ICP & Brain Herniation' },
+  ],
   thorax: [
     { id: 'thorax-nsclc', name_tr: 'KHDAK (NSCLC)', name_en: 'NSCLC' },
     { id: 'thorax-sclc', name_tr: 'KHAK (SCLC)', name_en: 'SCLC' },
@@ -1882,9 +1890,8 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   ],
   palliative: [
     { id: 'palliative-bone', name_tr: 'Kemik Metastazı Palyasyonu', name_en: 'Bone Metastases' },
-    { id: 'palliative-cord', name_tr: 'Spinal Kord Basısı', name_en: 'Spinal Cord Compression' },
-    { id: 'palliative-brain', name_tr: 'Beyin Metastazları', name_en: 'Whole Brain RT' },
-    { id: 'palliative-bleeding', name_tr: 'Kanamalı / Obstrüktif Tümör', name_en: 'Hemostatic / Obstructive RT' },
+    { id: 'palliative-brain', name_tr: 'Beyin Metastazları (Elektif WBRT / SRS)', name_en: 'Brain Metastases (Elective WBRT / SRS)' },
+    { id: 'palliative-soft-tissue', name_tr: 'Organ & Yumuşak Doku Metastazı Palyasyonu', name_en: 'Organ & Soft-Tissue Metastasis Palliation' },
   ],
   benign: [
     { id: 'benign-ho', name_tr: 'Heterotopik Ossifikasyon', name_en: 'Heterotopic Ossification' },
@@ -1896,7 +1903,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   ],
 };
 
-type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'renal' | 'gis' | 'gynecology' | 'sarcoma-palliative';
+type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'renal' | 'gis' | 'gynecology' | 'sarcoma-palliative' | 'emergencies';
 type QuickCaseRegimen = 'clinical' | 'sbrt' | 'moderate' | 'sib' | 'conventional';
 type QuickCasePreset = {
   id: string;
@@ -1942,7 +1949,7 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-19', category: 'gynecology', title_tr: 'Yüksek-orta risk endometriyum', title_en: 'High-intermediate-risk endometrial cancer', detail_tr: 'PORTEC-2 ölçütleri • 68 yaş • Vajinal kaf brakiterapisi', detail_en: 'PORTEC-2 criteria • Age 68 • Vaginal cuff brachytherapy', organ: 'gynecology', subsite: 'gynecology-Endometriyum', t: 'IB', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
-  { id: 'case-22', category: 'sarcoma-palliative', title_tr: 'Malign spinal kord basısı', title_en: 'Malignant spinal cord compression', detail_tr: 'MESCC • Cerrahiye uygunsuz • Acil dekompresif RT 20 Gy / 5 fx', detail_en: 'MESCC • Unsuitable for surgery • Emergency decompressive RT 20 Gy / 5 fx', organ: 'palliative', subsite: 'palliative-cord', t: 'Kord', n: 'CokFx', m: 'M1', regimen: 'clinical' },
+  { id: 'case-22', category: 'emergencies', title_tr: 'Spinal kord basısı (MSCC)', title_en: 'Spinal cord compression (MSCC)', detail_tr: 'Deksametazon • Patchell cerrahi uygunluğu • Acil RT 20 Gy / 5 fx', detail_en: 'Dexamethasone • Patchell surgical criteria • Emergency RT 20 Gy / 5 fx', organ: 'emergencies', subsite: 'emergency-mscc', t: 'Acil', n: 'N/A', m: 'M1', regimen: 'clinical' },
   { id: 'case-23', category: 'renal', title_tr: 'Küçük primer RCC (≤4 cm, T1a) - FASTRACK II', title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx • Ablatif primer SABR', detail_en: 'Medically inoperable • 26 Gy / 1 fx • Ablative primary SABR', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
   { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
   { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
@@ -3516,9 +3523,7 @@ const TNM_DATABASE: Record<string, { T: TNMOption[]; N: TNMOption[]; M: TNMOptio
     T: [
       { code: 'Kemik', label: 'Ağrılı Kemik Metastazı', criterion: 'Omurga, pelvis, ekstremite kemik tutulumu' },
       { code: 'Beyin', label: 'Beyin Metastazı', criterion: 'Kafa içi kitle lezyonları' },
-      { code: 'Kord', label: 'Spinal Kord Basısı', criterion: 'Acil medüller bası ve paraparezi riski' },
-      { code: 'VCSS', label: 'Süperior Vena Kava', criterion: 'Mediastinal obstrüksiyon sendromu' },
-      { code: 'Kanama', label: 'Malign Hemoraji', criterion: 'Pelvik, mesane veya rektal kanama' },
+      { code: 'Organ', label: 'Organ / Yumuşak Doku Metastazı', criterion: 'Semptomatik viseral veya yumuşak doku lezyonu' },
     ],
     N: [
       { code: 'TekFx', label: 'Tek Fraksiyon Tercihi', criterion: '8 Gy tek fraksiyon (Optimal ağrı palyasyonu, hasta konforu)' },
@@ -4163,7 +4168,7 @@ export default function RadoncoCDSSPage() {
   const [pediatricRisk, setPediatricRisk] = useState<'Standart' | 'Yuksek'>('Standart');
   const [wilmsStage, setWilmsStage] = useState<'Evre_I_II' | 'Evre_III_Anaplazi'>('Evre_I_II');
   const [wilmsWholeAbdomen, setWilmsWholeAbdomen] = useState<boolean>(false);
-  const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Kord_Basisi' | 'Kanama' | 'Omurga_SBRT'>('Agri');
+  const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Beyin' | 'Organ'>('Agri');
 
   // Modal ve Kopyalama State'leri
   const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
@@ -4263,7 +4268,9 @@ export default function RadoncoCDSSPage() {
     return selectedOrgan;
   }, [selectedOrgan, selectedSubsite, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, liverHistology, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
 
-  const currentTNM = TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
+  const currentTNM = selectedOrgan === 'emergencies' || selectedOrgan === 'palliative'
+    ? { T: [], N: [], M: [] }
+    : TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
   const prostateRiskLabel = useMemo(() => {
     const primary = Number.parseInt(gleasonPrimary, 10) || 3;
     const secondary = Number.parseInt(gleasonSecondary, 10) || 4;
@@ -4335,7 +4342,8 @@ export default function RadoncoCDSSPage() {
   const handleOrganChange = (newOrgan: OrganId) => {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
-    setSelectedSubsite('');
+    setSelectedSubsite(newOrgan === 'emergencies' || newOrgan === 'palliative' ? ORGAN_TREE[newOrgan][0]?.id ?? '' : '');
+    if (newOrgan === 'palliative') setPalliativeIntent('Agri');
     setSelectedQuickCaseId(null);
     setPatientAgeYears('');
     setSelectedRegimen('clinical');
@@ -4380,6 +4388,9 @@ export default function RadoncoCDSSPage() {
       organId => ORGAN_TREE[organId].some(sub => sub.id === subKey)
     );
     if (parentOrgan) setSelectedOrgan(parentOrgan);
+    if (subKey === 'palliative-bone') setPalliativeIntent('Agri');
+    if (subKey === 'palliative-brain') setPalliativeIntent('Beyin');
+    if (subKey === 'palliative-soft-tissue') setPalliativeIntent('Organ');
     if (organ === 'thorax' && ['nsclc', 'sclc', 'thymoma', 'mesothelioma'].includes(subtype)) setThoraxSubtype(subtype as typeof thoraxSubtype);
     if (organ === 'prostate' && ['prostate', 'bladder', 'penile', 'testis', 'kidney'].includes(subtype)) setGusSubtype(subtype as typeof gusSubtype);
     if (organ === 'gis' && ['Rektum', 'Mide', 'Karaciger', 'Pankreas', 'Ozofagus', 'SafraYollari'].includes(subtype)) setGisOrgan(subtype as typeof gisOrgan);
@@ -4749,7 +4760,6 @@ export default function RadoncoCDSSPage() {
         setPalliativeIntent('Agri');
         break;
       case 'case-22':
-        setPalliativeIntent('Kord_Basisi');
         break;
       case 'case-23':
       case 'case-24':
@@ -4785,7 +4795,8 @@ export default function RadoncoCDSSPage() {
     }
     if (selectedOrgan === 'bone-sarcoma') return preset.category === 'sarcoma-palliative';
     if (selectedOrgan === 'sarcoma') return preset.id === 'case-20';
-    if (selectedOrgan === 'palliative') return preset.id === 'case-21' || preset.id === 'case-22';
+    if (selectedOrgan === 'palliative') return preset.id === 'case-21';
+    if (selectedOrgan === 'emergencies') return preset.category === 'emergencies';
     if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-kidney') return preset.category === 'renal';
     if (selectedOrgan === 'prostate' && selectedSubsite === 'prostate-prostate') {
       return preset.category === 'gus' && preset.subsite === 'prostate-prostate';
@@ -4798,6 +4809,7 @@ export default function RadoncoCDSSPage() {
       prostate: 'gus',
       gis: 'gis',
       gynecology: 'gynecology',
+      emergencies: 'emergencies',
     };
     return preset.category === categoryByOrgan[selectedOrgan];
   });
@@ -4830,6 +4842,7 @@ export default function RadoncoCDSSPage() {
       hematologic: lang === 'tr' ? 'Hematoloji' : 'Hematologic',
       pediatric: lang === 'tr' ? 'Pediatri' : 'Pediatric',
       palliative: lang === 'tr' ? 'Palyatif' : 'Palliative',
+      emergencies: lang === 'tr' ? 'Onkolojik Aciller' : 'Oncologic Emergencies',
       benign: lang === 'tr' ? 'Benign' : 'Benign',
     };
     const aliases: Record<string, string> = {
@@ -7633,57 +7646,105 @@ export default function RadoncoCDSSPage() {
       };
     }
 
-    // ------------------------------------------
-    // 12. PALYATİF BAKIM
-    // ------------------------------------------
-    if (selectedOrgan === 'palliative') {
-      if (palliativeIntent === 'Omurga_SBRT') {
-        const spineSbrt: DoseScheme = {
-          id: 'spine-sbrt-24',
-          name: '24 Gy / 2 fx (Omurga SBRT - Küratif Amaçlı Oligometastaz)',
-          tag: '🎯 Spine SBRT',
-          totalDoseGy: 24,
-          fractionCount: 2,
-          fractionDoseGy: 12,
-          alphaBeta: 10,
-          technique: 'SBRT (IGRT + immobilizasyon; kord toleransı öncelikli)',
-          indication: 'Kord basısı OLMAYAN, mekanik instabilitesi bulunmayan (SINS <7) soliter/oligometastatik vertebral lezyonda yüksek lokal kontrol için ablatif SBRT; kord basısı varlığında önce cerrahi dekompresyon değerlendirilir.',
-          targetVolumes: [
-            { name: 'GTV_Spine', doseGy: 24, marginMm: '0 mm', anatomical: 'Makroskopik vertebral metastaz / epidural hastalık' },
-            { name: 'CTV_Spine', doseGy: 24, marginMm: 'Anatomik', anatomical: 'İlgili vertebral segment ve epidural yayılım' },
-            { name: 'PTV_Spine', doseGy: 24, marginMm: '1-2 mm (SBRT planında)', anatomical: 'Günlük IGRT ve spinal set-up güvenlik marjini' },
+    const createFocusedPlan = (
+      id: string,
+      name: string,
+      totalDoseGy: number,
+      fractionCount: number,
+      tag: string,
+      anatomy: string,
+      indication: string,
+      technique = '3D-CRT / IMRT / IGRT',
+    ): DoseScheme => ({
+      id,
+      name,
+      tag,
+      totalDoseGy,
+      fractionCount,
+      fractionDoseGy: totalDoseGy / fractionCount,
+      alphaBeta: 10,
+      technique,
+      indication,
+      targetVolumes: [
+        { name: 'GTV', doseGy: totalDoseGy, marginMm: 'Görüntüleme ve klinik semptomla tanımlanır', anatomical: anatomy },
+        { name: 'CTV', doseGy: totalDoseGy, marginMm: 'Anatomik yayılım; elektif nodal hacim rutin değildir', anatomical: `${anatomy} ve gerekli komşu risk alanı` },
+        { name: 'PTV', doseGy: totalDoseGy, marginMm: 'Hareket yönetimi ve günlük IGRT ile belirlenir', anatomical: 'Set-up ve organ hareketi güvenlik marjini' },
+      ],
+      oars: [{ organ: 'Kritik komşu organlar', metric: 'Dmax / Dmean', limit: 'Önceki RT ve güncel protokole göre doğrula', source: 'QUANTEC / kurumsal protokol' }],
+      evidence: 'ASTRO / ESTRO; aktif kılavuz sürümü ve kurum protokolü doğrulanmalıdır.',
+    });
+
+    if (selectedOrgan === 'emergencies') {
+      const emergencyPlans: Record<string, { status: string; primary: DoseScheme; alternatives: DoseScheme[] }> = {
+        'emergency-mscc': {
+          status: 'ACİL: SPİNAL KORD BASISI (MSCC)',
+          primary: createFocusedPlan('mscc-20-5', '20 Gy / 5 fx · MSCC acil RT', 20, 5, 'Deksametazon + cerrahi uygunluk değerlendirmesi', 'MRI ile tanımlanan vertebral metastaz ve epidural hastalık', 'Deksametazon 16 mg IV stat, ardından 4 mg IV/PO 6 saatte bir. Tek seviyeli kompresyon ve uygun performansta Patchell cerrahi/dekompresyon kriterlerini değerlendir.', 'Acil IMRT / 3D-CRT + günlük IGRT'),
+          alternatives: [
+            createFocusedPlan('mscc-8-1', '8 Gy / 1 fx · kısa prognoz / cerrahiye uygun değil', 8, 1, 'Tek fraksiyon', 'MRI ile tanımlanan semptomatik vertebra ve epidural uzanım', 'Nörolojik durum, instabilite, önceki RT ve cerrahi uygunlukla birlikte seçilir.'),
+            createFocusedPlan('mscc-30-10', '30 Gy / 10 fx · seçilmiş uygun prognoz', 30, 10, 'Çoklu fraksiyon', 'MRI ile tanımlanan vertebral metastaz ve epidural hastalık', 'Cerrahi/postoperatif plan, kümülatif kord dozu ve prognoz MDT ile değerlendirilir.'),
           ],
-          oars: [
-            { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 17 Gy / 2 fx (HyTEC)', source: 'HyTEC Spine SBRT' },
-            { organ: 'Özofagus', metric: 'Dmax', limit: '< 25 Gy / 2 fx', source: 'HyTEC' },
+        },
+        'emergency-svcs': {
+          status: 'ACİL: VENA KAVA SUPERIOR SENDROMU',
+          primary: createFocusedPlan('svcs-30-10', '30 Gy / 10 fx · öne yüklemeli torasik RT', 30, 10, 'İlk 2-3 fx: 3-4 Gy/fx, sonra tamamla', 'Vena kava superior obstrüksiyonuna neden olan primer kitle ve semptomatik nodal hastalık', 'İlk 2-3 fraksiyonda 3-4 Gy/fx öne yükleme, ardından toplam 30 Gy / 10 fx tamamlanması örnek bir yaklaşımdır; stabil hastada histoloji ve stent/sistemik tedavi seçenekleri değerlendirilir.'),
+          alternatives: [createFocusedPlan('svcs-20-5', '20 Gy / 5 fx · kısa prognozda', 20, 5, 'İlk 2 fx öne yükleme, sonra tamamla', 'Vena kava superior obstrüksiyonuna neden olan makroskopik torasik kitle', 'Histoloji, semptom şiddeti ve klinik yanıtla uyarlanır.')],
+        },
+        'emergency-airway': {
+          status: 'ACİL: TRAKEA / KARİNA HAVAYOLU OBSTRÜKSİYONU',
+          primary: createFocusedPlan('airway-17-2', '16-17 Gy / 2 fx · dekompresif RT', 17, 2, 'Stridor / asfiksi riski', 'Trakea, ana bronş veya karinayı daraltan makroskopik tümör', 'Stridor veya asfiksi riski varsa hava yolu güvenliği ve girişimsel bronkoskopi RT’yi geciktirmeden değerlendirilir.'),
+          alternatives: [
+            createFocusedPlan('airway-8-1', '8 Gy / 1 fx · hızlı kısa şema', 8, 1, 'Tek fraksiyon', 'Hava yolunu daraltan makroskopik tümör', 'Anestezi, göğüs hastalıkları ve girişimsel bronkoskopiyle acil hava yolu yönetimi gerekir.'),
+            createFocusedPlan('airway-20-5', '20 Gy / 5 fx · seçilmiş hasta', 20, 5, 'Çoklu fraksiyon', 'Hava yolunu daraltan makroskopik tümör', 'Klinik stabilite ve toleransa göre seçilir.'),
           ],
-          evidence: 'HyTEC Spine SBRT, RTOG 0631, NCCN Bone Cancer / Palliative v1.2025',
-        };
-        return { statusText: 'ENDİKE: OLİGOMETASTATİK VERTEBRAL LEZYONDA OMURGA SBRT', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300', primaryScheme: spineSbrt, alternativeSchemes: [spineSbrt] };
-      }
-      const palliativeDose = palliativeIntent === 'Kord_Basisi' ? 20 : palliativeIntent === 'Kanama' ? 14.8 : 8;
-      const palliativeFractions = palliativeIntent === 'Kord_Basisi' ? 5 : palliativeIntent === 'Kanama' ? 4 : 1;
-      const palliativeScheme: DoseScheme = {
-        id: `palliative-${palliativeIntent.toLowerCase()}`,
-        name: palliativeIntent === 'Kord_Basisi' ? '20 Gy / 5 fx (MESCC Acil RT)' : palliativeIntent === 'Kanama' ? 'Quad Shot 14.8 Gy / 4 fx' : '8 Gy / 1 fx (Kemik Metastazı)',
-        tag: 'Palyatif / Acil RT',
-        totalDoseGy: palliativeDose,
-        fractionCount: palliativeFractions,
-        fractionDoseGy: palliativeDose / palliativeFractions,
-        alphaBeta: 10,
-        technique: 'Acil 3D-CRT / IMRT; nöroşirürji ve medikal onkoloji koordinasyonu',
-        indication: palliativeIntent === 'Kord_Basisi' ? 'Metastatik spinal kord basısında cerrahi uygunluk değerlendirmesi sonrası acil dekompresif RT.' : palliativeIntent === 'Kanama' ? 'Kanamalı veya obstrüktif semptomlarda kısa süreli hemostatik Quad Shot.' : 'Ağrılı kemik metastazında ASTRO kategori 1 tek fraksiyon palyasyon.',
-        targetVolumes: palliativeIntent === 'Kord_Basisi'
-          ? [
-              { name: 'GTV_Spine', doseGy: palliativeDose, marginMm: '0 mm', anatomical: 'Makroskopik vertebral metastaz / epidural hastalık' },
-              { name: 'CTV_Spine', doseGy: palliativeDose, marginMm: 'Anatomik', anatomical: 'İlgili vertebral segment ve epidural yayılım' },
-              { name: 'PTV_Spine', doseGy: palliativeDose, marginMm: '1-2 mm (SBRT planında)', anatomical: 'Günlük IGRT ve spinal set-up güvenlik marjini' },
-            ]
-          : [{ name: 'CTV_Palliative', doseGy: palliativeDose, marginMm: 'Semptomatik lezyon ve anatomik yayılım', anatomical: palliativeIntent === 'Kanama' ? 'Kanayan veya obstrüktif tümör' : 'Ağrılı kemik metastazı' }],
-        oars: [{ organ: 'Spinal kord', metric: 'Dmax', limit: palliativeIntent === 'Kord_Basisi' ? '< 25 Gy / 5 fx' : 'Fraksiyonasyona göre optimize et', source: 'ASTRO / QUANTEC' }],
-        evidence: 'ASTRO Palliative Radiation Therapy Guideline',
+        },
+        'emergency-hemorrhage': {
+          status: 'ACİL: MASİF HEMORAJİ / HEMOSTATİK RT',
+          primary: createFocusedPlan('hemorrhage-8-1', '8 Gy / 1 fx · hemostatik RT', 8, 1, 'Hızlı hemostaz', 'Hemoptizi, jinekolojik kanama veya hematüri odağındaki makroskopik tümör', 'Resüsitasyon ve kanama odağının endoskopik/girişimsel kontrolü önceliklidir; RT bunları geciktirmemelidir.'),
+          alternatives: [createFocusedPlan('hemorrhage-14-8-4', '14.8 Gy / 4 fx BID · en az 6 saat ara', 14.8, 4, 'Quad Shot hemostatik şema', 'Kanayan makroskopik tümör ve gerekli anatomik komşuluk', 'Kanama odağı ve klinik stabiliteye göre seçilir.')],
+        },
+        'emergency-icp': {
+          status: 'ACİL: AKUT KİBAS / BEYİN HERNIASYONU',
+          primary: createFocusedPlan('icp-20-5', '20 Gy / 5 fx · acil WBRT', 20, 5, 'Mannitol %20 + deksametazon + stabilizasyon', 'Tüm beyin parankimi; kontrastlı beyin MRI/BT ile metastaz değerlendirmesi', 'Hava yolu/nörolojik stabilizasyon, mannitol %20, deksametazon ve acil nöroşirürji değerlendirmesi RT ile eşzamanlı yürütülür.'),
+          alternatives: [createFocusedPlan('icp-30-10', '30 Gy / 10 fx · uygun prognozda WBRT', 30, 10, 'Çoklu fraksiyon', 'Tüm beyin parankimi; lens ve optik yapılar doz optimizasyonuna alınır', 'Cerrahi veya SRS uygunluğu gecikmeden değerlendirilir; prognoz ve sistemik seçeneklere göre seçilir.')],
+        },
       };
-      return { statusText: palliativeIntent === 'Kord_Basisi' ? 'ACİL: METASTATİK SPİNAL KORD BASISI' : palliativeIntent === 'Kanama' ? 'ENDİKE: HEMOSTATİK / OBSTRÜKTİF PALYATİF RT' : 'ENDİKE: KEMİK METASTAZI PALYASYONU', badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-300', primaryScheme: palliativeScheme, alternativeSchemes: [palliativeScheme] };
+      const selectedPlan = emergencyPlans[selectedSubsite] ?? emergencyPlans['emergency-mscc'];
+      return {
+        statusText: selectedPlan.status,
+        badgeClass: 'bg-rose-50 text-rose-900 border-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.2)]',
+        primaryScheme: selectedPlan.primary,
+        alternativeSchemes: [selectedPlan.primary, ...selectedPlan.alternatives],
+      };
+    }
+
+    if (selectedOrgan === 'palliative') {
+      const palliativePlans: Record<'Agri' | 'Beyin' | 'Organ', { status: string; primary: DoseScheme; alternatives: DoseScheme[] }> = {
+        Agri: {
+          status: 'ENDİKE: KEMİK METASTAZI AĞRI PALYASYONU',
+          primary: createFocusedPlan('bone-palliation-8-1', '8 Gy / 1 fx · kategori 1 analjezi', 8, 1, 'Kemik metastazı', 'Semptomatik kemik metastazı; görüntüleme ile tanımlanan lezyon', '8 Gy tek fraksiyon etkili ağrı palyasyonu sağlar; yeniden ışınlama ve kırık/instabilite riski ayrıca değerlendirilir.'),
+          alternatives: [
+            createFocusedPlan('bone-palliation-20-5', '20 Gy / 5 fx · çoklu fraksiyon', 20, 5, 'Alternatif analjezik şema', 'Semptomatik kemik metastazı', 'Prognoz, önceki RT ve hasta tercihiyle seçilir.'),
+            createFocusedPlan('bone-palliation-sbrt', 'SBRT · seçilmiş oligo-metastatik hedef', 30, 5, 'SBRT / IGRT', 'Sınırlı sayıda, uygun anatomideki metastatik hedef', 'SBRT; kord basısı, instabilite ve kırık riski dışlandıktan sonra seçilmiş hastada değerlendirilir.', 'SBRT / IGRT'),
+          ],
+        },
+        Beyin: {
+          status: 'ELEKTİF: BEYİN METASTAZI · SRS / WBRT',
+          primary: createFocusedPlan('brain-ha-wbrt-30-10', '30 Gy / 10 fx · HA-WBRT + memantin', 30, 10, 'Elektif beyin metastazı', 'Tüm beyin; hipokampus koruması uygunsa HA-WBRT planlanır', 'Hipokampus koruması ve memantin bilişsel korunma için değerlendirilir; 1-4 uygun lezyonda SRS tercih ölçütleri multidisipliner doğrulanır.'),
+          alternatives: [createFocusedPlan('brain-srs-27-3', '27 Gy / 3 fx · seçilmiş SRS/FSRT', 27, 3, 'SRS / FSRT', 'Sınırlı sayıda ve boyutta beyin metastazı; MRI tabanlı GTV/CTV/PTV', 'Lezyon sayısı, hacmi, yerleşimi, semptomlar ve sistemik tedaviye göre SRS/FSRT uygunluğu değerlendirilir.', 'SRS / IGRT')],
+        },
+        Organ: {
+          status: 'ENDİKE: ORGAN / YUMUŞAK DOKU METASTAZI PALYASYONU',
+          primary: createFocusedPlan('soft-tissue-palliation-20-5', '20 Gy / 5 fx · organ / yumuşak doku palliasyonu', 20, 5, 'Semptomatik viseral veya yumuşak doku hedefi', 'Karaciğer kapsül ağrısı, pelvik kitle veya semptomatik yumuşak doku metastazı', 'Semptomatik makroskopik hedef ve gerekli anatomik komşuluk ışınlanır; elektif nodal alan rutin değildir.'),
+          alternatives: [createFocusedPlan('soft-tissue-palliation-8-1', '8 Gy / 1 fx · kısa semptomatik şema', 8, 1, 'Kısa prognoz / hızlı palyasyon', 'Semptomatik viseral veya yumuşak doku metastazı', 'Organ toleransı, önceki RT ve kanama/obstrüksiyon riski doğrulanır.')],
+        },
+      };
+      const selectedPlan = palliativePlans[palliativeIntent];
+      return {
+        statusText: selectedPlan.status,
+        badgeClass: 'bg-teal-50 text-teal-900 border-teal-300',
+        primaryScheme: selectedPlan.primary,
+        alternativeSchemes: [selectedPlan.primary, ...selectedPlan.alternatives],
+      };
     }
     const palDose = selectedN === 'TekFx' ? 8 : 20;
     const palFx = palDose === 8 ? 1 : 5;
@@ -8140,6 +8201,7 @@ export default function RadoncoCDSSPage() {
       hematologic: 'Hematologic',
       pediatric: 'Pediatric',
       palliative: 'Palliative',
+      emergencies: 'Oncologic Emergencies',
       benign: 'Benign Conditions',
     };
     let subInfo = '';
@@ -8160,7 +8222,7 @@ export default function RadoncoCDSSPage() {
 
     return `${labels.clinicalSummary} (RadOnco CDSS)
 ${labels.organSystem}: ${lang === 'tr' ? selectedOrgan.toUpperCase() : organNames[selectedOrgan]} (${patientAgeYears ? `${lang === 'tr' ? 'Yaş' : 'Age'} ${patientAgeYears}; ` : ''}${subInfo})
-${labels.stage}: ${selectedT} ${selectedN} ${selectedM}
+${labels.stage}: ${selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (lang === 'tr' ? 'Uygulanmaz' : 'Not applicable') : `${selectedT} ${selectedN} ${selectedM}`}
 ${labels.decision}: ${tText(evaluatedDecision.statusText)}
 ${labels.prescription}: ${tText(activeScheme.name)} [${tText(activeScheme.tag)}]
 ${labels.totalDose}: ${activeScheme.totalDoseGy} Gy | ${labels.fraction}: ${activeScheme.fractionCount} ${labels.fx} (${activeScheme.fractionDoseGy} Gy/${labels.fx})
@@ -8216,6 +8278,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       hematologic: 'Hematoloji',
       pediatric: 'Pediatri',
       palliative: 'Palyatif',
+      emergencies: 'Onkolojik Aciller',
       benign: 'Benign',
     };
     const diagnosis = selectedOrgan === 'breast'
@@ -8403,6 +8466,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     hematologic: lang === 'tr' ? 'Hematolojik' : 'Hematologic',
     pediatric: lang === 'tr' ? 'Pediatrik' : 'Pediatric',
     palliative: lang === 'tr' ? 'Palyatif' : 'Palliative',
+    emergencies: lang === 'tr' ? 'Onkolojik Aciller' : 'Oncologic Emergencies',
     benign: lang === 'tr' ? 'Benign' : 'Benign',
   };
   const reportDiagnosis = selectedOrgan === 'breast'
@@ -8699,6 +8763,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
         <div className="flex flex-col gap-1">
         {[
+          { id: 'emergencies', name_tr: 'Onkolojik Aciller', name_en: 'Oncologic Emergencies', icon: ShieldAlert, color: 'text-rose-400' },
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
           { id: 'prostate', name_tr: 'GÜS', name_en: 'Genitourinary (GU)', icon: Droplets, color: 'text-blue-700' },
           { id: 'breast', name_tr: 'Meme', name_en: 'Breast', icon: CircleDot, color: 'text-pink-700' },
@@ -8727,16 +8792,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 }}
                 className={`rounded-xl py-1.5 px-2 text-[11px] flex items-center gap-2 transition-all w-full text-left ${
                   isActive
-                    ? item.id === 'benign'
+                    ? item.id === 'emergencies'
+                      ? 'bg-rose-700 text-white font-bold shadow-md shadow-rose-950/40 ring-1 ring-rose-500/50'
+                      : item.id === 'benign'
                       ? 'bg-emerald-600 text-white font-bold shadow-md'
                       : 'bg-blue-600 text-white font-bold shadow-md'
                     : item.id === 'benign'
                       ? 'text-emerald-800 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                      : item.id === 'emergencies'
+                        ? 'text-rose-300 hover:text-rose-100 hover:bg-rose-950/50 font-semibold border border-rose-500/30'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium'
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
                 <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{displayName}</span>
+                {item.id === 'emergencies' && <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} rounded-sm border border-amber-400/40 bg-amber-400/15 px-1 py-0.5 text-[8px] font-black uppercase tracking-wide text-amber-300`}>{lang === 'tr' ? 'ACİL' : 'URGENT'}</span>}
                 <ChevronDown className={`${isSidebarCollapsed ? 'lg:hidden' : ''} ml-auto h-3.5 w-3.5 transition-transform ${openCategories.includes(item.id) ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
               {openCategories.includes(item.id) && !isSidebarCollapsed && (
@@ -10084,23 +10154,22 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   {tText("\n                  Yaygın peritoneal yayılım / tüm batın RT endikasyonu\n                ")}</label>
               </div>
             )}
-            {/* PALYATİF ENDİKASYON SEÇİMİ */}
+            {/* ELECTIVE PALLIATIVE RT SELECTION */}
             {selectedOrgan === 'palliative' && (
               <div className="flex flex-col gap-2 text-xs">
-                <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Palyatif Endikasyon' : 'Palliative Indication'}</span>
+                <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Elektif Palyatif RT' : 'Elective Palliative RT'}</span>
                 <div className="grid grid-cols-1 gap-1.5">
                   {[
-                    { id: 'Agri', label: lang === 'tr' ? 'Ağrılı kemik metastazı (8 Gy/1 fx)' : 'Painful bone metastasis (8 Gy/1 fx)' },
-                    { id: 'Kord_Basisi', label: lang === 'tr' ? 'Spinal kord basısı - MESCC (20 Gy/5 fx acil)' : 'Spinal cord compression - MESCC (20 Gy/5 fx urgent)' },
-                    { id: 'Omurga_SBRT', label: lang === 'tr' ? 'Omurga SBRT - Oligometastaz (24 Gy/2 fx)' : 'Spine SBRT - Oligometastatic (24 Gy/2 fx)' },
-                    { id: 'Kanama', label: lang === 'tr' ? 'Kanama / obstrüksiyon (Quad Shot 14.8 Gy/4 fx)' : 'Bleeding / obstruction (Quad Shot 14.8 Gy/4 fx)' },
+                    { id: 'Agri', label: lang === 'tr' ? 'Kemik metastazı ağrı palyasyonu' : 'Bone metastasis pain palliation' },
+                    { id: 'Beyin', label: lang === 'tr' ? 'Beyin metastazları (elektif WBRT / SRS)' : 'Brain metastases (elective WBRT / SRS)' },
+                    { id: 'Organ', label: lang === 'tr' ? 'Organ ve yumuşak doku metastazı' : 'Organ and soft-tissue metastases' },
                   ].map(item => (
                     <button
                       key={item.id}
                       type="button"
                       aria-pressed={palliativeIntent === item.id}
                       onClick={() => {
-                        const value = parseOption(item.id, ['Agri', 'Kord_Basisi', 'Omurga_SBRT', 'Kanama'] as const);
+                        const value = parseOption(item.id, ['Agri', 'Beyin', 'Organ'] as const);
                         if (value) setPalliativeIntent(value);
                       }}
                       className={parameterButtonClass(palliativeIntent === item.id)}
@@ -10158,8 +10227,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="flex items-center justify-between pb-3 border-b border-slate-700/80 mb-3">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                  {selectedOrgan === 'benign'
-                    ? (lang === 'tr' ? 'Klinik Durum, Evre ve Zamanlama Kriteri' : 'Clinical Status and Timing Criteria')
+                  {selectedOrgan === 'benign' || selectedOrgan === 'palliative' || selectedOrgan === 'emergencies'
+                    ? (lang === 'tr' ? 'Klinik Durum ve Tedavi Seçimi' : 'Clinical Status and Treatment Selection')
                     : (lang === 'tr' ? 'KILAVUZ TANIMLI AÇIK TNM TABLOSU' : 'GUIDELINE-DEFINED OPEN TNM MATRIX')}
                 </h2>
                 <span className="text-[11px] text-slate-300">
@@ -10168,12 +10237,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     : (lang === 'tr' ? 'Seçili alt başlığa özgü kriterler; tıklayarak anında güncelleyin.' : 'Subsite-specific criteria; click to update instantly.')}
                 </span>
               </div>
-              {selectedOrgan === 'benign'
-                ? <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">{lang === 'tr' ? 'TNM uygulanmaz' : 'TNM not applicable'}</span>
+              {selectedOrgan === 'benign' || selectedOrgan === 'palliative' || selectedOrgan === 'emergencies'
+                ? <span className={`rounded border px-2 py-0.5 text-[11px] font-semibold ${selectedOrgan === 'emergencies' ? 'border-rose-300 bg-rose-50 text-rose-900' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>{selectedOrgan === 'emergencies' ? (lang === 'tr' ? 'ACİL' : 'URGENT') : (lang === 'tr' ? 'TNM uygulanmaz' : 'TNM not applicable')}</span>
                 : <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-sky-400 border border-slate-700">{selectedT} {selectedN} {selectedM}</span>}
             </div>
 
-            {selectedOrgan === 'benign' ? (
+            {selectedOrgan === 'benign' || selectedOrgan === 'palliative' || selectedOrgan === 'emergencies' ? (
+              selectedOrgan === 'benign' ? (
               <div className="space-y-3">
                 <p className="text-xs font-semibold text-slate-700">
                   {tText(SUBSITES.benign?.find(subsite => subsite.id === selectedSubsite)?.name)}
@@ -10211,6 +10281,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </div>
                 )}
               </div>
+              ) : (
+                <div className={`rounded-md border p-3 text-xs leading-relaxed ${selectedOrgan === 'emergencies' ? 'border-rose-500/30 bg-rose-950/30 text-rose-100' : 'border-teal-500/30 bg-teal-950/20 text-teal-100'}`}>
+                  {selectedOrgan === 'emergencies'
+                    ? (lang === 'tr' ? 'Acil senaryo; stabilizasyon ve ilgili uzmanlık değerlendirmesi önceliklidir. Reçete, hedef hacim ve fraksiyonasyon acil vaka motorunda sunulur.' : 'Emergency scenario; stabilization and specialty assessment take priority. Prescription, target volumes, and fractionation are provided by the emergency case engine.')
+                    : (lang === 'tr' ? 'Elektif semptomatik RT: kemik metastazı, beyin metastazı veya organ/yumuşak doku metastazı.' : 'Elective symptom-directed RT: bone, brain, or organ/soft-tissue metastases.')}
+                </div>
+              )
             ) : (
               <>
             {/* T TABLOSU */}

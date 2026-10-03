@@ -17,7 +17,8 @@ export type OrganSystem =
   | 'bone'
   | 'hematologic'
   | 'breast'
-  | 'skin';
+  | 'skin'
+  | 'emergencies';
 
 export type TNMEdition = 'AJCC_8' | 'AJCC_9' | 'FIGO_2018' | 'OTHER';
 export type TNMComponent = string;

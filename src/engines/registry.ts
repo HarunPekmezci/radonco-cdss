@@ -9,6 +9,7 @@
   acuteLymphoblasticLeukemiaEngine, wilmsTumorEngine, osteosarcomaEngine, chondrosarcomaEngine,
   giantCellTumorEngine, melanomaEngine, bccEngine, skinSccEngine, cutaneousLymphomaEngine, kaposiSarcomaEngine,
   multipleMyelomaEngine, acuteMyeloidLeukemiaEngine, chronicMyeloidLeukemiaEngine,
+  oncologicEmergenciesEngine,
 } from './index';
 
 import type { DecisionEngine } from './base-engine';
@@ -53,6 +54,7 @@ const RAW_ENGINES: DecisionEngine<ClinicalCaseInput>[] = [
   acuteLymphoblasticLeukemiaEngine, wilmsTumorEngine, osteosarcomaEngine, chondrosarcomaEngine,
   giantCellTumorEngine, melanomaEngine, bccEngine, skinSccEngine, cutaneousLymphomaEngine, kaposiSarcomaEngine,
   multipleMyelomaEngine, acuteMyeloidLeukemiaEngine, chronicMyeloidLeukemiaEngine,
+  oncologicEmergenciesEngine,
 ];
 
 const ENGINE_DISPLAY_LABELS: Record<string, string> = {
@@ -98,6 +100,7 @@ const ENGINE_DISPLAY_LABELS: Record<string, string> = {
   'hematologic.multiple-myeloma': 'Multipl Miyelom',
   'hematologic.acute-myeloid-leukemia': 'AML',
   'hematologic.chronic-myeloid-leukemia': 'KML',
+  'emergencies.oncologic-emergencies': 'Onkolojik Aciller',
 };
 
 function normalizeLookupToken(value: string | undefined | null): string {
@@ -553,13 +556,43 @@ const MAXILLARY_SINUS_FORM_SCHEMA: CDSSFormField[] = [
   { key: 'perineuralInvasion', label: 'Perinöral invazyon', type: 'boolean' },
 ];
 
+const ONCOLOGIC_EMERGENCIES_FORM_SCHEMA: CDSSFormField[] = [
+  {
+    key: 'scenario',
+    label: 'Acil durum',
+    type: 'select',
+    options: [
+      { value: 'spinal-cord-compression', label: 'Spinal kord basısı (MSCC)' },
+      { value: 'superior-vena-cava-syndrome', label: 'Vena kava superior sendromu (VCSS)' },
+      { value: 'acute-airway-obstruction', label: 'Akut havayolu obstrüksiyonu' },
+      { value: 'major-hemorrhage', label: 'Masif hemoraji / hemostatik RT' },
+      { value: 'raised-intracranial-pressure', label: 'Akut KİBAS / herniasyon tehdidi' },
+    ],
+  },
+  { key: 'surgicalCandidate', label: 'Cerrahi adayı', type: 'boolean' },
+  { key: 'singleLevelDisease', label: 'Tek seviyeli spinal hastalık', type: 'boolean' },
+  { key: 'goodPerformanceStatus', label: 'İyi performans durumu', type: 'boolean' },
+  { key: 'expectedSurvivalMonths', label: 'Beklenen yaşam süresi (ay)', type: 'number' },
+  { key: 'neurologicDeficitDurationHours', label: 'Nörolojik defisit süresi (saat)', type: 'number' },
+  { key: 'spinalInstability', label: 'Spinal instabilite', type: 'boolean' },
+  { key: 'poorPrognosis', label: 'Kısa prognoz', type: 'boolean' },
+  { key: 'airwayCompromise', label: 'Hava yolu tehdidi', type: 'boolean' },
+  { key: 'hemodynamicInstability', label: 'Hemodinamik instabilite', type: 'boolean' },
+  { key: 'priorRadiotherapy', label: 'Önceki RT', type: 'boolean' },
+];
+
 function toRegisteredEngine(engine: DecisionEngine<ClinicalCaseInput>): RegisteredEngine {
   const organSystem = deriveOrganSystem(engine.id);
   const disease = deriveDisease(engine.id);
   const isMaxillarySinus = engine.id === 'head-neck.maxillary-sinus';
+  const isOncologicEmergencies = engine.id === 'emergencies.oncologic-emergencies';
 
   return Object.assign(engine, {
-    formSchema: isMaxillarySinus ? MAXILLARY_SINUS_FORM_SCHEMA : GENERIC_FORM_SCHEMA,
+    formSchema: isMaxillarySinus
+      ? MAXILLARY_SINUS_FORM_SCHEMA
+      : isOncologicEmergencies
+        ? ONCOLOGIC_EMERGENCIES_FORM_SCHEMA
+        : GENERIC_FORM_SCHEMA,
     defaults: {
       organSystem,
       disease,
@@ -573,6 +606,16 @@ function toRegisteredEngine(engine: DecisionEngine<ClinicalCaseInput>): Register
         extranodalExtension: false,
         boneErosion: false,
         perineuralInvasion: false,
+      } : {}),
+      ...(isOncologicEmergencies ? {
+        scenario: 'spinal-cord-compression',
+        surgicalCandidate: false,
+        singleLevelDisease: false,
+        goodPerformanceStatus: false,
+        poorPrognosis: false,
+        airwayCompromise: false,
+        hemodynamicInstability: false,
+        priorRadiotherapy: false,
       } : {}),
     },
   });
