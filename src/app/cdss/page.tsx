@@ -8778,22 +8778,31 @@ export default function RadoncoCDSSPage() {
     }
     if (selectedOrgan === 'breast') {
       const bcsCandidate = breastSurgery === 'MKC' && breastHistology !== 'İnflamatuar Meme Kanseri (IBC)' && breastHistology !== 'Malign Filloides Tümörü';
-      if (regimen === 'ultra_hypo' || regimen === 'moderate_hypo' || regimen === 'sib_boost') return bcsCandidate;
+      if (regimen === 'ultra_hypo') return bcsCandidate;
+      if (regimen === 'moderate_hypo') return true;
+      if (regimen === 'sib_boost') return bcsCandidate && breastBoost;
       return true;
     }
+    if (selectedOrgan === 'head-neck') {
+      if (regimen === 'sib_boost') return true;
+      if (regimen === 'conventional') return true;
+      return false;
+    }
+    if (regimen === 'sib_boost') return false;
     return true;
   };
 
   const effectiveRegimen: 'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional' = useMemo(() => {
-    if (selectedRegimen !== 'clinical') return selectedRegimen;
+    if (selectedRegimen !== 'clinical' && isRegimenEligible(selectedRegimen)) return selectedRegimen;
     if (selectedOrgan === 'thorax') {
       const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
       return earlyStage ? 'ultra_hypo' : 'conventional';
     }
     if (selectedOrgan === 'prostate') return 'moderate_hypo';
     if (selectedOrgan === 'breast') return 'moderate_hypo';
+    if (selectedOrgan === 'head-neck') return 'sib_boost';
     return 'conventional';
-  }, [selectedRegimen, selectedOrgan, thoraxSubtype, selectedM, selectedN, selectedT]);
+  }, [selectedRegimen, selectedOrgan, thoraxSubtype, selectedM, selectedN, selectedT, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology, breastBoost]);
 
   const lungSubSchemesByPhilosophy: Record<'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional', DoseScheme[]> = useMemo(() => {
     const lungSbrtTechnique = breathingMotion === 'DIBH'
@@ -11899,77 +11908,91 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             </section>
 
-            {(['prostate', 'thorax', 'breast'] as OrganId[]).includes(selectedOrgan) && (
-              <div className="mb-4">
-                <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  {lang === 'tr' ? 'FRAKSİYONASYON FELSEFESİ' : 'FRACTIONATION PHILOSOPHY'}
-                </div>
-                <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                  {(['ultra_hypo', 'moderate_hypo', 'sib_boost', 'conventional'] as const).map(regimen => {
-                    const cards = {
-                      ultra_hypo: {
-                        title: lang === 'tr' ? 'Ultra-Hipo' : 'Ultra-Hypo',
-                        badge: '1-5 fx',
-                        detail: 'SBRT / Stereotactic',
-                        active: 'bg-gradient-to-br from-indigo-600 to-purple-600',
-                        hover: 'hover:border-purple-300',
-                      },
-                      moderate_hypo: {
-                        title: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate',
-                        badge: '15-20 fx',
-                        detail: 'Hypofractionated',
-                        active: 'bg-gradient-to-br from-blue-600 to-cyan-600',
-                        hover: 'hover:border-blue-300',
-                      },
-                      sib_boost: {
-                        title: 'SIB Boost',
-                        badge: lang === 'tr' ? 'Entegre' : 'Integrated',
-                        detail: 'Simultaneous Boost',
-                        active: 'bg-gradient-to-br from-emerald-600 to-teal-600',
-                        hover: 'hover:border-emerald-300',
-                      },
-                      conventional: {
-                        title: isSclcTurrisiScheme
-                          ? lang === 'tr' ? 'Akselere Hiperfraksiyonasyon (30 fx BID)' : 'Accelerated Hyperfractionation (30 fx BID)'
-                          : lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
-                        badge: isSclcTurrisiScheme ? '45 Gy' : undefined,
-                        detail: isSclcTurrisiScheme
-                          ? lang === 'tr' ? '1.5 Gy / fx (Günde 2 kez BID, ≥ 6 saat ara)' : '1.5 Gy / fx (Twice daily BID, ≥ 6 hours apart)'
-                          : '1.8 - 2.0 Gy / fx',
-                        active: 'bg-gradient-to-br from-slate-700 to-slate-900',
-                        hover: 'hover:border-slate-400',
-                      },
-                    };
-                    const card = cards[regimen];
-                    const eligible = isRegimenEligible(regimen);
-                    return (
-                      <button
-                        key={regimen}
-                        type="button"
-                        disabled={!eligible}
-                        title={eligible ? undefined : (lang === 'tr' ? 'Bu fraksiyonasyon felsefesi mevcut klinik senaryo için uygun değil' : 'This fractionation philosophy is not appropriate for the current clinical scenario')}
-                        onClick={() => handleSelectPhilosophy(regimen)}
-                        className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
-                          !eligible
-                            ? 'cursor-not-allowed border-slate-800 bg-slate-900/40 text-slate-600 opacity-50'
-                            : (selectedRegimen === regimen || (selectedRegimen === 'clinical' && effectiveRegimen === regimen))
+            {(() => {
+              const eligiblePhilosophies = (['ultra_hypo', 'moderate_hypo', 'sib_boost', 'conventional'] as const).filter(
+                regimen => isRegimenEligible(regimen)
+              );
+              if (eligiblePhilosophies.length === 0 || !(['prostate', 'thorax', 'breast', 'head-neck'] as OrganId[]).includes(selectedOrgan)) {
+                return null;
+              }
+              const currentActivePhilosophy = (selectedRegimen !== 'clinical' && isRegimenEligible(selectedRegimen))
+                ? selectedRegimen
+                : effectiveRegimen;
+
+              const gridClass =
+                eligiblePhilosophies.length === 1 ? 'grid grid-cols-1 gap-2' :
+                eligiblePhilosophies.length === 2 ? 'grid grid-cols-1 sm:grid-cols-2 gap-2' :
+                eligiblePhilosophies.length === 3 ? 'grid grid-cols-1 sm:grid-cols-3 gap-2' :
+                'grid grid-cols-2 gap-2 xl:grid-cols-4';
+
+              return (
+                <div className="mb-4">
+                  <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                    {lang === 'tr' ? 'FRAKSİYONASYON FELSEFESİ' : 'FRACTIONATION PHILOSOPHY'}
+                  </div>
+                  <div className={gridClass}>
+                    {eligiblePhilosophies.map(regimen => {
+                      const cards = {
+                        ultra_hypo: {
+                          title: lang === 'tr' ? 'Ultra-Hipo' : 'Ultra-Hypo',
+                          badge: '1-5 fx',
+                          detail: 'SBRT / Stereotactic',
+                          active: 'bg-gradient-to-br from-indigo-600 to-purple-600',
+                          hover: 'hover:border-purple-300',
+                        },
+                        moderate_hypo: {
+                          title: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate',
+                          badge: '15-20 fx',
+                          detail: 'Hypofractionated',
+                          active: 'bg-gradient-to-br from-blue-600 to-cyan-600',
+                          hover: 'hover:border-blue-300',
+                        },
+                        sib_boost: {
+                          title: 'SIB Boost',
+                          badge: lang === 'tr' ? 'Entegre' : 'Integrated',
+                          detail: 'Simultaneous Boost',
+                          active: 'bg-gradient-to-br from-emerald-600 to-teal-600',
+                          hover: 'hover:border-emerald-300',
+                        },
+                        conventional: {
+                          title: isSclcTurrisiScheme
+                            ? lang === 'tr' ? 'Akselere Hiperfraksiyonasyon (30 fx BID)' : 'Accelerated Hyperfractionation (30 fx BID)'
+                            : lang === 'tr' ? 'Konvansiyonel' : 'Conventional',
+                          badge: isSclcTurrisiScheme ? '45 Gy' : undefined,
+                          detail: isSclcTurrisiScheme
+                            ? lang === 'tr' ? '1.5 Gy / fx (Günde 2 kez BID, ≥ 6 saat ara)' : '1.5 Gy / fx (Twice daily BID, ≥ 6 hours apart)'
+                            : '1.8 - 2.0 Gy / fx',
+                          active: 'bg-gradient-to-br from-slate-700 to-slate-900',
+                          hover: 'hover:border-slate-400',
+                        },
+                      };
+                      const card = cards[regimen];
+                      const isActive = currentActivePhilosophy === regimen;
+                      return (
+                        <button
+                          key={regimen}
+                          type="button"
+                          onClick={() => handleSelectPhilosophy(regimen)}
+                          className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
+                            isActive
                               ? `${card.active} border-transparent text-white shadow-md`
                               : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
-                        }`}
-                      >
-                        <div className="mb-1 flex items-center justify-between">
-                          <span className="flex items-center gap-1.5 text-xs font-bold">
-                            {regimen === 'ultra_hypo' ? '⚡' : regimen === 'moderate_hypo' ? '🎯' : regimen === 'sib_boost' ? '🧬' : '🛡️'} {card.title}
-                          </span>
-                          {card.badge && <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>}
-                        </div>
-                        <div className="text-[10px] opacity-80">{card.detail}</div>
-                      </button>
-                    );
-                  })}
+                          }`}
+                        >
+                          <div className="mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5 text-xs font-bold">
+                              {regimen === 'ultra_hypo' ? '⚡' : regimen === 'moderate_hypo' ? '🎯' : regimen === 'sib_boost' ? '🧬' : '🛡️'} {card.title}
+                            </span>
+                            {card.badge && <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>}
+                          </div>
+                          <div className="text-[10px] opacity-80">{card.detail}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* ALTERNATİF PROTOKOL SEKMELERİ */}
             {availableSubSchemes.length > 1 && (
