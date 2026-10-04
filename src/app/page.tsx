@@ -1,10 +1,11 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import {
   ArrowUpRight,
   BookOpen,
   Calculator,
+  ClipboardCheck,
   HeartPulse,
   Radiation,
   ShieldCheck,
@@ -26,12 +27,12 @@ const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
   sclc: 'SCLC (KHAK)',
   thymoma: 'Timoma',
   mesothelioma: 'Mezotelyoma',
-  'cns-mets': 'Beyin MetastazÄ±',
+  'cns-mets': 'Beyin Metastazı',
   gbm: 'Glioblastom (GBM)',
   meningioma: 'Menenjiyom',
   Serviks: 'Serviks Uteri',
   Endometriyum: 'Endometriyum',
-  Yumusak_Doku: 'YumuÅŸak Doku Sarkomu',
+  Yumusak_Doku: 'Yumuşak Doku Sarkomu',
   Osteosarkom: 'Osteosarkom',
 };
 
@@ -110,8 +111,8 @@ const modules: PortalModule[] = [
   {
     href: '/cdss?tab=prognostic',
     cardKey: 'prognostic',
-    icon: Calculator,
-    accent: 'text-sky-400 bg-sky-400/10 ring-sky-400/20',
+    icon: ClipboardCheck,
+    accent: 'text-purple-400 bg-purple-400/10 ring-purple-400/20',
   },
   {
     href: '/kaynakca',

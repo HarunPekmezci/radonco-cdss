@@ -1,4 +1,4 @@
-﻿import {
+import {
   nsclcEngine, sclcEngine, stomachEngine, rectumEngine, prostateEngine, bladderEngine, breastEngine,
   glialTumorEngine, brainMetastasesEngine, nasopharynxEngine, cervixEngine, palliativeRadiotherapyEngine,
   colonEngine, analEngine, gistEngine, liverCancerEngine, kidneyEngine, testisEngine, penileEngine,
