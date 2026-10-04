@@ -10692,7 +10692,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-[1720px]' : 'hidden'
                     : `lg:col-span-7 ${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : ''}`
         }`}>
-          <div className="rounded-2xl bg-[#0e1726] border border-slate-800/90 p-5 shadow-xl shadow-black/40">
+          <div className="rounded-2xl glass-panel-glow p-5 sm:p-6 shadow-xl shadow-black/40">
 
             {/* CANLI DİNAMİK TRIAGE ROZETİ */}
             <div className="bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-between shadow-sm mb-4">
@@ -10805,7 +10805,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
                             isActive
                               ? `${card.active} border-transparent text-white shadow-md`
-                              : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
+                              : `glass-panel glass-panel-interactive border-slate-700/60 text-slate-200 ${card.hover}`
                           }`}
                         >
                           <div className="mb-1 flex items-center justify-between">
@@ -10843,7 +10843,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* SEÇİLİ DOZ ŞEMASI KARTI */}
-            <div className="bg-[#111c2e] border border-slate-700/80 text-slate-200 rounded-xl p-4 shadow-md mb-4">
+            <div className="glass-panel-glow text-slate-200 p-4 sm:p-5 shadow-md mb-4">
               <div className="mb-2">
                 <h3 className="text-amber-300 font-bold text-sm flex items-center gap-2">
                   <Radiation className="w-4 h-4 animate-[spin_12s_linear_infinite] text-amber-300" />
@@ -10888,7 +10888,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <span className="text-[10px] opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
                   </a>
                 </div>
-                <div className="overflow-x-auto w-full border border-slate-700/80 rounded-xl text-xs shadow-sm bg-[#0e1726]">
+                <div className="overflow-x-auto w-full glass-panel rounded-xl text-xs shadow-sm">
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
@@ -10926,7 +10926,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     ? 'Doz ölçütleri fraksiyonasyon, kontur tanımı, tedavi alanı ve önceki RT’ye bağlıdır; bunlar planlama referansıdır, hasta-özel doz onayı değildir.'
                     : 'Dose metrics depend on fractionation, contour definition, treatment site and prior RT; these are planning references, not patient-specific approval.'}
                 </p>
-                <div className="overflow-x-auto w-full border border-slate-700/80 rounded-xl text-xs shadow-sm bg-[#0e1726]">
+                <div className="overflow-x-auto w-full glass-panel rounded-xl text-xs shadow-sm">
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
@@ -10956,7 +10956,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* RADYOBİYOLOJİK EŞDEĞERLİK (BED & EQD2 HESAPLAYICI) */}
-            <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-xs transition-colors hover:border-sky-700/70">
+            <div className="mb-4 glass-panel-glow p-4 text-xs transition-colors">
               <div className="flex w-full items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <span className="block text-[11px] font-medium text-slate-300">
@@ -11003,7 +11003,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             {/* KANIT VE ÇOKLU KILAVUZ EYLEM GRUBU (EVIDENCE ACTION GROUP) */}
-            <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
+            <div className="mb-4 glass-panel-glow p-4 text-[11px] text-slate-300">
               <div className="flex flex-col gap-2">
                 <div>
                   <span className="font-semibold text-slate-200">

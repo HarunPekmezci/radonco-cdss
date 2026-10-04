@@ -145,7 +145,7 @@ export default function PortalPage() {
   return (
     <main className="min-h-screen bg-[#0B1120] bg-grid-slate-800/[0.12] py-8 text-slate-100 sm:py-12">
       <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-[#111c2e] via-[#0e1726] to-[#0B1120] p-6 shadow-2xl shadow-black/20 sm:p-10">
+        <section className="relative overflow-hidden rounded-3xl glass-panel-glow p-6 sm:p-10">
           <div className="pointer-events-none absolute -right-12 -top-20 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl" />
           <div className="relative max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
@@ -188,7 +188,7 @@ export default function PortalPage() {
                 <Link
                   key={module.href}
                   href={module.href}
-                  className="group flex min-h-40 flex-col rounded-xl border border-slate-800 bg-[#0e1726] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-sky-500/50 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                  className="group flex min-h-40 flex-col glass-panel glass-panel-interactive p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
@@ -206,9 +206,9 @@ export default function PortalPage() {
                   </div>
                 </Link>
               );
-                          })}
-                        </div>
-                      </section>
+            })}
+          </div>
+        </section>
 
         <section className="mt-12 border-t border-slate-800/80 pt-8 sm:mt-14 sm:pt-10" aria-labelledby="rapid-protocols-heading">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -227,7 +227,7 @@ export default function PortalPage() {
               <Link
                 key={protocol.quickCaseId}
                 href={`/cdss?quickCase=${protocol.quickCaseId}`}
-                className="group flex min-h-56 flex-col rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-blue-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-blue-950/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 sm:p-5"
+                className="group flex min-h-56 flex-col glass-panel glass-panel-interactive p-4 sm:p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
               >
                 <div className="flex items-start justify-between gap-3">
                   <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-300" aria-hidden="true" />

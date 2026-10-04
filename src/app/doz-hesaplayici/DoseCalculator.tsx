@@ -254,7 +254,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
 
         {activeTab === 'calculator' ? (
           <>
-            <section className="mb-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+            <section className="mb-4 glass-panel-glow p-4 sm:p-5">
               <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-sm font-semibold text-white">
                   {lang === 'en' ? 'General / Baseline Presets' : 'Temel Radyobiyolojik Referanslar'}
@@ -314,7 +314,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               </div>
             </section>
 
-            <section className="mb-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+            <section className="mb-4 glass-panel-glow p-4 sm:p-5">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-sm font-semibold text-white">
                   {lang === 'en' ? 'Organ and Tumor Specific Presets' : 'Organ ve Tümöre Özgü Değerler'}
@@ -363,7 +363,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                 <section
                   key={card.id}
                   id={card.id === 'alternative' ? 'alternative-schedule-card' : undefined}
-                  className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5"
+                  className="rounded-2xl glass-panel-glow p-4 sm:p-5"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <h2 className="text-sm font-semibold text-white">{card.title}</h2>
@@ -421,7 +421,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               ))}
             </div>
 
-            <section className="mt-4 rounded-2xl border border-slate-800 bg-[#0e1726] p-4 sm:p-5">
+            <section className="mt-4 rounded-2xl glass-panel-glow p-4 sm:p-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-white">
                 <ArrowLeftRight className="h-4 w-4 text-violet-300" aria-hidden="true" />
                 {lang === 'en' ? 'Schedule Comparison' : 'Şema Karşılaştırması'}
@@ -446,7 +446,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               </p>
             </section>
 
-            <section className="mt-4 rounded-2xl border border-violet-500/20 bg-[#0e1726] p-4 sm:p-5" aria-labelledby="reverse-solver-heading">
+            <section className="mt-4 rounded-2xl glass-panel-glow p-4 sm:p-5" aria-labelledby="reverse-solver-heading">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 id="reverse-solver-heading" className="text-sm font-semibold text-white">
@@ -479,7 +479,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                   />
                 </label>
               </div>
-              <div className="overflow-x-auto w-full rounded-xl border border-slate-800">
+              <div className="overflow-x-auto w-full glass-panel rounded-xl">
                 <table className="w-full min-w-[760px] border-collapse text-left text-xs">
                   <thead className="bg-slate-900/80 text-slate-300">
                     <tr>
