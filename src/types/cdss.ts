@@ -218,6 +218,13 @@ export interface ClinicalRecommendation {
   guidelineReferences?: GuidelineReference[];
 }
 
+export interface EvidenceLink {
+  authority: 'NCCN' | 'ASTRO' | 'ESTRO' | 'RTOG' | 'NRG';
+  title: string;
+  url: string;
+  category?: string; // e.g., "Kategori 1", "Consensus Guideline", "Phase II Protocol"
+}
+
 /**
  * A clinically usable alternative fractionation scheme.  Catalog entries are
  * deliberately self-contained so they can be displayed or exported without
@@ -231,6 +238,7 @@ export interface AlternativeDoseScheme {
   fractionation: TCPDosePrescription;
   targetDescription: string;
   evidence: GuidelineReference[];
+  evidenceLinks?: EvidenceLink[];
   oarProfile: OARNTPCeiling[];
   notes?: string[];
 }

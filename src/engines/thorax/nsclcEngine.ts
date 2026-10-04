@@ -54,14 +54,14 @@ const NCCN_NSCLC: GuidelineReference = {
   organization: 'NCCN',
   title: 'NCCN Clinical Practice Guidelines in Oncology: Non-Small Cell Lung Cancer',
   version: 'Current version; verify institutional subscription before use',
-  url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+  url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
   evidenceLevel: '2A',
 };
 
 const ASTRO_SABR: GuidelineReference = {
   organization: 'ASTRO',
   title: 'ASTRO guideline: Stereotactic body radiation therapy for early-stage NSCLC',
-  url: 'https://www.practicalradonc.org/article/S1879-355X(17)30056-0/fulltext',
+  url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
   evidenceLevel: 'A',
 };
 
@@ -83,7 +83,7 @@ const RTOG_REFERENCES: GuidelineReference[] = [
   {
     organization: 'other',
     title: 'RTOG 0236: SBRT for medically inoperable peripheral stage I NSCLC',
-    url: 'https://clinicaltrials.gov/study/NCT00057993',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
     evidenceLevel: '1',
   },
   {

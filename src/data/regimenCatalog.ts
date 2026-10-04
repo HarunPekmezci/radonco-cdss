@@ -1,11 +1,39 @@
 import type {
   AlternativeDoseScheme,
+  EvidenceLink,
   Fractionation,
   GuidelineReference,
   OARConstraint,
   RegimenCatalog,
   TreatmentIntent,
 } from '../types/cdss';
+
+export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://www.estro.org/Science/Guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0236: SBRT Protocol & Reference (NRG Oncology)',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
+    category: 'Phase II Protocol',
+  },
+];
 
 const reference = (title: string, url: string, organization: GuidelineReference['organization'] = 'ASTRO'): GuidelineReference => ({
   organization,
@@ -87,6 +115,7 @@ const scheme = (
   fractionationClass: Fractionation['class'] = 'conventional',
   indication?: string,
   alphaBetaTumor = 10,
+  evidenceLinks?: EvidenceLink[],
 ): AlternativeDoseScheme => ({
   id,
   label,
@@ -95,6 +124,7 @@ const scheme = (
   fractionation: fractionation(totalDoseGy, fractions, alphaBetaTumor, fractionationClass),
   targetDescription,
   evidence: [evidence],
+  evidenceLinks,
   oarProfile: oars(profile),
 });
 
@@ -145,8 +175,8 @@ export const REGIMEN_CATALOGS: Record<string, RegimenCatalog> = {
   'thorax.nsclc': {
     defaultSchemeId: 'peripheral-sbrt',
     schemes: [
-      scheme('peripheral-sbrt', 'Periferik SBRT: 54 Gy / 3 fx', 'definitive', 54, 3, 'Periferik, ≤5 cm primer akciğer lezyonu; ITV/PTV 4D-CT ile.', refs.lung, 'thorax', 'SBRT'),
-      scheme('central-sbrt', 'Santral SBRT: 50 Gy / 5 fx', 'definitive', 50, 5, 'Santral lezyon; trakeobronşiyal ağaç ve özofagus dozları öncelikli.', refs.lung, 'thorax', 'SBRT'),
+      scheme('peripheral-sbrt', 'Periferik SBRT: 54 Gy / 3 fx', 'definitive', 54, 3, 'Periferik, ≤5 cm primer akciğer lezyonu; ITV/PTV 4D-CT ile.', refs.lung, 'thorax', 'SBRT', undefined, 10, LUNG_SBRT_EVIDENCE_LINKS),
+      scheme('central-sbrt', 'Santral SBRT: 50 Gy / 5 fx', 'definitive', 50, 5, 'Santral lezyon; trakeobronşiyal ağaç ve özofagus dozları öncelikli.', refs.lung, 'thorax', 'SBRT', undefined, 10, LUNG_SBRT_EVIDENCE_LINKS),
       scheme('concurrent-chemoradiation', 'Evre III KRT: 60 Gy / 30 fx', 'definitive', 60, 30, 'Primer ve tutulmuş nodal istasyonlar, eşzamanlı sistemik tedavi.', refs.lung, 'thorax'),
       scheme('dose-escalated-chemoradiation', 'Yüksek doz KRT: 66 Gy / 33 fx', 'definitive', 66, 33, 'Seçilmiş lokal ileri hastada; OAR kısıtları izin verirse.', refs.lung, 'thorax'),
       scheme('port-lung-art', 'PORT: 54 Gy / 27 fx', 'adjuvant', 54, 27, 'Seçilmiş pN2 veya R1/R2 rezeksiyon sonrası mediasten/rezeksiyon yatağı.', refs.lung, 'thorax', 'conventional', 'Lung-ART kriterleri ile.'),

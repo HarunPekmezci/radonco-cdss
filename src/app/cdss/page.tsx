@@ -2227,6 +2227,13 @@ export interface OARNTPCeiling {
 
 export type OARConstraint = OARNTPCeiling;
 
+export interface EvidenceLink {
+  authority: 'NCCN' | 'ASTRO' | 'ESTRO' | 'RTOG' | 'NRG';
+  title: string;
+  url: string;
+  category?: string; // e.g., "Kategori 1", "Consensus Guideline", "Phase II Protocol"
+}
+
 export interface DoseScheme extends TCPTargetPrescription {
   id: string;
   name: string;
@@ -2237,6 +2244,7 @@ export interface DoseScheme extends TCPTargetPrescription {
   oars: OARNTPCeiling[];
   systemicTherapy?: string;
   evidence: string;
+  evidenceLinks?: EvidenceLink[];
 }
 
 const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARNTPCeiling[] => {
@@ -4193,7 +4201,74 @@ type EvidenceReference = {
   url: string;
 };
 
-const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC-3|NCCN|ASTRO|ESTRO|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
+export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
+    url: 'https://www.estro.org/Science/Guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0236 trial protocol / reference',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
+    category: 'Phase II Protocol',
+  },
+];
+
+const AUTHORITY_STYLES: Record<EvidenceLink['authority'], {
+  button: string;
+  badge: string;
+}> = {
+  NCCN: {
+    button: 'border-cyan-500/50 bg-cyan-950/40 text-cyan-200 hover:bg-cyan-900/60 hover:border-cyan-400 hover:text-cyan-100 focus-visible:ring-cyan-400',
+    badge: 'bg-cyan-400/20 text-cyan-300 border border-cyan-400/30',
+  },
+  ASTRO: {
+    button: 'border-indigo-500/50 bg-indigo-950/40 text-indigo-200 hover:bg-indigo-900/60 hover:border-indigo-400 hover:text-indigo-100 focus-visible:ring-indigo-400',
+    badge: 'bg-indigo-400/20 text-indigo-300 border border-indigo-400/30',
+  },
+  ESTRO: {
+    button: 'border-emerald-500/50 bg-emerald-950/40 text-emerald-200 hover:bg-emerald-900/60 hover:border-emerald-400 hover:text-emerald-100 focus-visible:ring-emerald-400',
+    badge: 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30',
+  },
+  RTOG: {
+    button: 'border-amber-500/50 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 hover:border-amber-400 hover:text-amber-100 focus-visible:ring-amber-400',
+    badge: 'bg-amber-400/20 text-amber-300 border border-amber-400/30',
+  },
+  NRG: {
+    button: 'border-amber-500/50 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 hover:border-amber-400 hover:text-amber-100 focus-visible:ring-amber-400',
+    badge: 'bg-amber-400/20 text-amber-300 border border-amber-400/30',
+  },
+};
+
+const formatBadgeLabel = (link: EvidenceLink): string => {
+  if (link.authority === 'RTOG') {
+    const trialMatch = link.title.match(/RTOG\s*(\d{4})/i) || link.url.match(/rtog-(\d{4})/i);
+    if (trialMatch) return `RTOG ${trialMatch[1]}`;
+    return 'RTOG';
+  }
+  if (link.authority === 'NRG') {
+    const trialMatch = link.title.match(/NRG[- ]?([A-Z0-9]+)/i);
+    if (trialMatch) return `NRG ${trialMatch[1]}`;
+    return 'NRG';
+  }
+  return link.authority;
+};
+
+const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC-3|NCCN|ASTRO|ESTRO|RTOG\s*\d*|NRG\s*[A-Z0-9]*|QUANTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
 
 const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undefined => {
   if (/FAST[-\s]?Forward/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(20)30932-6';
@@ -4201,13 +4276,30 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   if (/RAPIDO/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(20)30555-6';
   if (/STAMPEDE/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30524-1';
   if (/PORTEC-3/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30079-2';
-  if (/NCCN/i.test(token)) return 'https://www.nccn.org/guidelines';
+  if (/NCCN/i.test(token)) {
+    return /lung|khdak|nsclc/i.test(clinicalContext)
+      ? 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf'
+      : 'https://www.nccn.org/guidelines';
+  }
   if (/ASTRO/i.test(token)) {
     return /breast|meme|whole breast/i.test(clinicalContext)
       ? 'https://www.practicalradonc.org/article/S1879-8500(18)30116-6/fulltext'
-      : 'https://www.astro.org/provider-resources/guidelines';
+      : /lung|khdak|nsclc|sbrt/i.test(clinicalContext)
+        ? 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines'
+        : 'https://www.astro.org/provider-resources/guidelines';
   }
   if (/ESTRO/i.test(token)) return 'https://www.estro.org/Science/Guidelines';
+  if (/RTOG\s*0236/i.test(token) || (/RTOG/i.test(token) && /0236/i.test(clinicalContext))) {
+    return 'https://www.nrgoncology.org/clinical-trials/rtog-0236';
+  }
+  if (/RTOG\s*0813/i.test(token) || (/RTOG/i.test(token) && /0813/i.test(clinicalContext))) {
+    return 'https://www.nrgoncology.org/clinical-trials/rtog-0813';
+  }
+  if (/RTOG\s*0915/i.test(token) || (/RTOG/i.test(token) && /0915/i.test(clinicalContext))) {
+    return 'https://www.nrgoncology.org/clinical-trials/rtog-0915';
+  }
+  if (/RTOG/i.test(token)) return 'https://www.nrgoncology.org/';
+  if (/NRG/i.test(token)) return 'https://www.nrgoncology.org/';
   if (/QUANTEC/i.test(token)) return 'https://doi.org/10.1016/j.ijrobp.2009.07.1753';
   if (/DEGRO/i.test(token)) return 'https://www.degro.org/';
   if (/ILROG/i.test(token)) return 'https://www.ilrog.org/';
@@ -4231,12 +4323,126 @@ const getEvidenceReferences = (scheme: DoseScheme, clinicalContext: string): Evi
         ? 'FAST-Forward (Lancet 2020)'
         : /ASTRO/i.test(token) && /breast|meme|whole breast/i.test(evidence)
           ? 'ASTRO Whole Breast Irradiation Guideline'
-          : token,
+          : /ASTRO/i.test(token) && /lung|khdak|nsclc|sbrt/i.test(evidence)
+            ? 'ASTRO SBRT Guideline for Early-Stage NSCLC'
+            : /ESTRO/i.test(token) && /lung|khdak|nsclc|sbrt/i.test(evidence)
+              ? 'ESTRO-ACROP SBRT Consensus Recommendations'
+              : /RTOG\s*0236/i.test(token) || (/RTOG/i.test(token) && /0236/i.test(evidence))
+                ? 'RTOG 0236 (NRG Oncology)'
+                : /RTOG\s*0813/i.test(token) || (/RTOG/i.test(token) && /0813/i.test(evidence))
+                  ? 'RTOG 0813 (NRG Oncology)'
+                  : /RTOG\s*0915/i.test(token) || (/RTOG/i.test(token) && /0915/i.test(evidence))
+                    ? 'RTOG 0915 (NRG Oncology)'
+                    : token,
       url,
     });
   }
 
   return references;
+};
+
+const resolveSchemeEvidenceLinks = (
+  scheme: DoseScheme,
+  organ: OrganId,
+  subtype: string,
+  thoraxCentrality: string,
+  evidenceReferences: EvidenceReference[],
+  isSclcTurrisi: boolean,
+): EvidenceLink[] => {
+  if (scheme.evidenceLinks && scheme.evidenceLinks.length > 0) {
+    return scheme.evidenceLinks;
+  }
+
+  // Lung SBRT schemes fallback
+  if (scheme.id.includes('lung-sbrt') || (organ === 'thorax' && /sbrt/i.test(scheme.name))) {
+    if (thoraxCentrality === 'Central' || scheme.id.includes('50')) {
+      return [
+        {
+          authority: 'NCCN',
+          title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+          url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+          category: 'Kategori 1',
+        },
+        {
+          authority: 'ASTRO',
+          title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+          url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+          category: 'Consensus Guideline',
+        },
+        {
+          authority: 'ESTRO',
+          title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
+          url: 'https://www.estro.org/Science/Guidelines',
+          category: 'Consensus Guideline',
+        },
+        {
+          authority: 'RTOG',
+          title: 'RTOG 0813 trial protocol / reference',
+          url: 'https://www.nrgoncology.org/clinical-trials/rtog-0813',
+          category: 'Phase I/II Protocol',
+        },
+      ];
+    }
+    return LUNG_SBRT_EVIDENCE_LINKS;
+  }
+
+  const links: EvidenceLink[] = [];
+  const seenUrls = new Set<string>();
+
+  for (const ref of evidenceReferences) {
+    if (!ref.url || seenUrls.has(ref.url)) continue;
+    seenUrls.add(ref.url);
+
+    let authority: EvidenceLink['authority'] = 'NCCN';
+    let category: string | undefined;
+
+    if (/ASTRO/i.test(ref.label) || /ASTRO/i.test(ref.url)) {
+      authority = 'ASTRO';
+      category = 'Clinical Guideline';
+    } else if (/ESTRO/i.test(ref.label) || /ESTRO/i.test(ref.url)) {
+      authority = 'ESTRO';
+      category = 'Consensus Guideline';
+    } else if (/RTOG/i.test(ref.label) || /0236|0813|0617|0521|0415|0630|9501|9802|0915/i.test(ref.label)) {
+      authority = 'RTOG';
+      category = 'Trial Protocol';
+    } else if (/NRG/i.test(ref.label) || /CC001/i.test(ref.label)) {
+      authority = 'NRG';
+      category = 'Trial Protocol';
+    } else if (/NCCN/i.test(ref.label) || /NCCN/i.test(ref.url)) {
+      authority = 'NCCN';
+      category = /Kategori\s*1/i.test(scheme.evidence) ? 'Kategori 1' : 'Guideline';
+    }
+
+    links.push({
+      authority,
+      title: ref.label,
+      url: ref.url,
+      category,
+    });
+  }
+
+  if (isSclcTurrisi && !seenUrls.has('https://doi.org/10.1056/NEJM199901283400403')) {
+    links.push({
+      authority: 'NCCN',
+      title: 'Turrisi et al. · NEJM 1999 (BID SCLC Protocol)',
+      url: 'https://doi.org/10.1056/NEJM199901283400403',
+      category: 'Phase III Landmark',
+    });
+  }
+
+  if (links.length === 0) {
+    const nccnTarget = NCCN_GUIDELINE_MAP[`${organ}-${subtype}`]
+      || NCCN_GUIDELINE_MAP[organ]
+      || { url: 'https://www.nccn.org/guidelines', title: 'NCCN Guidelines' };
+    links.push({
+      authority: 'NCCN',
+      title: nccnTarget.title,
+      url: nccnTarget.url,
+      category: 'Kılavuz',
+    });
+  }
+
+  return links;
 };
 
 const CDSS_VIEW_MODE_STORAGE_KEY = 'radonco-cdss-view-mode';
@@ -6055,6 +6261,32 @@ export default function RadoncoCDSSPage() {
           targetVolumes: lungSbrtTargets(50),
           oars: [{ organ: 'Proksimal Bronş Ağacı', metric: 'Dmax', limit: '< 50 Gy', source: 'RTOG 0813' }],
           evidence: 'RTOG 0813 (Bezjak et al. JCO 2019)',
+          evidenceLinks: [
+            {
+              authority: 'NCCN',
+              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+              category: 'Kategori 1',
+            },
+            {
+              authority: 'ASTRO',
+              title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+              category: 'Consensus Guideline',
+            },
+            {
+              authority: 'ESTRO',
+              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
+              url: 'https://www.estro.org/Science/Guidelines',
+              category: 'Consensus Guideline',
+            },
+            {
+              authority: 'RTOG',
+              title: 'RTOG 0813 trial protocol / reference',
+              url: 'https://www.nrgoncology.org/clinical-trials/rtog-0813',
+              category: 'Phase I/II Protocol',
+            },
+          ],
         };
       } else if (thoraxCentrality === 'UltraCentral') {
         sbrt = {
@@ -6070,6 +6302,26 @@ export default function RadoncoCDSSPage() {
           targetVolumes: lungSbrtTargets(60),
           oars: [{ organ: 'Ana Bronş / Trakea', metric: 'Dmax', limit: '< 60 Gy', source: 'SUNSET Trial' }],
           evidence: 'SUNSET Trial',
+          evidenceLinks: [
+            {
+              authority: 'NCCN',
+              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+              category: 'Kategori 1',
+            },
+            {
+              authority: 'ASTRO',
+              title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+              category: 'Consensus Guideline',
+            },
+            {
+              authority: 'ESTRO',
+              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
+              url: 'https://www.estro.org/Science/Guidelines',
+              category: 'Consensus Guideline',
+            },
+          ],
         };
       } else {
         sbrt = {
@@ -6088,6 +6340,7 @@ export default function RadoncoCDSSPage() {
             { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0236' },
           ],
           evidence: 'RTOG 0236, RTOG 0915, NCCN v1.2025 Kategori 1',
+          evidenceLinks: LUNG_SBRT_EVIDENCE_LINKS,
         };
         sbrtAlt = {
           id: 'lung-sbrt-48',
@@ -6105,6 +6358,32 @@ export default function RadoncoCDSSPage() {
             { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0915' },
           ],
           evidence: 'RTOG 0915, NCCN v1.2025',
+          evidenceLinks: [
+            {
+              authority: 'NCCN',
+              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
+              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+              category: 'Kategori 1',
+            },
+            {
+              authority: 'ASTRO',
+              title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+              category: 'Consensus Guideline',
+            },
+            {
+              authority: 'ESTRO',
+              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
+              url: 'https://www.estro.org/Science/Guidelines',
+              category: 'Consensus Guideline',
+            },
+            {
+              authority: 'RTOG',
+              title: 'RTOG 0915 trial protocol / reference',
+              url: 'https://www.nrgoncology.org/clinical-trials/rtog-0915',
+              category: 'Phase II Protocol',
+            },
+          ],
         };
       }
       return {
@@ -9015,6 +9294,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
   ].filter(factor => factor.value.trim().length > 0);
   const evidenceText = tText(activeScheme.evidence);
   const evidenceReferences = getEvidenceReferences(activeScheme, selectedOrgan);
+  const resolvedEvidenceLinks = useMemo(
+    () => resolveSchemeEvidenceLinks(
+      activeScheme,
+      selectedOrgan,
+      selectedSubsite,
+      thoraxCentrality,
+      evidenceReferences,
+      isSclcTurrisiScheme,
+    ),
+    [activeScheme, selectedOrgan, selectedSubsite, thoraxCentrality, evidenceReferences, isSclcTurrisiScheme]
+  );
   const verifyReference = evidenceReferences[0];
 
   return (
@@ -11403,24 +11693,48 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {tText(activeScheme.systemicTherapy)}
               </div>
             )}
+            {/* KANIT VE ÇOKLU KILAVUZ EYLEM GRUBU (EVIDENCE ACTION GROUP) */}
             <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-[11px] text-slate-300">
-              <p className="font-semibold text-slate-200">
-                {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
-                {evidenceText}
-              </p>
-              {(verifyReference || isSclcTurrisiScheme) && (
-                <a
-                  href={isSclcTurrisiScheme ? 'https://doi.org/10.1056/NEJM199901283400403' : verifyReference.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-2.5 py-1.5 text-[10px] font-bold text-slate-950 transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
-                >
-                  {isSclcTurrisiScheme
-                    ? 'Turrisi et al. · NEJM 1999 (DOI)'
-                    : lang === 'tr' ? `Kanıtı doğrula · ${verifyReference?.label}` : `Verify evidence · ${verifyReference?.label}`}
-                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                </a>
-              )}
+              <div className="flex flex-col gap-2">
+                <div>
+                  <span className="font-semibold text-slate-200">
+                    {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}
+                  </span>
+                  <span>{evidenceText}</span>
+                </div>
+
+                {resolvedEvidenceLinks.length > 0 && (
+                  <div className="mt-1 flex flex-col gap-1.5 pt-2 border-t border-slate-800/60">
+                    <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                      {lang === 'tr' ? 'Kılavuz ve Protokol Kaynakları:' : 'Guideline & Protocol Sources:'}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {resolvedEvidenceLinks.map((link, idx) => {
+                        const style = AUTHORITY_STYLES[link.authority] || AUTHORITY_STYLES.NCCN;
+                        const badgeLabel = formatBadgeLabel(link);
+                        return (
+                          <a
+                            key={`${link.authority}-${link.url}-${idx}`}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`${link.authority}: ${link.title}${link.category ? ` (${link.category})` : ''}`}
+                            className={`group inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-all duration-150 shadow-sm hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 ${style.button}`}
+                          >
+                            <span className="font-bold tracking-wide">{badgeLabel}</span>
+                            {link.category && (
+                              <span className="hidden sm:inline-block rounded bg-black/40 px-1 py-0.5 text-[9px] font-normal opacity-85">
+                                {link.category}
+                              </span>
+                            )}
+                            <ArrowUpRight className="h-3 w-3 shrink-0 opacity-70 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden="true" />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* KOPYALANABİLİR RAPOR PANELİ */}
