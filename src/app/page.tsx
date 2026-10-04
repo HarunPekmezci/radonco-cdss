@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import {
-  Activity,
   ArrowUpRight,
   BookOpen,
   Calculator,
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSearchParams } from 'next/navigation';
 
 type PortalModule = {
   href: string;
@@ -130,12 +130,10 @@ const modules: PortalModule[] = [
 
 export default function PortalPage() {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
   const titleSeparator = t.heroTitle.lastIndexOf(' ');
-
-  const selectedSubtype = 'nsclc'; // This would come from your actual state management
-  const subtypeDisplay = SUBTYPE_DISPLAY_MAP[selectedSubtype] || selectedSubtype.toUpperCase();
-
-  const selectedOrgan = 'thorax'; // This would come from your actual state management
+  const selectedSubtype = 'nsclc';
+    const selectedOrgan = 'thorax';
   const selectedSubtypeKey = `${selectedOrgan}-${selectedSubtype}`;
   const nccnTarget = NCCN_GUIDELINE_MAP[selectedSubtypeKey] || NCCN_GUIDELINE_MAP[selectedOrgan] || {
     url: 'https://www.nccn.org/guidelines/category_1',

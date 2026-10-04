@@ -1,7 +1,7 @@
 import { EngineOutput, CancerType } from './index';
 
 export interface Engine {
-  run(data: Record<string, any>): EngineOutput;
+  run(data: Record<string, unknown>): EngineOutput;
 }
 
 export interface EngineRegistry {

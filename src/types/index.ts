@@ -1,7 +1,7 @@
 export * from './cdss';
 
 export interface Engine {
-  run(data: Record<string, any>): EngineOutput;
+  run(data: Record<string, unknown>): EngineOutput;
 }
 
 export class EngineRegistry {

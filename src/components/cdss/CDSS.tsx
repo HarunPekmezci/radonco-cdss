@@ -3,10 +3,6 @@
 import { useState, useEffect } from "react";
 import { Engine, EngineRegistry, CancerType } from "@/types";
 
-interface EngineModule {
-  default: Engine;
-}
-
 export function CDSS() {
   const [engines, setEngines] = useState<Record<CancerType, Engine | null>>({} as Record<CancerType, Engine | null>);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,8 +14,8 @@ export function CDSS() {
         const registry = new EngineRegistry();
         const enginePromises = registry.getCancerTypes().map(async (cancerType) => {
           try {
-            const module = await import(`@/engines/${cancerType}`);
-            return { cancerType, engine: module.default };
+            const engineModule = await import(`@/engines/${cancerType}`);
+            return { cancerType, engine: engineModule.default };
           } catch (err) {
             console.error(`Failed to load engine for ${cancerType}:`, err);
             return { cancerType, engine: null };
@@ -27,7 +23,7 @@ export function CDSS() {
         });
 
         const results = await Promise.all(enginePromises);
-                const loadedEngines = results.reduce((acc: Record<CancerType, Engine | null>, { cancerType, engine }) => {
+        const loadedEngines = results.reduce((acc: Record<CancerType, Engine | null>, { cancerType, engine }) => {
           acc[cancerType] = engine;
           return acc;
         }, {} as Record<CancerType, Engine | null>);

@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { startTransition, useState, useMemo, useEffect, useEffectEvent, useRef, useCallback, useId, useSyncExternalStore } from 'react';
+import React, { startTransition, useState, useEffect, useEffectEvent, useRef, useCallback, useId, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Radiation,
@@ -4697,34 +4697,37 @@ export default function RadoncoCDSSPage() {
     return primary >= 4 || cores >= 50 || intermediateFactors > 1 ? 'Orta-Unfavorable' : 'Orta-Favorable';
   }, [gleasonPrimary, gleasonSecondary, psaLevel, positiveCorePercent, selectedN, selectedT, hasSVI, hasECE]);
 
-  const eContourSubsite = [
+  const eContourSubsite = useMemo(() => [
     currentTnmKey,
     selectedOrgan === 'palliative' ? palliativeIntent : '',
     selectedOrgan === 'benign' ? selectedSubsite : '',
-  ].filter(Boolean).join(' ');
-  const eContourRiskCategory = selectedOrgan === 'prostate'
+  ].filter(Boolean).join(' '),
+  [currentTnmKey, selectedOrgan, palliativeIntent, selectedSubsite]);
+  const eContourRiskCategory = useMemo(() => selectedOrgan === 'prostate'
     ? prostateRiskLabel
     : selectedOrgan === 'gynecology' && gynSite === 'Endometriyum'
       ? endoRisk
       : selectedOrgan === 'breast' && (selectedN === 'N2' || selectedN === 'N3')
         ? 'high'
-        : undefined;
-  const eContourSurgeryStatus = selectedOrgan === 'thorax'
+        : undefined,
+  [selectedOrgan, prostateRiskLabel, gynSite, endoRisk, selectedN]);
+  const eContourSurgeryStatus = useMemo(() => selectedOrgan === 'thorax'
     ? thoraxSurgeryStatus
     : selectedOrgan === 'breast'
       ? breastSurgery
       : selectedOrgan === 'bone-sarcoma'
         ? sarcomaSurgery
-        : undefined;
-  const eContourHistologyParam = (() => {
+        : undefined,
+  [selectedOrgan, thoraxSurgeryStatus, breastSurgery, sarcomaSurgery]);
+  const eContourHistologyParam = useMemo(() => {
     if (selectedOrgan === 'bone') return sarcomaSubtype;
     if (selectedOrgan === 'bone-sarcoma') return sarcomaSubtype === 'Yumusak_Doku' ? stsHistology : sarcomaSubtype;
     if (selectedOrgan === 'hematologic') return hematologicSubtype;
     if (selectedOrgan === 'pediatric') return pediatricSubtype;
     return undefined;
-  })();
+  }, [selectedOrgan, sarcomaSubtype, stsHistology, hematologicSubtype, pediatricSubtype]);
 
-  const eContour = useMemo(() => getAdaptiveEContour(
+  const eContour = getAdaptiveEContour(
     selectedOrgan,
     eContourSubsite,
     selectedT,
@@ -4734,21 +4737,7 @@ export default function RadoncoCDSSPage() {
     eContourSurgeryStatus,
     breathingMotion,
     eContourHistologyParam,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [
-    selectedOrgan,
-    eContourSubsite,
-    selectedT,
-    selectedN,
-    selectedM,
-    eContourRiskCategory,
-    eContourSurgeryStatus,
-    breathingMotion,
-    sarcomaSubtype,
-    stsHistology,
-    hematologicSubtype,
-    pediatricSubtype,
-  ]);
+  );
 
   // Organ Değişimi
   const handleOrganChange = (newOrgan: OrganId) => {
@@ -8336,13 +8325,14 @@ export default function RadoncoCDSSPage() {
   ]);
 
   // Aktif Şema
-  const baseActiveScheme = useMemo(() => {
-    const list = evaluatedDecision.alternativeSchemes;
-    return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
-  }, [evaluatedDecision, selectedSchemeId]);
-  const isSclcTurrisiScheme = selectedOrgan === 'thorax'
-    && thoraxSubtype === 'sclc'
-    && baseActiveScheme.id === 'sclc-turrisi-45';
+    const baseActiveScheme = useMemo(() => {
+      const list = evaluatedDecision.alternativeSchemes;
+      return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
+    }, [evaluatedDecision, selectedSchemeId]);
+    const isSclcTurrisiScheme = useMemo(() => selectedOrgan === 'thorax'
+      && thoraxSubtype === 'sclc'
+      && baseActiveScheme.id === 'sclc-turrisi-45',
+    [selectedOrgan, thoraxSubtype, baseActiveScheme]);
 
   // Fraksiyonasyon felsefesi kartları için klinik uygunluk kapısı
   const isRegimenEligible = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional'): boolean => {
