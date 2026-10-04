@@ -70,9 +70,9 @@ const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
 
 const NCCN_GUIDELINE_MAP: Record<string, { url: string; title: string; hint: string }> = {
   'thorax-nsclc': {
-    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
     title: 'NCCN Non-Small Cell Lung Cancer',
-    hint: 'NSCL-C: Principles of Radiation Therapy',
+    hint: 'NSCL-C: Principles of Radiation Therapy (p. 77)',
   },
   'thorax-sclc': {
     url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1462',
@@ -4204,27 +4204,27 @@ type EvidenceReference = {
 export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   {
     authority: 'NCCN',
-    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
     category: 'Kategori 1',
   },
   {
     authority: 'ASTRO',
     title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-    url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
     category: 'Consensus Guideline',
   },
   {
     authority: 'ESTRO',
-    title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
-    url: 'https://www.estro.org/Science/Guidelines',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
     category: 'Consensus Guideline',
   },
   {
     authority: 'RTOG',
-    title: 'RTOG 0236 trial protocol / reference',
-    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
-    category: 'Phase II Protocol',
+    title: 'RTOG 0236: Landmark JAMA 2010 Publication (SBRT for Early-Stage NSCLC)',
+    url: 'https://doi.org/10.1001/jama.2010.261',
+    category: 'Phase II Landmark',
   },
 ];
 
@@ -4256,6 +4256,7 @@ const AUTHORITY_STYLES: Record<EvidenceLink['authority'], {
 
 const formatBadgeLabel = (link: EvidenceLink): string => {
   if (link.authority === 'RTOG') {
+    if (link.title.includes('0236') || link.url.includes('jama.2010.261') || link.url.includes('rtog-0236')) return 'RTOG 0236';
     const trialMatch = link.title.match(/RTOG\s*(\d{4})/i) || link.url.match(/rtog-(\d{4})/i);
     if (trialMatch) return `RTOG ${trialMatch[1]}`;
     return 'RTOG';
@@ -4278,19 +4279,23 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   if (/PORTEC-3/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30079-2';
   if (/NCCN/i.test(token)) {
     return /lung|khdak|nsclc/i.test(clinicalContext)
-      ? 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf'
+      ? 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77'
       : 'https://www.nccn.org/guidelines';
   }
   if (/ASTRO/i.test(token)) {
     return /breast|meme|whole breast/i.test(clinicalContext)
       ? 'https://www.practicalradonc.org/article/S1879-8500(18)30116-6/fulltext'
       : /lung|khdak|nsclc|sbrt/i.test(clinicalContext)
-        ? 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines'
+        ? 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc'
         : 'https://www.astro.org/provider-resources/guidelines';
   }
-  if (/ESTRO/i.test(token)) return 'https://www.estro.org/Science/Guidelines';
+  if (/ESTRO/i.test(token)) {
+    return /lung|khdak|nsclc|sbrt/i.test(clinicalContext)
+      ? 'https://doi.org/10.1016/j.radonc.2017.05.025'
+      : 'https://www.estro.org/Science/Guidelines';
+  }
   if (/RTOG\s*0236/i.test(token) || (/RTOG/i.test(token) && /0236/i.test(clinicalContext))) {
-    return 'https://www.nrgoncology.org/clinical-trials/rtog-0236';
+    return 'https://doi.org/10.1001/jama.2010.261';
   }
   if (/RTOG\s*0813/i.test(token) || (/RTOG/i.test(token) && /0813/i.test(clinicalContext))) {
     return 'https://www.nrgoncology.org/clinical-trials/rtog-0813';
@@ -4359,20 +4364,20 @@ const resolveSchemeEvidenceLinks = (
       return [
         {
           authority: 'NCCN',
-          title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-          url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+          title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+          url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
           category: 'Kategori 1',
         },
         {
           authority: 'ASTRO',
           title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-          url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+          url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
           category: 'Consensus Guideline',
         },
         {
           authority: 'ESTRO',
-          title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
-          url: 'https://www.estro.org/Science/Guidelines',
+          title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+          url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
           category: 'Consensus Guideline',
         },
         {
@@ -6264,20 +6269,20 @@ export default function RadoncoCDSSPage() {
           evidenceLinks: [
             {
               authority: 'NCCN',
-              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
               category: 'Kategori 1',
             },
             {
               authority: 'ASTRO',
               title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+              url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
               category: 'Consensus Guideline',
             },
             {
               authority: 'ESTRO',
-              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
-              url: 'https://www.estro.org/Science/Guidelines',
+              title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+              url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
               category: 'Consensus Guideline',
             },
             {
@@ -6305,20 +6310,20 @@ export default function RadoncoCDSSPage() {
           evidenceLinks: [
             {
               authority: 'NCCN',
-              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
               category: 'Kategori 1',
             },
             {
               authority: 'ASTRO',
               title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+              url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
               category: 'Consensus Guideline',
             },
             {
               authority: 'ESTRO',
-              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
-              url: 'https://www.estro.org/Science/Guidelines',
+              title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+              url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
               category: 'Consensus Guideline',
             },
           ],
@@ -11655,16 +11660,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
 
-            {/* RADYOBİYOLOJİ (BED & EQD2 HESAPLAYICI) */}
-            <div className="relative">
-              <button
-                type="button"
-                aria-haspopup="dialog"
-                onClick={openRadiobiologyModal}
-                className="mb-4 flex w-full items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-left text-xs transition-colors hover:border-sky-700/70 hover:bg-[#101b2d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-              >
-                <span className="min-w-0">
-                  <span className="block text-[11px] text-slate-300">{lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}</span>
+            {/* RADYOBİYOLOJİK EŞDEĞERLİK (BED & EQD2 HESAPLAYICI) */}
+            <div className="mb-4 rounded-xl border border-slate-800 bg-[#0b1220] p-3 text-xs transition-colors hover:border-sky-700/70">
+              <div className="flex w-full items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[11px] font-medium text-slate-300">
+                    {lang === 'tr' ? 'Radyobiyolojik Eşdeğerlik' : 'Radiobiological Equivalence'}
+                  </span>
                   {radiobiologyByAlphaBeta.map(({ ab, bed, eqd2 }) => {
                     const subscript = ab === 10 ? '₁₀' : '₃';
                     const tissue = ab === 10
@@ -11676,13 +11678,25 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       </span>
                     );
                   })}
-                </span>
-                <span className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1.5 text-[10px] font-semibold text-sky-300">
+                </div>
+                <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  onClick={openRadiobiologyModal}
+                  className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1.5 text-[10px] font-semibold text-sky-300 transition hover:bg-sky-500/20 hover:border-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                >
                   🧮 {lang === 'tr' ? 'İnteraktif Dönüştürücü ↗' : 'Interactive Calculator ↗'}
-                </span>
-              </button>
-              <div className="absolute -bottom-2 left-0 right-0 mx-auto w-max rounded-md bg-slate-800 px-2 py-1 text-center text-[10px] text-slate-300">
-                ℹ️ {lang === 'tr' ? 'd = 2.0 Gy konvansiyonel fraksiyonasyonda matematiksel tanım gereği tüm α/β değerleri için EQD2 = Reçete Dozu (60 Gy) olur. Fraksiyon dozu 2 Gy\'den farklı şemalarda (SBRT/HipoFx) α/β oranına göre ayrışır.' : 'd = 2.0 Gy conventional fractionation results in EQD2 = Prescription Dose (60 Gy) for all α/β values. Schemes with fraction dose ≠ 2 Gy (SBRT/HypoFx) split by α/β ratio.'}
+                </button>
+              </div>
+
+              {/* Bilgilendirme Notu: İki BED/EQD2 hesaplama satırının altında, kartın içinde ve standart blok akışında */}
+              <div className="w-full mt-3 flex items-start gap-2 bg-slate-800/70 border border-slate-700/60 rounded-lg p-2.5 text-xs text-slate-300 text-left">
+                <span className="shrink-0 text-sky-400">ℹ️</span>
+                <p className="leading-relaxed">
+                  {lang === 'tr'
+                    ? 'd = 2.0 Gy konvansiyonel fraksiyonasyonda matematiksel tanım gereği tüm α/β değerleri için EQD2 = Reçete Dozu (60 Gy) olur. Fraksiyon dozu 2 Gy\'den farklı şemalarda (SBRT/HipoFx) α/β oranına göre ayrışır.'
+                    : 'd = 2.0 Gy conventional fractionation results in EQD2 = Prescription Dose (60 Gy) for all α/β values. Schemes with fraction dose ≠ 2 Gy (SBRT/HypoFx) split by α/β ratio.'}
+                </p>
               </div>
             </div>
 

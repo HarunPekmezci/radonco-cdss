@@ -54,21 +54,21 @@ const NCCN_NSCLC: GuidelineReference = {
   organization: 'NCCN',
   title: 'NCCN Clinical Practice Guidelines in Oncology: Non-Small Cell Lung Cancer',
   version: 'Current version; verify institutional subscription before use',
-  url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+  url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
   evidenceLevel: '2A',
 };
 
 const ASTRO_SABR: GuidelineReference = {
   organization: 'ASTRO',
   title: 'ASTRO guideline: Stereotactic body radiation therapy for early-stage NSCLC',
-  url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+  url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
   evidenceLevel: 'A',
 };
 
 const ESTRO_ACROP: GuidelineReference = {
   organization: 'ESTRO',
   title: 'ESTRO-ACROP recommendations for stereotactic and locally advanced lung radiotherapy',
-  url: 'https://www.estro.org/Science/Guidelines',
+  url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
   evidenceLevel: 'B',
 };
 
@@ -82,8 +82,8 @@ const PACIFIC: GuidelineReference = {
 const RTOG_REFERENCES: GuidelineReference[] = [
   {
     organization: 'other',
-    title: 'RTOG 0236: SBRT for medically inoperable peripheral stage I NSCLC',
-    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
+    title: 'RTOG 0236: SBRT for medically inoperable peripheral stage I NSCLC (JAMA 2010)',
+    url: 'https://doi.org/10.1001/jama.2010.261',
     evidenceLevel: '1',
   },
   {

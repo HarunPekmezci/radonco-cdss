@@ -11,27 +11,27 @@ import type {
 export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   {
     authority: 'NCCN',
-    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
     category: 'Kategori 1',
   },
   {
     authority: 'ASTRO',
     title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-    url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
     category: 'Consensus Guideline',
   },
   {
     authority: 'ESTRO',
     title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-    url: 'https://www.estro.org/Science/Guidelines',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
     category: 'Consensus Guideline',
   },
   {
     authority: 'RTOG',
-    title: 'RTOG 0236: SBRT Protocol & Reference (NRG Oncology)',
-    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0236',
-    category: 'Phase II Protocol',
+    title: 'RTOG 0236: Landmark JAMA 2010 Publication (SBRT for Early-Stage NSCLC)',
+    url: 'https://doi.org/10.1001/jama.2010.261',
+    category: 'Phase II Landmark',
   },
 ];
 
