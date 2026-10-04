@@ -333,7 +333,7 @@ export default function SignUpPage() {
           {/* ════════════════════════════════════════════════════════════
               RIGHT AUTH PANE  (5 / 12 cols on desktop)
              ════════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-5 w-full flex flex-col items-center">
+          <div className="lg:col-span-5 w-full flex flex-col items-center justify-center">
 
             {/* Mobile logo — only visible below lg */}
             <div className="lg:hidden flex flex-col items-center text-center mb-6">
@@ -345,71 +345,70 @@ export default function SignUpPage() {
               <span className="text-xs sm:text-sm text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
             </div>
 
-            {/* ── SINGLE GLASSMORPHISM CARD ─────────────────────────── */}
-            <div className="w-full max-w-md 2xl:max-w-lg 4xl:max-w-xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl shadow-cyan-950/20 rounded-2xl 4xl:rounded-3xl overflow-hidden">
+            {/* ── SINGLE UNIFIED GLASSMORPHISM CARD ─────────────────── */}
+            <div className="relative rounded-2xl 4xl:rounded-3xl bg-slate-900/40 backdrop-blur-2xl border border-slate-700/50 shadow-[0_0_50px_-12px_rgba(14,165,233,0.15)] p-8 sm:p-10 4xl:p-14 w-full max-w-md 2xl:max-w-lg 4xl:max-w-xl before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:bg-gradient-to-r before:from-transparent before:via-cyan-500/80 before:to-transparent before:rounded-t-2xl 4xl:before:rounded-t-3xl">
 
-              {/* Clerk form — transparent inside, no competing card */}
-              <div className="p-6 sm:p-8 4xl:p-12">
-                <SignUp
-                  key={language}
-                  {...({ localization: clerkLocalization } as any)}
-                  routing="path"
-                  path="/sign-up"
-                  signInUrl="/sign-in"
-                  appearance={({
-                    variables: {
-                      colorBackground: 'transparent',
-                      colorInputBackground: '#1e2d45',
-                      colorInputText: '#ffffff',
-                      colorText: '#f8fafc',
-                      colorTextSecondary: '#94a3b8',
-                      colorPrimary: '#0ea5e9',
-                      borderRadius: '0.75rem',
-                    },
-                    elements: {
-                      socialButtons: '!hidden',
-                      socialButtonsBlockButton: '!hidden',
-                      dividerRow: '!hidden',
-                      footer: '!hidden',
-                      footerAction: '!hidden',
+              <SignUp
+                key={language}
+                {...({ localization: clerkLocalization } as any)}
+                routing="path"
+                path="/sign-up"
+                signInUrl="/sign-in"
+                appearance={({
+                  variables: {
+                    colorBackground: 'transparent',
+                    colorInputBackground: '#020617',
+                    colorInputText: '#f1f5f9',
+                    colorText: '#f8fafc',
+                    colorTextSecondary: '#94a3b8',
+                    colorPrimary: '#06b6d4',
+                    borderRadius: '0.75rem',
+                  },
+                  elements: {
+                    socialButtons: '!hidden',
+                    socialButtonsBlockButton: '!hidden',
+                    dividerRow: '!hidden',
+                    footer: '!hidden',
+                    footerAction: '!hidden',
 
-                      rootBox: 'w-full',
-                      card: '!bg-transparent !shadow-none !border-0 !p-0 w-full',
-                      headerTitle: '!text-white font-bold text-lg 2xl:text-xl 4xl:text-2xl text-center',
-                      headerSubtitle: '!text-slate-400 text-xs 2xl:text-sm 4xl:text-base text-center mb-4 4xl:mb-6',
+                    rootBox: '!bg-transparent !border-0 !shadow-none !p-0 w-full',
+                    card: '!bg-transparent !border-0 !shadow-none !p-0 w-full',
+                    main: '!bg-transparent !border-0 !shadow-none !p-0 w-full',
+                    cardBox: '!bg-transparent !border-0 !shadow-none !p-0 w-full',
 
-                      identityPreview: '!bg-slate-800/80 !border !border-slate-700/80 !rounded-xl 4xl:!rounded-2xl !py-2 4xl:!py-3 !px-3.5 4xl:!px-5 mb-3 4xl:mb-4',
-                      identityPreviewText: '!text-white !font-bold text-sm 2xl:text-base 4xl:text-lg',
-                      identityPreviewEditButton: '!text-sky-400 hover:!text-sky-300',
+                    header: '!p-0 !mb-5 4xl:!mb-7',
+                    headerTitle: '!text-white font-bold text-lg 2xl:text-xl 4xl:text-2xl text-center tracking-tight',
+                    headerSubtitle: '!text-slate-400 text-xs 2xl:text-sm 4xl:text-base text-center mt-1 mb-2',
 
-                      formFieldLabel: '!text-slate-200 text-xs 2xl:text-sm 4xl:text-base font-semibold',
-                      formFieldInput: '!bg-slate-800/70 !text-white placeholder:!text-slate-500 !border-slate-700/80 rounded-xl 4xl:rounded-2xl py-2.5 4xl:py-3.5 px-3.5 4xl:px-5 text-sm 2xl:text-base 4xl:text-lg font-medium focus:!border-sky-500 focus:!ring-1 focus:!ring-sky-500/30',
-                      formButtonPrimary: '!bg-gradient-to-r !from-sky-500 !to-blue-600 hover:!from-sky-400 hover:!to-blue-500 !text-white font-semibold py-3 4xl:py-4 rounded-xl 4xl:rounded-2xl text-sm 2xl:text-base 4xl:text-lg !shadow-lg !shadow-sky-600/20 w-full mt-2 4xl:mt-4 normal-case transition-all',
-                    },
-                  } as any)}
-                />
-              </div>
+                    identityPreview: '!bg-slate-950/80 !border !border-slate-700/80 !rounded-xl 4xl:!rounded-2xl !py-2.5 4xl:!py-3.5 !px-4 4xl:!px-5 mb-3 4xl:mb-4',
+                    identityPreviewText: '!text-white !font-bold text-sm 2xl:text-base 4xl:text-lg',
+                    identityPreviewEditButton: '!text-cyan-400 hover:!text-cyan-300',
 
-              {/* Seamless footer link — merged inside the single card */}
-              <div className="px-6 sm:px-8 4xl:px-12 py-4 4xl:py-5 border-t border-slate-800/70 flex items-center justify-center gap-2 text-xs 2xl:text-sm 4xl:text-base text-slate-400">
+                    form: '!gap-4 4xl:!gap-5',
+                    formFieldRow: '!mb-3.5 4xl:!mb-5',
+                    formFieldLabel: '!text-slate-200 text-xs 2xl:text-sm 4xl:text-base font-semibold mb-1.5',
+                    formFieldInput: '!bg-slate-950/80 !border !border-slate-700/80 focus:!border-cyan-500 focus:!ring-1 focus:!ring-cyan-500 !text-slate-100 rounded-xl 4xl:rounded-2xl px-4 4xl:px-5 py-3 4xl:py-3.5 text-sm 2xl:text-base 4xl:text-lg font-medium placeholder:!text-slate-500 transition-all',
+                    formButtonPrimary: '!bg-gradient-to-r !from-blue-600 !to-cyan-500 hover:!from-blue-500 hover:!to-cyan-400 !text-white font-medium py-3 4xl:py-3.5 rounded-xl 4xl:rounded-2xl text-sm 2xl:text-base 4xl:text-lg !shadow-lg !shadow-cyan-500/20 w-full mt-3 4xl:mt-4 normal-case transition-all',
+                  },
+                } as any)}
+              />
+
+              {/* Seamless footer link rendered directly inside single card */}
+              <div className="border-t border-slate-800/80 pt-6 mt-6 4xl:pt-8 4xl:mt-8 text-center flex items-center justify-center gap-2 text-xs 2xl:text-sm 4xl:text-base text-slate-400">
                 <span>{t.hasAccount}</span>
                 <Link
                   href="/sign-in"
-                  className="inline-flex items-center gap-1 font-bold text-sky-400 hover:text-sky-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   <LogIn className="w-3.5 h-3.5 4xl:w-4.5 4xl:h-4.5" />
                   {t.signIn}
                 </Link>
               </div>
+
             </div>
 
-            {/* Physician note */}
-            <p className="mt-3 4xl:mt-5 text-center text-[11px] 2xl:text-xs 4xl:text-sm leading-relaxed text-slate-500 px-2">
-              {t.physicianNote}
-            </p>
-
             {/* Mobile signature */}
-            <div className="lg:hidden mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
+            <div className="lg:hidden mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               {t.signature}
             </div>
