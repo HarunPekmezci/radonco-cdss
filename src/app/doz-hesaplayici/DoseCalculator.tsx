@@ -231,23 +231,26 @@ export type OarContext = Pick<OARNTPCeiling, 'organ' | 'metric' | 'limit'> & { f
 const initialReference: Schedule = { totalDose: 60, fractions: 30 };
 const initialAlternative: Schedule = { totalDose: 40, fractions: 15 };
 
-const calculate = (schedule: Schedule, alphaBetaInput: NumericInput) => {
+const calculate = (schedule: Schedule, alphaBetaTumorInput: NumericInput, alphaBetaLateInput: NumericInput) => {
   const totalDose = typeof schedule.totalDose === 'number' ? schedule.totalDose : 0;
   const fractions = typeof schedule.fractions === 'number' ? schedule.fractions : 0;
-  const alphaBeta = typeof alphaBetaInput === 'number' ? alphaBetaInput : 0;
+  const alphaBetaTumor = typeof alphaBetaTumorInput === 'number' ? alphaBetaTumorInput : 0;
+  const alphaBetaLate = typeof alphaBetaLateInput === 'number' ? alphaBetaLateInput : 0;
   if (
     !Number.isFinite(totalDose)
     || !Number.isFinite(fractions)
     || totalDose <= 0
     || fractions <= 0
     || !Number.isInteger(fractions)
-    || !Number.isFinite(alphaBeta)
-    || alphaBeta <= 0
+    || !Number.isFinite(alphaBetaTumor) || alphaBetaTumor <= 0
+    || !Number.isFinite(alphaBetaLate) || alphaBetaLate <= 0
   ) return null;
   const dosePerFraction = totalDose / fractions;
-  const bed = totalDose * (1 + dosePerFraction / alphaBeta);
-  const eqd2 = bed / (1 + 2 / alphaBeta);
-  return { dosePerFraction, bed, eqd2 };
+  const bedTumor = totalDose * (1 + dosePerFraction / alphaBetaTumor);
+  const eqd2Tumor = bedTumor / (1 + 2 / alphaBetaTumor);
+  const bedLate = totalDose * (1 + dosePerFraction / alphaBetaLate);
+  const eqd2Late = bedLate / (1 + 2 / alphaBetaLate);
+  return { dosePerFraction, bedTumor, eqd2Tumor, bedLate, eqd2Late };
 };
 
 const solveReverseRegimens = (targetEqd2: number, alphaBeta: number): ReverseRegimen[] => {
@@ -309,7 +312,8 @@ const NumberField = ({
 
 export default function DoseCalculator({ initialOarContext }: { initialOarContext: OarContext | null }) {
   const { language: lang } = useLanguage();
-  const [alphaBeta, setAlphaBeta] = useState<NumericInput>(10);
+  const [alphaBetaTumor, setAlphaBetaTumor] = useState<NumericInput>(10);
+  const [alphaBetaLate, setAlphaBetaLate] = useState<NumericInput>(3);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>('acute-tumor');
   const [reference, setReference] = useState(initialReference);
   const [alternative, setAlternative] = useState(initialAlternative);
@@ -319,14 +323,16 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
   const [reverseSortKey, setReverseSortKey] = useState<ReverseSortKey>('fractions');
   const [reverseSortDirection, setReverseSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const effectiveAlphaBeta = typeof alphaBeta === 'number' ? alphaBeta : 0;
+  const effectiveAlphaBetaTumor = typeof alphaBetaTumor === 'number' ? alphaBetaTumor : 0;
+  const effectiveAlphaBetaLate = typeof alphaBetaLate === 'number' ? alphaBetaLate : 0;
   const effectiveTarget = typeof targetEqd2 === 'number' ? targetEqd2 : 0;
-  const alphaBetaDisplay = alphaBeta === '' ? '—' : alphaBeta;
-  const referenceResult = useMemo(() => calculate(reference, effectiveAlphaBeta), [effectiveAlphaBeta, reference]);
-  const alternativeResult = useMemo(() => calculate(alternative, effectiveAlphaBeta), [alternative, effectiveAlphaBeta]);
+  const alphaBetaTumorDisplay = alphaBetaTumor === '' ? '?' : alphaBetaTumor;
+  const alphaBetaLateDisplay = alphaBetaLate === '' ? '?' : alphaBetaLate;
+  const referenceResult = useMemo(() => calculate(reference, effectiveAlphaBetaTumor, effectiveAlphaBetaLate), [effectiveAlphaBetaTumor, effectiveAlphaBetaLate, reference]);
+  const alternativeResult = useMemo(() => calculate(alternative, effectiveAlphaBetaTumor, effectiveAlphaBetaLate), [alternative, effectiveAlphaBetaTumor, effectiveAlphaBetaLate]);
   const reverseRegimens = useMemo(
-    () => solveReverseRegimens(effectiveTarget, effectiveAlphaBeta),
-    [effectiveAlphaBeta, effectiveTarget],
+    () => solveReverseRegimens(effectiveTarget, effectiveAlphaBetaTumor),
+    [effectiveAlphaBetaTumor, effectiveTarget],
   );
   const sortedReverseRegimens = useMemo(() => [...reverseRegimens].sort((left, right) => {
     const comparison = reverseSortKey === 'technique'
@@ -334,8 +340,8 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
       : left[reverseSortKey] - right[reverseSortKey];
     return reverseSortDirection === 'asc' ? comparison : -comparison;
   }), [lang, reverseRegimens, reverseSortDirection, reverseSortKey]);
-  const bedDelta = referenceResult && alternativeResult ? alternativeResult.bed - referenceResult.bed : null;
-  const eqd2Delta = referenceResult && alternativeResult ? alternativeResult.eqd2 - referenceResult.eqd2 : null;
+  const bedDelta = referenceResult && alternativeResult ? alternativeResult.bedTumor - referenceResult.bedTumor : null;
+  const eqd2Delta = referenceResult && alternativeResult ? alternativeResult.eqd2Tumor - referenceResult.eqd2Tumor : null;
 
   const updateSchedule = (key: 'reference' | 'alternative', field: keyof Schedule, value: NumericInput) => {
     const setter = key === 'reference' ? setReference : setAlternative;
@@ -364,9 +370,10 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
       type="button"
       aria-pressed={selectedPresetId === preset.id}
       onClick={() => {
-        setAlphaBeta(preset.value);
-        setSelectedPresetId(preset.id);
-      }}
+          if (preset.kind === 'tcp-target') setAlphaBetaTumor(preset.value);
+          else setAlphaBetaLate(preset.value);
+          setSelectedPresetId(preset.id);
+        }}
       className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
         selectedPresetId === preset.id
           ? preset.kind === 'tcp-target'
@@ -457,29 +464,51 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               <div className="flex flex-wrap items-center gap-2">
                 {presets.filter(preset => baselinePresetIds.has(preset.id)).map(renderPresetPill)}
                 <label className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0a0f1d]/70 px-3 py-2 text-xs font-medium text-slate-300">
-                  {lang === 'en' ? 'Custom α/β (Gy)' : 'Özel α/β (Gy)'}
-                  <input
-                    type="number"
-                    min="0.1"
-                    max="50"
-                    step="0.1"
-                    value={alphaBeta}
-                    onChange={event => {
-                      const raw = event.currentTarget.value;
-                      if (raw === '') {
-                        setAlphaBeta('');
-                        setSelectedPresetId(null);
-                        return;
-                      }
-                      const next = Number.parseFloat(raw);
-                      if (Number.isFinite(next) && next > 0) {
-                        setAlphaBeta(next);
-                        setSelectedPresetId(null);
-                      }
-                    }}
-                    className="w-20 [appearance:textfield] rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-white outline-none focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
-                </label>
+                    {lang === 'en' ? 'Tumor α/β' : 'Tümör α/β'}
+                    <input
+                      type="number"
+                      min="0.1"
+                      max="50"
+                      step="0.1"
+                      value={alphaBetaTumor}
+                      onChange={event => {
+                        const raw = event.currentTarget.value;
+                        if (raw === '') {
+                          setAlphaBetaTumor('');
+                          setSelectedPresetId(null);
+                          return;
+                        }
+                        const next = Number.parseFloat(raw);
+                        if (Number.isFinite(next) && next > 0) {
+                          setAlphaBetaTumor(next);
+                          setSelectedPresetId(null);
+                        }
+                      }}
+                      className="w-16 [appearance:textfield] rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-white outline-none focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                  </label>
+                  <label className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0a0f1d]/70 px-3 py-2 text-xs font-medium text-slate-300">
+                    {lang === 'en' ? 'Late OAR α/β' : 'Geç OAR α/β'}
+                    <input
+                      type="number"
+                      min="0.1"
+                      max="50"
+                      step="0.1"
+                      value={alphaBetaLate}
+                      onChange={event => {
+                        const raw = event.currentTarget.value;
+                        if (raw === '') {
+                          setAlphaBetaLate('');
+                          return;
+                        }
+                        const next = Number.parseFloat(raw);
+                        if (Number.isFinite(next) && next > 0) {
+                          setAlphaBetaLate(next);
+                        }
+                      }}
+                      className="w-16 [appearance:textfield] rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-white outline-none focus:border-violet-400 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                  </label>
               </div>
             </section>
 
@@ -567,17 +596,19 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                     <strong className="text-white">{card.result?.dosePerFraction.toFixed(2) ?? '—'} Gy</strong>
                   </div>
                   {card.result ? (
-                    <div className="mt-3 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">BED{alphaBetaDisplay}</div>
-                        <div className="mt-1 text-xl font-bold text-white">{card.result.bed.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
+                      <div className="mt-3 grid grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-sky-300">EQD2 (Tumor Control / Akut)</div>
+                          <div className="mt-1 text-xl font-bold text-white">{card.result.eqd2Tumor.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
+                          <div className="mt-1 text-[10px] text-sky-300/70">BED: {card.result.bedTumor.toFixed(2)} Gy</div>
+                        </div>
+                        <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-rose-300">EQD2 (Late Tissue Toxicity / OAR)</div>
+                          <div className="mt-1 text-xl font-bold text-white">{card.result.eqd2Late.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
+                          <div className="mt-1 text-[10px] text-rose-300/70">BED: {card.result.bedLate.toFixed(2)} Gy</div>
+                        </div>
                       </div>
-                      <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-sky-300">EQD2{alphaBetaDisplay}</div>
-                        <div className="mt-1 text-xl font-bold text-white">{card.result.eqd2.toFixed(2)} <span className="text-xs font-normal text-slate-400">Gy</span></div>
-                      </div>
-                    </div>
-                  ) : (
+                    ) : (
                     <p role="alert" className="mt-3 text-xs text-rose-300">
                       {lang === 'en'
                         ? 'Enter a positive total dose and an integer fraction count.'
@@ -595,9 +626,9 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
               </div>
               {bedDelta !== null && eqd2Delta !== null ? (
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Delta label={`Δ BED${alphaBetaDisplay}`} value={bedDelta} language={lang} />
-                  <Delta label={`Δ EQD2${alphaBetaDisplay}`} value={eqd2Delta} language={lang} />
-                </div>
+                    <Delta label={`Δ EQD2 (Tumor)`} value={bedDelta} language={lang} />
+                    <Delta label={`Δ EQD2 (Late OAR)`} value={eqd2Delta} language={lang} />
+                  </div>
               ) : (
                 <p role="alert" className="mt-3 text-xs text-rose-300">
                   {lang === 'en'
@@ -646,7 +677,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                   />
                 </label>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-slate-800">
+              <div className="overflow-x-auto w-full rounded-xl border border-slate-800">
                 <table className="w-full min-w-[760px] border-collapse text-left text-xs">
                   <thead className="bg-slate-900/80 text-slate-300">
                     <tr>
@@ -779,7 +810,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                         <button
                           type="button"
                           onClick={() => {
-                            setAlphaBeta(item.alphaBeta);
+                            setAlphaBetaTumor(item.alphaBeta);
                             setSelectedPresetId(presets.find(preset => preset.value === item.alphaBeta)?.id ?? null);
                             setTargetEqd2(item.targetEqd2);
                             setActiveTab('calculator');

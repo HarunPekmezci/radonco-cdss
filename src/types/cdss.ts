@@ -137,8 +137,11 @@ export interface Fractionation {
   schedule?: string;
   technique?: '3D-CRT' | 'IMRT' | 'VMAT' | 'IGRT' | 'SIB' | 'adaptive' | 'other';
   alphaBetaTumor?: number;
+  alphaBetaLate?: number;
   eqd2Gy?: number;
+  eqd2LateGy?: number;
   bedGy?: number;
+  bedLateGy?: number;
 }
 
 export type TCPDosePrescription = Fractionation;

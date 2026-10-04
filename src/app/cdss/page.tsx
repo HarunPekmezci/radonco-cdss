@@ -12059,7 +12059,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <span className="text-[10px] opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
                   </a>
                 </div>
-                <div className="border border-slate-700/80 rounded-xl overflow-hidden text-xs shadow-sm bg-[#0e1726]">
+                <div className="overflow-x-auto w-full border border-slate-700/80 rounded-xl text-xs shadow-sm bg-[#0e1726]">
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
@@ -12097,7 +12097,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     ? 'Doz ölçütleri fraksiyonasyon, kontur tanımı, tedavi alanı ve önceki RT’ye bağlıdır; bunlar planlama referansıdır, hasta-özel doz onayı değildir.'
                     : 'Dose metrics depend on fractionation, contour definition, treatment site and prior RT; these are planning references, not patient-specific approval.'}
                 </p>
-                <div className="border border-slate-700/80 rounded-xl overflow-hidden text-xs shadow-sm bg-[#0e1726]">
+                <div className="overflow-x-auto w-full border border-slate-700/80 rounded-xl text-xs shadow-sm bg-[#0e1726]">
                   <table className="w-full text-left">
                     <thead className="bg-[#131f33] text-slate-300 text-[11px] font-bold uppercase tracking-wider border-b border-slate-700">
                       <tr>
