@@ -47,6 +47,73 @@ import {
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 
+const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
+  nsclc: 'NSCLC (KHDAK)',
+  sclc: 'SCLC (KHAK)',
+  thymoma: 'Timoma',
+  mesothelioma: 'Mezotelyoma',
+  'cns-mets': 'Beyin Metastazı',
+  gbm: 'Glioblastom (GBM)',
+  meningioma: 'Menenjiyom',
+  Serviks: 'Serviks Uteri',
+  Endometriyum: 'Endometriyum',
+  Yumusak_Doku: 'Yumuşak Doku Sarkomu',
+  Osteosarkom: 'Osteosarkom',
+};
+
+const NCCN_GUIDELINE_MAP: Record<string, { url: string; title: string; hint: string }> = {
+  'thorax-nsclc': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+    title: 'NCCN Non-Small Cell Lung Cancer',
+    hint: 'NSCL-C: Principles of Radiation Therapy',
+  },
+  'thorax-sclc': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1462',
+    title: 'NCCN Small Cell Lung Cancer',
+    hint: 'SCLC: Limited-Stage & PCI',
+  },
+  'thorax-thymoma': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1472',
+    title: 'NCCN Thymomas and Thymic Carcinomas',
+    hint: 'Thymoma: Postop RT / PORT',
+  },
+  'thorax-mesothelioma': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1443',
+    title: 'NCCN Malignant Pleural Mesothelioma',
+    hint: 'Mesothelioma: Radiation Principles',
+  },
+  'prostate-prostate': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1459',
+    title: 'NCCN Prostate Cancer',
+    hint: 'PROS: Risk-Adapted Radiation & ADT',
+  },
+  breast: {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1419',
+    title: 'NCCN Invasive Breast Cancer',
+    hint: 'BINV: Radiation Therapy Principles',
+  },
+  'gis-Rektum': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1461',
+    title: 'NCCN Rectal Cancer',
+    hint: 'REC: SCRT vs Long-Course TNT',
+  },
+  'cns-mets': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
+    title: 'NCCN Central Nervous System Cancers',
+    hint: 'BRAIN: Stereotactic Radiosurgery (SRS)',
+  },
+  'gynecology-Serviks': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1422',
+    title: 'NCCN Cervical Cancer',
+    hint: 'CERV: Definitive CRT + Brachytherapy',
+  },
+  'bone-sarcoma-Yumusak_Doku': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1464',
+    title: 'NCCN Soft Tissue Sarcoma',
+    hint: 'SARC: Preop vs Postop RT Principles',
+  },
+};
+
 // ==========================================
 // 1. TİPLER VE KLİNİK VERİ MODELLERİ
 // ==========================================
@@ -9506,7 +9573,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-xs text-slate-300">
                 <span className="font-semibold text-slate-100">
-                  {lang === 'tr' ? 'Seçili profil:' : 'Selected profile:'}
+                  {lang === 'tr' ? `Seçili profil: ${subtypeDisplay}` : `Selected profile: ${subtypeDisplay}`} <a href={nccnTarget.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm underline">{nccnTarget.title} ↗</a> <span className="ml-1 text-xs text-gray-400">{nccnTarget.hint}</span>
                 </span>{' '}
                 {reportOrganNames[selectedOrgan]} · {tText(reportDiagnosis)}
                 <span className="mx-2 text-slate-600">|</span>

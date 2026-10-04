@@ -8,6 +8,7 @@ import {
   Calculator,
   HeartPulse,
   Radiation,
+  ShieldCheck,
   Target,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -20,18 +21,85 @@ type PortalModule = {
   accent: string;
 };
 
+const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
+  nsclc: 'NSCLC (KHDAK)',
+  sclc: 'SCLC (KHAK)',
+  thymoma: 'Timoma',
+  mesothelioma: 'Mezotelyoma',
+  'cns-mets': 'Beyin Metastazı',
+  gbm: 'Glioblastom (GBM)',
+  meningioma: 'Menenjiyom',
+  Serviks: 'Serviks Uteri',
+  Endometriyum: 'Endometriyum',
+  Yumusak_Doku: 'Yumuşak Doku Sarkomu',
+  Osteosarkom: 'Osteosarkom',
+};
+
+const NCCN_GUIDELINE_MAP: Record<string, { url: string; title: string; hint: string }> = {
+  'thorax-nsclc': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+    title: 'NCCN Non-Small Cell Lung Cancer',
+    hint: 'NSCL-C: Principles of Radiation Therapy',
+  },
+  'thorax-sclc': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1462',
+    title: 'NCCN Small Cell Lung Cancer',
+    hint: 'SCLC: Limited-Stage & PCI',
+  },
+  'thorax-thymoma': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1472',
+    title: 'NCCN Thymomas and Thymic Carcinomas',
+    hint: 'Thymoma: Postop RT / PORT',
+  },
+  'thorax-mesothelioma': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1443',
+    title: 'NCCN Malignant Pleural Mesothelioma',
+    hint: 'Mesothelioma: Radiation Principles',
+  },
+  'prostate-prostate': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1459',
+    title: 'NCCN Prostate Cancer',
+    hint: 'PROS: Risk-Adapted Radiation & ADT',
+  },
+  breast: {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1419',
+    title: 'NCCN Invasive Breast Cancer',
+    hint: 'BINV: Radiation Therapy Principles',
+  },
+  'gis-Rektum': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1461',
+    title: 'NCCN Rectal Cancer',
+    hint: 'REC: SCRT vs Long-Course TNT',
+  },
+  'cns-mets': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
+    title: 'NCCN Central Nervous System Cancers',
+    hint: 'BRAIN: Stereotactic Radiosurgery (SRS)',
+  },
+  'gynecology-Serviks': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1422',
+    title: 'NCCN Cervical Cancer',
+    hint: 'CERV: Definitive CRT + Brachytherapy',
+  },
+  'bone-sarcoma-Yumusak_Doku': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1464',
+    title: 'NCCN Soft Tissue Sarcoma',
+    hint: 'SARC: Preop vs Postop RT Principles',
+  },
+};
+
 const modules: PortalModule[] = [
   {
     href: '/doz-kisitlari',
     cardKey: 'oar',
-    icon: Activity,
-    accent: 'text-cyan-300 bg-cyan-400/10 ring-cyan-300/20',
+    icon: ShieldCheck,
+    accent: 'text-cyan-400 bg-cyan-400/10 ring-cyan-400/20',
   },
   {
     href: '/doz-hesaplayici',
     cardKey: 'calculator',
     icon: Calculator,
-    accent: 'text-violet-300 bg-violet-400/10 ring-violet-300/20',
+    accent: 'text-indigo-400 bg-indigo-400/10 ring-indigo-400/20',
   },
   {
     href: '/cdss?tab=contouring',
@@ -42,8 +110,8 @@ const modules: PortalModule[] = [
   {
     href: '/cdss?tab=prognostic',
     cardKey: 'prognostic',
-    icon: Activity,
-    accent: 'text-sky-300 bg-sky-400/10 ring-sky-300/20',
+    icon: Calculator,
+    accent: 'text-sky-400 bg-sky-400/10 ring-sky-400/20',
   },
   {
     href: '/kaynakca',
@@ -59,9 +127,21 @@ const modules: PortalModule[] = [
   },
 ];
 
+
 export default function PortalPage() {
   const { t } = useLanguage();
   const titleSeparator = t.heroTitle.lastIndexOf(' ');
+
+  const selectedSubtype = 'nsclc'; // This would come from your actual state management
+  const subtypeDisplay = SUBTYPE_DISPLAY_MAP[selectedSubtype] || selectedSubtype.toUpperCase();
+
+  const selectedOrgan = 'thorax'; // This would come from your actual state management
+  const selectedSubtypeKey = `${selectedOrgan}-${selectedSubtype}`;
+  const nccnTarget = NCCN_GUIDELINE_MAP[selectedSubtypeKey] || NCCN_GUIDELINE_MAP[selectedOrgan] || {
+    url: 'https://www.nccn.org/guidelines/category_1',
+    title: 'NCCN Guidelines',
+    hint: 'General Cancer Guidelines',
+  };
 
   return (
     <main className="min-h-screen bg-[#0B1120] bg-grid-slate-800/[0.12] py-8 text-slate-100 sm:py-12">
@@ -71,6 +151,63 @@ export default function PortalPage() {
           <div className="relative max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
               <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
+              {t.heroBadge}
+            </div>
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-5xl">
+              {t.heroTitle.slice(0, titleSeparator)}{' '}
+              <span className="text-sky-400">{t.heroTitle.slice(titleSeparator + 1)}</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
+              {t.heroDescription}
+            </p>
+            <Link
+              href="/cdss"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-950/30 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+            >
+              {t.heroAction}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-10 sm:mt-12" aria-labelledby="tools-heading">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h2 id="tools-heading" className="text-lg font-semibold text-white">{t.sectionTitle}</h2>
+              <p className="mt-1 text-xs text-slate-400">{t.sectionDescription}</p>
+            </div>
+            <span className="hidden rounded-full border border-slate-700 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:inline-flex">
+              {t.portalBadge}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {modules.map(module => {
+              const Icon = module.icon;
+              const card = t.cards[module.cardKey];
+              return (
+                <Link
+                  key={module.href}
+                  href={module.href}
+                  className="group flex min-h-40 flex-col rounded-xl border border-slate-800 bg-[#0e1726] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-sky-500/50 hover:bg-[#111c2e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <ArrowUpRight className="h-4 w-4 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-4 flex-1 text-base font-semibold leading-snug text-white">{card.title}</h3>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {card.badges.map(badge => (
+                      <span key={badge} className="rounded-md border border-slate-700/80 bg-slate-900/70 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-300">
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                </Link>
+              );
+            })}
               {t.heroBadge}
             </div>
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-5xl">
