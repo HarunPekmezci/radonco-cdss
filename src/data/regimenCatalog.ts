@@ -24,7 +24,7 @@ export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   {
     authority: 'ESTRO',
     title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-    url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
     category: 'Consensus Guideline',
   },
   {

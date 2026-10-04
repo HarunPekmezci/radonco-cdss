@@ -68,7 +68,7 @@ const ASTRO_SABR: GuidelineReference = {
 const ESTRO_ACROP: GuidelineReference = {
   organization: 'ESTRO',
   title: 'ESTRO-ACROP recommendations for stereotactic and locally advanced lung radiotherapy',
-  url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+  url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
   evidenceLevel: 'B',
 };
 

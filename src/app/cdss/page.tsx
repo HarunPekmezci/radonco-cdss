@@ -4217,7 +4217,7 @@ export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   {
     authority: 'ESTRO',
     title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-    url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
     category: 'Consensus Guideline',
   },
   {
@@ -4291,7 +4291,7 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   }
   if (/ESTRO/i.test(token)) {
     return /lung|khdak|nsclc|sbrt/i.test(clinicalContext)
-      ? 'https://doi.org/10.1016/j.radonc.2017.05.025'
+      ? 'https://doi.org/10.1016/j.radonc.2017.05.012'
       : 'https://www.estro.org/Science/Guidelines';
   }
   if (/RTOG\s*0236/i.test(token) || (/RTOG/i.test(token) && /0236/i.test(clinicalContext))) {
@@ -4377,7 +4377,7 @@ const resolveSchemeEvidenceLinks = (
         {
           authority: 'ESTRO',
           title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-          url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+          url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
           category: 'Consensus Guideline',
         },
         {
@@ -6282,7 +6282,7 @@ export default function RadoncoCDSSPage() {
             {
               authority: 'ESTRO',
               title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-              url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+              url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
               category: 'Consensus Guideline',
             },
             {
@@ -6323,7 +6323,7 @@ export default function RadoncoCDSSPage() {
             {
               authority: 'ESTRO',
               title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
-              url: 'https://doi.org/10.1016/j.radonc.2017.05.025',
+              url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
               category: 'Consensus Guideline',
             },
           ],
