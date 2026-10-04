@@ -1,5 +1,42 @@
 export * from './cdss';
 
+export interface Engine {
+  run(data: Record<string, any>): EngineOutput;
+}
+
+export class EngineRegistry {
+  private cancerTypes: CancerType[] = [
+    "thorax-nsclc",
+    "thorax-sclc",
+    "thorax-thymoma",
+    "thorax-mesothelioma",
+    "prostate-prostate",
+    "breast",
+    "gis-rektum",
+    "cns-mets",
+    "gynecology-serviks",
+    "bone-sarcoma-yumusak-doku",
+    "bone-sarcoma-osteosarkom"
+  ];
+
+  getCancerTypes(): CancerType[] {
+    return this.cancerTypes;
+  }
+}
+
+export type CancerType =
+  | 'thorax-nsclc'
+  | 'thorax-sclc'
+  | 'thorax-thymoma'
+  | 'thorax-mesothelioma'
+  | 'prostate-prostate'
+  | 'breast'
+  | 'gis-rektum'
+  | 'cns-mets'
+  | 'gynecology-serviks'
+  | 'bone-sarcoma-yumusak-doku'
+  | 'bone-sarcoma-osteosarkom';
+
 export interface DoseRegimen {
   id?: string;
   categoryRank: string;

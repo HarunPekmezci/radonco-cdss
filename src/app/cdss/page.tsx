@@ -4680,9 +4680,9 @@ export default function RadoncoCDSSPage() {
     return selectedOrgan;
   }, [selectedOrgan, selectedSubsite, thoraxSubtype, gynSite, sarcomaSubtype, hnSubsite, cnsSubtype, gisOrgan, liverHistology, gusSubtype, breastHistology, hematologicSubtype, pediatricSubtype, skinHistology]);
 
-  const currentTNM = selectedOrgan === 'emergencies' || selectedOrgan === 'palliative'
-    ? { T: [], N: [], M: [] }
-    : TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
+    const currentTNM = selectedOrgan === 'emergencies' || selectedOrgan === 'palliative'
+      ? { T: [], N: [], M: [] }
+      : TNM_DATABASE[currentTnmKey] || TNM_DATABASE[selectedOrgan] || TNM_DATABASE['thorax-nsclc'];
   const prostateRiskLabel = useMemo(() => {
     const primary = Number.parseInt(gleasonPrimary, 10) || 3;
     const secondary = Number.parseInt(gleasonSecondary, 10) || 4;
@@ -9573,7 +9573,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-xs text-slate-300">
                 <span className="font-semibold text-slate-100">
-                  {lang === 'tr' ? `Seçili profil: ${subtypeDisplay}` : `Selected profile: ${subtypeDisplay}`} <a href={nccnTarget.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm underline">{nccnTarget.title} ↗</a> <span className="ml-1 text-xs text-gray-400">{nccnTarget.hint}</span>
+                  {lang === 'tr' ? `Seçili profil: ${SUBTYPE_DISPLAY_MAP[currentTnmKey] || currentTnmKey.toUpperCase()}` : `Selected profile: ${SUBTYPE_DISPLAY_MAP[currentTnmKey] || currentTnmKey.toUpperCase()}`} <a href={(NCCN_GUIDELINE_MAP[currentTnmKey] || NCCN_GUIDELINE_MAP[selectedOrgan] || { url: 'https://www.nccn.org/guidelines/category_1', title: 'NCCN Guidelines', hint: 'General Cancer Guidelines' }).url} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm underline">{(NCCN_GUIDELINE_MAP[currentTnmKey] || NCCN_GUIDELINE_MAP[selectedOrgan] || { url: 'https://www.nccn.org/guidelines/category_1', title: 'NCCN Guidelines', hint: 'General Cancer Guidelines' }).title} ↗</a> <span className="ml-1 text-xs text-gray-400">{(NCCN_GUIDELINE_MAP[currentTnmKey] || NCCN_GUIDELINE_MAP[selectedOrgan] || { url: 'https://www.nccn.org/guidelines/category_1', title: 'NCCN Guidelines', hint: 'General Cancer Guidelines' }).hint}</span>
                 </span>{' '}
                 {reportOrganNames[selectedOrgan]} · {tText(reportDiagnosis)}
                 <span className="mx-2 text-slate-600">|</span>
