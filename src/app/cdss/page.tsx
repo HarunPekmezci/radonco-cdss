@@ -9017,7 +9017,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               value={patientAgeYears}
               onChange={event => setPatientAgeYears(event.currentTarget.value)}
               className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
-              placeholder={lang === 'tr' ? 'İsteğe bağlı' : 'Optional'}
+              placeholder=""
             />
           </label>
           <label className="text-[10px] font-semibold text-slate-300">
@@ -9027,7 +9027,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               onChange={event => setPatientGender(event.currentTarget.value)}
               className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100"
             >
-              <option value="">{lang === 'tr' ? 'Belirtilmedi' : 'Not specified'}</option>
+              <option value=""></option>
               <option value="Kadın">{lang === 'tr' ? 'Kadın' : 'Female'}</option>
               <option value="Erkek">{lang === 'tr' ? 'Erkek' : 'Male'}</option>
               <option value="Diğer">{lang === 'tr' ? 'Diğer' : 'Other'}</option>
@@ -9040,7 +9040,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               value={patientId}
               onChange={event => setPatientId(event.currentTarget.value)}
               className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
-              placeholder={lang === 'tr' ? 'İsteğe bağlı, kimliksizleştirilmiş ID' : 'Optional, pseudonymized ID'}
+              placeholder=""
             />
           </label>
         </div>
