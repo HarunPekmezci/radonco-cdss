@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/cdss",
     "/doz-kisitlari",
     "/doz-hesaplayici",
+    "/hedef-hacim",
     "/references",
     "/yasal-uyari",
     "/iletisim",

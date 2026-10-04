@@ -5,6 +5,7 @@ export type TranslationDictionary = {
     cdss: string;
     constraints: string;
     calculator: string;
+    contouring: string;
     references: string;
     disclaimer: string;
     privacy: string;
@@ -49,6 +50,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       cdss: 'CDSS',
       constraints: 'Doz Kısıtları',
       calculator: 'Doz Hesaplayıcı',
+      contouring: 'Hedef Hacim',
       references: 'Kaynakça',
       disclaimer: 'Yasal Uyarı',
       privacy: 'Gizlilik',
@@ -135,6 +137,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       cdss: 'CDSS',
       constraints: 'OAR Constraints',
       calculator: 'Dose Calculator',
+      contouring: 'Target Volumes',
       references: 'References',
       disclaimer: 'Disclaimer',
       privacy: 'Privacy',

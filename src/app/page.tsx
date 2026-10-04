@@ -103,7 +103,7 @@ const modules: PortalModule[] = [
     accent: 'text-orange-400 bg-orange-400/10 ring-orange-400/20',
   },
   {
-    href: '/cdss?tab=contouring',
+    href: '/hedef-hacim',
     cardKey: 'contouring',
     icon: Target,
     accent: 'text-emerald-300 bg-emerald-400/10 ring-emerald-300/20',
