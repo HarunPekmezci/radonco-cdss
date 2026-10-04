@@ -8,60 +8,62 @@ import DynamicClerkProvider from '@/components/providers/DynamicClerkProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.radoncoxia.pro'),
   title: {
-    default: "RadOnco CDSS | Radyasyon Onkolojisi Klinik Karar Destek Sistemi",
-    template: "%s | RadOnco CDSS",
+    default: 'RadOnco CDSS | Radiation Oncology Clinical Decision Support',
+    template: '%s | RadOnco CDSS',
   },
   description:
-    "Radyasyon onkolojisi uzmanları için kanıta dayalı klinik karar desteği, dozimetri araçları, OAR tolerans kısıtları ve radyo-biyoloji hesaplayıcıları.",
+    'Evidence-based clinical decision support and dosimetry tools for radiation oncology professionals.',
   keywords: [
-    "Radyasyon Onkolojisi",
-    "Radiation Oncology",
-    "CDSS",
-    "SBRT",
-    "OAR Doz Kısıtları",
-    "BED Hesaplama",
-    "EQD2",
-    "QUANTEC",
-    "NCCN",
+    'Radyasyon Onkolojisi',
+    'Radiation Oncology',
+    'CDSS',
+    'SBRT',
+    'OAR Doz Kısıtları',
+    'BED Hesaplama',
+    'EQD2',
+    'QUANTEC',
+    'NCCN',
   ],
-  metadataBase: new URL("https://www.radoncoxia.pro"),
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      "max-snippet": -1,
-      "max-image-preview": "large",
+      'max-snippet': -1,
+      'max-image-preview': 'large',
     },
   },
   openGraph: {
-    title: "RadOnco CDSS | Radiation Oncology Clinical Decision Support",
+    title: 'RadOnco CDSS | Radiation Oncology Clinical Decision Support',
     description:
-      "Evidence-based clinical decision support and dosimetry tools for radiation oncology professionals.",
-    url: "https://www.radoncoxia.pro",
-    siteName: "RadOnco CDSS",
-    locale: "tr_TR",
-    type: "website",
+      'Evidence-based clinical decision support and dosimetry tools for radiation oncology professionals.',
+    url: 'https://www.radoncoxia.pro',
+    siteName: 'RadOnco CDSS',
     images: [
       {
-        url: "/opengraph-image",
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: "RadOnco CDSS - Radiation Oncology Clinical Decision Support System",
+        alt: 'RadOnco CDSS Logo',
       },
     ],
+    locale: 'tr_TR',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "RadOnco CDSS | Radiation Oncology Clinical Decision Support",
+    card: 'summary_large_image',
+    title: 'RadOnco CDSS | Radiation Oncology Clinical Decision Support',
     description:
-      "Evidence-based clinical decision support and dosimetry tools for radiation oncology professionals.",
-    images: ["/opengraph-image"],
+      'Evidence-based clinical decision support and dosimetry tools for radiation oncology professionals.',
+    images: ['/og-image.png'],
   },
   icons: {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%25%22 y=%2255%25%22 font-size=%2278%22 text-anchor=%22middle%22 dominant-baseline=%22central%22>🎯</text></svg>',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 };
 

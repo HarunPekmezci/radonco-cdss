@@ -45,7 +45,7 @@ import {
   Printer,
   Star,
 } from 'lucide-react';
-import { SignOutButton, useUser } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 import { NCCN_GUIDELINE_MAP } from '@/data/nccnGuidelineMap';
 import { TRANSLATION_MAP } from '@/data/cdssTranslations';
@@ -3416,7 +3416,7 @@ const getGuidedModeSnapshot = () => (
 const getServerGuidedModeSnapshot = () => true;
 
 export default function RadoncoCDSSPage() {
-  const { isLoaded, user } = useUser();
+  const { isLoaded } = useUser();
   const router = useRouter();
   const { language: lang } = useLanguage();
   const isGuidedMode = useSyncExternalStore(
@@ -3433,18 +3433,6 @@ export default function RadoncoCDSSPage() {
     // Robust dictionary lookup pattern (deprecating regex matching)
     return TRANSLATION_MAP[text] ?? text;
   }, [lang]);
-  const email = user?.primaryEmailAddress?.emailAddress ?? '';
-  const ADMIN_EMAILS = ['harun.pekmezci@sbu.edu.tr', 'ee011126@mail2.gantep.edu.tr'];
-  const emailLower = email.toLowerCase();
-  const isDoctor =
-    ADMIN_EMAILS.includes(emailLower) ||
-    emailLower.endsWith('saglik.gov.tr') ||
-    emailLower.endsWith('.edu.tr') ||
-    emailLower.endsWith('.edu') ||
-    emailLower.endsWith('nhs.net') ||
-    emailLower.endsWith('.ac.uk') ||
-    emailLower.includes('.med.') ||
-    emailLower.includes('.hospital');
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -8395,31 +8383,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-100 dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
         <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
         <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-          {lang === 'tr' ? 'Kurumsal Kimlik Bilgileri Doğrulanıyor...' : 'Verifying Institutional Credentials...'}
-        </div>
-        <div className="text-xs text-slate-400 dark:text-slate-200 mt-1">
-          {lang === 'tr' ? 'Verifying institutional credentials' : 'Kurumsal hekim doğrulaması yapılıyor'}
-        </div>
-      </div>
-    );
-  }
-
-  if (user && !isDoctor) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 dark:bg-[#070b14] p-6 text-slate-900 dark:text-slate-100 font-sans">
-        <div className="w-full max-w-md rounded-2xl bg-[#0c1322] border border-slate-800 p-8 shadow-xl text-center">
-          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto mb-4 font-bold text-xl" aria-hidden="true">{tText("!")}</div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">{tText("Kurumsal Hekim Erişimi / Institutional Access")}</h2>
-          <p className="text-xs text-slate-600 leading-relaxed mb-6">
-            {tText("\n            RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.\n          ")}</p>
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 mb-6 text-left text-xs font-mono">
-            <div className="text-slate-400">{tText("Account: ")}<span className="text-rose-600 font-bold">{email}</span></div>
-            <div className="text-slate-400">{tText("Allowed: ")}<span className="text-emerald-700 font-bold">{tText("@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk")}</span></div>
-          </div>
-          <SignOutButton redirectUrl="/sign-in">
-            <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-              {tText("\n              Farklı Hesapla Giriş / Sign In with Another Account\n            ")}</button>
-          </SignOutButton>
+          {lang === 'tr' ? 'Yükleniyor...' : 'Loading...'}
         </div>
       </div>
     );
