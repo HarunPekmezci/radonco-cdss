@@ -419,7 +419,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
             <p className="mt-1 text-xs leading-5 text-slate-300">
               {initialOarContext.organ} · {initialOarContext.metric}: <strong>{initialOarContext.limit}</strong> · {initialOarContext.fractionation}
             </p>
-            <p className="mt-1 text-[11px] leading-5 text-slate-500">
+            <p className="mt-1 text-[11px] leading-5 text-slate-400">
               {lang === 'en'
                 ? 'This reference value is contextual information only. LQ calculations below use the entered prescription dose.'
                 : 'Bu referans değeri yalnızca bağlam bilgisi sağlar. Aşağıdaki LQ hesaplamaları girilen reçete dozunu kullanır.'}
@@ -568,7 +568,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                     <button
                       type="button"
                       onClick={() => card.setter(card.id === 'reference' ? initialReference : initialAlternative)}
-                      className="inline-flex items-center gap-1 text-[11px] text-slate-500 transition hover:text-white"
+                      className="inline-flex items-center gap-1 text-[11px] text-slate-400 transition hover:text-white"
                     >
                       <RotateCcw className="h-3 w-3" aria-hidden="true" /> {lang === 'en' ? 'Reset' : 'Sıfırla'}
                     </button>
@@ -702,7 +702,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                             className="inline-flex items-center gap-1.5 hover:text-white"
                           >
                             {column.label}
-                            <ArrowUpDown className="h-3 w-3 text-slate-500" aria-hidden="true" />
+                            <ArrowUpDown className="h-3 w-3 text-slate-400" aria-hidden="true" />
                           </button>
                         </th>
                       ))}
@@ -731,7 +731,7 @@ export default function DoseCalculator({ initialOarContext }: { initialOarContex
                       </tr>
                     )) : (
                       <tr>
-                        <td colSpan={6} className="px-3 py-4 text-center text-xs text-slate-500">
+                        <td colSpan={6} className="px-3 py-4 text-center text-xs text-slate-400">
                           {lang === 'en'
                             ? 'Enter a positive target EQD2 and α/β value to derive schedules.'
                             : 'Şema türetmek için pozitif bir hedef EQD2 ve α/β değeri girin.'}
@@ -876,7 +876,7 @@ function Delta({ label, value, language }: { label: string; value: number; langu
   const color = value > 0 ? 'text-amber-200' : value < 0 ? 'text-emerald-200' : 'text-slate-200';
   return (
     <div className="rounded-xl border border-slate-800 bg-[#0a0f1d] p-3">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
         {label} · {language === 'en' ? 'alternative − reference' : 'alternatif − referans'}
       </div>
       <div className={`mt-1 text-lg font-bold ${color}`}>{sign}{value.toFixed(2)} Gy</div>

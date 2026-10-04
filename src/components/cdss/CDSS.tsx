@@ -50,7 +50,7 @@ export function CDSS() {
         {Object.entries(engines).map(([cancerType, engine]) => (
           <div key={cancerType} className="border p-4 rounded-lg">
             <h3 className="font-medium capitalize">{cancerType.replace(/-/g, ' ')}</h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-400">
               {engine ? "✅ Loaded" : "❌ Failed to load"}
             </p>
           </div>

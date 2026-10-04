@@ -402,7 +402,7 @@ export default function ReferencesPage() {
                   ? categories.find(category => category.id === activeCategory)?.label_en
                   : categories.find(category => category.id === activeCategory)?.label_tr)}
             </h2>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-400">
               {filteredReferences.length} {lang === 'en' ? 'references' : 'kaynak'}
             </span>
           </div>
@@ -465,7 +465,7 @@ export default function ReferencesPage() {
                   ? 'This web platform is an independent clinical decision-support and educational tool. It is not affiliated with the named organizations or cooperative groups. References are listed for citation and scholarly discussion in accordance with applicable fair-use principles.'
                   : 'Bu web platformu, bağımsız bir klinik karar destek ve eğitim aracıdır. Bahsi geçen kurum veya kooperatif çalışma gruplarıyla doğrudan kurumsal bir ortaklığı bulunmamaktadır. Referanslar akademik adil kullanım (Fair Use) prensiplerine uygun olarak atıf amacıyla listelenmiştir.'}
               </p>
-              <p className="mt-3 border-t border-amber-500/15 pt-3 text-[11px] leading-5 text-slate-500">
+              <p className="mt-3 border-t border-amber-500/15 pt-3 text-[11px] leading-5 text-slate-400">
                 {lang === 'en'
                   ? 'This atlas identifies academic sources; it is not a patient-specific clinical recommendation or a substitute for guideline texts. Treatment decisions should be based on current guidelines, institutional protocols, and specialist judgment.'
                   : 'Bu atlas akademik kaynakları tanımlar; bireysel hastaya yönelik klinik öneri veya kılavuz metninin yerine geçmez. Tedavi kararları güncel kılavuzlar, kurum protokolleri ve uzman değerlendirmesiyle verilmelidir.'}

@@ -194,7 +194,7 @@ export default function PortalPage() {
                     <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </span>
-                    <ArrowUpRight className="h-4 w-4 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
+                    <ArrowUpRight className="h-4 w-4 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
                   </div>
                   <h3 className="mt-4 flex-1 text-base font-semibold leading-snug text-white">{card.title}</h3>
                   <div className="mt-3 flex flex-wrap gap-1.5">
@@ -230,7 +230,7 @@ export default function PortalPage() {
                 className="group flex min-h-56 flex-col rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-blue-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-blue-950/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 sm:p-5"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-500 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-300" aria-hidden="true" />
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-300" aria-hidden="true" />
                 </div>
                 <h3 className="mt-4 text-sm font-semibold leading-snug text-white">{protocol.title}</h3>
                 <p className="mt-3 text-lg font-bold tabular-nums text-sky-200">{protocol.dose}</p>

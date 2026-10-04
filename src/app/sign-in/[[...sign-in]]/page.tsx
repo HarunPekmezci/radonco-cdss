@@ -306,7 +306,7 @@ export default function SignInPage() {
               </svg>
             </div>
 
-            <div className="flex justify-between text-[10px] text-slate-500 font-mono pt-1.5 border-t border-slate-800/80">
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-1.5 border-t border-slate-800/80">
               <span>0 Gy</span>
               <span>30 Gy (Kritik Eşik)</span>
               <span>{t.rxDose}</span>
@@ -316,15 +316,15 @@ export default function SignInPage() {
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/60 text-center">
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.ciLabel}</span>
-                <span className="text-xs font-bold font-mono text-emerald-400">0.98 <span className="text-[10px] text-slate-500 font-normal">{t.optimal}</span></span>
+                <span className="text-xs font-bold font-mono text-emerald-400">0.98 <span className="text-[10px] text-slate-400 font-normal">{t.optimal}</span></span>
               </div>
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.hiLabel}</span>
-                <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-500 font-normal">{t.target}</span></span>
+                <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-400 font-normal">{t.target}</span></span>
               </div>
               <div className="bg-[#111c2e]/90 p-2 rounded-xl border border-slate-800/80">
                 <span className="text-[10px] text-slate-400 block font-mono">{t.giLabel}</span>
-                <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-500 font-normal">{t.steep}</span></span>
+                <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-400 font-normal">{t.steep}</span></span>
               </div>
             </div>
           </div>
@@ -386,7 +386,7 @@ export default function SignInPage() {
             } as any)}
           />
 
-          <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-500">
+          <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-400">
             {t.physicianNote}
           </p>
 
@@ -403,7 +403,7 @@ export default function SignInPage() {
           </div>
 
           {/* Mobilde Alt İmza */}
-          <div className="lg:hidden mt-6 text-center text-xs text-slate-500 font-medium">
+          <div className="lg:hidden mt-6 text-center text-xs text-slate-400 font-medium">
             {t.signature}
           </div>
         </div>

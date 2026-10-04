@@ -9620,7 +9620,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
           {lang === 'tr' ? 'Kurumsal Kimlik Bilgileri Doğrulanıyor...' : 'Verifying Institutional Credentials...'}
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-200 mt-1">
+        <div className="text-xs text-slate-400 dark:text-slate-200 mt-1">
           {lang === 'tr' ? 'Verifying institutional credentials' : 'Kurumsal hekim doğrulaması yapılıyor'}
         </div>
       </div>
@@ -9636,8 +9636,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           <p className="text-xs text-slate-600 leading-relaxed mb-6">
             {tText("\n            RadOnc CDSS is restricted to licensed physicians and institutional medical personnel. Yalnızca kurumsal hekim e-postaları geçerlidir.\n          ")}</p>
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 mb-6 text-left text-xs font-mono">
-            <div className="text-slate-500">{tText("Account: ")}<span className="text-rose-600 font-bold">{email}</span></div>
-            <div className="text-slate-500">{tText("Allowed: ")}<span className="text-emerald-700 font-bold">{tText("@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk")}</span></div>
+            <div className="text-slate-400">{tText("Account: ")}<span className="text-rose-600 font-bold">{email}</span></div>
+            <div className="text-slate-400">{tText("Allowed: ")}<span className="text-emerald-700 font-bold">{tText("@saglik.gov.tr, @*.edu.tr, @*.edu, @nhs.net, @*.ac.uk")}</span></div>
           </div>
           <SignOutButton redirectUrl="/sign-in">
             <button type="button" className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
@@ -9882,7 +9882,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     className={`rounded-t-lg px-3 py-2 text-xs font-semibold ${
                       activeAiTab === tab
                         ? 'border border-b-0 border-slate-200 bg-white text-blue-700 dark:border-slate-700 dark:bg-[#0c1322] dark:text-blue-300'
-                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                        : 'text-slate-400 hover:text-slate-800 dark:hover:text-white'
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
@@ -9894,7 +9894,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
-                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                   {lang === 'tr' ? 'Vaka Sorusu Önizleme' : 'Case Question Preview'}
                 </label>
                 <textarea
@@ -9948,7 +9948,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       )}
       <nav className={`${isGuidedMode && guidedStep !== 1 ? 'hidden' : isMobileDrawerOpen ? 'fixed inset-y-0 left-0 z-50 flex w-72' : 'hidden lg:flex'} ${isSidebarCollapsed ? 'lg:w-16 lg:px-2' : 'lg:w-56 xl:w-60 lg:px-4'} shrink-0 flex-col sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-[#0c1322] border border-slate-800/80 rounded-2xl p-4 shadow-2xl lg:shadow-sm`}>
         <div className="mb-3 flex items-center justify-between px-2">
-          <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-300`}>
+          <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-300`}>
           {lang === 'tr' ? 'Klinik Navigasyon' : 'Clinical Navigation'}
           </span>
           <button
@@ -10220,7 +10220,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               max="120"
               value={patientAgeYears}
               onChange={event => setPatientAgeYears(event.currentTarget.value)}
-              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-500"
+              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
               placeholder={lang === 'tr' ? 'İsteğe bağlı' : 'Optional'}
             />
           </label>
@@ -10243,7 +10243,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               type="text"
               value={patientId}
               onChange={event => setPatientId(event.currentTarget.value)}
-              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-500"
+              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
               placeholder={lang === 'tr' ? 'İsteğe bağlı, kimliksizleştirilmiş ID' : 'Optional, pseudonymized ID'}
             />
           </label>
@@ -10425,7 +10425,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </span>
               </div>
             </div>
-            <p className="mb-2.5 text-[11px] text-slate-500 dark:text-slate-200">
+            <p className="mb-2.5 text-[11px] text-slate-400 dark:text-slate-200">
               {lang === 'tr' ? 'Rapor metnini yapıştırarak hastanın evresini ve tedavi şemasını otomatik doldurun.' : 'Paste pathology or imaging report to auto-extract TNM stage and protocol.'}
             </p>
             <button
@@ -11004,7 +11004,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         onChange={e => setGleasonPrimary(e.target.value)}
                         className="bg-white border border-slate-300 rounded-lg p-1.5 text-center w-12 text-slate-900"
                       />
-                      <span className="text-slate-500">{tText("+")}</span>
+                      <span className="text-slate-400">{tText("+")}</span>
                       <input
                         type="number"
                         min="1"
@@ -11247,7 +11247,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         <option value="3">{tText("Grade 3")}</option>
                       </select>
                     </label>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-400">
                       {tText("\n                      Biyobelirteçler sistemik tedavi kararında onkoloji ekibiyle birlikte yorumlanır.\n                    ")}</p>
                   </>
                 )}
@@ -11665,7 +11665,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     ))}
                   </div>
                 </div>
-                <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
+                <p className="mt-3 text-[10px] leading-relaxed text-slate-400">
                   {lang === 'tr'
                     ? 'Tahminler yalnızca modelin açıkça raporladığı sonuçları gösterir. Model kapsamı ve girdileri klinik ekip tarafından doğrulanmalıdır.'
                     : 'Only outcomes explicitly reported by the model are shown. The clinical team should verify model applicability and inputs.'}
@@ -12146,7 +12146,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   {lang === 'tr' ? 'KRİTİK ORGAN (OAR) KISITLARI' : 'ORGANS AT RISK (OAR) CONSTRAINTS'}
                   <span className="rounded border border-rose-400/40 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-rose-200">NTCP CEILING</span>
                 </h4>
-                <p className="mb-2 text-[10px] leading-relaxed text-slate-500">
+                <p className="mb-2 text-[10px] leading-relaxed text-slate-400">
                   {lang === 'tr'
                     ? 'Doz ölçütleri fraksiyonasyon, kontur tanımı, tedavi alanı ve önceki RT’ye bağlıdır; bunlar planlama referansıdır, hasta-özel doz onayı değildir.'
                     : 'Dose metrics depend on fractionation, contour definition, treatment site and prior RT; these are planning references, not patient-specific approval.'}
@@ -12167,7 +12167,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           <td className="p-2 text-white font-semibold text-xs">{tText(oar.organ)}</td>
                           <td className="p-2 font-mono text-slate-100 text-xs">
                             {tText(oar.metric)}
-                            {oar.context && <span className="mt-1 block font-sans text-[10px] leading-relaxed text-slate-500">{lang === 'tr' ? oar.context : oar.contextEn || oar.context}</span>}
+                            {oar.context && <span className="mt-1 block font-sans text-[10px] leading-relaxed text-slate-400">{lang === 'tr' ? oar.context : oar.contextEn || oar.context}</span>}
                             {oar.classification && <span className="mt-1 inline-block rounded border border-slate-700 px-1 py-0.5 font-sans text-[8px] uppercase tracking-wide text-sky-300">{oar.classification === 'planning-aim' ? (lang === 'tr' ? 'Planlama hedefi' : 'Planning aim') : oar.classification === 'protocol-limit' ? (lang === 'tr' ? 'Protokol sınırı' : 'Protocol limit') : oar.classification === 'dose-volume-reference' ? (lang === 'tr' ? 'Doz-hacim referansı' : 'Dose-volume reference') : (lang === 'tr' ? 'Bağlam notu' : 'Context note')}</span>}
                           </td>
                           <td className="p-2 text-rose-400 font-mono font-bold text-xs">{oar.limit}</td>
@@ -12423,7 +12423,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   }
                 }}
                 placeholder={lang === 'tr' ? 'Tümör, alt tip, çalışma veya sayfa ara…' : 'Search tumors, subsites, trials, or pages…'}
-                className="min-w-0 flex-1 bg-transparent p-4 text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                className="min-w-0 flex-1 bg-transparent p-4 text-sm text-white placeholder:text-slate-400 focus:outline-none"
               />
               <kbd className="shrink-0 rounded-md border border-slate-700 bg-slate-800 px-1.5 py-1 font-mono text-[10px] text-slate-300">ESC</kbd>
             </div>
@@ -12439,7 +12439,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   .reduce((total, previousGroup) => total + previousGroup.items.length, 0);
                 return (
                   <div key={group.id} className="mb-2 last:mb-0">
-                    <h3 className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">{group.title}</h3>
+                    <h3 className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">{group.title}</h3>
                     <div className="space-y-0.5">
                       {group.items.map((item, itemIndex) => {
                         const resultIndex = groupStartIndex + itemIndex;
@@ -12458,10 +12458,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           >
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-xs font-semibold">{item.title}</span>
-                              <span className="mt-0.5 block truncate text-[10px] text-slate-500">{item.subtitle}</span>
+                              <span className="mt-0.5 block truncate text-[10px] text-slate-400">{item.subtitle}</span>
                             </span>
                             {item.kind === 'page'
-                              ? <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-slate-500" aria-hidden="true" />
+                              ? <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
                               : item.kind === 'protocol'
                                 ? <span className="shrink-0 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">{lang === 'tr' ? 'YÜKLE' : 'LOAD'}</span>
                                 : <span className="shrink-0 text-[9px] text-slate-600">↵</span>}
@@ -12474,7 +12474,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               })}
             </div>
 
-            <footer className="flex items-center justify-between border-t border-slate-800 px-4 py-2 text-[10px] text-slate-500">
+            <footer className="flex items-center justify-between border-t border-slate-800 px-4 py-2 text-[10px] text-slate-400">
               <span>{lang === 'tr' ? '↑ ↓ gezin' : '↑ ↓ navigate'} <span className="mx-1 text-slate-700">•</span> Enter {lang === 'tr' ? 'seç' : 'select'}</span>
               <span>Ctrl K {lang === 'tr' ? 'aç / kapat' : 'toggle'}</span>
             </footer>
@@ -12537,7 +12537,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     { label: 'd', value: `${radiobiologyComparison.reference.fractionDose.toFixed(2)} Gy/fx` },
                   ].map(metric => (
                     <div key={metric.label} className="rounded-xl border border-slate-700/70 bg-slate-950/40 p-2">
-                      <div className="text-[10px] text-slate-500">{metric.label}</div>
+                      <div className="text-[10px] text-slate-400">{metric.label}</div>
                       <div className="mt-0.5 text-xs font-bold text-white">{metric.value}</div>
                     </div>
                   ))}
@@ -12610,7 +12610,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <div className="mt-3 rounded-lg border border-slate-700/70 bg-slate-950/40 px-3 py-2 text-xs">
                   <span className="text-slate-400">{lang === 'tr' ? 'Otomatik toplam doz:' : 'Calculated total dose:'}</span>
                   <strong className="ml-2 font-mono text-white">{radiobiologyComparison.comparison.dose.toFixed(1)} Gy</strong>
-                  <span className="ml-2 text-slate-500">D = n × d</span>
+                  <span className="ml-2 text-slate-400">D = n × d</span>
                 </div>
                 <div className="mt-4">
                   <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -12654,7 +12654,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
             <div className="mt-4 rounded-xl border border-slate-700/70 bg-slate-950/40 px-3 py-2.5 text-center font-mono text-[10px] leading-relaxed text-slate-300 sm:text-xs">
               BED = D × (1 + d / (α/β)) <span className="mx-2 text-slate-600">|</span> EQD2 = BED / (1 + 2 / (α/β))
-              <span className="mt-1 block font-sans text-[10px] text-slate-500">{lang === 'tr' ? 'Geç doku karşılaştırması için α/β = 3 Gy alınmıştır.' : 'Late-tissue comparison uses α/β = 3 Gy.'}</span>
+              <span className="mt-1 block font-sans text-[10px] text-slate-400">{lang === 'tr' ? 'Geç doku karşılaştırması için α/β = 3 Gy alınmıştır.' : 'Late-tissue comparison uses α/β = 3 Gy.'}</span>
             </div>
 
             <section className="mt-4 rounded-2xl border border-slate-700/80 bg-slate-900/50 p-4">
@@ -12733,7 +12733,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </div>
                 </div>
               </div>
-              <p className="mt-3 text-[10px] leading-relaxed text-slate-500">
+              <p className="mt-3 text-[10px] leading-relaxed text-slate-400">
                 {lang === 'tr'
                   ? 'LQ tahminleri klinik toksisiteyi veya tümör kontrolünü tek başına belirlemez. Herhangi bir fraksiyonasyon telafisi; endikasyon, tedavi amacı, normal doku dozları ve kurum protokolüyle sorumlu radyasyon onkoloğu tarafından doğrulanmalıdır.'
                   : 'LQ estimates do not independently predict clinical toxicity or tumor control. Any compensation must be reviewed by the treating radiation oncologist against intent, indication, normal-tissue doses, and institutional protocol.'}
@@ -12782,7 +12782,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
 
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                   {lang === 'tr' ? 'Hazırlanan Uzman Konsültasyon Sorusu:' : 'Prepared Expert Case Prompt:'}
                 </label>
                 <div className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:border-slate-700/80 dark:bg-slate-800/60 dark:text-slate-300">
@@ -12948,7 +12948,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
             <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-              <button type="button" onClick={() => { setReportInputText(''); setParsedData(null); setUploadedFileName(''); setIsDragging(false); setIsReportModalOpen(false); }} className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+              <button type="button" onClick={() => { setReportInputText(''); setParsedData(null); setUploadedFileName(''); setIsDragging(false); setIsReportModalOpen(false); }} className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
                 {lang === 'tr' ? 'Vazgeç' : 'Cancel'}
               </button>
               <button

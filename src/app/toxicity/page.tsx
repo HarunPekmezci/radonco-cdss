@@ -332,7 +332,7 @@ function GradeCard({ grade, guidance }: { grade: GradeLevel; guidance: GradeGuid
     <article className={`flex min-h-full flex-col rounded-lg border p-4 ${style.className}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">CTCAE v5.0</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">CTCAE v5.0</p>
           <h4 className="mt-1 text-sm font-semibold text-white">Grade {grade}</h4>
         </div>
         <span className={`rounded-md px-2 py-1 text-[9px] font-bold uppercase tracking-wide ${style.badgeClass}`}>
@@ -434,10 +434,10 @@ export default function ToxicityAtlasPage() {
                 value={searchQuery}
                 onChange={event => setSearchQuery(event.target.value)}
                 placeholder="Search toxicities, signs, or management"
-                className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-500"
+                className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-400"
               />
               {searchQuery && (
-                <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')} className="rounded p-0.5 text-slate-500 hover:text-white">
+                <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')} className="rounded p-0.5 text-slate-400 hover:text-white">
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               )}
@@ -473,7 +473,7 @@ export default function ToxicityAtlasPage() {
 
           {filteredToxicities.length === 0 && (
             <div className="rounded-xl border border-slate-800 bg-[#0d1728] px-5 py-12 text-center">
-              <Search className="mx-auto h-5 w-5 text-slate-500" aria-hidden="true" />
+              <Search className="mx-auto h-5 w-5 text-slate-400" aria-hidden="true" />
               <h2 className="mt-3 text-sm font-semibold text-white">No matching toxicity events</h2>
               <p className="mt-1 text-xs text-slate-400">Try another organ filter or search term.</p>
             </div>
@@ -486,7 +486,7 @@ export default function ToxicityAtlasPage() {
               <BookOpen className="h-4 w-4 text-sky-300" aria-hidden="true" />
               <h2 id="sources-heading">Reference framework</h2>
             </div>
-            <p className="mt-1 text-[11px] leading-5 text-slate-500">
+            <p className="mt-1 text-[11px] leading-5 text-slate-400">
               Management summaries are not a substitute for the complete grading criteria, current evidence, or institution-approved pathways. Evidence for selected topical and enema therapies varies; confirm suitability with the relevant specialist.
             </p>
           </div>
@@ -506,7 +506,7 @@ export default function ToxicityAtlasPage() {
           </div>
         </section>
 
-        <footer className="mt-6 flex items-center gap-2 border-t border-slate-800/70 pt-4 text-[10px] leading-4 text-slate-500">
+        <footer className="mt-6 flex items-center gap-2 border-t border-slate-800/70 pt-4 text-[10px] leading-4 text-slate-400">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-400" aria-hidden="true" />
           <p>Verify grade definitions against CTCAE v5.0 and follow current institutional protocols before clinical use.</p>
         </footer>

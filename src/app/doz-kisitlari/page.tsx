@@ -148,14 +148,14 @@ export default function DoseConstraintsPage() {
             {language === 'en' ? 'Search organs, metrics, or toxicity' : 'Organ, metrik veya toksisite ara'}
           </label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
             <input
               id="oar-search"
               type="search"
               value={query ?? ''}
               onChange={event => setQuery(event.target.value)}
               placeholder="Kritik organ veya doz metriği ara..."
-              className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-500"
+              className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-500"
             />
           </div>
 
@@ -196,7 +196,7 @@ export default function DoseConstraintsPage() {
               ))}
             </div>
           </div>
-          <p className="mt-4 text-xs text-slate-500" aria-live="polite">
+          <p className="mt-4 text-xs text-slate-400" aria-live="polite">
             {language === 'en'
               ? `Showing ${filteredItems.length} records`
               : `${filteredItems.length} kayıt gösteriliyor`}
@@ -211,7 +211,7 @@ export default function DoseConstraintsPage() {
                   <div>
                     <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
                     <span className="mt-1 inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
-                    <p className="mt-1 text-[11px] font-medium text-slate-500">{fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}</p>
+                    <p className="mt-1 text-[11px] font-medium text-slate-400">{fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}</p>
                   </div>
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${item.priority === 'hard' ? 'border-rose-400/30 bg-rose-400/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'}`}>
                     <ShieldAlert className="h-3 w-3" aria-hidden="true" />
@@ -223,13 +223,13 @@ export default function DoseConstraintsPage() {
 
                 <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 rounded-xl border border-slate-800 bg-[#0a0f1d] p-3">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       {language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}
                     </div>
                     <div className="mt-1 text-sm font-semibold text-cyan-200">{item.metric}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       <span className="text-rose-300">{language === 'en' ? 'NTCP Ceiling' : 'NTCP Tavan Sınırı'}</span>
                     </div>
                     <div className="mt-1 max-w-64 text-sm font-bold text-white">{item.limit}</div>
@@ -245,7 +245,7 @@ export default function DoseConstraintsPage() {
                     <span className="font-semibold text-slate-300">{language === 'en' ? 'Context: ' : 'Bağlam: '}</span>
                     <span className="text-slate-400">{item.context}</span>
                   </p>
-                  <p className="text-slate-500">
+                  <p className="text-slate-400">
                     {language === 'en' ? 'Source: ' : 'Kaynak: '}
                     {item.sourceUrl ? (
                       <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200">{item.source}</a>
