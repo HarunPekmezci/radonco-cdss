@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/sign-in", "/sign-up"],
     },
-    sitemap: "https://radoncoxia.pro/sitemap.xml",
+    sitemap: "https://www.radoncoxia.pro/sitemap.xml",
   };
 }
