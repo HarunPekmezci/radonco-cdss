@@ -1980,7 +1980,7 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
 };
 
 type QuickCaseCategoryId = 'thorax' | 'breast' | 'cns' | 'gus' | 'renal' | 'gis' | 'gynecology' | 'sarcoma-palliative' | 'emergencies';
-type QuickCaseRegimen = 'clinical' | 'sbrt' | 'moderate' | 'sib' | 'conventional';
+type QuickCaseRegimen = 'clinical' | 'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional';
 type QuickCasePreset = {
   id: string;
   category: QuickCaseCategoryId;
@@ -2047,17 +2047,17 @@ type CommandPaletteItem =
   | { id: string; kind: 'page'; title: string; subtitle: string; searchText: string; destination: 'references' | 'contact' | 'guidelines' };
 
 const QUICK_CASE_PRESETS: QuickCasePreset[] = [
-  { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'sbrt' },
+  { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'ultra_hypo' },
   { id: 'case-02', category: 'thorax', title_tr: 'Lokal ileri KHDAK', title_en: 'Locally advanced NSCLC', detail_tr: 'Evre IIIA cT2 N2 M0 • Eşzamanlı KRT 60 Gy + PACIFIC', detail_en: 'Stage IIIA cT2 N2 M0 • Concurrent CRT 60 Gy + PACIFIC', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T2a', n: 'N2', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'clinical' },
   { id: 'case-03', category: 'thorax', title_tr: 'Sınırlı evre KHAK', title_en: 'Limited-stage SCLC', detail_tr: 'T2 N1 M0 • Turrisi akselere hiperfraksiyonasyon 1.5 Gy BID / 30 fx (≥ 6 saat ara)', detail_en: 'T2 N1 M0 • Turrisi accelerated hyperfractionation 1.5 Gy BID / 30 fx (≥ 6 hours apart)', organ: 'thorax', subsite: 'thorax-sclc', t: 'T2', n: 'N1', m: 'M0', regimen: 'clinical' },
   { id: 'case-04', category: 'thorax', title_tr: 'Timoma, Masaoka evre II', title_en: 'Thymoma, Masaoka stage II', detail_tr: 'R0 rezeksiyon • Adjuvan PORT 50 Gy', detail_en: 'R0 resection • Adjuvant PORT 50 Gy', organ: 'thorax', subsite: 'thorax-thymoma', t: 'Masaoka-II', n: 'N0', m: 'M0', histologyId: 'thymoma', regimen: 'clinical' },
-  { id: 'case-05', category: 'breast', title_tr: 'Erken evre standart meme', title_en: 'Early-stage breast cancer', detail_tr: 'pT1c pN0 M0 • Postmenopoz • FAST-Forward 26 Gy / 5 fx', detail_en: 'pT1c pN0 M0 • Postmenopausal • FAST-Forward 26 Gy / 5 fx', organ: 'breast', subsite: 'breast-breast', t: 'T1c', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sbrt' },
+  { id: 'case-05', category: 'breast', title_tr: 'Erken evre standart meme', title_en: 'Early-stage breast cancer', detail_tr: 'pT1c pN0 M0 • Postmenopoz • FAST-Forward 26 Gy / 5 fx', detail_en: 'pT1c pN0 M0 • Postmenopausal • FAST-Forward 26 Gy / 5 fx', organ: 'breast', subsite: 'breast-breast', t: 'T1c', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'ultra_hypo' },
   { id: 'case-06', category: 'breast', title_tr: 'Yüksek riskli lokal ileri PMRT', title_en: 'High-risk locally advanced PMRT', detail_tr: 'pT3 pN2a M0 • Mastektomi • Göğüs duvarı + RNI 50 Gy / 25 fx', detail_en: 'pT3 pN2a M0 • Mastectomy • Chest wall + RNI 50 Gy / 25 fx', organ: 'breast', subsite: 'breast-breast', t: 'T3', n: 'N2', m: 'M0', histologyId: 'breast-nst', regimen: 'conventional' },
-  { id: 'case-07', category: 'breast', title_tr: 'Genç hasta, MKC + SIB boost', title_en: 'Young patient, BCS + SIB boost', detail_tr: 'pT2 pN0 M0 • 38 yaş • WBRT 40.05 Gy + kavite SIB 48 Gy / 15 fx', detail_en: 'pT2 pN0 M0 • Age 38 • WBRT 40.05 Gy + cavity SIB 48 Gy / 15 fx', organ: 'breast', subsite: 'breast-breast', t: 'T2', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sib' },
+  { id: 'case-07', category: 'breast', title_tr: 'Genç hasta, MKC + SIB boost', title_en: 'Young patient, BCS + SIB boost', detail_tr: 'pT2 pN0 M0 • 38 yaş • WBRT 40.05 Gy + kavite SIB 48 Gy / 15 fx', detail_en: 'pT2 pN0 M0 • Age 38 • WBRT 40.05 Gy + cavity SIB 48 Gy / 15 fx', organ: 'breast', subsite: 'breast-breast', t: 'T2', n: 'N0', m: 'M0', histologyId: 'breast-nst', regimen: 'sib_boost' },
   { id: 'case-08', category: 'cns', title_tr: 'Glioblastoma multiforme', title_en: 'Glioblastoma multiforme', detail_tr: 'WHO Grade 4, IDH-wt • KPS 90 • Stupp 60 Gy / 30 fx + TMZ', detail_en: 'WHO Grade 4, IDH-wt • KPS 90 • Stupp 60 Gy / 30 fx + TMZ', organ: 'cns', subsite: 'cns-glioma', t: 'Grade-4', n: 'N0', m: 'M0', histologyId: 'glioma-gbm', regimen: 'clinical' },
   { id: 'case-09', category: 'cns', title_tr: 'Yüksek riskli düşük dereceli gliom', title_en: 'High-risk low-grade glioma', detail_tr: 'WHO Grade 2 • 45 yaş • STR • RTOG 9802: 54 Gy + PCV', detail_en: 'WHO Grade 2 • Age 45 • STR • RTOG 9802: 54 Gy + PCV', organ: 'cns', subsite: 'cns-glioma', t: 'Grade-2', n: 'N0', m: 'M0', histologyId: 'glioma-astro', regimen: 'clinical' },
   { id: 'case-10', category: 'cns', title_tr: 'Oligometastatik beyin metastazı', title_en: 'Oligometastatic brain metastases', detail_tr: '2 asemptomatik metastaz • Stereotaktik radyocerrahi 24 Gy', detail_en: '2 asymptomatic metastases • Stereotactic radiosurgery 24 Gy', organ: 'cns', subsite: 'cns-mets', t: 'Oligo', n: 'N0', m: 'M1', regimen: 'clinical' },
-  { id: 'case-11', category: 'gus', title_tr: 'Orta-favorable risk prostat', title_en: 'Favorable intermediate-risk prostate cancer', detail_tr: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', detail_en: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'moderate' },
+  { id: 'case-11', category: 'gus', title_tr: 'Orta-favorable risk prostat', title_en: 'Favorable intermediate-risk prostate cancer', detail_tr: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', detail_en: 'cT2a • Gleason 3+4 • PSA 8.5 • CHHiP 60 Gy / 20 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'moderate_hypo' },
   { id: 'case-12', category: 'gus', title_tr: 'Yüksek risk prostat', title_en: 'High-risk prostate cancer', detail_tr: 'cT3a ECE+ • Gleason 4+4 • PSA 24 • Pelvik nodal + prostat 78 Gy + 24 ay ADT', detail_en: 'cT3a ECE+ • Gleason 4+4 • PSA 24 • Pelvic nodes + prostate 78 Gy + 24 months ADT', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'conventional' },
   { id: 'case-13', category: 'gus', title_tr: 'Kas invaziv mesane kanseri', title_en: 'Muscle-invasive bladder cancer', detail_tr: 'cT2 N0 M0 • Maksimal TURBT • Trimodalite KRT 64 Gy', detail_en: 'cT2 N0 M0 • Maximal TURBT • Trimodality chemoradiotherapy 64 Gy', organ: 'prostate', subsite: 'prostate-bladder', t: 'T2', n: 'N0', m: 'M0', histologyId: 'bladder-urothelial', regimen: 'clinical' },
   { id: 'case-14', category: 'gus', title_tr: 'Evre I testis seminom', title_en: 'Stage I testicular seminoma', detail_tr: 'Orşiyektomi sonrası pT1 • Paraaortik elektif RT 20 Gy / 10 fx', detail_en: 'Post-orchiectomy pT1 • Elective para-aortic RT 20 Gy / 10 fx', organ: 'prostate', subsite: 'prostate-testis', t: 'I', n: 'N0', m: 'M0', histologyId: 'testis-seminoma', regimen: 'clinical' },
@@ -2069,11 +2069,11 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-20', category: 'sarcoma-palliative', title_tr: 'Ekstremite yumuşak doku sarkomu', title_en: 'Extremity soft-tissue sarcoma', detail_tr: 'Yüksek dereceli • Rezektabl • Preoperatif RT 50 Gy / 25 fx', detail_en: 'High grade • Resectable • Preoperative RT 50 Gy / 25 fx', organ: 'sarcoma', subsite: 'sarcoma-extremity', t: 'T2', n: 'N0', m: 'M0', regimen: 'clinical' },
   { id: 'case-21', category: 'sarcoma-palliative', title_tr: 'Ağrılı kemik metastazı', title_en: 'Painful bone metastasis', detail_tr: 'ASTRO • Tek fraksiyon 8 Gy analjezik RT', detail_en: 'ASTRO • Single-fraction 8 Gy palliative RT', organ: 'palliative', subsite: 'palliative-bone', t: 'Kemik', n: 'TekFx', m: 'M1', regimen: 'clinical' },
   { id: 'case-22', category: 'emergencies', title_tr: 'Spinal kord basısı (MSCC)', title_en: 'Spinal cord compression (MSCC)', detail_tr: 'Deksametazon • Patchell cerrahi uygunluğu • Acil RT 20 Gy / 5 fx', detail_en: 'Dexamethasone • Patchell surgical criteria • Emergency RT 20 Gy / 5 fx', organ: 'emergencies', subsite: 'emergency-mscc', t: 'Acil', n: 'N/A', m: 'M1', regimen: 'clinical' },
-  { id: 'case-23', category: 'renal', title_tr: 'Küçük primer RCC (≤4 cm, T1a) - FASTRACK II', title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx • Ablatif primer SABR', detail_en: 'Medically inoperable • 26 Gy / 1 fx • Ablative primary SABR', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
-  { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
-  { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'sbrt' },
-  { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sbrt' },
-  { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib' },
+  { id: 'case-23', category: 'renal', title_tr: 'Küçük primer RCC (≤4 cm, T1a) - FASTRACK II', title_en: 'Small Primary RCC (≤4 cm, T1a) - FASTRACK II', detail_tr: 'Medikal inoperabl • 26 Gy / 1 fx • Ablatif primer SABR', detail_en: 'Medically inoperable • 26 Gy / 1 fx • Ablative primary SABR', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'ultra_hypo' },
+  { id: 'case-24', category: 'renal', title_tr: 'Büyük primer RCC (>4–10 cm, T1b–T2) - FASTRACK II', title_en: 'Larger Primary RCC (>4–10 cm, T1b–T2) - FASTRACK II', detail_tr: 'Örnek çap 8 cm • cT2 N0 M0 • 42 Gy / 3 fx', detail_en: 'Example 8 cm diameter • cT2 N0 M0 • 42 Gy / 3 fx', organ: 'prostate', subsite: 'prostate-kidney', t: 'T2', n: 'N0', m: 'M0', histologyId: 'renal-clear-cell', regimen: 'ultra_hypo' },
+  { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'ultra_hypo' },
+  { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'ultra_hypo' },
+  { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib_boost' },
 ];
 
 type GuidedStep = 1 | 2 | 3 | 4;
@@ -2232,6 +2232,14 @@ export interface EvidenceLink {
   title: string;
   url: string;
   category?: string; // e.g., "Kategori 1", "Consensus Guideline", "Phase II Protocol"
+  customBadge?: string;
+}
+
+export interface RegimenEvidence {
+  nccn: { pdfUrl: string; targetPage: number; sectionCode: string; sectionTitle: string; };
+  astro?: { title: string; url: string; };
+  estro?: { title: string; url: string; };
+  landmarkTrial?: { shortName: string; citation: string; doiUrl: string; };
 }
 
 export interface DoseScheme extends TCPTargetPrescription {
@@ -2245,6 +2253,7 @@ export interface DoseScheme extends TCPTargetPrescription {
   systemicTherapy?: string;
   evidence: string;
   evidenceLinks?: EvidenceLink[];
+  evidenceObj?: RegimenEvidence;
 }
 
 const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARNTPCeiling[] => {
@@ -4475,6 +4484,47 @@ const resolveSchemeEvidenceLinks = (
   evidenceReferences: EvidenceReference[],
   isSclcTurrisi: boolean,
 ): EvidenceLink[] => {
+  if (scheme.evidenceObj) {
+    const objLinks: EvidenceLink[] = [];
+    if (scheme.evidenceObj.nccn) {
+      objLinks.push({
+        authority: 'NCCN',
+        title: `NCCN ${scheme.evidenceObj.nccn.sectionCode} (${scheme.evidenceObj.nccn.sectionTitle})`,
+        url: `${scheme.evidenceObj.nccn.pdfUrl}#page=${scheme.evidenceObj.nccn.targetPage}`,
+        category: 'NCCN Guideline',
+        customBadge: `NCCN · ${scheme.evidenceObj.nccn.sectionCode} (p. ${scheme.evidenceObj.nccn.targetPage})`,
+      });
+    }
+    if (scheme.evidenceObj.astro) {
+      objLinks.push({
+        authority: 'ASTRO',
+        title: scheme.evidenceObj.astro.title,
+        url: scheme.evidenceObj.astro.url,
+        category: 'ASTRO Guideline',
+        customBadge: 'ASTRO · Practice Guideline',
+      });
+    }
+    if (scheme.evidenceObj.estro) {
+      objLinks.push({
+        authority: 'ESTRO',
+        title: scheme.evidenceObj.estro.title,
+        url: scheme.evidenceObj.estro.url,
+        category: 'ESTRO Consensus',
+        customBadge: 'ESTRO · Consensus',
+      });
+    }
+    if (scheme.evidenceObj.landmarkTrial) {
+      objLinks.push({
+        authority: 'RTOG',
+        title: `${scheme.evidenceObj.landmarkTrial.shortName}: ${scheme.evidenceObj.landmarkTrial.citation}`,
+        url: scheme.evidenceObj.landmarkTrial.doiUrl,
+        category: 'Landmark Trial',
+        customBadge: `${scheme.evidenceObj.landmarkTrial.shortName} · ${scheme.evidenceObj.landmarkTrial.citation}`,
+      });
+    }
+    return objLinks;
+  }
+
   if (scheme.evidenceLinks && scheme.evidenceLinks.length > 0) {
     return scheme.evidenceLinks;
   }
@@ -4928,7 +4978,7 @@ export default function RadoncoCDSSPage() {
       setCustomFavorites(next);
     };
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
-  const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate');
+  const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate_hypo');
   const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
@@ -8712,40 +8762,40 @@ export default function RadoncoCDSSPage() {
   ]);
 
   // Fraksiyonasyon felsefesi kartları için klinik uygunluk kapısı
-  const isRegimenEligible = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional'): boolean => {
+  const isRegimenEligible = (regimen: 'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional'): boolean => {
     if (selectedOrgan === 'prostate') {
       const lowBurden = gusSubtype === 'prostate' && selectedN === 'N0' && selectedM === 'M0' && !hasSVI && selectedT !== 'T3b' && selectedT !== 'T4';
-      if (regimen === 'sbrt') return lowBurden;
-      if (regimen === 'sib') return gusSubtype === 'prostate' && (selectedN === 'N1' || hasSVI || hasECE || selectedT === 'T3a' || selectedT === 'T3b' || selectedT === 'T4');
+      if (regimen === 'ultra_hypo') return lowBurden;
+      if (regimen === 'sib_boost') return gusSubtype === 'prostate' && (selectedN === 'N1' || hasSVI || hasECE || selectedT === 'T3a' || selectedT === 'T3b' || selectedT === 'T4');
       return true;
     }
     if (selectedOrgan === 'thorax') {
       const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
-      if (regimen === 'sbrt') return earlyStage;
-      if (regimen === 'moderate') return thoraxSubtype === 'nsclc';
-      if (regimen === 'sib') return thoraxSubtype === 'nsclc' && !earlyStage && selectedM === 'M0';
+      if (regimen === 'ultra_hypo') return earlyStage;
+      if (regimen === 'moderate_hypo') return thoraxSubtype === 'nsclc';
+      if (regimen === 'sib_boost') return thoraxSubtype === 'nsclc' && !earlyStage && selectedM === 'M0';
       return true;
     }
     if (selectedOrgan === 'breast') {
       const bcsCandidate = breastSurgery === 'MKC' && breastHistology !== 'İnflamatuar Meme Kanseri (IBC)' && breastHistology !== 'Malign Filloides Tümörü';
-      if (regimen === 'sbrt' || regimen === 'moderate' || regimen === 'sib') return bcsCandidate;
+      if (regimen === 'ultra_hypo' || regimen === 'moderate_hypo' || regimen === 'sib_boost') return bcsCandidate;
       return true;
     }
     return true;
   };
 
-  const effectiveRegimen: 'sbrt' | 'moderate' | 'sib' | 'conventional' = useMemo(() => {
+  const effectiveRegimen: 'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional' = useMemo(() => {
     if (selectedRegimen !== 'clinical') return selectedRegimen;
     if (selectedOrgan === 'thorax') {
       const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
-      return earlyStage ? 'sbrt' : 'conventional';
+      return earlyStage ? 'ultra_hypo' : 'conventional';
     }
-    if (selectedOrgan === 'prostate') return 'moderate';
-    if (selectedOrgan === 'breast') return 'moderate';
+    if (selectedOrgan === 'prostate') return 'moderate_hypo';
+    if (selectedOrgan === 'breast') return 'moderate_hypo';
     return 'conventional';
   }, [selectedRegimen, selectedOrgan, thoraxSubtype, selectedM, selectedN, selectedT]);
 
-  const lungSubSchemesByPhilosophy: Record<'sbrt' | 'moderate' | 'sib' | 'conventional', DoseScheme[]> = useMemo(() => {
+  const lungSubSchemesByPhilosophy: Record<'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional', DoseScheme[]> = useMemo(() => {
     const lungSbrtTechnique = breathingMotion === 'DIBH'
       ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT (Optik Yüzey Rehberliği) / VMAT'
       : 'SBRT (4D-CT / ITV tabanlı VMAT)';
@@ -8954,10 +9004,10 @@ export default function RadoncoCDSSPage() {
       : [sbrt54, sbrt48, sbrt50];
 
     return {
-      sbrt: sbrtList,
-      moderate: [hypo55, hypo60, hypo45],
+      ultra_hypo: sbrtList,
+      moderate_hypo: [hypo55, hypo60, hypo45],
       conventional: [conv60, conv66],
-      sib: [sib60],
+      sib_boost: [sib60],
     };
   }, [breathingMotion, thoraxCentrality]);
 
@@ -8969,7 +9019,7 @@ export default function RadoncoCDSSPage() {
     return evaluatedDecision.alternativeSchemes;
   }, [selectedOrgan, thoraxSubtype, lungSubSchemesByPhilosophy, effectiveRegimen, evaluatedDecision.alternativeSchemes]);
 
-  const handleSelectPhilosophy = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional') => {
+  const handleSelectPhilosophy = (regimen: 'ultra_hypo' | 'moderate_hypo' | 'sib_boost' | 'conventional') => {
     setSelectedRegimen(regimen);
     if (selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc') {
       const list = lungSubSchemesByPhilosophy[regimen];
@@ -8999,35 +9049,59 @@ export default function RadoncoCDSSPage() {
       }
     }
 
-    const regimenByOrgan: Partial<Record<OrganId, Record<Exclude<QuickCaseRegimen, 'clinical'>, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
+    const regimenByOrgan: Partial<Record<OrganId, Record<Exclude<QuickCaseRegimen, 'clinical'>, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number; evidenceObj?: RegimenEvidence }>>> = {
       prostate: {
-        sbrt: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5 },
-        moderate: { name: 'Moderate Hypofractionation (CHHiP / PROFIT)', totalDoseGy: 60, fractionCount: 20, fractionDoseGy: 3, alphaBeta: 1.5 },
-        sib: { name: 'SIB Boost: Prostate 70 Gy + Pelvic Nodes 56 Gy / 28 fx', totalDoseGy: 70, fractionCount: 28, fractionDoseGy: 2.5, alphaBeta: 1.5 },
+        ultra_hypo: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5, evidenceObj: { landmarkTrial: { shortName: 'PACE-B', citation: 'NEJM 2024', doiUrl: 'https://doi.org/10.1056/NEJMoa191143' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/prostate.pdf', targetPage: 50, sectionCode: 'PROS-E', sectionTitle: 'Principles of Radiation Therapy' } } },
+        moderate_hypo: { name: 'Moderate Hypofractionation (CHHiP / PROFIT)', totalDoseGy: 60, fractionCount: 20, fractionDoseGy: 3, alphaBeta: 1.5, evidenceObj: { landmarkTrial: { shortName: 'CHHiP', citation: 'Lancet Oncol 2016', doiUrl: 'https://doi.org/10.1016/S1470-2045(16)30102-1' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/prostate.pdf', targetPage: 50, sectionCode: 'PROS-E', sectionTitle: 'Principles of Radiation Therapy' } } },
+        sib_boost: { name: 'SIB Boost: Prostate 70 Gy + Pelvic Nodes 56 Gy / 28 fx', totalDoseGy: 70, fractionCount: 28, fractionDoseGy: 2.5, alphaBeta: 1.5 },
         conventional: { name: 'Conventional Prostate RT', totalDoseGy: 78, fractionCount: 39, fractionDoseGy: 2, alphaBeta: 1.5 },
       },
       thorax: {
-        sbrt: { name: 'Lung SBRT (54 Gy / 3 fx)', totalDoseGy: 54, fractionCount: 3, fractionDoseGy: 18, alphaBeta: 10 },
-        moderate: { name: 'Lung Hypofractionation (50 Gy / 5 fx)', totalDoseGy: 50, fractionCount: 5, fractionDoseGy: 10, alphaBeta: 10 },
-        sib: { name: 'Concurrent Chemoradiotherapy (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+        ultra_hypo: { name: 'Lung SBRT (54 Gy / 3 fx)', totalDoseGy: 54, fractionCount: 3, fractionDoseGy: 18, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'RTOG 0236', citation: 'JAMA 2010', doiUrl: 'https://doi.org/10.1001/jama.2010.261' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf', targetPage: 77, sectionCode: 'NSCL-C', sectionTitle: 'Principles of Radiation Therapy' }, astro: { title: 'ASTRO SBRT Guideline', url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc' }, estro: { title: 'ESTRO ACROP SBRT', url: 'https://doi.org/10.1016/j.radonc.2017.05.012' } } },
+        moderate_hypo: { name: 'Lung Hypofractionation (55 Gy / 20 fx)', totalDoseGy: 55, fractionCount: 20, fractionDoseGy: 2.75, alphaBeta: 10 },
+        sib_boost: { name: 'Concurrent Chemoradiotherapy (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
         conventional: isSclcTurrisiScheme
           ? {
               name: lang === 'tr'
-                ? 'Akselere Hiperfraksiyonasyon (1.5 Gy BID / 30 fx, ≥ 6 saat ara) · Turrisi'
-                : 'Accelerated hyperfractionation (1.5 Gy BID / 30 fx, ≥ 6 hours apart) · Turrisi',
+                ? 'Akselere Hiperfraksiyonasyon (1.5 Gy BID / 30 fx, ~ 6 saat ara) - Turrisi'
+                : 'Accelerated hyperfractionation (1.5 Gy BID / 30 fx, ~ 6 hours apart) - Turrisi',
               totalDoseGy: 45,
               fractionCount: 30,
               fractionDoseGy: 1.5,
               alphaBeta: 10,
             }
-          : { name: 'Conventional Thoracic RT (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+          : { name: 'Conventional Thoracic RT (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'RTOG 0617', citation: 'Lancet Oncol 2015', doiUrl: 'https://doi.org/10.1016/S1470-2045(14)71207-0' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf', targetPage: 77, sectionCode: 'NSCL-C', sectionTitle: 'Principles of Radiation Therapy' }, estro: { title: 'ESTRO ACROP Stage III', url: 'https://doi.org/10.1016/j.radonc.2021.03.016' } } },
       },
       breast: {
-        sbrt: { name: 'Ultra-Hypofractionation (FAST-Forward)', totalDoseGy: 26, fractionCount: 5, fractionDoseGy: 5.2, alphaBeta: 4 },
-        moderate: { name: 'Moderate Hypofractionation (40.05 Gy / 15 fx)', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
-        sib: { name: 'Whole Breast 40.05 Gy + Cavity SIB 48 Gy / 15 fx', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
+        ultra_hypo: { name: 'Ultra-Hypofractionation (FAST-Forward)', totalDoseGy: 26, fractionCount: 5, fractionDoseGy: 5.2, alphaBeta: 4, evidenceObj: { landmarkTrial: { shortName: 'FAST-Forward', citation: 'Lancet 2020', doiUrl: 'https://doi.org/10.1016/S0140-6736(20)30932-6' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/breast.pdf', targetPage: 95, sectionCode: 'BINV-I', sectionTitle: 'Principles of Radiation Therapy' } } },
+        moderate_hypo: { name: 'Moderate Hypofractionation (40.05 Gy / 15 fx)', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4, evidenceObj: { landmarkTrial: { shortName: 'START-B', citation: 'Lancet 2008', doiUrl: 'https://doi.org/10.1016/S1470-2045(08)70077-9' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/breast.pdf', targetPage: 95, sectionCode: 'BINV-I', sectionTitle: 'Principles of Radiation Therapy' }, astro: { title: 'ASTRO Whole Breast Hypo', url: 'https://doi.org/10.1016/j.prro.2018.01.012' } } },
+        sib_boost: { name: 'Whole Breast 40.05 Gy + Cavity SIB 48 Gy / 15 fx', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 4 },
         conventional: { name: 'Conventional Breast RT (50 Gy / 25 fx)', totalDoseGy: 50, fractionCount: 25, fractionDoseGy: 2, alphaBeta: 4 },
       },
+      'head-neck': {
+        ultra_hypo: { name: 'SBRT Re-irradiation', totalDoseGy: 40, fractionCount: 5, fractionDoseGy: 8, alphaBeta: 10 },
+        moderate_hypo: { name: 'Hypofractionated Palliation', totalDoseGy: 30, fractionCount: 10, fractionDoseGy: 3, alphaBeta: 10 },
+        sib_boost: { name: 'Definitive SIB (70 Gy / 56 Gy in 35 fx)', totalDoseGy: 70, fractionCount: 35, fractionDoseGy: 2, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'RTOG 0129', citation: 'NEJM 2010', doiUrl: 'https://doi.org/10.1056/NEJMoa1003466' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/head-and-neck.pdf', targetPage: 85, sectionCode: 'HEAD-F', sectionTitle: 'Principles of Radiation Therapy' } } },
+        conventional: { name: 'Conventional RT (70 Gy / 35 fx)', totalDoseGy: 70, fractionCount: 35, fractionDoseGy: 2, alphaBeta: 10 },
+      },
+      gis: {
+        ultra_hypo: { name: 'Rectum Short-Course (25 Gy / 5 fx)', totalDoseGy: 25, fractionCount: 5, fractionDoseGy: 5, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'RAPIDO', citation: 'Lancet Oncol 2020', doiUrl: 'https://doi.org/10.1016/S1470-2045(20)30555-6' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/rectal.pdf', targetPage: 45, sectionCode: 'REC-E', sectionTitle: 'Principles of Radiation Therapy' } } },
+        moderate_hypo: { name: 'GI Hypofractionation', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 10 },
+        sib_boost: { name: 'Rectum SIB', totalDoseGy: 50.4, fractionCount: 28, fractionDoseGy: 1.8, alphaBeta: 10 },
+        conventional: { name: 'Rectum Long-Course (50.4 Gy / 28 fx)', totalDoseGy: 50.4, fractionCount: 28, fractionDoseGy: 1.8, alphaBeta: 10 },
+      },
+      cns: {
+        ultra_hypo: { name: 'SRS Brain Mets', totalDoseGy: 20, fractionCount: 1, fractionDoseGy: 20, alphaBeta: 12 },
+        moderate_hypo: { name: 'Glioblastoma Elderly Hypo (40.05 Gy / 15 fx)', totalDoseGy: 40.05, fractionCount: 15, fractionDoseGy: 2.67, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'Roa et al', citation: 'JCO 2004', doiUrl: 'https://ascopubs.org/doi/10.1200/JCO.2004.12.114' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/cns.pdf', targetPage: 40, sectionCode: 'BRAIN-A', sectionTitle: 'Principles of Radiation Therapy' } } },
+        sib_boost: { name: 'Glioblastoma SIB', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10 },
+        conventional: { name: 'Glioblastoma Stupp (60 Gy / 30 fx)', totalDoseGy: 60, fractionCount: 30, fractionDoseGy: 2, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'Stupp et al', citation: 'NEJM 2005', doiUrl: 'https://doi.org/10.1056/NEJMoa043489' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/cns.pdf', targetPage: 40, sectionCode: 'BRAIN-A', sectionTitle: 'Principles of Radiation Therapy' } } },
+      },
+      palliative: {
+        ultra_hypo: { name: 'Palliative 8 Gy / 1 fx', totalDoseGy: 8, fractionCount: 1, fractionDoseGy: 8, alphaBeta: 10, evidenceObj: { landmarkTrial: { shortName: 'RTOG 9714', citation: 'JCO 2005', doiUrl: 'https://ascopubs.org/doi/10.1200/JCO.2005.04.110' }, astro: { title: 'Palliative Bone Metastases Guideline', url: 'https://doi.org/10.1016/j.prro.2017.02.001' }, nccn: { pdfUrl: 'https://www.nccn.org/professionals/physician_gls/pdf/palliative.pdf', targetPage: 1, sectionCode: 'PAL-A', sectionTitle: 'Palliative RT' } } },
+        moderate_hypo: { name: 'Palliative 20 Gy / 5 fx', totalDoseGy: 20, fractionCount: 5, fractionDoseGy: 4, alphaBeta: 10 },
+        sib_boost: { name: 'Palliative SIB', totalDoseGy: 30, fractionCount: 10, fractionDoseGy: 3, alphaBeta: 10 },
+        conventional: { name: 'Palliative 30 Gy / 10 fx', totalDoseGy: 30, fractionCount: 10, fractionDoseGy: 3, alphaBeta: 10 },
+      }
     };
     if (selectedRegimen === 'clinical') return baseActiveScheme;
     const regimen = regimenByOrgan[selectedOrgan]?.[selectedRegimen];
@@ -9043,17 +9117,17 @@ export default function RadoncoCDSSPage() {
       alphaBeta: regimen.alphaBeta,
       // Yalnızca primer hedef hacim dozu felsefeye uyarlanır; nodal/boost seviyeleri korunur
       targetVolumes: baseActiveScheme.targetVolumes.map(volume => {
-        if (selectedOrgan === 'breast' && selectedRegimen === 'sib' && /boost|tumor.?bed|kavite/i.test(`${volume.name} ${volume.anatomical}`)) {
+        if (selectedOrgan === 'breast' && selectedRegimen === 'sib_boost' && /boost|tumor.?bed|kavite/i.test(`${volume.name} ${volume.anatomical}`)) {
           return { ...volume, doseGy: 48 };
         }
-        if (selectedOrgan === 'prostate' && selectedRegimen === 'sib' && /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)) {
+        if (selectedOrgan === 'prostate' && selectedRegimen === 'sib_boost' && /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)) {
           return { ...volume, doseGy: 56 };
         }
         return {
           ...volume,
           doseGy: volume.doseGy === baseActiveScheme.totalDoseGy ? regimen.totalDoseGy : volume.doseGy,
         };
-      }).concat(selectedOrgan === 'prostate' && selectedRegimen === 'sib' ? [{
+      }).concat(selectedOrgan === 'prostate' && selectedRegimen === 'sib_boost' ? [{
         name: 'PTV_Pelvic_Nodes',
         doseGy: 56,
         marginMm: 'Elective nodal CTV->PTV +5 mm',
@@ -11831,23 +11905,23 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   {lang === 'tr' ? 'FRAKSİYONASYON FELSEFESİ' : 'FRACTIONATION PHILOSOPHY'}
                 </div>
                 <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
-                  {(['sbrt', 'moderate', 'sib', 'conventional'] as const).map(regimen => {
+                  {(['ultra_hypo', 'moderate_hypo', 'sib_boost', 'conventional'] as const).map(regimen => {
                     const cards = {
-                      sbrt: {
+                      ultra_hypo: {
                         title: lang === 'tr' ? 'Ultra-Hipo' : 'Ultra-Hypo',
                         badge: '1-5 fx',
                         detail: 'SBRT / Stereotactic',
                         active: 'bg-gradient-to-br from-indigo-600 to-purple-600',
                         hover: 'hover:border-purple-300',
                       },
-                      moderate: {
+                      moderate_hypo: {
                         title: lang === 'tr' ? 'Ilımlı Hipo' : 'Moderate',
                         badge: '15-20 fx',
                         detail: 'Hypofractionated',
                         active: 'bg-gradient-to-br from-blue-600 to-cyan-600',
                         hover: 'hover:border-blue-300',
                       },
-                      sib: {
+                      sib_boost: {
                         title: 'SIB Boost',
                         badge: lang === 'tr' ? 'Entegre' : 'Integrated',
                         detail: 'Simultaneous Boost',
@@ -11885,7 +11959,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       >
                         <div className="mb-1 flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-xs font-bold">
-                            {regimen === 'sbrt' ? '⚡' : regimen === 'moderate' ? '🎯' : regimen === 'sib' ? '🧬' : '🛡️'} {card.title}
+                            {regimen === 'ultra_hypo' ? '⚡' : regimen === 'moderate_hypo' ? '🎯' : regimen === 'sib_boost' ? '🧬' : '🛡️'} {card.title}
                           </span>
                           {card.badge && <span className="rounded bg-white/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold dark:bg-slate-800/60">{card.badge}</span>}
                         </div>
@@ -12094,7 +12168,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <div className="flex flex-wrap items-center gap-2">
                       {resolvedEvidenceLinks.map((link, idx) => {
                         const style = AUTHORITY_STYLES[link.authority] || AUTHORITY_STYLES.NCCN;
-                        const badgeLabel = formatBadgeLabel(link);
+                        const badgeLabel = link.customBadge || formatBadgeLabel(link);
                         return (
                           <a
                             key={`${link.authority}-${link.url}-${idx}`}

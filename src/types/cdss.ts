@@ -216,6 +216,8 @@ export interface ClinicalRecommendation {
   systemicTherapy?: SystemicTherapyRecommendation[];
   rationale: string[];
   guidelineReferences?: GuidelineReference[];
+  evidenceObj?: RegimenEvidence;
+  philosophy?: 'ultra_hypo' | 'moderate_hypo' | 'conventional' | 'sib_boost';
 }
 
 export interface EvidenceLink {
@@ -223,6 +225,29 @@ export interface EvidenceLink {
   title: string;
   url: string;
   category?: string; // e.g., "Kategori 1", "Consensus Guideline", "Phase II Protocol"
+  customBadge?: string;
+}
+
+export interface RegimenEvidence {
+  nccn: {
+    pdfUrl: string;
+    targetPage: number;
+    sectionCode: string; // e.g. "NSCL-C", "BINV-I", "PROS-E", "HEAD-F", "REC-E", "BRAIN-A", "CERV-A"
+    sectionTitle: string; // e.g. "Principles of Radiation Therapy"
+  };
+  astro?: {
+    title: string;
+    url: string; // Verified permanent DOI or official ASTRO guideline URL
+  };
+  estro?: {
+    title: string;
+    url: string; // Verified permanent DOI or Green Journal / PubMed URL
+  };
+  landmarkTrial?: {
+    shortName: string; // e.g. "RTOG 0236", "RTOG 0617", "START-B", "CHHiP", "RTOG 0522", "EORTC 22981"
+    citation: string; // e.g. "JAMA 2010", "Lancet Oncol 2015"
+    doiUrl: string; // Direct DOI resolver link (e.g. https://doi.org/10.1016/...)
+  };
 }
 
 /**
@@ -239,8 +264,10 @@ export interface AlternativeDoseScheme {
   targetDescription: string;
   evidence: GuidelineReference[];
   evidenceLinks?: EvidenceLink[];
+  evidenceObj?: RegimenEvidence;
   oarProfile: OARNTPCeiling[];
   notes?: string[];
+  philosophy?: 'ultra_hypo' | 'moderate_hypo' | 'conventional' | 'sib_boost';
 }
 
 export interface RegimenCatalog {

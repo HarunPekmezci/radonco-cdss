@@ -4,8 +4,8 @@ import Link from 'next/link';
 import {
   ArrowUpRight,
   BookOpen,
-  Calculator,
-  ClipboardCheck,
+  Atom,
+  Scale,
   HeartPulse,
   Radiation,
   ShieldCheck,
@@ -99,8 +99,8 @@ const modules: PortalModule[] = [
   {
     href: '/doz-hesaplayici',
     cardKey: 'calculator',
-    icon: Calculator,
-    accent: 'text-indigo-400 bg-indigo-400/10 ring-indigo-400/20',
+    icon: Atom,
+    accent: 'text-orange-400 bg-orange-400/10 ring-orange-400/20',
   },
   {
     href: '/cdss?tab=contouring',
@@ -111,8 +111,8 @@ const modules: PortalModule[] = [
   {
     href: '/cdss?tab=prognostic',
     cardKey: 'prognostic',
-    icon: ClipboardCheck,
-    accent: 'text-purple-400 bg-purple-400/10 ring-purple-400/20',
+    icon: Scale,
+    accent: 'text-fuchsia-400 bg-fuchsia-400/10 ring-fuchsia-400/20',
   },
   {
     href: '/kaynakca',

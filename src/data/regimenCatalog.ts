@@ -1,5 +1,6 @@
 import type {
   AlternativeDoseScheme,
+  RegimenEvidence,
   EvidenceLink,
   Fractionation,
   GuidelineReference,
@@ -218,6 +219,7 @@ const scheme = (
   indication?: string,
   alphaBetaTumor = 10,
   evidenceLinks?: EvidenceLink[],
+  evidenceObj?: RegimenEvidence,
 ): AlternativeDoseScheme => ({
   id,
   label,
@@ -227,6 +229,7 @@ const scheme = (
   targetDescription,
   evidence: [evidence],
   evidenceLinks,
+  evidenceObj,
   oarProfile: oars(profile),
 });
 
