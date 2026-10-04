@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import {
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useSearchParams } from 'next/navigation';
+
 
 type PortalModule = {
   href: string;
@@ -26,12 +26,12 @@ const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
   sclc: 'SCLC (KHAK)',
   thymoma: 'Timoma',
   mesothelioma: 'Mezotelyoma',
-  'cns-mets': 'Beyin Metastazı',
+  'cns-mets': 'Beyin MetastazÄ±',
   gbm: 'Glioblastom (GBM)',
   meningioma: 'Menenjiyom',
   Serviks: 'Serviks Uteri',
   Endometriyum: 'Endometriyum',
-  Yumusak_Doku: 'Yumuşak Doku Sarkomu',
+  Yumusak_Doku: 'YumuÅŸak Doku Sarkomu',
   Osteosarkom: 'Osteosarkom',
 };
 
@@ -130,7 +130,7 @@ const modules: PortalModule[] = [
 
 export default function PortalPage() {
   const { t } = useLanguage();
-  const searchParams = useSearchParams();
+
   const titleSeparator = t.heroTitle.lastIndexOf(' ');
   const selectedSubtype = 'nsclc';
     const selectedOrgan = 'thorax';
