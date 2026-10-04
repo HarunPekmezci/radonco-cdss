@@ -3474,6 +3474,8 @@ export default function RadoncoCDSSPage() {
   const [selectedT, setSelectedT] = useState<string>('T1b');
   const [selectedN, setSelectedN] = useState<string>('N0');
   const [selectedM, setSelectedM] = useState<string>('M0');
+  const [isTnmAccordionOpen, setIsTnmAccordionOpen] = useState<boolean>(true);
+  const [activeSidebarTnmTab, setActiveSidebarTnmTab] = useState<'T' | 'N' | 'M'>('T');
   const [patientAgeYears, setPatientAgeYears] = useState<string>('');
   const [patientGender, setPatientGender] = useState<string>('');
   const [patientId, setPatientId] = useState<string>('');
@@ -8966,9 +8968,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   }
                   
                   let stageName = '';
-                  if (selectedOrgan === 'thorax') stageName = `T${selectedT} N${selectedN} M${selectedM}`;
-                  else if (selectedOrgan === 'breast') stageName = breastSurgery + ' ' + breastMargin;
-                  else if (selectedOrgan === 'head-neck') stageName = `T${selectedT} N${selectedN} M${selectedM}`;
+                  if (selectedOrgan === 'thorax' || selectedOrgan === 'head-neck' || selectedOrgan === 'prostate' || selectedOrgan === 'gis' || selectedOrgan === 'gynecology' || selectedOrgan === 'skin' || selectedOrgan === 'sarcoma' || selectedOrgan === 'cns') {
+                    stageName = `${selectedT} ${selectedN} ${selectedM}`;
+                  } else if (selectedOrgan === 'breast') {
+                    stageName = `${selectedT} ${selectedN} ${selectedM}`;
+                  }
                   
                   let regName = activeScheme ? activeScheme.name : '';
                   
@@ -8976,14 +8980,31 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 })()
               }</span>
             </div>
-            <button
-              onClick={() => {
-                document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="shrink-0 rounded bg-sky-500/10 px-2 py-1 text-[10px] font-bold text-sky-400 hover:bg-sky-500/20 transition-colors"
-            >
-              {lang === 'tr' ? 'En Üste Dön' : 'Reset / Top'}
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {selectedOrgan !== 'benign' && selectedOrgan !== 'palliative' && selectedOrgan !== 'emergencies' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsTnmAccordionOpen(true);
+                    document.getElementById('sidebar-tnm-stager')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-[11px] font-mono font-bold text-sky-300 hover:bg-sky-500/20 hover:border-sky-400 transition-colors"
+                  title={lang === 'tr' ? 'TNM Evresini Değiştir' : 'Edit TNM Stage'}
+                >
+                  <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{selectedT} {selectedN} {selectedM}</span>
+                  <span className="text-[10px] text-sky-400 font-sans hidden sm:inline">✏️</span>
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="shrink-0 rounded bg-sky-500/10 px-2 py-1 text-[10px] font-bold text-sky-400 hover:bg-sky-500/20 transition-colors"
+              >
+                {lang === 'tr' ? 'En Üste Dön' : 'Reset / Top'}
+              </button>
+            </div>
           </div>
 
         <div className="col-span-12 grid grid-cols-1 gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-2 sm:grid-cols-3" aria-label={lang === 'tr' ? 'İsteğe bağlı hasta bilgileri' : 'Optional patient information'}>
@@ -9246,6 +9267,165 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             </div>
           )}
+
+          {/* =========================================================
+              TNM / EVRELEME AKORDİYONU (TAM MATRİS VE SİHİRBAZ ENTEGRASYONU)
+             ========================================================= */}
+          <div id="sidebar-tnm-stager" className="rounded-2xl glass-panel p-3.5 shadow-sm mb-4">
+            <button
+              type="button"
+              onClick={() => setIsTnmAccordionOpen(prev => !prev)}
+              aria-expanded={isTnmAccordionOpen}
+              className="flex w-full items-center justify-between text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg py-0.5"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-sky-400" />
+                  {lang === 'tr' ? 'TNM & Evreleme' : 'TNM & Staging'}
+                </span>
+                {selectedOrgan !== 'benign' && selectedOrgan !== 'palliative' && selectedOrgan !== 'emergencies' ? (
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                    {selectedT} {selectedN} {selectedM}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700 bg-slate-800 text-slate-300">
+                    {selectedOrgan === 'emergencies'
+                      ? (lang === 'tr' ? 'ACİL PROTOKOL' : 'EMERGENCY PROTOCOL')
+                      : selectedOrgan === 'palliative'
+                        ? (lang === 'tr' ? 'PALYATİF' : 'PALLIATIVE')
+                        : (lang === 'tr' ? 'BENİGN DURUM' : 'BENIGN STATUS')}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
+                  {isTnmAccordionOpen ? (lang === 'tr' ? 'Daralt' : 'Collapse') : (lang === 'tr' ? 'Düzenle' : 'Edit')}
+                </span>
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isTnmAccordionOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+
+            {isTnmAccordionOpen && (
+              <div className="mt-3 pt-3 border-t border-slate-800/80">
+                {selectedOrgan === 'benign' ? (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      {lang === 'tr'
+                        ? 'Benign hastalıklarda TNM evrelemesi uygulanmaz. Klinik durumu seçin:'
+                        : 'TNM staging does not apply to benign cases. Select clinical status:'}
+                    </p>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {(BENIGN_CLINICAL_OPTIONS[selectedSubsite] || []).map(option => {
+                        const isSelected = benignClinicalStatus === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            aria-pressed={isSelected}
+                            onClick={() => setBenignClinicalStatus(option.value)}
+                            className={`flex items-center justify-between rounded-xl p-2.5 text-left text-xs transition-colors ${
+                              isSelected
+                                ? 'border border-emerald-500 bg-emerald-500/20 text-emerald-200 font-semibold ring-1 ring-emerald-400/40'
+                                : 'border border-slate-700/80 bg-slate-900/60 text-slate-200 hover:bg-slate-800'
+                            }`}
+                          >
+                            <span>{tText(option.label)}</span>
+                            {isSelected && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" aria-hidden="true" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (
+                  <div className={`rounded-xl border p-2.5 text-xs leading-relaxed ${
+                    selectedOrgan === 'emergencies'
+                      ? 'border-rose-500/30 bg-rose-950/30 text-rose-200'
+                      : 'border-teal-500/30 bg-teal-950/20 text-teal-200'
+                  }`}>
+                    {selectedOrgan === 'emergencies'
+                      ? (lang === 'tr'
+                          ? '⚡ Acil onkolojik senaryo: Klasik TNM evrelemesi yerine acil klinik endikasyon (SVCS, Kord Basısı, vb.) üzerinden acil dekompresif fraksiyonasyon belirlenir.'
+                          : '⚡ Emergency scenario: Classical TNM does not apply; urgent decompressive fractionation is governed by emergency indication.')
+                      : (lang === 'tr'
+                          ? '🛡️ Palyatif semptomatik tedavi: Hedef metastaz lokasyonu ve hasta performansına göre palyatif doz şeması belirlenir.'
+                          : '🛡️ Palliative symptomatic treatment: Fractionation is selected based on metastatic site and clinical status.')}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {/* T / N / M Eksen Değiştirici Sekmeler */}
+                    <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-slate-950/60 p-1 border border-slate-800">
+                      {(['T', 'N', 'M'] as const).map(axis => {
+                        const activeVal = axis === 'T' ? selectedT : axis === 'N' ? selectedN : selectedM;
+                        const isTabActive = activeSidebarTnmTab === axis;
+                        return (
+                          <button
+                            key={axis}
+                            type="button"
+                            onClick={() => setActiveSidebarTnmTab(axis)}
+                            className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                              isTabActive
+                                ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30 ring-1 ring-sky-400'
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                            }`}
+                          >
+                            <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">{axis} Evresi</span>
+                            <span className="font-mono text-xs font-bold text-white">{activeVal}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Aktif Eksen Seçenekleri Listesi */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        <span>
+                          {activeSidebarTnmTab === 'T'
+                            ? (lang === 'tr' ? 'Primer Tümör (T) Kriterleri' : 'Primary Tumor (T) Criteria')
+                            : activeSidebarTnmTab === 'N'
+                              ? (lang === 'tr' ? 'Bölgesel Lenf Nodu (N)' : 'Regional Lymph Nodes (N)')
+                              : (lang === 'tr' ? 'Uzak Metastaz (M)' : 'Distant Metastasis (M)')}
+                        </span>
+                        <span className="font-mono text-sky-400 font-bold">
+                          {activeSidebarTnmTab === 'T' ? selectedT : activeSidebarTnmTab === 'N' ? selectedN : selectedM}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-1 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                        {(currentTNM[activeSidebarTnmTab] || []).map(opt => {
+                          const currentVal = activeSidebarTnmTab === 'T' ? selectedT : activeSidebarTnmTab === 'N' ? selectedN : selectedM;
+                          const isSel = currentVal === opt.code;
+                          const isDisabled = activeSidebarTnmTab === 'T' && breastHistology === 'İnflamatuar Meme Kanseri (IBC)' && opt.code !== 'T4d';
+                          return (
+                            <button
+                              key={opt.code}
+                              type="button"
+                              disabled={isDisabled}
+                              onClick={() => handleTnmSelection(activeSidebarTnmTab, opt.code)}
+                              className={`w-full text-left p-2 rounded-xl border transition-all text-xs flex items-center justify-between ${
+                                isDisabled ? 'cursor-not-allowed opacity-45' : ''
+                              } ${
+                                isSel
+                                  ? 'bg-blue-600 border-blue-500 text-white font-bold shadow-md ring-1 ring-blue-400'
+                                  : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-blue-400 hover:bg-slate-800/80'
+                              }`}
+                            >
+                              <span className="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                                {tText(opt.label)}
+                              </span>
+                              <span className={`text-[11px] leading-relaxed flex-1 px-2 line-clamp-2 ${isSel ? 'text-white font-semibold' : 'text-slate-300 font-medium'}`}>
+                                {tText(opt.criterion)}
+                              </span>
+                              {isSel && <Check className="w-3.5 h-3.5 text-white shrink-0" aria-hidden="true" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
           <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-3 shadow-sm flex flex-col gap-2.5 lg:p-5 lg:gap-3">
@@ -10337,17 +10517,19 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
-          {(!isGuidedMode || guidedStep === 2 || guidedStep === 3) && (
+          {(!isGuidedMode || guidedStep >= 3) && (
           <section
             id="guided-prognostic-assessment"
-            className="w-full rounded-2xl border border-slate-800 bg-[#0e1726] p-4 shadow-xl sm:p-6"
+            className="w-full rounded-2xl glass-panel p-4 shadow-xl sm:p-6"
             aria-labelledby="prognostic-assessment-heading"
           >
             <div className="mb-4 flex flex-col gap-2 border-b border-slate-800 pb-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
-                  {lang === 'tr' ? '3. ADIM' : 'STEP 3'}
-                </p>
+                {isGuidedMode && (
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-sky-300">
+                    {lang === 'tr' ? '3. ADIM' : 'STEP 3'}
+                  </p>
+                )}
                 <h2 id="prognostic-assessment-heading" className="text-lg font-bold text-white">
                   {lang === 'tr'
                     ? 'Prognostik İndeks ve Risk Sınıflaması'
