@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-3xl: 120rem; /* 1920px (2K / QHD) */
+  --breakpoint-4xl: 160rem; /* 2560px (Ultra-Wide / 4K UHD) */
+}
+
 .auth-mosaic {
   background-color: #070b14;
   background-image:

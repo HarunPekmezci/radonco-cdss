@@ -155,12 +155,12 @@ export default function SignUpPage() {
       }} />
 
       {/* ── LANGUAGE TOGGLE ─────────────────────────────────────────────── */}
-      <div className="fixed top-4 right-4 z-50">
-        <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700/60 rounded-xl p-1 shadow-xl shadow-black/40 backdrop-blur-md text-xs font-semibold">
-          <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+      <div className="fixed top-4 right-4 4xl:top-8 4xl:right-8 z-50">
+        <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700/60 rounded-xl 4xl:rounded-2xl p-1 4xl:p-1.5 shadow-xl shadow-black/40 backdrop-blur-md text-xs 2xl:text-sm 4xl:text-base font-semibold">
+          <Globe className="w-3.5 h-3.5 4xl:w-4.5 4xl:h-4.5 text-slate-400 ml-1.5 mr-0.5" />
           <button
             onClick={() => setLanguage('en')}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
+            className={`px-2.5 py-1 4xl:px-3.5 4xl:py-1.5 rounded-lg 4xl:rounded-xl transition-all ${
               language === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -168,7 +168,7 @@ export default function SignUpPage() {
           </button>
           <button
             onClick={() => setLanguage('tr')}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
+            className={`px-2.5 py-1 4xl:px-3.5 4xl:py-1.5 rounded-lg 4xl:rounded-xl transition-all ${
               language === 'tr' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -178,26 +178,26 @@ export default function SignUpPage() {
       </div>
 
       {/* ── CENTERED WORKSTATION COMPOSITION ────────────────────────────── */}
-      <main className="flex-1 flex items-center justify-center w-full px-6 py-12">
-        <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <main className="flex-1 flex items-center justify-center w-full px-6 lg:px-12 2xl:px-16 4xl:px-24 py-12 4xl:py-20">
+        <div className="w-full mx-auto max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1700px] 4xl:max-w-[2200px] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 3xl:gap-16 4xl:gap-24 items-center">
 
           {/* ════════════════════════════════════════════════════════════
               LEFT HERO PANE  (7 / 12 cols on desktop)
              ════════════════════════════════════════════════════════════ */}
-          <div className="hidden lg:flex lg:col-span-7 flex-col gap-6 relative">
+          <div className="hidden lg:flex lg:col-span-7 flex-col gap-6 4xl:gap-8 relative">
             {/* Ambient glow behind hero */}
             <div className="absolute -inset-8 bg-[radial-gradient(ellipse_70%_60%_at_10%_30%,rgba(14,165,233,0.07),transparent_60%)] pointer-events-none" />
             <div className="absolute -inset-8 bg-[radial-gradient(ellipse_50%_50%_at_90%_80%,rgba(99,102,241,0.06),transparent_60%)] pointer-events-none" />
 
             <div className="relative z-10">
               {/* Emerald clinical badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 mb-5 shadow-sm">
-                <span className="animate-pulse w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 4xl:px-4 4xl:py-2 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs 2xl:text-sm 4xl:text-base font-semibold text-emerald-400 mb-5 4xl:mb-8 shadow-sm">
+                <span className="animate-pulse w-2 h-2 4xl:w-2.5 4xl:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
                 {t.badge}
               </div>
 
               {/* Main headline */}
-              <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight mb-6">
+              <h1 className="text-3xl lg:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl font-extrabold tracking-tight leading-tight mb-6 4xl:mb-8">
                 <span className="text-white">{t.headline1}</span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500">
@@ -206,47 +206,47 @@ export default function SignUpPage() {
               </h1>
 
               {/* Feature value-prop chips */}
-              <div className="flex flex-col gap-2.5 mb-7">
-                <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-sky-500/[0.07] border border-sky-500/[0.15] hover:border-sky-400/30 transition-colors">
-                  <span className="text-base leading-none flex-shrink-0">⚡</span>
-                  <p className="text-xs font-medium text-slate-300 leading-snug">{t.chip1}</p>
+              <div className="flex flex-col gap-2.5 4xl:gap-3.5 mb-7 4xl:mb-9">
+                <div className="flex items-center gap-3 4xl:gap-4 px-4 py-2.5 4xl:px-5 4xl:py-3.5 rounded-xl 4xl:rounded-2xl bg-sky-500/[0.07] border border-sky-500/[0.15] hover:border-sky-400/30 transition-colors">
+                  <span className="text-base 4xl:text-xl leading-none flex-shrink-0">⚡</span>
+                  <p className="text-xs 2xl:text-sm 4xl:text-base font-medium text-slate-300 leading-snug">{t.chip1}</p>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-violet-500/[0.07] border border-violet-500/[0.15] hover:border-violet-400/30 transition-colors">
-                  <span className="text-base leading-none flex-shrink-0">🛡️</span>
-                  <p className="text-xs font-medium text-slate-300 leading-snug">{t.chip2}</p>
+                <div className="flex items-center gap-3 4xl:gap-4 px-4 py-2.5 4xl:px-5 4xl:py-3.5 rounded-xl 4xl:rounded-2xl bg-violet-500/[0.07] border border-violet-500/[0.15] hover:border-violet-400/30 transition-colors">
+                  <span className="text-base 4xl:text-xl leading-none flex-shrink-0">🛡️</span>
+                  <p className="text-xs 2xl:text-sm 4xl:text-base font-medium text-slate-300 leading-snug">{t.chip2}</p>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/[0.15] hover:border-emerald-400/30 transition-colors">
-                  <span className="text-base leading-none flex-shrink-0">📚</span>
+                <div className="flex items-center gap-3 4xl:gap-4 px-4 py-2.5 4xl:px-5 4xl:py-3.5 rounded-xl 4xl:rounded-2xl bg-emerald-500/[0.07] border border-emerald-500/[0.15] hover:border-emerald-400/30 transition-colors">
+                  <span className="text-base 4xl:text-xl leading-none flex-shrink-0">📚</span>
                   <BookOpen className="hidden w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                  <p className="text-xs font-medium text-slate-300 leading-snug">{t.chip3}</p>
+                  <p className="text-xs 2xl:text-sm 4xl:text-base font-medium text-slate-300 leading-snug">{t.chip3}</p>
                 </div>
               </div>
 
               {/* ── DVH CONSOLE ─────────────────────────────────────── */}
-              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-700/50 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl relative overflow-hidden">
+              <div className="p-5 2xl:p-6 4xl:p-8 rounded-2xl 4xl:rounded-3xl bg-slate-900/70 border border-slate-700/50 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl relative overflow-hidden">
                 <div className="absolute -top-8 -right-8 w-36 h-36 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
                 {/* DVH header */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-sky-400 animate-pulse" />
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3 4xl:mb-4 text-xs 2xl:text-sm 4xl:text-base">
+                  <div className="flex items-center gap-2 4xl:gap-2.5">
+                    <Activity className="w-4 h-4 4xl:w-5 4xl:h-5 text-sky-400 animate-pulse" />
                     <span className="font-bold text-white tracking-wide">{t.dvhTitle}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] font-mono">
+                  <div className="flex items-center gap-3 4xl:gap-4 text-[11px] 2xl:text-xs 4xl:text-sm font-mono">
                     <span className="flex items-center gap-1.5 text-sky-400 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
+                      <span className="w-2 h-2 4xl:w-2.5 4xl:h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" /> {t.ptvLegend}
                     </span>
                     <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]" /> {t.cordLegend}
+                      <span className="w-2 h-2 4xl:w-2.5 4xl:h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]" /> {t.cordLegend}
                     </span>
                     <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t.oarLegend}
+                      <span className="w-2 h-2 4xl:w-2.5 4xl:h-2.5 rounded-full bg-emerald-400" /> {t.oarLegend}
                     </span>
                   </div>
                 </div>
 
                 {/* SVG DVH chart — unique IDs for sign-up to avoid DOM conflicts */}
-                <div className="relative w-full h-28 my-1">
+                <div className="relative w-full h-28 2xl:h-32 3xl:h-36 4xl:h-44 my-1 4xl:scale-110 4xl:origin-top-left">
                   <svg viewBox="0 0 400 110" className="w-full h-full overflow-visible">
                     <defs>
                       <linearGradient id="su-ptvGrad" x1="0" y1="0" x2="0" y2="1">
@@ -295,7 +295,7 @@ export default function SignUpPage() {
                 </div>
 
                 {/* Dose axis */}
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-1.5 border-t border-slate-700/60">
+                <div className="flex justify-between text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 font-mono pt-1.5 4xl:pt-2.5 border-t border-slate-700/60">
                   <span>0 Gy</span>
                   <span>{t.criticalThreshold}</span>
                   <span>{t.rxDose}</span>
@@ -303,27 +303,27 @@ export default function SignUpPage() {
                 </div>
 
                 {/* CI / HI / GI */}
-                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-700/50 text-center">
-                  <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60">
-                    <span className="text-[10px] text-slate-400 block font-mono">{t.ciLabel}</span>
-                    <span className="text-xs font-bold font-mono text-emerald-400">0.98 <span className="text-[10px] text-slate-400 font-normal">{t.optimal}</span></span>
+                <div className="grid grid-cols-3 gap-2 4xl:gap-4 mt-3 4xl:mt-5 pt-3 4xl:pt-5 border-t border-slate-700/50 text-center">
+                  <div className="bg-slate-900/80 p-2 2xl:p-2.5 4xl:p-4 rounded-xl 4xl:rounded-2xl border border-slate-700/60">
+                    <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 block font-mono">{t.ciLabel}</span>
+                    <span className="text-xs 2xl:text-sm 4xl:text-base font-bold font-mono text-emerald-400">0.98 <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 font-normal">{t.optimal}</span></span>
                   </div>
-                  <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60">
-                    <span className="text-[10px] text-slate-400 block font-mono">{t.hiLabel}</span>
-                    <span className="text-xs font-bold font-mono text-sky-400">1.04 <span className="text-[10px] text-slate-400 font-normal">{t.target}</span></span>
+                  <div className="bg-slate-900/80 p-2 2xl:p-2.5 4xl:p-4 rounded-xl 4xl:rounded-2xl border border-slate-700/60">
+                    <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 block font-mono">{t.hiLabel}</span>
+                    <span className="text-xs 2xl:text-sm 4xl:text-base font-bold font-mono text-sky-400">1.04 <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 font-normal">{t.target}</span></span>
                   </div>
-                  <div className="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60">
-                    <span className="text-[10px] text-slate-400 block font-mono">{t.giLabel}</span>
-                    <span className="text-xs font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] text-slate-400 font-normal">{t.steep}</span></span>
+                  <div className="bg-slate-900/80 p-2 2xl:p-2.5 4xl:p-4 rounded-xl 4xl:rounded-2xl border border-slate-700/60">
+                    <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 block font-mono">{t.giLabel}</span>
+                    <span className="text-xs 2xl:text-sm 4xl:text-base font-bold font-mono text-indigo-400">3.2 <span className="text-[10px] 2xl:text-xs 4xl:text-sm text-slate-400 font-normal">{t.steep}</span></span>
                   </div>
                 </div>
               </div>
 
               {/* Clinician signature */}
-              <div className="flex flex-col gap-1 mt-5 text-xs text-slate-500">
-                <p className="text-[11px] leading-relaxed">{t.physicianNote}</p>
-                <div className="flex items-center gap-1.5 text-slate-300 font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+              <div className="flex flex-col gap-1 mt-6 4xl:mt-10 text-xs 2xl:text-sm 4xl:text-base text-slate-500">
+                <p className="text-[11px] 2xl:text-xs 4xl:text-sm leading-relaxed">{t.physicianNote}</p>
+                <div className="flex items-center gap-1.5 text-slate-300 font-semibold text-xs 2xl:text-sm 4xl:text-base">
+                  <ShieldCheck className="w-3.5 h-3.5 4xl:w-4.5 4xl:h-4.5 text-emerald-400 flex-shrink-0" />
                   <span>{t.signature}</span>
                 </div>
               </div>
@@ -341,15 +341,15 @@ export default function SignUpPage() {
                 <span className="animate-pulse w-2 h-2 rounded-full bg-emerald-400" />
                 {t.badge}
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">RadOnco CDSS</span>
-              <span className="text-xs text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">RadOnco CDSS</h2>
+              <span className="text-xs sm:text-sm text-slate-400 mt-0.5">{t.mobileSubtitle}</span>
             </div>
 
             {/* ── SINGLE GLASSMORPHISM CARD ─────────────────────────── */}
-            <div className="w-full backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl shadow-cyan-950/20 rounded-2xl overflow-hidden">
+            <div className="w-full max-w-md 2xl:max-w-lg 4xl:max-w-xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl shadow-cyan-950/20 rounded-2xl 4xl:rounded-3xl overflow-hidden">
 
               {/* Clerk form — transparent inside, no competing card */}
-              <div className="p-6 sm:p-8">
+              <div className="p-6 sm:p-8 4xl:p-12">
                 <SignUp
                   key={language}
                   {...({ localization: clerkLocalization } as any)}
@@ -375,32 +375,36 @@ export default function SignUpPage() {
 
                       rootBox: 'w-full',
                       card: '!bg-transparent !shadow-none !border-0 !p-0 w-full',
-                      headerTitle: '!text-white font-bold text-lg text-center',
-                      headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
+                      headerTitle: '!text-white font-bold text-lg 2xl:text-xl 4xl:text-2xl text-center',
+                      headerSubtitle: '!text-slate-400 text-xs 2xl:text-sm 4xl:text-base text-center mb-4 4xl:mb-6',
 
-                      formFieldLabel: '!text-slate-200 text-xs font-semibold',
-                      formFieldInput: '!bg-slate-800/70 !text-white placeholder:!text-slate-500 !border-slate-700/80 rounded-xl py-2.5 px-3.5 text-sm font-medium focus:!border-sky-500 focus:!ring-1 focus:!ring-sky-500/30',
-                      formButtonPrimary: '!bg-gradient-to-r !from-sky-500 !to-blue-600 hover:!from-sky-400 hover:!to-blue-500 !text-white font-semibold py-3 rounded-xl text-sm !shadow-lg !shadow-sky-600/20 w-full mt-2 normal-case transition-all',
+                      identityPreview: '!bg-slate-800/80 !border !border-slate-700/80 !rounded-xl 4xl:!rounded-2xl !py-2 4xl:!py-3 !px-3.5 4xl:!px-5 mb-3 4xl:mb-4',
+                      identityPreviewText: '!text-white !font-bold text-sm 2xl:text-base 4xl:text-lg',
+                      identityPreviewEditButton: '!text-sky-400 hover:!text-sky-300',
+
+                      formFieldLabel: '!text-slate-200 text-xs 2xl:text-sm 4xl:text-base font-semibold',
+                      formFieldInput: '!bg-slate-800/70 !text-white placeholder:!text-slate-500 !border-slate-700/80 rounded-xl 4xl:rounded-2xl py-2.5 4xl:py-3.5 px-3.5 4xl:px-5 text-sm 2xl:text-base 4xl:text-lg font-medium focus:!border-sky-500 focus:!ring-1 focus:!ring-sky-500/30',
+                      formButtonPrimary: '!bg-gradient-to-r !from-sky-500 !to-blue-600 hover:!from-sky-400 hover:!to-blue-500 !text-white font-semibold py-3 4xl:py-4 rounded-xl 4xl:rounded-2xl text-sm 2xl:text-base 4xl:text-lg !shadow-lg !shadow-sky-600/20 w-full mt-2 4xl:mt-4 normal-case transition-all',
                     },
                   } as any)}
                 />
               </div>
 
               {/* Seamless footer link — merged inside the single card */}
-              <div className="px-6 sm:px-8 py-4 border-t border-slate-800/70 flex items-center justify-center gap-2 text-xs text-slate-400">
+              <div className="px-6 sm:px-8 4xl:px-12 py-4 4xl:py-5 border-t border-slate-800/70 flex items-center justify-center gap-2 text-xs 2xl:text-sm 4xl:text-base text-slate-400">
                 <span>{t.hasAccount}</span>
                 <Link
                   href="/sign-in"
                   className="inline-flex items-center gap-1 font-bold text-sky-400 hover:text-sky-300 transition-colors"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
+                  <LogIn className="w-3.5 h-3.5 4xl:w-4.5 4xl:h-4.5" />
                   {t.signIn}
                 </Link>
               </div>
             </div>
 
             {/* Physician note */}
-            <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-500 px-2">
+            <p className="mt-3 4xl:mt-5 text-center text-[11px] 2xl:text-xs 4xl:text-sm leading-relaxed text-slate-500 px-2">
               {t.physicianNote}
             </p>
 
