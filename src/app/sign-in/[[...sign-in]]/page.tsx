@@ -175,16 +175,7 @@ export default function SignInPage() {
       <main className="mx-auto flex min-h-screen w-full max-w-[1600px] overflow-hidden border-x border-slate-800/40">
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 xl:p-16 border-r border-slate-800/80 bg-[#0a101d]/90 bg-[radial-gradient(ellipse_at_top_left,rgba(37,99,235,0.15),transparent_70%)] relative overflow-hidden">
         
-        {/* Üst Logo */}
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-md nuclear-box">
-            <Radiation className="w-7 h-7 nuclear-icon" />
-          </div>
-          <div>
-            <span className="text-lg font-extrabold tracking-tight text-white block">RadOnc CDSS</span>
-            <span className="text-[11px] text-slate-400 font-medium">{t.platformSubtitle}</span>
-          </div>
-        </div>
+        
 
         {/* Ana Başlık */}
         <div className="my-auto py-6 max-w-lg">
