@@ -1,0 +1,6 @@
+{
+  // Tell the VS Code built-in CSS language server to ignore unknown at-rules.
+  // @theme is a valid Tailwind CSS v4 directive processed at build time by PostCSS;
+  // the IDE language server predates v4 and doesn't recognise it natively.
+  "css.lint.unknownAtRules": "ignore"
+}
