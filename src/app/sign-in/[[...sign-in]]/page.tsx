@@ -70,8 +70,12 @@ export default function SignInPage() {
         formButtonPrimary: 'Giriş Yap',
         formFieldLabel__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
         formFieldInputPlaceholder__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
+        formFieldLabel__identifier: 'E-posta adresi veya kullanıcı adı',
+        formFieldInputPlaceholder__identifier: 'E-posta adresi veya kullanıcı adı',
         formFieldLabel__emailAddress: 'E-posta adresi veya kullanıcı adı',
         formFieldInputPlaceholder__emailAddress: 'E-posta adresi veya kullanıcı adı',
+        formFieldLabel__username: 'Kullanıcı adı',
+        formFieldInputPlaceholder__username: 'Kullanıcı adı',
         formFieldLabel__password: 'Şifre',
         formFieldInputPlaceholder__password: 'Şifre',
         signIn: {
@@ -83,6 +87,11 @@ export default function SignInPage() {
             actionText: 'Hesabınız yok mu?',
             actionLink: 'Kayıt Ol',
           },
+          password: {
+            ...trTR.signIn?.password,
+            title: 'Şifrenizi girin',
+            subtitle: 'RadOnco CDSS ile devam etmek için',
+          },
         },
       };
     }
@@ -91,8 +100,12 @@ export default function SignInPage() {
       formButtonPrimary: 'Sign In',
       formFieldLabel__emailAddress_username: 'Email address or username',
       formFieldInputPlaceholder__emailAddress_username: 'Email address or username',
+      formFieldLabel__identifier: 'Email address or username',
+      formFieldInputPlaceholder__identifier: 'Email address or username',
       formFieldLabel__emailAddress: 'Email address',
       formFieldInputPlaceholder__emailAddress: 'Email address',
+      formFieldLabel__username: 'Username',
+      formFieldInputPlaceholder__username: 'Username',
       formFieldLabel__password: 'Password',
       formFieldInputPlaceholder__password: 'Password',
       signIn: {
@@ -103,6 +116,11 @@ export default function SignInPage() {
           subtitle: 'Sign in to continue',
           actionText: "Don't have an account?",
           actionLink: 'Sign Up',
+        },
+        password: {
+          ...enUS.signIn?.password,
+          title: 'Enter your password',
+          subtitle: 'to continue to RadOnco CDSS',
         },
       },
     };
