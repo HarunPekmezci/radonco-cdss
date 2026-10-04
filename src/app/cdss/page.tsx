@@ -4228,6 +4228,121 @@ export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   },
 ];
 
+export const LUNG_SBRT_0915_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0915 trial protocol / reference',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0915',
+    category: 'Phase II Protocol',
+  },
+];
+
+export const LUNG_SBRT_0813_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0813 trial protocol / reference',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0813',
+    category: 'Phase I/II Protocol',
+  },
+];
+
+export const LUNG_HYPO_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on Lung Radiotherapy',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+];
+
+export const LUNG_CONV_0617_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0617: High-Dose vs Standard-Dose CRT (Lancet Oncol 2015)',
+    url: 'https://doi.org/10.1016/S1470-2045(14)71207-0',
+    category: 'Phase III Landmark',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guidelines on Thoracic Radiotherapy',
+    url: 'https://www.astro.org/provider-resources/guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on Lung Radiotherapy',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+];
+
+const getLungSbrtTargets = (doseGy: number, breathingMotion: string): TargetVolume[] =>
+  breathingMotion === 'DIBH'
+    ? [
+        { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: "Derin inspiryum BT'deki primer parankimal kitle" },
+        { name: 'ITV_DIBH', doseGy, marginMm: 'GTV->ITV: DIBH / gating ile artık solunum hareketini doğrulayın', anatomical: 'Hareket yönetimi ve 4D-CT doğrulamasına göre' },
+        { name: 'PTV_SBRT', doseGy, marginMm: 'ITV->PTV +3 mm (DIBH / gating)', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
+      ]
+    : [
+        { name: 'GTV', doseGy, marginMm: '0 mm', anatomical: 'Parankimal primer kitle (BT/PET füzyonu)' },
+        { name: 'ITV_4D', doseGy, marginMm: 'GTV->ITV: 4D-CT solunum hareket zarfı', anatomical: 'Tümörün solunum siklusu boyunca kat ettiği hareket hacmi (MIP)' },
+        { name: 'PTV_SBRT', doseGy, marginMm: 'ITV->PTV +5 mm', anatomical: 'Günlük IGRT ve set-up güvenlik marjini' },
+      ];
+
 const AUTHORITY_STYLES: Record<EvidenceLink['authority'], {
   button: string;
   badge: string;
@@ -4257,6 +4372,9 @@ const AUTHORITY_STYLES: Record<EvidenceLink['authority'], {
 const formatBadgeLabel = (link: EvidenceLink): string => {
   if (link.authority === 'RTOG') {
     if (link.title.includes('0236') || link.url.includes('jama.2010.261') || link.url.includes('rtog-0236')) return 'RTOG 0236';
+    if (link.title.includes('0617') || link.url.includes('S1470-2045(14)71207-0') || link.url.includes('rtog-0617')) return 'RTOG 0617';
+    if (link.title.includes('0813') || link.url.includes('rtog-0813')) return 'RTOG 0813';
+    if (link.title.includes('0915') || link.url.includes('rtog-0915')) return 'RTOG 0915';
     const trialMatch = link.title.match(/RTOG\s*(\d{4})/i) || link.url.match(/rtog-(\d{4})/i);
     if (trialMatch) return `RTOG ${trialMatch[1]}`;
     return 'RTOG';
@@ -4296,6 +4414,9 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   }
   if (/RTOG\s*0236/i.test(token) || (/RTOG/i.test(token) && /0236/i.test(clinicalContext))) {
     return 'https://doi.org/10.1001/jama.2010.261';
+  }
+  if (/RTOG\s*0617/i.test(token) || (/RTOG/i.test(token) && /0617/i.test(clinicalContext))) {
+    return 'https://doi.org/10.1016/S1470-2045(14)71207-0';
   }
   if (/RTOG\s*0813/i.test(token) || (/RTOG/i.test(token) && /0813/i.test(clinicalContext))) {
     return 'https://www.nrgoncology.org/clinical-trials/rtog-0813';
@@ -6363,32 +6484,7 @@ export default function RadoncoCDSSPage() {
             { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0915' },
           ],
           evidence: 'RTOG 0915, NCCN v1.2025',
-          evidenceLinks: [
-            {
-              authority: 'NCCN',
-              title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025)',
-              url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf',
-              category: 'Kategori 1',
-            },
-            {
-              authority: 'ASTRO',
-              title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
-              url: 'https://www.astro.org/patient-care-and-research/clinical-practice-guidelines',
-              category: 'Consensus Guideline',
-            },
-            {
-              authority: 'ESTRO',
-              title: 'ESTRO-ACROP consensus recommendations on SBRT for early stage lung cancer',
-              url: 'https://www.estro.org/Science/Guidelines',
-              category: 'Consensus Guideline',
-            },
-            {
-              authority: 'RTOG',
-              title: 'RTOG 0915 trial protocol / reference',
-              url: 'https://www.nrgoncology.org/clinical-trials/rtog-0915',
-              category: 'Phase II Protocol',
-            },
-          ],
+          evidenceLinks: LUNG_SBRT_0915_EVIDENCE_LINKS,
         };
       }
       return {
@@ -8615,16 +8711,6 @@ export default function RadoncoCDSSPage() {
     wilmsWholeAbdomen,
   ]);
 
-  // Aktif Şema
-    const baseActiveScheme = useMemo(() => {
-      const list = evaluatedDecision.alternativeSchemes;
-      return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
-    }, [evaluatedDecision, selectedSchemeId]);
-    const isSclcTurrisiScheme = useMemo(() => selectedOrgan === 'thorax'
-      && thoraxSubtype === 'sclc'
-      && baseActiveScheme.id === 'sclc-turrisi-45',
-    [selectedOrgan, thoraxSubtype, baseActiveScheme]);
-
   // Fraksiyonasyon felsefesi kartları için klinik uygunluk kapısı
   const isRegimenEligible = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional'): boolean => {
     if (selectedOrgan === 'prostate') {
@@ -8635,7 +8721,8 @@ export default function RadoncoCDSSPage() {
     }
     if (selectedOrgan === 'thorax') {
       const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
-      if (regimen === 'sbrt' || regimen === 'moderate') return earlyStage;
+      if (regimen === 'sbrt') return earlyStage;
+      if (regimen === 'moderate') return thoraxSubtype === 'nsclc';
       if (regimen === 'sib') return thoraxSubtype === 'nsclc' && !earlyStage && selectedM === 'M0';
       return true;
     }
@@ -8647,7 +8734,271 @@ export default function RadoncoCDSSPage() {
     return true;
   };
 
-  const activeScheme = useMemo(() => {
+  const effectiveRegimen: 'sbrt' | 'moderate' | 'sib' | 'conventional' = useMemo(() => {
+    if (selectedRegimen !== 'clinical') return selectedRegimen;
+    if (selectedOrgan === 'thorax') {
+      const earlyStage = thoraxSubtype === 'nsclc' && selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2');
+      return earlyStage ? 'sbrt' : 'conventional';
+    }
+    if (selectedOrgan === 'prostate') return 'moderate';
+    if (selectedOrgan === 'breast') return 'moderate';
+    return 'conventional';
+  }, [selectedRegimen, selectedOrgan, thoraxSubtype, selectedM, selectedN, selectedT]);
+
+  const lungSubSchemesByPhilosophy: Record<'sbrt' | 'moderate' | 'sib' | 'conventional', DoseScheme[]> = useMemo(() => {
+    const lungSbrtTechnique = breathingMotion === 'DIBH'
+      ? 'DIBH (Derin İnspiryumda Nefes Tutma) + SGRT (Optik Yüzey Rehberliği) / VMAT'
+      : 'SBRT (4D-CT / ITV tabanlı VMAT)';
+
+    const sbrt54: DoseScheme = {
+      id: 'lung-sbrt-54',
+      name: '54 Gy / 3 fx (Periferik SBRT · 18 Gy/fx)',
+      tag: '🎯 Periferik SBRT',
+      totalDoseGy: 54,
+      fractionCount: 3,
+      fractionDoseGy: 18,
+      alphaBeta: 10,
+      technique: lungSbrtTechnique,
+      indication: 'Periferik erken evre KHDAK (Kategori 1 küratif altın standart, BED10 = 151.2 Gy).',
+      targetVolumes: getLungSbrtTargets(54, breathingMotion),
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 10-15%', source: 'RTOG 0236' },
+        { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0236' },
+      ],
+      evidence: 'RTOG 0236, RTOG 0915, NCCN v1.2025 Kategori 1',
+      evidenceLinks: LUNG_SBRT_EVIDENCE_LINKS,
+    };
+
+    const sbrt48: DoseScheme = {
+      id: 'lung-sbrt-48',
+      name: '48 Gy / 4 fx (Periferik 4 fx · 12 Gy/fx)',
+      tag: '🎯 Periferik 4 fx',
+      totalDoseGy: 48,
+      fractionCount: 4,
+      fractionDoseGy: 12,
+      alphaBeta: 10,
+      technique: lungSbrtTechnique,
+      indication: 'Göğüs duvarına komşu veya fraksiyon başına doz toksisitesi sınırlandırılmak istenen periferik erken evre KHDAK (BED10 = 105.6 Gy).',
+      targetVolumes: getLungSbrtTargets(48, breathingMotion),
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 10-15%', source: 'RTOG 0915' },
+        { organ: 'Göğüs Duvarı', metric: 'V30Gy', limit: '< 30 cc', source: 'RTOG 0915' },
+      ],
+      evidence: 'RTOG 0915, NCCN v1.2025',
+      evidenceLinks: LUNG_SBRT_0915_EVIDENCE_LINKS,
+    };
+
+    const sbrt50: DoseScheme = {
+      id: 'lung-sbrt-50',
+      name: '50 Gy / 5 fx (Risk-Uyumlu SBRT · 10 Gy/fx)',
+      tag: '⚠️ Risk-Uyumlu SBRT',
+      totalDoseGy: 50,
+      fractionCount: 5,
+      fractionDoseGy: 10,
+      alphaBeta: 10,
+      technique: `${lungSbrtTechnique} (Risk-Adapte)`,
+      indication: 'PBT ≤2 cm komşu santral lezyonlar veya santral risk anatomisi (BED10 = 100 Gy). Fatal hemoptizi ve bronşiyal fistülü önlemek için 5 fraksiyon standardı.',
+      targetVolumes: getLungSbrtTargets(50, breathingMotion),
+      oars: [
+        { organ: 'Proksimal Bronş Ağacı', metric: 'Dmax', limit: '< 50 Gy', source: 'RTOG 0813' },
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 10-15%', source: 'RTOG 0813' },
+      ],
+      evidence: 'RTOG 0813 (Bezjak et al. JCO 2019), NCCN v1.2025 Kategori 1',
+      evidenceLinks: LUNG_SBRT_0813_EVIDENCE_LINKS,
+    };
+
+    const hypo55: DoseScheme = {
+      id: 'lung-hypo-55',
+      name: '55 Gy / 20 fx (Ilımlı HipoToraks · 2.75 Gy/fx)',
+      tag: '🎯 Ilımlı HipoToraks',
+      totalDoseGy: 55,
+      fractionCount: 20,
+      fractionDoseGy: 2.75,
+      alphaBeta: 10,
+      technique: 'IMRT / VMAT + Günlük CBCT',
+      indication: 'Lokal/medikal inoperabl veya hafif fraksiyonasyon gerektiren toraks RT (UK CHAT, ESTRO konsensus; BED10 = 70.1 Gy, EQD2 = 58.4 Gy).',
+      targetVolumes: [
+        { name: 'GTV', doseGy: 55, marginMm: '0 mm', anatomical: 'Primer kitle (BT/PET füzyonu)' },
+        { name: 'CTV', doseGy: 55, marginMm: 'GTV + 5 mm', anatomical: 'Mikroskobik yayılım payı' },
+        { name: 'PTV_Hypo', doseGy: 55, marginMm: 'CTV + 5 mm', anatomical: 'Solunum ve set-up zarfı' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 25%', source: 'UK CHAT / ESTRO' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+        { organ: 'Özofagus', metric: 'Dmean', limit: '< 34 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'UK CHAT / ESTRO Consensus Guideline',
+      evidenceLinks: LUNG_HYPO_EVIDENCE_LINKS,
+    };
+
+    const hypo60: DoseScheme = {
+      id: 'lung-hypo-60',
+      name: '60 Gy / 15 fx (Hızlandırılmış Hipo · 4.0 Gy/fx)',
+      tag: '⚡ Hızlandırılmış Hipo',
+      totalDoseGy: 60,
+      fractionCount: 15,
+      fractionDoseGy: 4.0,
+      alphaBeta: 10,
+      technique: 'IMRT / VMAT (4D-CT rehberliğinde)',
+      indication: 'Hızlandırılmış hipofraksiyone torasik radyoterapi (Kanada / Hollanda rejimi; BED10 = 84 Gy, EQD2 = 70 Gy).',
+      targetVolumes: [
+        { name: 'GTV', doseGy: 60, marginMm: '0 mm', anatomical: 'Primer kitle (BT/PET füzyonu)' },
+        { name: 'CTV', doseGy: 60, marginMm: 'GTV + 5 mm', anatomical: 'Mikroskobik yayılım payı' },
+        { name: 'PTV_Hypo', doseGy: 60, marginMm: 'CTV + 5 mm', anatomical: 'Set-up ve solunum güvenlik payı' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 20-25%', source: 'Canadian/Dutch Protocol' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 40 Gy', source: 'QUANTEC' },
+        { organ: 'Özofagus', metric: 'Dmean', limit: '< 30 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'Canadian / Dutch Regimen (Accelerated Hypofractionation)',
+      evidenceLinks: LUNG_HYPO_EVIDENCE_LINKS,
+    };
+
+    const hypo45: DoseScheme = {
+      id: 'lung-hypo-45',
+      name: '45 Gy / 15 fx (Hafif Hipo · 3.0 Gy/fx)',
+      tag: '🛡️ Hafif Hipo',
+      totalDoseGy: 45,
+      fractionCount: 15,
+      fractionDoseGy: 3.0,
+      alphaBeta: 10,
+      technique: 'IMRT / 3D-CRT',
+      indication: 'Medikal olarak kırılgan, komorbiditeli veya inoperabl hastalar için hafif hipofraksiyon (BED10 = 58.5 Gy, EQD2 = 48.8 Gy).',
+      targetVolumes: [
+        { name: 'GTV', doseGy: 45, marginMm: '0 mm', anatomical: 'Primer kitle' },
+        { name: 'PTV', doseGy: 45, marginMm: 'GTV + 7 mm', anatomical: 'Set-up ve solunum zarfı' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 20%', source: 'QUANTEC' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 36 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'Medically Fragile / Inoperable Lung Regimen',
+      evidenceLinks: LUNG_HYPO_EVIDENCE_LINKS,
+    };
+
+    const conv60: DoseScheme = {
+      id: 'lung-conv-60',
+      name: '60 Gy / 30 fx (Standart Definitif RT · 2.0 Gy/fx)',
+      tag: '🎯 Standart Definitif',
+      totalDoseGy: 60,
+      fractionCount: 30,
+      fractionDoseGy: 2.0,
+      alphaBeta: 10,
+      technique: 'IMRT / VMAT (Elektif Nodal Işınlama Yapılmaz)',
+      indication: 'Lokalize veya erken/lokal ileri KHDAK standart konvansiyonel definitif fraksiyonasyon (RTOG 0617 standardı, BED10 = 72 Gy, EQD2 = 60 Gy).',
+      targetVolumes: [
+        { name: 'GTV', doseGy: 60, marginMm: '0 mm', anatomical: 'Primer kitle (BT/PET füzyonu)' },
+        { name: 'CTV', doseGy: 60, marginMm: 'GTV + 5 mm', anatomical: 'Mikroskobik tutulum payı' },
+        { name: 'PTV', doseGy: 60, marginMm: 'CTV + 5 mm', anatomical: 'Solunum ve set-up güvenlik zarfı' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 30-35%', source: 'RTOG 0617' },
+        { organ: 'Kalp Mean Doz', metric: 'Dmean', limit: '< 15 Gy', source: 'RTOG 0617 (OS Belirleyicisi)' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+        { organ: 'Özofagus', metric: 'Dmean', limit: '< 34 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'RTOG 0617 (Lancet Oncol 2015), NCCN v1.2025 Kategori 1',
+      evidenceLinks: LUNG_CONV_0617_EVIDENCE_LINKS,
+    };
+
+    const conv66: DoseScheme = {
+      id: 'lung-conv-66',
+      name: '66 Gy / 33 fx (Eskalasyon Dozu · 2.0 Gy/fx)',
+      tag: '⚡ Eskalasyon Dozu',
+      totalDoseGy: 66,
+      fractionCount: 33,
+      fractionDoseGy: 2.0,
+      alphaBeta: 10,
+      technique: 'IMRT / VMAT',
+      indication: 'OAR kısıtları elveren, seçilmiş anatomik uygun KHDAK olgularında kontrollü doz eskalasyonu (BED10 = 79.2 Gy, EQD2 = 66 Gy).',
+      targetVolumes: [
+        { name: 'GTV', doseGy: 66, marginMm: '0 mm', anatomical: 'Primer kitle' },
+        { name: 'CTV', doseGy: 66, marginMm: 'GTV + 5 mm', anatomical: 'Mikroskobik tutulum payı' },
+        { name: 'PTV_Boost', doseGy: 66, marginMm: 'CTV + 5 mm', anatomical: 'Set-up ve solunum güvenlik payı' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 30%', source: 'RTOG 0617' },
+        { organ: 'Kalp Mean Doz', metric: 'Dmean', limit: '< 15 Gy', source: 'RTOG 0617' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'Doz Eskalasyonu Protokolü (RTOG / NCCN)',
+      evidenceLinks: LUNG_CONV_0617_EVIDENCE_LINKS,
+    };
+
+    const sib60: DoseScheme = {
+      id: 'lung-sib-60',
+      name: '60 Gy / 30 fx (Eşzamanlı KRT + SIB Boost)',
+      tag: '🧬 Eşzamanlı SIB',
+      totalDoseGy: 60,
+      fractionCount: 30,
+      fractionDoseGy: 2.0,
+      alphaBeta: 10,
+      technique: 'IMRT / VMAT SIB',
+      indication: 'Primer kitle 60 Gy (2.0 Gy/fx) + Elektif mediastinal lenf nodları 50 Gy (1.67 Gy/fx) / 30 fx eşzamanlı entegre boost.',
+      targetVolumes: [
+        { name: 'PTV_High (Primer Kitle)', doseGy: 60, marginMm: 'CTV + 5 mm', anatomical: 'GTV primer kitle ve pozitif nodlar' },
+        { name: 'PTV_Low (Elektif Mediasten)', doseGy: 50, marginMm: 'Anatomik', anatomical: 'Elektif nodal istasyonlar (SIB)' },
+      ],
+      oars: [
+        { organ: 'Bilateral Akciğer', metric: 'V20Gy', limit: '< 30-35%', source: 'RTOG 0617' },
+        { organ: 'Kalp Mean Doz', metric: 'Dmean', limit: '< 15 Gy', source: 'RTOG 0617' },
+        { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+      ],
+      evidence: 'RTOG 0617 / PACIFIC SIB Yaklaşımı',
+      evidenceLinks: LUNG_CONV_0617_EVIDENCE_LINKS,
+    };
+
+    const sbrtList = thoraxCentrality === 'Central'
+      ? [sbrt50, sbrt54, sbrt48]
+      : [sbrt54, sbrt48, sbrt50];
+
+    return {
+      sbrt: sbrtList,
+      moderate: [hypo55, hypo60, hypo45],
+      conventional: [conv60, conv66],
+      sib: [sib60],
+    };
+  }, [breathingMotion, thoraxCentrality]);
+
+  const availableSubSchemes: DoseScheme[] = useMemo(() => {
+    if (selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc') {
+      const schemes = lungSubSchemesByPhilosophy[effectiveRegimen];
+      if (schemes && schemes.length > 0) return schemes;
+    }
+    return evaluatedDecision.alternativeSchemes;
+  }, [selectedOrgan, thoraxSubtype, lungSubSchemesByPhilosophy, effectiveRegimen, evaluatedDecision.alternativeSchemes]);
+
+  const handleSelectPhilosophy = (regimen: 'sbrt' | 'moderate' | 'sib' | 'conventional') => {
+    setSelectedRegimen(regimen);
+    if (selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc') {
+      const list = lungSubSchemesByPhilosophy[regimen];
+      if (list && list.length > 0) {
+        setSelectedSchemeId(list[0].id);
+      }
+    }
+  };
+
+  // Aktif Şema
+  const baseActiveScheme = useMemo(() => {
+    const list = evaluatedDecision.alternativeSchemes;
+    return list.find(s => s.id === selectedSchemeId) || evaluatedDecision.primaryScheme;
+  }, [evaluatedDecision, selectedSchemeId]);
+
+  const isSclcTurrisiScheme = useMemo(() => selectedOrgan === 'thorax'
+    && thoraxSubtype === 'sclc'
+    && baseActiveScheme.id === 'sclc-turrisi-45',
+  [selectedOrgan, thoraxSubtype, baseActiveScheme]);
+
+  const activeScheme: DoseScheme = useMemo(() => {
+    if (selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc') {
+      if (availableSubSchemes.length > 0) {
+        const found = availableSubSchemes.find(s => s.id === selectedSchemeId);
+        if (found) return found;
+        return availableSubSchemes[0];
+      }
+    }
+
     const regimenByOrgan: Partial<Record<OrganId, Record<Exclude<QuickCaseRegimen, 'clinical'>, { name: string; totalDoseGy: number; fractionCount: number; fractionDoseGy: number; alphaBeta: number }>>> = {
       prostate: {
         sbrt: { name: 'Ultra-Hypofractionated / SBRT (PACE-B)', totalDoseGy: 36.25, fractionCount: 5, fractionDoseGy: 7.25, alphaBeta: 1.5 },
@@ -8709,8 +9060,25 @@ export default function RadoncoCDSSPage() {
         anatomical: 'Pelvik elektif lenf nodları; uygun evreleme ve görüntülemeyle',
       }] : []),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseActiveScheme, selectedOrgan, selectedRegimen, selectedT, selectedN, selectedM, thoraxSubtype, gusSubtype, hasSVI, hasECE, breastSurgery, breastHistology, lang]);
+  }, [
+    selectedOrgan,
+    thoraxSubtype,
+    availableSubSchemes,
+    selectedSchemeId,
+    baseActiveScheme,
+    selectedRegimen,
+    isRegimenEligible,
+    isSclcTurrisiScheme,
+    lang,
+    selectedT,
+    selectedN,
+    selectedM,
+    gusSubtype,
+    hasSVI,
+    hasECE,
+    breastSurgery,
+    breastHistology,
+  ]);
 
   // Canlı Radyobiyoloji Hesabı
   const radiobiology = useMemo(() => {
@@ -11506,11 +11874,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                         type="button"
                         disabled={!eligible}
                         title={eligible ? undefined : (lang === 'tr' ? 'Bu fraksiyonasyon felsefesi mevcut klinik senaryo için uygun değil' : 'This fractionation philosophy is not appropriate for the current clinical scenario')}
-                        onClick={() => setSelectedRegimen(regimen)}
+                        onClick={() => handleSelectPhilosophy(regimen)}
                         className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all ${
                           !eligible
                             ? 'cursor-not-allowed border-slate-800 bg-slate-900/40 text-slate-600 opacity-50'
-                            : selectedRegimen === regimen
+                            : (selectedRegimen === regimen || (selectedRegimen === 'clinical' && effectiveRegimen === regimen))
                               ? `${card.active} border-transparent text-white shadow-md`
                               : `border-slate-700 bg-slate-800/80 text-slate-200 ${card.hover}`
                         }`}
@@ -11530,19 +11898,20 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* ALTERNATİF PROTOKOL SEKMELERİ */}
-            {evaluatedDecision.alternativeSchemes.length > 1 && (
+            {availableSubSchemes.length > 1 && (
               <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-                {evaluatedDecision.alternativeSchemes.map(sch => (
+                {availableSubSchemes.map(sch => (
                   <button
                     key={sch.id}
                     onClick={() => setSelectedSchemeId(sch.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors border ${
                       activeScheme.id === sch.id
-                        ? 'bg-amber-50 text-amber-800 border-amber-300'
-                        : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80'
+                        ? 'bg-amber-500/20 text-amber-200 border-amber-400 font-bold shadow-sm'
+                        : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/80 hover:border-slate-700'
                     }`}
                   >
-                    {tText(sch.tag)} {tText(" (")}{sch.totalDoseGy} {tText(" Gy)\n                  ")}</button>
+                    {tText(sch.tag || sch.name)} {tText(" (")}{sch.totalDoseGy} {tText(" Gy)")}
+                  </button>
                 ))}
               </div>
             )}

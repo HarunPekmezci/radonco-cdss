@@ -35,6 +35,108 @@ export const LUNG_SBRT_EVIDENCE_LINKS: EvidenceLink[] = [
   },
 ];
 
+export const LUNG_SBRT_0915_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0915 trial protocol / reference',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0915',
+    category: 'Phase II Protocol',
+  },
+];
+
+export const LUNG_SBRT_0813_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on SBRT for Early-Stage Lung Cancer',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0813 trial protocol / reference',
+    url: 'https://www.nrgoncology.org/clinical-trials/rtog-0813',
+    category: 'Phase I/II Protocol',
+  },
+];
+
+export const LUNG_HYPO_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on Lung Radiotherapy',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guideline on SBRT for Early-Stage NSCLC',
+    url: 'https://www.astro.org/provider-resources/guidelines/astro-s-guideline-on-sbrt-for-early-stage-nsclc',
+    category: 'Consensus Guideline',
+  },
+];
+
+export const LUNG_CONV_0617_EVIDENCE_LINKS: EvidenceLink[] = [
+  {
+    authority: 'NCCN',
+    title: 'NCCN Non-Small Cell Lung Cancer Guidelines (v1.2025 - Principles of Radiation Therapy, p.77)',
+    url: 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77',
+    category: 'Kategori 1',
+  },
+  {
+    authority: 'RTOG',
+    title: 'RTOG 0617: High-Dose vs Standard-Dose CRT (Lancet Oncol 2015)',
+    url: 'https://doi.org/10.1016/S1470-2045(14)71207-0',
+    category: 'Phase III Landmark',
+  },
+  {
+    authority: 'ASTRO',
+    title: 'ASTRO Clinical Practice Guidelines on Thoracic Radiotherapy',
+    url: 'https://www.astro.org/provider-resources/guidelines',
+    category: 'Consensus Guideline',
+  },
+  {
+    authority: 'ESTRO',
+    title: 'ESTRO-ACROP Consensus Recommendations on Lung Radiotherapy',
+    url: 'https://doi.org/10.1016/j.radonc.2017.05.012',
+    category: 'Consensus Guideline',
+  },
+];
+
 const reference = (title: string, url: string, organization: GuidelineReference['organization'] = 'ASTRO'): GuidelineReference => ({
   organization,
   title,
@@ -175,10 +277,17 @@ export const REGIMEN_CATALOGS: Record<string, RegimenCatalog> = {
   'thorax.nsclc': {
     defaultSchemeId: 'peripheral-sbrt',
     schemes: [
-      scheme('peripheral-sbrt', 'Periferik SBRT: 54 Gy / 3 fx', 'definitive', 54, 3, 'Periferik, ≤5 cm primer akciğer lezyonu; ITV/PTV 4D-CT ile.', refs.lung, 'thorax', 'SBRT', undefined, 10, LUNG_SBRT_EVIDENCE_LINKS),
-      scheme('central-sbrt', 'Santral SBRT: 50 Gy / 5 fx', 'definitive', 50, 5, 'Santral lezyon; trakeobronşiyal ağaç ve özofagus dozları öncelikli.', refs.lung, 'thorax', 'SBRT', undefined, 10, LUNG_SBRT_EVIDENCE_LINKS),
-      scheme('concurrent-chemoradiation', 'Evre III KRT: 60 Gy / 30 fx', 'definitive', 60, 30, 'Primer ve tutulmuş nodal istasyonlar, eşzamanlı sistemik tedavi.', refs.lung, 'thorax'),
-      scheme('dose-escalated-chemoradiation', 'Yüksek doz KRT: 66 Gy / 33 fx', 'definitive', 66, 33, 'Seçilmiş lokal ileri hastada; OAR kısıtları izin verirse.', refs.lung, 'thorax'),
+      // Ultra-Hipo (1-5 fx / SBRT)
+      scheme('peripheral-sbrt', 'Periferik SBRT (54 Gy / 3 fx)', 'definitive', 54, 3, 'Periferik, ≤5 cm primer akciğer lezyonu; ITV/PTV 4D-CT ile (BED10 = 151.2 Gy).', refs.lung, 'thorax', 'SBRT', 'RTOG 0236 standardı', 10, LUNG_SBRT_EVIDENCE_LINKS),
+      scheme('peripheral-4fx', 'Periferik 4 fx (48 Gy / 4 fx)', 'definitive', 48, 4, 'Göğüs duvarına komşu lezyonlarda toksisiteyi sınırlandıran periferik rejim (BED10 = 105.6 Gy).', refs.lung, 'thorax', 'SBRT', 'RTOG 0915 standardı', 10, LUNG_SBRT_0915_EVIDENCE_LINKS),
+      scheme('central-sbrt', 'Risk-Uyumlu SBRT (50 Gy / 5 fx)', 'definitive', 50, 5, 'Santral lezyon; trakeobronşiyal ağaç ve özofagus dozları öncelikli (BED10 = 100 Gy).', refs.lung, 'thorax', 'SBRT', 'RTOG 0813 / NCCN Kategori 1', 10, LUNG_SBRT_0813_EVIDENCE_LINKS),
+      // Ilımlı Hipo (15-20 fx / Hypofractionated)
+      scheme('moderate-hipo-55', 'Ilımlı HipoToraks (55 Gy / 20 fx - 2.75 Gy/fx)', 'definitive', 55, 20, 'Lokal/medikal inoperabl veya hafif fraksiyonasyon gerektiren toraks RT (BED10 = 70.1 Gy).', refs.lung, 'thorax', 'moderate-hypofractionation', 'UK CHAT / ESTRO Consensus', 10, LUNG_HYPO_EVIDENCE_LINKS),
+      scheme('accelerated-hipo-60', 'Hızlandırılmış Hipo (60 Gy / 15 fx - 4.0 Gy/fx)', 'definitive', 60, 15, 'Hızlandırılmış hipofraksiyone torasik radyoterapi (BED10 = 84 Gy).', refs.lung, 'thorax', 'moderate-hypofractionation', 'Canadian / Dutch Regimen', 10, LUNG_HYPO_EVIDENCE_LINKS),
+      scheme('mild-hipo-45', 'Hafif Hipo (45 Gy / 15 fx - 3.0 Gy/fx)', 'definitive', 45, 15, 'Medikal olarak kırılgan / inoperabl hastalar için hafif hipofraksiyon (BED10 = 58.5 Gy).', refs.lung, 'thorax', 'moderate-hypofractionation', 'Medically fragile / inoperable', 10, LUNG_HYPO_EVIDENCE_LINKS),
+      // Konvansiyonel (25-35 fx / Conventional)
+      scheme('concurrent-chemoradiation', 'Standart Definitif RT (60 Gy / 30 fx - 2.0 Gy/fx)', 'definitive', 60, 30, 'Primer ve tutulmuş nodal istasyonlar, eşzamanlı sistemik tedavi (BED10 = 72 Gy).', refs.lung, 'thorax', 'conventional', 'RTOG 0617 (Lancet Oncol 2015)', 10, LUNG_CONV_0617_EVIDENCE_LINKS),
+      scheme('dose-escalated-chemoradiation', 'Eskalasyon Dozu (66 Gy / 33 fx - 2.0 Gy/fx)', 'definitive', 66, 33, 'Seçilmiş anatomik uygun olgularda doz eskalasyonu (BED10 = 79.2 Gy).', refs.lung, 'thorax', 'conventional', 'RTOG / NCCN Doz Eskalasyonu', 10, LUNG_CONV_0617_EVIDENCE_LINKS),
       scheme('port-lung-art', 'PORT: 54 Gy / 27 fx', 'adjuvant', 54, 27, 'Seçilmiş pN2 veya R1/R2 rezeksiyon sonrası mediasten/rezeksiyon yatağı.', refs.lung, 'thorax', 'conventional', 'Lung-ART kriterleri ile.'),
       scheme('ultracentral-risk-adapted', 'Ultra-santral: 60 Gy / 12 fx', 'definitive', 60, 12, 'Ultra-santral lezyonlarda risk-adapte fraksiyonasyon.', refs.lung, 'thorax', 'SBRT'),
     ],
