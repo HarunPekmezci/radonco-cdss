@@ -59,7 +59,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       languagePicker: 'Dil seçimi',
     },
     languageNames: { tr: 'Türkçe', en: 'English' },
-    heroBadge: 'ONCOLOGY DECISION & DOSIMETRY PORTAL',
+    heroBadge: 'ONKOLOJİ KARAR & DOZİMETRİ PORTALI',
     heroTitle: 'RadOnco CDSS',
     heroDescription: 'Radyasyon onkolojisi klinik karar desteği, dozimetri araçları ve kanıt kaynakları tek bir çalışma alanında. Tüm çıktılar klinik değerlendirmeyi desteklemek içindir; hekim kararının yerini almaz.',
     heroAction: 'Karar Destek Matrisini Aç',
