@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { ClerkProvider, SignIn } from '@clerk/nextjs';
+import { SignIn } from '@clerk/nextjs';
 import { trTR, enUS } from '@clerk/localizations';
 import Link from 'next/link';
 import { Radiation, ShieldCheck, Activity, UserPlus, Globe } from 'lucide-react';
@@ -68,10 +68,10 @@ export default function SignInPage() {
       return {
         ...trTR,
         formButtonPrimary: 'Giriş Yap',
-        formFieldLabel__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
-        formFieldInputPlaceholder__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
         formFieldLabel__identifier: 'E-posta adresi veya kullanıcı adı',
         formFieldInputPlaceholder__identifier: 'E-posta adresi veya kullanıcı adı',
+        formFieldLabel__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
+        formFieldInputPlaceholder__emailAddress_username: 'E-posta adresi veya kullanıcı adı',
         formFieldLabel__emailAddress: 'E-posta adresi veya kullanıcı adı',
         formFieldInputPlaceholder__emailAddress: 'E-posta adresi veya kullanıcı adı',
         formFieldLabel__username: 'Kullanıcı adı',
@@ -82,8 +82,8 @@ export default function SignInPage() {
           ...trTR.signIn,
           start: {
             ...trTR.signIn?.start,
-            title: 'RadOnco CDSS Giriş',
-            subtitle: 'Devam etmek için giriş yapın',
+            title: 'Giriş yap',
+            subtitle: 'RadOnco CDSS ile devam etmek için',
             actionText: 'Hesabınız yok mu?',
             actionLink: 'Kayıt Ol',
           },
@@ -98,10 +98,10 @@ export default function SignInPage() {
     return {
       ...enUS,
       formButtonPrimary: 'Sign In',
-      formFieldLabel__emailAddress_username: 'Email address or username',
-      formFieldInputPlaceholder__emailAddress_username: 'Email address or username',
       formFieldLabel__identifier: 'Email address or username',
       formFieldInputPlaceholder__identifier: 'Email address or username',
+      formFieldLabel__emailAddress_username: 'Email address or username',
+      formFieldInputPlaceholder__emailAddress_username: 'Email address or username',
       formFieldLabel__emailAddress: 'Email address',
       formFieldInputPlaceholder__emailAddress: 'Email address',
       formFieldLabel__username: 'Username',
@@ -112,8 +112,8 @@ export default function SignInPage() {
         ...enUS.signIn,
         start: {
           ...enUS.signIn?.start,
-          title: 'RadOnco CDSS Sign In',
-          subtitle: 'Sign in to continue',
+          title: 'Sign in to RadOnco CDSS',
+          subtitle: 'Welcome back! Please sign in to continue',
           actionText: "Don't have an account?",
           actionLink: 'Sign Up',
         },
@@ -387,41 +387,43 @@ export default function SignInPage() {
 
         {/* Giriş Kartı */}
         <div className="w-full max-w-[420px] flex flex-col items-center">
-          <ClerkProvider localization={clerkLocalization}>
-            <SignIn
-              {...({ localization: clerkLocalization } as any)}
-              appearance={({
-                variables: {
-                  colorBackground: '#0e1726',
-                  colorInputBackground: '#1e293b',
-                  colorInputText: '#ffffff',
-                  colorText: '#f8fafc',
-                  colorTextSecondary: '#94a3b8',
-                  colorPrimary: '#3b82f6',
-                },
-                elements: {
-                  socialButtons: '!hidden',
-                  socialButtonsBlockButton: '!hidden',
-                  dividerRow: '!hidden',
-                  footer: '!hidden',
-                  footerAction: '!hidden',
+          <SignIn
+            key={language}
+            {...({ localization: clerkLocalization } as any)}
+            routing="path"
+            path="/sign-in"
+            signUpUrl="/sign-up"
+            appearance={({
+              variables: {
+                colorBackground: '#0e1726',
+                colorInputBackground: '#1e293b',
+                colorInputText: '#ffffff',
+                colorText: '#f8fafc',
+                colorTextSecondary: '#94a3b8',
+                colorPrimary: '#3b82f6',
+              },
+              elements: {
+                socialButtons: '!hidden',
+                socialButtonsBlockButton: '!hidden',
+                dividerRow: '!hidden',
+                footer: '!hidden',
+                footerAction: '!hidden',
 
-                  card: '!bg-[#0d1527] !border !border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
-                  headerTitle: '!text-white font-bold text-lg text-center',
-                  headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
-                  
-                  identityPreview: '!bg-[#131f33]/80 !border !border-slate-700/80 !rounded-xl !py-2 !px-3.5 mb-3 flex items-center justify-between',
-                  identityPreviewText: '!text-white !font-bold text-sm',
-                  identityPreviewEditButton: '!text-blue-400 hover:!text-blue-300',
+                card: '!bg-[#0d1527] !border !border-slate-800 shadow-2xl rounded-3xl p-6 sm:p-8 w-full backdrop-blur-xl',
+                headerTitle: '!text-white font-bold text-lg text-center',
+                headerSubtitle: '!text-slate-400 text-xs text-center mb-4',
+                
+                identityPreview: '!bg-[#131f33]/80 !border !border-slate-700/80 !rounded-xl !py-2 !px-3.5 mb-3 flex items-center justify-between',
+                identityPreviewText: '!text-white !font-bold text-sm',
+                identityPreviewEditButton: '!text-blue-400 hover:!text-blue-300',
 
-                  formFieldLabel: '!text-slate-200 text-xs font-semibold',
-                  formFieldInput: '!bg-slate-800/90 !text-white placeholder:!text-slate-400 !border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-medium focus:!border-blue-500',
-                  phoneInputBox: '!bg-slate-800/90 !text-white !border-slate-700 focus-within:!border-blue-500',
-                  formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
-                },
-              } as any)}
-            />
-          </ClerkProvider>
+                formFieldLabel: '!text-slate-200 text-xs font-semibold',
+                formFieldInput: '!bg-slate-800/90 !text-white placeholder:!text-slate-400 !border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-medium focus:!border-blue-500',
+                phoneInputBox: '!bg-slate-800/90 !text-white !border-slate-700 focus-within:!border-blue-500',
+                formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-blue-600/30 w-full mt-2 normal-case transition-all',
+              },
+            } as any)}
+          />
 
           <p className="mt-3 max-w-[420px] text-center text-[11px] leading-relaxed text-slate-400">
             {t.physicianNote}

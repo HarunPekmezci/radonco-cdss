@@ -43,6 +43,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLanguage = useCallback((nextLanguage: Language) => {
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
     document.documentElement.lang = nextLanguage;
+    document.cookie = `language=${nextLanguage};path=/;max-age=31536000;SameSite=Lax`;
     window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
   }, []);
 

@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { ClerkProvider } from '@clerk/nextjs';
-import { trTR } from '@clerk/localizations';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { LanguageProvider } from '@/context/LanguageContext';
+import DynamicClerkProvider from '@/components/providers/DynamicClerkProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -57,18 +56,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider localization={trTR}>
-      <html lang="tr" className="dark min-h-screen bg-[#0B1120]">
-        <body className="min-h-screen flex flex-col bg-[#0B1120] text-slate-100 antialiased">
-          <LanguageProvider>
+    <html lang="tr" className="dark min-h-screen bg-[#0B1120]">
+      <body className="min-h-screen flex flex-col bg-[#0B1120] text-slate-100 antialiased">
+        <LanguageProvider>
+          <DynamicClerkProvider>
             <Navbar />
             <div className="flex-1">{children}</div>
             <Footer />
-          </LanguageProvider>
-          <Analytics />
-          <SpeedInsights />
-        </body>
-      </html>
-    </ClerkProvider>
+          </DynamicClerkProvider>
+        </LanguageProvider>
+        <Analytics />
+        <SpeedInsights />
+      </body>
+    </html>
   );
 }
