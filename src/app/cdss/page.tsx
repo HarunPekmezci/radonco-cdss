@@ -10157,6 +10157,60 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </button>
           </div>
         </div>
+          {/* STICKY BREADCRUMBS */}
+          <div className="col-span-12 sticky top-0 z-20 flex items-center justify-between gap-2 rounded-lg border border-sky-500/20 bg-[#0a0f1d]/90 backdrop-blur px-4 py-2.5 shadow-lg">
+            <div className="flex items-center gap-2 overflow-x-auto text-xs font-medium text-sky-100/90 whitespace-nowrap hide-scrollbar">
+              <span className="text-sky-400 font-bold">{lang === 'tr' ? 'Klinik Yol:' : 'Clinical Pathway:'}</span>
+              <span>{
+                (() => {
+                  const niceOrganNames: Record<string, string> = {
+                      thorax: lang === 'tr' ? 'Toraks' : 'Thorax',
+                      prostate: lang === 'tr' ? 'Genitoüriner' : 'Genitourinary',
+                      breast: lang === 'tr' ? 'Meme' : 'Breast',
+                      'head-neck': lang === 'tr' ? 'Baş-Boyun' : 'Head & Neck',
+                      cns: lang === 'tr' ? 'SSS' : 'CNS',
+                      gis: lang === 'tr' ? 'GİS' : 'Gastrointestinal',
+                      gynecology: lang === 'tr' ? 'Jinekoloji' : 'Gynecology',
+                      sarcoma: lang === 'tr' ? 'Sarkom' : 'Sarcoma',
+                      skin: lang === 'tr' ? 'Cilt' : 'Skin',
+                      hematology: lang === 'tr' ? 'Hematoloji' : 'Hematology',
+                      pediatric: lang === 'tr' ? 'Pediatrik' : 'Pediatric',
+                      palliative: lang === 'tr' ? 'Palyatif' : 'Palliative',
+                      emergencies: lang === 'tr' ? 'Aciller' : 'Emergencies',
+                      benign: lang === 'tr' ? 'Benign' : 'Benign'
+                  };
+                  const oName = niceOrganNames[selectedOrgan] || selectedOrgan;
+                  
+                  const allSubsites = ORGAN_TREE[selectedOrgan] || [];
+                  const matchedSubsite = allSubsites.find((sub: any) => sub.id === selectedSubsite || sub.id === currentTnmKey);
+                  let sName = matchedSubsite ? (lang === 'tr' ? matchedSubsite.name_tr : matchedSubsite.name_en) : '';
+                  if (!sName) {
+                      if (selectedOrgan === 'thorax') sName = thoraxSubtype === 'sclc' ? 'SCLC' : 'NSCLC';
+                      else if (selectedOrgan === 'breast') sName = breastHistology;
+                      else if (selectedOrgan === 'head-neck') sName = hnSubsite;
+                  }
+                  
+                  let stageName = '';
+                  if (selectedOrgan === 'thorax') stageName = `T${selectedT} N${selectedN} M${selectedM}`;
+                  else if (selectedOrgan === 'breast') stageName = breastSurgery + ' ' + breastMargin;
+                  else if (selectedOrgan === 'head-neck') stageName = `T${selectedT} N${selectedN} M${selectedM}`;
+                  
+                  let regName = activeScheme ? activeScheme.name : '';
+                  
+                  return [oName, sName, stageName, regName].filter(Boolean).join(' > ');
+                })()
+              }</span>
+            </div>
+            <button
+              onClick={() => {
+                document.getElementById('cdss-main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="shrink-0 rounded bg-sky-500/10 px-2 py-1 text-[10px] font-bold text-sky-400 hover:bg-sky-500/20 transition-colors"
+            >
+              {lang === 'tr' ? 'En Üste Dön' : 'Reset / Top'}
+            </button>
+          </div>
+
         <div className="col-span-12 grid grid-cols-1 gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-2 sm:grid-cols-3" aria-label={lang === 'tr' ? 'İsteğe bağlı hasta bilgileri' : 'Optional patient information'}>
           <label className="text-[10px] font-semibold text-slate-300">
             {lang === 'tr' ? 'Yaş / Age' : 'Age / Yaş'}

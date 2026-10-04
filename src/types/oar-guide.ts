@@ -24,6 +24,9 @@ export interface OARNTPCeiling {
   fractionation: OARFractionation;
   metric: string;
   limit: string;
+  limitType?: 'volume' | 'dose' | 'mean' | 'max';
+  numericThreshold?: number; // e.g., 20 for V20Gy, 54 for Dmax
+  unit?: 'Gy' | '%' | 'cc';
   endpoint: string;
   priority: OARPriority;
   alphaBeta?: number;
