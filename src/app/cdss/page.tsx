@@ -3677,7 +3677,9 @@ export default function RadoncoCDSSPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [showEContourHelp, setShowEContourHelp] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const eContourHelpRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -3829,6 +3831,26 @@ export default function RadoncoCDSSPage() {
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [isExportMenuOpen]);
+
+  useEffect(() => {
+    if (!showEContourHelp) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !eContourHelpRef.current?.contains(event.target)) {
+        setShowEContourHelp(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowEContourHelp(false);
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [showEContourHelp]);
 
   useEffect(() => {
     if (!isRadiobiologyModalOpen) return;
@@ -11099,18 +11121,60 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     <span>{lang === 'tr' ? 'HEDEF HACİMLER (ICRU 83)' : 'TARGET VOLUMES (ICRU 83)'}</span>
                     <span className="shrink-0 rounded border border-emerald-400/40 bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-bold tracking-wide text-emerald-700 dark:text-emerald-200">TCP TARGET</span>
                   </h4>
-                  <a
-                    href={eContour.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex max-w-[65%] shrink-0 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 shadow-sm transition-all hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60"
-                    title={lang === 'tr' ? 'eContour.org üzerinde bu vakanın 3D interaktif çizimini aç' : 'Open 3D interactive contouring case on eContour.org'}
-                    aria-label={lang === 'tr' ? eContour.label_tr : eContour.label_en}
-                  >
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 transition-transform group-hover:scale-125" aria-hidden="true" />
-                    <span className="truncate">{lang === 'tr' ? eContour.label_tr : eContour.label_en}</span>
-                    <span className="text-[10px] opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
-                  </a>
+                  <div ref={eContourHelpRef} className="relative flex items-center gap-1.5 max-w-[65%] shrink-0">
+                    <a
+                      href={eContour.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 shadow-sm transition-all hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60"
+                      title={lang === 'tr' ? 'eContour.org üzerinde bu vakanın 3D interaktif çizimini aç' : 'Open 3D interactive contouring case on eContour.org'}
+                      aria-label={lang === 'tr' ? eContour.label_tr : eContour.label_en}
+                    >
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 transition-transform group-hover:scale-125" aria-hidden="true" />
+                      <span className="truncate">{lang === 'tr' ? eContour.label_tr : eContour.label_en}</span>
+                      <span className="text-[10px] opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
+                    </a>
+
+                    <div className="relative group/helper inline-flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => setShowEContourHelp(prev => !prev)}
+                        className="rounded-lg p-1 text-slate-400 hover:text-sky-300 hover:bg-slate-800/80 border border-slate-700/50 hover:border-sky-500/40 transition-colors focus:outline-none focus:ring-1 focus:ring-sky-500"
+                        title={lang === 'tr' ? 'eContour oturum ipucu' : 'eContour session helper'}
+                        aria-label={lang === 'tr' ? 'eContour oturum ipucu ve doğrudan erişim bilgisi' : 'eContour session helper and direct access info'}
+                      >
+                        <Info className="w-3.5 h-3.5 text-sky-400/90 hover:text-sky-300" aria-hidden="true" />
+                      </button>
+
+                      {/* Clinical Session Tooltip / Popover */}
+                      <div
+                        className={`transition-all duration-200 absolute right-0 top-full mt-2 z-50 w-72 sm:w-80 p-3 rounded-xl border border-sky-500/30 bg-slate-900/95 backdrop-blur-md shadow-2xl text-left text-xs text-slate-300 ${
+                          showEContourHelp
+                            ? 'opacity-100 pointer-events-auto'
+                            : 'opacity-0 pointer-events-none group-hover/helper:opacity-100 group-hover/helper:pointer-events-auto focus-within:opacity-100 focus-within:pointer-events-auto'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2 mb-2.5">
+                          <p className="text-[11px] leading-relaxed text-slate-200">
+                            {lang === 'tr'
+                              ? "💡 3D vaka çiziminin doğrudan açılması için tarayıcınızda eContour oturumunuzun açık olması önerilir. eContour'da 'Beni Hatırla'yı işaretlerseniz tüm vakalar tek tıkla doğrudan açılır."
+                              : "💡 Direct 3D case loading requires an active eContour session in your browser. Check 'Remember Me' on eContour for instant 1-click access to all case atlases."}
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                          <span className="text-[10px] text-slate-400 font-mono">eContour.org</span>
+                          <a
+                            href="https://econtour.org"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-400 hover:text-sky-300 hover:underline transition-colors"
+                          >
+                            <span>{lang === 'tr' ? 'eContour Giriş Sayfasını Aç ↗' : 'Open eContour Login ↗'}</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="overflow-x-auto w-full glass-panel rounded-xl text-xs shadow-sm">
                   <table className="w-full text-left">
