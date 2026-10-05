@@ -609,9 +609,9 @@ const ORGAN_TREE: Record<OrganId, Array<{ id: string; name_tr: string; name_en: 
   gis: [
     { id: 'gis-Rektum', name_tr: 'Rektum Kanseri', name_en: 'Rectal Cancer' },
     { id: 'gis-Mide', name_tr: 'Mide Kanseri', name_en: 'Gastric Cancer' },
-    { id: 'gis-anus', name_tr: 'Anal Kanal Kanseri (Nigro)', name_en: 'Anal Canal Cancer' },
-    { id: 'gis-Karaciger', name_tr: 'Karaciğer (HCC/Met)', name_en: 'Liver (HCC/Met)' },
-    { id: 'gis-SafraYollari', name_tr: 'Safra Yolları', name_en: 'Biliary Tract' },
+    { id: 'gis-anus', name_tr: 'Anal Kanal Kanseri', name_en: 'Anal Canal Cancer' },
+    { id: 'gis-Karaciger', name_tr: 'Karaciğer Kanseri', name_en: 'Liver Cancer' },
+    { id: 'gis-SafraYollari', name_tr: 'Safra Yolları Kanseri', name_en: 'Biliary Tract Cancer' },
     { id: 'gis-Pankreas', name_tr: 'Pankreas Kanseri', name_en: 'Pancreatic Cancer' },
     { id: 'gis-Ozofagus', name_tr: 'Özofagus Kanseri', name_en: 'Esophageal Cancer' },
   ],
