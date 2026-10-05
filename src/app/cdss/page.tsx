@@ -787,14 +787,6 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib_boost' },
 ];
 
-const mapOrganToRapidFilter = (organ: OrganId): 'all' | 'breast' | 'prostate' | 'thorax' | 'palliative' | 'other' => {
-  if (organ === 'breast') return 'breast';
-  if (organ === 'prostate') return 'prostate';
-  if (organ === 'thorax') return 'thorax';
-  if (organ === 'palliative' || organ === 'emergencies') return 'palliative';
-  return 'other';
-};
-
 type GuidedStep = 1 | 2 | 3 | 4;
 
 const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_en: string }>> = {
@@ -3788,7 +3780,6 @@ export default function RadoncoCDSSPage() {
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate_hypo');
   const [isMdrModalOpen, setIsMdrModalOpen] = useState<boolean>(false);
-  const [selectedRapidFilter, setSelectedRapidFilter] = useState<'all' | 'breast' | 'prostate' | 'thorax' | 'palliative' | 'other'>(() => mapOrganToRapidFilter('thorax'));
   const [isRadiobiologyModalOpen, setIsRadiobiologyModalOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -3931,7 +3922,6 @@ export default function RadoncoCDSSPage() {
   const handleOrganChange = (newOrgan: OrganId) => {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
-    setSelectedRapidFilter(mapOrganToRapidFilter(newOrgan));
     setSelectedSubsite(newOrgan === 'emergencies' || newOrgan === 'palliative' ? ORGAN_TREE[newOrgan][0]?.id ?? '' : '');
     if (newOrgan === 'palliative') setPalliativeIntent('Agri');
     setSelectedQuickCaseId(null);
@@ -3979,9 +3969,6 @@ export default function RadoncoCDSSPage() {
     );
     if (parentOrgan) {
       setSelectedOrgan(parentOrgan);
-      if (parentOrgan !== selectedOrgan) {
-        setSelectedRapidFilter(mapOrganToRapidFilter(parentOrgan));
-      }
     }
     if (subKey === 'palliative-bone') setPalliativeIntent('Agri');
     if (subKey === 'palliative-brain') setPalliativeIntent('Beyin');
@@ -4388,9 +4375,6 @@ export default function RadoncoCDSSPage() {
     if (preset) handleQuickCaseSelect(preset);
   });
 
-  useEffect(() => {
-    setSelectedRapidFilter(mapOrganToRapidFilter(selectedOrgan));
-  }, [selectedOrgan]);
 
   useEffect(() => {
     startTransition(() => launchQuickCaseFromUrl());
@@ -4448,39 +4432,18 @@ export default function RadoncoCDSSPage() {
   });
 
   const displayedRapidPresets = useMemo(() => {
-    if (selectedRapidFilter === 'breast') {
-      return QUICK_CASE_PRESETS.filter(p => p.organ === 'breast');
+    if (selectedOrgan === 'palliative') {
+      const presets = QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative');
+      return presets.length > 0 ? presets : QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative' || p.organ === 'emergencies' || p.category === 'sarcoma-palliative');
     }
-    if (selectedRapidFilter === 'prostate') {
-      return QUICK_CASE_PRESETS.filter(p => p.organ === 'prostate');
+    if (selectedOrgan === 'emergencies') {
+      return QUICK_CASE_PRESETS.filter(p => p.organ === 'emergencies' || p.category === 'emergencies');
     }
-    if (selectedRapidFilter === 'thorax') {
-      return QUICK_CASE_PRESETS.filter(p => p.organ === 'thorax');
+    if (selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma') {
+      return QUICK_CASE_PRESETS.filter(p => p.organ === 'sarcoma' || p.organ === 'bone' || p.organ === 'bone-sarcoma' || p.category === 'sarcoma-palliative');
     }
-    if (selectedRapidFilter === 'palliative') {
-      if (selectedOrgan === 'emergencies') {
-        const emergenciesOnly = QUICK_CASE_PRESETS.filter(p => p.organ === 'emergencies' || p.category === 'emergencies');
-        if (emergenciesOnly.length > 0) return emergenciesOnly;
-      }
-      if (selectedOrgan === 'palliative') {
-        const palliativeOnly = QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative');
-        if (palliativeOnly.length > 0) return palliativeOnly;
-      }
-      return QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative' || p.organ === 'emergencies' || p.category === 'sarcoma-palliative');
-    }
-    if (selectedRapidFilter === 'other') {
-      // If the selected organ is one of the specific sub-organs in 'other' (e.g. gis, cns, gynecology, sarcoma), show only its cases
-      const specificMatches = QUICK_CASE_PRESETS.filter(p => p.organ === selectedOrgan);
-      if (specificMatches.length > 0) {
-        return specificMatches;
-      }
-      return QUICK_CASE_PRESETS.filter(p => ['cns', 'gis', 'gynecology', 'sarcoma'].includes(p.organ));
-    }
-    // 'all': Top landmark protocols
-    const topIds = ['case-05', 'case-06', 'case-11', 'case-27', 'case-01', 'case-02', 'case-21', 'case-22', 'case-08', 'case-15', 'case-16'];
-    const topList = topIds.map(id => QUICK_CASE_PRESETS.find(p => p.id === id)).filter((p): p is QuickCasePreset => Boolean(p));
-    return topList.length > 0 ? topList : QUICK_CASE_PRESETS.slice(0, 10);
-  }, [selectedRapidFilter, selectedOrgan]);
+    return QUICK_CASE_PRESETS.filter(p => p.organ === selectedOrgan);
+  }, [selectedOrgan]);
 
   const commandPaletteGroups = useMemo(() => {
     const organNames: Record<OrganId, string> = {
@@ -9012,7 +8975,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </div>
             {/* PROMINENT RAPID CASES SHOWCASE (Pillar 3) */}
             <div className="mb-4">
-              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-3">
                 <div>
                   <h3 className="text-sm font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2">
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold">⚡</span>
@@ -9023,43 +8986,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       ? 'Poliklinikte en sık karşılaşılan standart protokolleri tek tıkla yükleyin ve dozimetriyi doğrulayın.'
                       : 'Load highest-frequency clinic presentations with 1-click verified fractionation and guidelines.'}
                   </p>
-                </div>
-                {/* Category Filter Tabs */}
-                <div className="flex flex-wrap items-center gap-1.5 bg-[#0a0f1d] p-1 rounded-xl border border-slate-800" role="tablist" aria-label="Rapid case filter">
-                  {[
-                    { id: 'all' as const, label: lang === 'tr' ? '⚡ Öne Çıkanlar' : '⚡ Top Highlights' },
-                    { id: 'breast' as const, label: lang === 'tr' ? '🌸 Meme' : '🌸 Breast' },
-                    { id: 'prostate' as const, label: lang === 'tr' ? '🎯 Prostat' : '🎯 Prostate' },
-                    { id: 'thorax' as const, label: lang === 'tr' ? '🫁 Toraks' : '🫁 Thorax' },
-                    { id: 'palliative' as const, label: lang === 'tr' ? '🛡️ Palyatif/Acil' : '🛡️ Palliative' },
-                    {
-                      id: 'other' as const,
-                      label: selectedOrgan === 'gis'
-                        ? (lang === 'tr' ? '🍽️ GİS / Kolorektal' : '🍽️ GI / Colorectal')
-                        : selectedOrgan === 'cns'
-                        ? (lang === 'tr' ? '🧠 MSS / Gliom' : '🧠 CNS / Glioma')
-                        : selectedOrgan === 'gynecology'
-                        ? (lang === 'tr' ? '♀️ Jinekoloji' : '♀️ Gynecology')
-                        : selectedOrgan === 'sarcoma' || selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma'
-                        ? (lang === 'tr' ? '🦴 Sarkom / Kemik' : '🦴 Sarcoma / Bone')
-                        : (lang === 'tr' ? '🧬 MSS / GİS / Diğer' : '🧬 CNS / GI / Other'),
-                    },
-                  ].map(tab => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={selectedRapidFilter === tab.id}
-                      onClick={() => setSelectedRapidFilter(tab.id)}
-                      className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
-                        selectedRapidFilter === tab.id
-                          ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
                 </div>
               </div>
 
@@ -9073,16 +8999,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   </p>
                   <p className="text-xs text-slate-400 mt-1">
                     {lang === 'tr'
-                      ? 'Sol navigasyondan tüm klinik parametreleri manuel yapılandırabilir veya öne çıkan vakaları inceleyebilirsiniz.'
-                      : 'You can configure all clinical parameters manually on the left panel or switch to Top Highlights.'}
+                      ? 'Sol navigasyondan tüm klinik parametreleri manuel yapılandırabilirsiniz.'
+                      : 'You can configure all clinical parameters manually on the left panel.'}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRapidFilter('all')}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-all"
-                  >
-                    <span>{lang === 'tr' ? '⚡ Öne Çıkan Vakaları Göster' : '⚡ View Top Highlights'}</span>
-                  </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
