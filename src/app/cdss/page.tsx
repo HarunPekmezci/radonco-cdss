@@ -787,6 +787,14 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib_boost' },
 ];
 
+const mapOrganToRapidFilter = (organ: OrganId): 'all' | 'breast' | 'prostate' | 'thorax' | 'palliative' | 'other' => {
+  if (organ === 'breast') return 'breast';
+  if (organ === 'prostate') return 'prostate';
+  if (organ === 'thorax') return 'thorax';
+  if (organ === 'palliative' || organ === 'emergencies') return 'palliative';
+  return 'other';
+};
+
 type GuidedStep = 1 | 2 | 3 | 4;
 
 const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_en: string }>> = {
@@ -3780,7 +3788,7 @@ export default function RadoncoCDSSPage() {
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [selectedRegimen, setSelectedRegimen] = useState<QuickCaseRegimen>('moderate_hypo');
   const [isMdrModalOpen, setIsMdrModalOpen] = useState<boolean>(false);
-  const [selectedRapidFilter, setSelectedRapidFilter] = useState<'all' | 'breast' | 'prostate' | 'thorax' | 'palliative' | 'other'>('all');
+  const [selectedRapidFilter, setSelectedRapidFilter] = useState<'all' | 'breast' | 'prostate' | 'thorax' | 'palliative' | 'other'>(() => mapOrganToRapidFilter('thorax'));
   const [isRadiobiologyModalOpen, setIsRadiobiologyModalOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -3923,6 +3931,7 @@ export default function RadoncoCDSSPage() {
   const handleOrganChange = (newOrgan: OrganId) => {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
+    setSelectedRapidFilter(mapOrganToRapidFilter(newOrgan));
     setSelectedSubsite(newOrgan === 'emergencies' || newOrgan === 'palliative' ? ORGAN_TREE[newOrgan][0]?.id ?? '' : '');
     if (newOrgan === 'palliative') setPalliativeIntent('Agri');
     setSelectedQuickCaseId(null);
@@ -3968,7 +3977,12 @@ export default function RadoncoCDSSPage() {
     const parentOrgan = (Object.keys(ORGAN_TREE) as OrganId[]).find(
       organId => ORGAN_TREE[organId].some(sub => sub.id === subKey)
     );
-    if (parentOrgan) setSelectedOrgan(parentOrgan);
+    if (parentOrgan) {
+      setSelectedOrgan(parentOrgan);
+      if (parentOrgan !== selectedOrgan) {
+        setSelectedRapidFilter(mapOrganToRapidFilter(parentOrgan));
+      }
+    }
     if (subKey === 'palliative-bone') setPalliativeIntent('Agri');
     if (subKey === 'palliative-brain') setPalliativeIntent('Beyin');
     if (subKey === 'palliative-soft-tissue') setPalliativeIntent('Organ');
@@ -4375,6 +4389,10 @@ export default function RadoncoCDSSPage() {
   });
 
   useEffect(() => {
+    setSelectedRapidFilter(mapOrganToRapidFilter(selectedOrgan));
+  }, [selectedOrgan]);
+
+  useEffect(() => {
     startTransition(() => launchQuickCaseFromUrl());
   }, []);
 
@@ -4440,16 +4458,29 @@ export default function RadoncoCDSSPage() {
       return QUICK_CASE_PRESETS.filter(p => p.organ === 'thorax');
     }
     if (selectedRapidFilter === 'palliative') {
+      if (selectedOrgan === 'emergencies') {
+        const emergenciesOnly = QUICK_CASE_PRESETS.filter(p => p.organ === 'emergencies' || p.category === 'emergencies');
+        if (emergenciesOnly.length > 0) return emergenciesOnly;
+      }
+      if (selectedOrgan === 'palliative') {
+        const palliativeOnly = QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative');
+        if (palliativeOnly.length > 0) return palliativeOnly;
+      }
       return QUICK_CASE_PRESETS.filter(p => p.organ === 'palliative' || p.organ === 'emergencies' || p.category === 'sarcoma-palliative');
     }
     if (selectedRapidFilter === 'other') {
+      // If the selected organ is one of the specific sub-organs in 'other' (e.g. gis, cns, gynecology, sarcoma), show only its cases
+      const specificMatches = QUICK_CASE_PRESETS.filter(p => p.organ === selectedOrgan);
+      if (specificMatches.length > 0) {
+        return specificMatches;
+      }
       return QUICK_CASE_PRESETS.filter(p => ['cns', 'gis', 'gynecology', 'sarcoma'].includes(p.organ));
     }
     // 'all': Top landmark protocols
     const topIds = ['case-05', 'case-06', 'case-11', 'case-27', 'case-01', 'case-02', 'case-21', 'case-22', 'case-08', 'case-15', 'case-16'];
     const topList = topIds.map(id => QUICK_CASE_PRESETS.find(p => p.id === id)).filter((p): p is QuickCasePreset => Boolean(p));
     return topList.length > 0 ? topList : QUICK_CASE_PRESETS.slice(0, 10);
-  }, [selectedRapidFilter]);
+  }, [selectedRapidFilter, selectedOrgan]);
 
   const commandPaletteGroups = useMemo(() => {
     const organNames: Record<OrganId, string> = {
@@ -9001,7 +9032,18 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     { id: 'prostate' as const, label: lang === 'tr' ? '🎯 Prostat' : '🎯 Prostate' },
                     { id: 'thorax' as const, label: lang === 'tr' ? '🫁 Toraks' : '🫁 Thorax' },
                     { id: 'palliative' as const, label: lang === 'tr' ? '🛡️ Palyatif/Acil' : '🛡️ Palliative' },
-                    { id: 'other' as const, label: lang === 'tr' ? '🧬 MSS / GİS' : '🧬 CNS / GI' },
+                    {
+                      id: 'other' as const,
+                      label: selectedOrgan === 'gis'
+                        ? (lang === 'tr' ? '🍽️ GİS / Kolorektal' : '🍽️ GI / Colorectal')
+                        : selectedOrgan === 'cns'
+                        ? (lang === 'tr' ? '🧠 MSS / Gliom' : '🧠 CNS / Glioma')
+                        : selectedOrgan === 'gynecology'
+                        ? (lang === 'tr' ? '♀️ Jinekoloji' : '♀️ Gynecology')
+                        : selectedOrgan === 'sarcoma' || selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma'
+                        ? (lang === 'tr' ? '🦴 Sarkom / Kemik' : '🦴 Sarcoma / Bone')
+                        : (lang === 'tr' ? '🧬 MSS / GİS / Diğer' : '🧬 CNS / GI / Other'),
+                    },
                   ].map(tab => (
                     <button
                       key={tab.id}
@@ -9021,60 +9063,83 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-                {displayedRapidPresets.map(preset => {
-                  const scenario = GUIDED_QUICK_SCENARIOS[preset.id];
-                  const scenarioTitle = lang === 'tr'
-                    ? scenario?.title_tr ?? preset.title_tr
-                    : scenario?.title_en ?? preset.title_en;
-                  const scenarioDetail = lang === 'tr' ? preset.detail_tr : preset.detail_en;
-                  const isSelected = selectedQuickCaseId === preset.id;
-                  return (
-                    <div key={preset.id} className="relative group">
-                      <button
-                        type="button"
-                        onClick={() => handleQuickCaseSelect(preset)}
-                        aria-label={`${scenarioTitle}. ${scenarioDetail}`}
-                        className={`flex min-h-36 w-full flex-col items-start justify-between gap-2.5 rounded-2xl border p-4 pr-12 text-left transition-all duration-150 ${
-                          isSelected
-                            ? 'border-amber-400 bg-amber-500/15 shadow-xl shadow-amber-950/40 ring-1 ring-amber-400'
-                            : 'border-slate-700/80 bg-gradient-to-br from-[#111c2e] via-[#0f172a] to-[#0a1120] hover:border-amber-400/80 hover:bg-[#15233a] hover:shadow-lg hover:shadow-amber-500/5'
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-300">
-                            {reportOrganNames[preset.organ]}
-                          </span>
-                          {preset.regimen && (
-                            <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-amber-300">
-                              {preset.regimen === 'ultra_hypo' ? 'SBRT / Ultra-Hipo' : preset.regimen === 'moderate_hypo' ? 'Orta Hipo' : preset.regimen === 'sib_boost' ? 'SIB Boost' : 'Konvansiyonel'}
+              {displayedRapidPresets.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700/80 bg-[#0a1120]/60 p-8 text-center">
+                  <span className="text-2xl mb-2">⚡</span>
+                  <p className="text-sm font-semibold text-slate-300">
+                    {lang === 'tr'
+                      ? `${reportOrganNames[selectedOrgan]} için hazır hızlı klinik kart bulunmuyor.`
+                      : `No rapid case preset available for ${reportOrganNames[selectedOrgan]}.`}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {lang === 'tr'
+                      ? 'Sol navigasyondan tüm klinik parametreleri manuel yapılandırabilir veya öne çıkan vakaları inceleyebilirsiniz.'
+                      : 'You can configure all clinical parameters manually on the left panel or switch to Top Highlights.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRapidFilter('all')}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-all"
+                  >
+                    <span>{lang === 'tr' ? '⚡ Öne Çıkan Vakaları Göster' : '⚡ View Top Highlights'}</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+                  {displayedRapidPresets.map(preset => {
+                    const scenario = GUIDED_QUICK_SCENARIOS[preset.id];
+                    const scenarioTitle = lang === 'tr'
+                      ? scenario?.title_tr ?? preset.title_tr
+                      : scenario?.title_en ?? preset.title_en;
+                    const scenarioDetail = lang === 'tr' ? preset.detail_tr : preset.detail_en;
+                    const isSelected = selectedQuickCaseId === preset.id;
+                    return (
+                      <div key={preset.id} className="relative group">
+                        <button
+                          type="button"
+                          onClick={() => handleQuickCaseSelect(preset)}
+                          aria-label={`${scenarioTitle}. ${scenarioDetail}`}
+                          className={`flex min-h-36 w-full flex-col items-start justify-between gap-2.5 rounded-2xl border p-4 pr-12 text-left transition-all duration-150 ${
+                            isSelected
+                              ? 'border-amber-400 bg-amber-500/15 shadow-xl shadow-amber-950/40 ring-1 ring-amber-400'
+                              : 'border-slate-700/80 bg-gradient-to-br from-[#111c2e] via-[#0f172a] to-[#0a1120] hover:border-amber-400/80 hover:bg-[#15233a] hover:shadow-lg hover:shadow-amber-500/5'
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-300">
+                              {reportOrganNames[preset.organ]}
                             </span>
-                          )}
-                        </div>
-                        <span className="text-sm font-bold leading-snug text-white group-hover:text-amber-200 transition-colors">
-                          {scenarioTitle}
-                        </span>
-                        <div className="rounded-lg border border-slate-700/60 bg-[#090f1a] px-2.5 py-1.5 text-xs text-amber-300 font-mono font-medium leading-relaxed">
-                          {scenarioDetail}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
-                          <span>{lang === 'tr' ? 'Vakayı Uygula & Doğrula' : 'Apply Case & Verify'}</span>
-                          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`${favoritePresetIds.includes(preset.id) ? (lang === 'tr' ? 'Favorilerden çıkar' : 'Remove from favorites') : (lang === 'tr' ? 'Favorilere ekle' : 'Add to favorites')}: ${scenarioTitle}`}
-                        aria-pressed={favoritePresetIds.includes(preset.id)}
-                        onClick={() => toggleFavoritePreset(preset.id)}
-                        className="absolute right-3 top-3 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-base text-amber-300 hover:border-amber-400/60 hover:scale-110 transition-transform"
-                      >
-                        <span aria-hidden="true">{favoritePresetIds.includes(preset.id) ? '⭐' : '☆'}</span>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+                            {preset.regimen && (
+                              <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-amber-300">
+                                {preset.regimen === 'ultra_hypo' ? 'SBRT / Ultra-Hipo' : preset.regimen === 'moderate_hypo' ? 'Orta Hipo' : preset.regimen === 'sib_boost' ? 'SIB Boost' : 'Konvansiyonel'}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-sm font-bold leading-snug text-white group-hover:text-amber-200 transition-colors">
+                            {scenarioTitle}
+                          </span>
+                          <div className="rounded-lg border border-slate-700/60 bg-[#090f1a] px-2.5 py-1.5 text-xs text-amber-300 font-mono font-medium leading-relaxed">
+                            {scenarioDetail}
+                          </div>
+                          <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
+                            <span>{lang === 'tr' ? 'Vakayı Uygula & Doğrula' : 'Apply Case & Verify'}</span>
+                            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`${favoritePresetIds.includes(preset.id) ? (lang === 'tr' ? 'Favorilerden çıkar' : 'Remove from favorites') : (lang === 'tr' ? 'Favorilere ekle' : 'Add to favorites')}: ${scenarioTitle}`}
+                          aria-pressed={favoritePresetIds.includes(preset.id)}
+                          onClick={() => toggleFavoritePreset(preset.id)}
+                          className="absolute right-3 top-3 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-base text-amber-300 hover:border-amber-400/60 hover:scale-110 transition-transform"
+                        >
+                          <span aria-hidden="true">{favoritePresetIds.includes(preset.id) ? '⭐' : '☆'}</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700/80 bg-[#0a0f1d]/70 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-xs text-slate-300">
