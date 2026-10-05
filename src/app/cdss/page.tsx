@@ -3870,6 +3870,8 @@ export default function RadoncoCDSSPage() {
   const [positiveCorePercent, setPositiveCorePercent] = useState<string>('35');
   const [bladderTurbtComplete, setBladderTurbtComplete] = useState<boolean>(true);
   const [bladderTmtSuitable, setBladderTmtSuitable] = useState<boolean>(true);
+  const [bladderHydronephrosis, setBladderHydronephrosis] = useState<boolean>(false);
+  const [bladderConcurrentCis, setBladderConcurrentCis] = useState<boolean>(false);
   const [prostateHistology, setProstateHistology] = useState<'acinar' | 'ductal' | 'nepc'>('acinar');
   const [testisHistology, setTestisHistology] = useState<'seminoma' | 'nonseminoma'>('seminoma');
   const [bladderHistology, setBladderHistology] = useState<'urothelial' | 'non-urothelial'>('urothelial');
@@ -10309,8 +10311,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <input type="checkbox" checked={bladderTurbtComplete} onChange={e => setBladderTurbtComplete(e.currentTarget.checked)} />
                   {tText("\n                  Maksimal TURBT tamamlandı\n                ")}</label>
                 <label className="flex items-center gap-2 text-slate-700">
-                  <input type="checkbox" checked={bladderTmtSuitable} onChange={e => setBladderTmtSuitable(e.currentTarget.checked)} />
-                  {tText("\n                  Mesane koruyucu TMT için klinik uygunluk\n                ")}</label>
+                  <input type="checkbox" checked={bladderHydronephrosis} onChange={e => setBladderHydronephrosis(e.currentTarget.checked)} />
+                  {tText("\n                  Hidronefroz\n                ")}</label>
+                <label className="flex items-center gap-2 text-slate-700">
+                  <input type="checkbox" checked={bladderConcurrentCis} onChange={e => setBladderConcurrentCis(e.currentTarget.checked)} />
+                  {tText("\n                  Eşzamanlı CIS\n                ")}</label>
               </div>
             )}
 
