@@ -974,524 +974,828 @@ export interface DoseScheme extends TCPTargetPrescription {
 }
 
 const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARNTPCeiling[] => {
+  const isTr = lang === 'tr';
   const conventionalFractionation = scheme.fractionCount >= 15 && scheme.fractionDoseGy <= 2.1;
+  const isSbrt = scheme.fractionCount <= 5 && scheme.fractionCount >= 1;
   const hasPelvicNodalTarget = scheme.targetVolumes.some(volume =>
     /pelvic|pelvis|pelvik|nodal|lenf nod/i.test(`${volume.name} ${volume.anatomical}`)
   );
 
+  // 1. BRAIN / CNS
+  if (organ === 'cns') {
+    return [
+      {
+        organ: isTr ? 'Beyin Sapı' : 'Brainstem',
+        metric: isSbrt ? 'Dmax' : 'Dmax',
+        limit: isSbrt ? '< 12 Gy (1 fx) / < 23-31 Gy (3-5 fx)' : '≤ 54 Gy',
+        source: 'QUANTEC / HyTEC (2021), DOI: 10.1016/j.ijrobp.2009.07.1753',
+        context: isTr ? 'Konvansiyonelde Dmax ≤ 54 Gy; SRS/SRT için 1 fx < 12 Gy, 3-5 fx < 23-31 Gy.' : 'Conventional Dmax ≤ 54 Gy; SRS/SRT 1 fx < 12 Gy, 3-5 fx < 23-31 Gy.',
+        contextEn: 'Conventional Dmax ≤ 54 Gy; SRS/SRT 1 fx < 12 Gy, 3-5 fx < 23-31 Gy.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Optik Sinirler / Kiazma' : 'Optic Nerves / Chiasm',
+        metric: 'Dmax',
+        limit: isSbrt ? '< 8-10 Gy (1 fx) / < 20-25 Gy (3-5 fx)' : '< 54-55 Gy',
+        source: 'QUANTEC / HyTEC (2021); AAPM TG-101',
+        context: isTr ? 'Optik nöropati riski; SRS 1 fx < 8-10 Gy, konvansiyonel < 54-55 Gy.' : 'Radiation optic neuropathy risk; SRS 1 fx < 8-10 Gy, conventional < 54-55 Gy.',
+        contextEn: 'Radiation optic neuropathy risk; SRS 1 fx < 8-10 Gy, conventional < 54-55 Gy.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Göz Lensleri' : 'Lens (Bilateral)',
+        metric: 'Dmax',
+        limit: '< 5-7 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: isTr ? 'Kataraktogenesis riski; ALARA prensibiyle mümkün olan en düşük doz.' : 'Cataractogenesis risk; ALARA minimization.',
+        contextEn: 'Cataractogenesis risk; ALARA minimization.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Göz Küreleri (Globes / Eyes)' : 'Eyes (Globes)',
+        metric: 'Dmean / Dmax',
+        limit: 'Dmean < 35 Gy; Dmax < 45-50 Gy',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Kornea, sklera ve konjonktiva hasarını önleme.' : 'Prevention of scleral/corneal/anterior segment toxicity.',
+        contextEn: 'Prevention of scleral/corneal/anterior segment toxicity.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Retina' : 'Retina',
+        metric: 'Dmax',
+        limit: '< 45 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: isTr ? 'Radyasyon retinopatisi ve neovasküler glokom riski.' : 'Radiation retinopathy and neovascular glaucoma risk.',
+        contextEn: 'Radiation retinopathy and neovascular glaucoma risk.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Lakrimal Bez' : 'Lacrimal Gland',
+        metric: 'Dmean',
+        limit: '< 30-40 Gy',
+        source: 'QUANTEC / Clinical Reference',
+        context: isTr ? 'Ciddi kuru göz sendromu (keratokonjonktivitis sikka) önlenmesi.' : 'Prevention of severe dry eye syndrome (keratoconjunctivitis sicca).',
+        contextEn: 'Prevention of severe dry eye syndrome (keratoconjunctivitis sicca).',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Koklea' : 'Cochlea',
+        metric: isSbrt ? 'Dmax' : 'Dmean',
+        limit: isSbrt ? '< 9 Gy (1 fx)' : 'Dmean < 45 Gy (tercihen < 35 Gy)',
+        source: 'QUANTEC head-and-neck (2010); AAPM TG-101',
+        context: isTr ? 'Sensörinöral işitme kaybı; platin kemoterapisi varsa eşik düşer.' : 'Sensorineural hearing loss; reduced threshold with cisplatin.',
+        contextEn: 'Sensorineural hearing loss; reduced threshold with cisplatin.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Hipofiz (Pituitary)' : 'Pituitary Gland',
+        metric: 'Dmax',
+        limit: '< 54 Gy',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: isTr ? 'Hipopitüitarizm ve endokrin eksikliklerin önlenmesi.' : 'Prevention of hypopituitarism and endocrine deficiency.',
+        contextEn: 'Prevention of hypopituitarism and endocrine deficiency.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Hipokampus (HA-WBRT)' : 'Hippocampus (HA-WBRT)',
+        metric: 'D100% / Dmax',
+        limit: 'D100% ≤ 9 Gy; Dmax ≤ 16 Gy',
+        source: 'NRG CC001 / RTOG 0933',
+        context: isTr ? 'Hipokampus korumalı tüm beyin RT (HA-WBRT) nörobilişsel koruma.' : 'Neurocognitive protection during hippocampal-avoidance WBRT.',
+        contextEn: 'Neurocognitive protection during hippocampal-avoidance WBRT.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Normal Beyin Dokusu (Brain - GTV)' : 'Normal Brain Tissue (Brain - GTV)',
+        metric: isSbrt ? 'V12Gy' : 'V60Gy',
+        limit: isSbrt ? 'V12Gy < 5-10 cc (1 fx) / V20Gy < 20 cc (3 fx)' : 'V60Gy < 100 cc',
+        source: 'HyTEC Brain SRS (2021), DOI: 10.1016/j.ijrobp.2020.08.013; QUANTEC',
+        context: isTr ? 'Semptomatik radyasyon nekrozu riskini < %10 tutmak için primer kısıt.' : 'Primary constraint to maintain symptomatic radionecrosis rate < 10%.',
+        contextEn: 'Primary constraint to maintain symptomatic radionecrosis rate < 10%.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Saçlı Deri / Skalp' : 'Scalp / Skin',
+        metric: 'Dmax',
+        limit: '< 50 Gy (Dmean < 20 Gy)',
+        source: 'CNS Planning Reference',
+        context: isTr ? 'Kalıcı alopesi ve radyasyon dermatiti minimizasyonu.' : 'Minimization of permanent alopecia and severe radiation dermatitis.',
+        contextEn: 'Minimization of permanent alopecia and severe radiation dermatitis.',
+        classification: 'planning-aim',
+      },
+    ];
+  }
+
+  // 2. HEAD & NECK
+  if (organ === 'head-neck') {
+    return [
+      {
+        organ: isTr ? 'Spinal Kord' : 'Spinal Cord',
+        metric: 'Dmax',
+        limit: '< 45 Gy',
+        source: 'QUANTEC spinal cord (2010); conventional fractionation',
+        context: isTr ? 'Radyasyon miyelopatisi riski (< %0.2).' : 'Radiation myelopathy risk (< 0.2%).',
+        contextEn: 'Radiation myelopathy risk (< 0.2%).',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Spinal Kord PRV (Planning Organ at Risk Volume)' : 'Spinal Cord PRV',
+        metric: 'Dmax',
+        limit: '< 48-50 Gy',
+        source: 'RTOG / ESTRO Head and Neck Guidelines',
+        context: isTr ? 'Spinal korda 1.5-2 mm geometrik güvenlik payı eklenmiş PRV sınırı.' : 'Cord + 1.5-2 mm geometric expansion safety envelope.',
+        contextEn: 'Cord + 1.5-2 mm geometric expansion safety envelope.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Beyin Sapı' : 'Brainstem',
+        metric: 'Dmax',
+        limit: '≤ 54 Gy',
+        source: 'QUANTEC brainstem (2010), DOI: 10.1016/j.ijrobp.2009.07.1753',
+        context: isTr ? 'Konvansiyonel fraksiyonasyon tavan sınırı.' : 'Conventional fractionation ceiling.',
+        contextEn: 'Conventional fractionation ceiling.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Parotis Bezleri' : 'Parotid Glands',
+        metric: 'Dmean',
+        limit: isTr ? 'En az bir bezde Dmean < 20-26 Gy veya bilateral Dmean < 25 Gy' : 'At least 1 gland Dmean < 20-26 Gy or bilateral Dmean < 25 Gy',
+        source: 'QUANTEC parotid (2010), DOI: 10.1016/j.ijrobp.2009.06.090',
+        context: isTr ? 'Kalıcı kserostomiyi önleme ve tükürük akışını koruma.' : 'Prevention of long-term xerostomia and saliva flow preservation.',
+        contextEn: 'Prevention of long-term xerostomia and saliva flow preservation.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Submandibular Bezler' : 'Submandibular Glands',
+        metric: 'Dmean',
+        limit: '< 35 Gy (tutulmayan kontralateral bez)',
+        source: 'QUANTEC / Head and Neck IMRT Studies',
+        context: isTr ? 'İstirahat tükürük salgısını koruma (uygun cerrahi/hedef durumunda).' : 'Preservation of baseline resting salivation when uninvolved.',
+        contextEn: 'Preservation of baseline resting salivation when uninvolved.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Faringeal Konstriktör Kaslar (PCM: Superior/Medius/Inferior)' : 'Pharyngeal Constrictor Muscles (PCM)',
+        metric: 'Dmean',
+        limit: '< 50 Gy (Superior/Medius Dmean < 50 Gy)',
+        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
+        context: isTr ? 'Ciddi kronik disfaji, gastrostomi (PEG) bağımlılığı ve aspirasyon pnömonisi önlenmesi.' : 'Prevention of chronic dysphagia, PEG dependence, and aspiration.',
+        contextEn: 'Prevention of chronic dysphagia, PEG dependence, and aspiration.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Larenks (Glottik & Supraglottik)' : 'Larynx (Glottic & Supraglottic)',
+        metric: 'Dmean',
+        limit: '< 40-45 Gy (Larenks dışı primerlerde)',
+        source: 'QUANTEC head-and-neck review (2010)',
+        context: isTr ? 'Kalıcı vokal kord ödemi, aspirasyon ve trakeostomi riskini azaltma.' : 'Reduction of chronic laryngeal edema, aspiration, and tracheostomy.',
+        contextEn: 'Reduction of chronic laryngeal edema, aspiration, and tracheostomy.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Servikal Özofagus' : 'Cervical Esophagus',
+        metric: 'Dmean / Dmax',
+        limit: 'Dmean < 34 Gy; Dmax < 60 Gy',
+        source: 'QUANTEC Esophagus (2010)',
+        context: isTr ? 'Akut ve geç özofagus striktürü / ülserasyonunun engellenmesi.' : 'Prevention of acute/chronic esophageal stricture and ulceration.',
+        contextEn: 'Prevention of acute/chronic esophageal stricture and ulceration.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Mandibula' : 'Mandible',
+        metric: 'Dmax',
+        limit: '< 70 Gy (tercihen V60Gy < 30%)',
+        source: 'QUANTEC / ESTRO Head and Neck Guidelines',
+        context: isTr ? 'Osteoradyonekroz (ORN) riskinin önlenmesi; diş ekstraksiyonları RT öncesi tamamlanmalıdır.' : 'Prevention of osteoradionecrosis (ORN); dental clearance pre-RT.',
+        contextEn: 'Prevention of osteoradionecrosis (ORN); dental clearance pre-RT.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Temporomandibüler Eklem (TMJ)' : 'Temporomandibular Joint (TMJ)',
+        metric: 'Dmax',
+        limit: '< 60-70 Gy',
+        source: 'Head and Neck Planning Guidelines',
+        context: isTr ? 'Çiğneme kası fibrozu ve trismus gelişmesini önleme.' : 'Prevention of masseter fibrosis and severe trismus.',
+        contextEn: 'Prevention of masseter fibrosis and severe trismus.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Oral Kavite (GTV Dışı)' : 'Oral Cavity (Excluding GTV)',
+        metric: 'Dmean',
+        limit: '< 30-35 Gy',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Ciddi mukozit, ağrı ve tat duyusu kaybını (disgeuzi) azaltma.' : 'Reduction of severe mucositis, pain, and dysgeusia.',
+        contextEn: 'Reduction of severe mucositis, pain, and dysgeusia.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Tiroid Bezi' : 'Thyroid Gland',
+        metric: 'V30Gy',
+        limit: '< 50%',
+        source: 'QUANTEC / Clinical Reference',
+        context: isTr ? 'Primer hipotiroidi gelişiminin azaltılması; periyodik TSH takibi önerilir.' : 'Reduction of primary hypothyroidism; monitor serial TSH.',
+        contextEn: 'Reduction of primary hypothyroidism; monitor serial TSH.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Brakiyal Pleksus' : 'Brachial Plexus',
+        metric: 'Dmax',
+        limit: '< 66 Gy',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Brakiyal pleksopati ve motor/duyusal kayıp riski.' : 'Prevention of brachial plexopathy and motor/sensory deficit.',
+        contextEn: 'Prevention of brachial plexopathy and motor/sensory deficit.',
+        classification: 'dose-volume-reference',
+      },
+    ];
+  }
+
+  // 3. THORAX (LUNG & MEDIASTINUM)
+  if (organ === 'thorax') {
+    if (isSbrt) {
+      return [
+        {
+          organ: isTr ? 'Spinal Kord' : 'Spinal Cord',
+          metric: 'Dmax',
+          limit: scheme.fractionCount === 1 ? '< 14 Gy' : scheme.fractionCount === 3 ? '< 18-22 Gy' : '< 25-30 Gy (5 fx)',
+          source: 'AAPM TG-101; HyTEC Spine SBRT (2021)',
+          context: isTr ? 'SBRT miyelopati güvenliği; kord PRV kısıtı esastır.' : 'SBRT myelopathy safety; cord PRV constraint is mandatory.',
+          contextEn: 'SBRT myelopathy safety; cord PRV constraint is mandatory.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Proksimal Bronş Ağacı (PBT)' : 'Proximal Bronchial Tree (PBT)',
+          metric: 'Dmax',
+          limit: scheme.fractionCount <= 3 ? '< 30 Gy (3 fx)' : '< 38-40 Gy (5 fx, RTOG 0813)',
+          source: 'RTOG 0813 (Bezjak et al. JCO 2019); HyTEC (2021)',
+          context: isTr ? 'Santral hava yolu nekrozu ve ölümcül hemoptiziyi önleme.' : 'Prevention of central airway necrosis and fatal hemoptysis.',
+          contextEn: 'Prevention of central airway necrosis and fatal hemoptysis.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Bilateral Akciğer (GTV Hariç)' : 'Both Lungs (Minus GTV)',
+          metric: 'V20Gy / MLD',
+          limit: scheme.fractionCount === 3 ? 'V20Gy < 10-15%' : 'V20Gy < 15-20%; MLD < 8 Gy',
+          source: 'RTOG 0236; RTOG 0915; HyTEC',
+          context: isTr ? 'SBRT radyasyon pnömonisi riskini < %5 tutmak için.' : 'SBRT radiation pneumonitis risk kept < 5%.',
+          contextEn: 'SBRT radiation pneumonitis risk kept < 5%.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Özofagus' : 'Esophagus',
+          metric: 'Dmax',
+          limit: scheme.fractionCount === 3 ? '< 27 Gy (3 fx)' : '< 32-35 Gy (5 fx)',
+          source: 'AAPM TG-101; HyTEC (2021)',
+          context: isTr ? 'Ülserasyon ve bronkoözofageal fistül riskini önleme.' : 'Prevention of esophageal ulceration and tracheoesophageal fistula.',
+          contextEn: 'Prevention of esophageal ulceration and tracheoesophageal fistula.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Kalp / Perikard' : 'Heart / Pericardium',
+          metric: 'Dmax',
+          limit: scheme.fractionCount === 3 ? '< 30 Gy (3 fx)' : '< 38-40 Gy (5 fx)',
+          source: 'AAPM TG-101; HyTEC (2021)',
+          context: isTr ? 'Perikardit ve akut koroner iskemi minimizasyonu.' : 'Minimization of pericarditis and acute coronary ischemia.',
+          contextEn: 'Minimization of pericarditis and acute coronary ischemia.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'LAD Koroner Arter' : 'LAD Coronary Artery',
+          metric: 'Dmax / Dmean',
+          limit: 'Dmax < 20 Gy; Dmean < 10 Gy',
+          source: 'Cardio-Oncology Thoracic SBRT Guidance',
+          context: isTr ? 'Akut miyokard enfarktüsü ve radyasyon koroner hasarı koruması.' : 'Protection against radiation-induced coronary artery stenosis.',
+          contextEn: 'Protection against radiation-induced coronary artery stenosis.',
+          classification: 'planning-aim',
+        },
+        {
+          organ: isTr ? 'Büyük Damarlar / Aorta' : 'Great Vessels / Aorta',
+          metric: 'Dmax',
+          limit: scheme.fractionCount <= 3 ? '< 45 Gy (3 fx)' : '< 47-50 Gy (5 fx)',
+          source: 'AAPM TG-101; HyTEC (2021)',
+          context: isTr ? 'Aort ve pulmoner arter rüptürünü önleme.' : 'Prevention of aortic and pulmonary artery rupture.',
+          contextEn: 'Prevention of aortic and pulmonary artery rupture.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Brakiyal Pleksus' : 'Brachial Plexus',
+          metric: 'Dmax',
+          limit: scheme.fractionCount === 3 ? '< 24 Gy (3 fx)' : '< 30-32 Gy (5 fx)',
+          source: 'AAPM TG-101; RTOG 0618/0813',
+          context: isTr ? 'Apikal tümörlerde brakiyal nöropatiyi önleme.' : 'Prevention of apical plexopathy and neuropathic pain.',
+          contextEn: 'Prevention of apical plexopathy and neuropathic pain.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Göğüs Duvarı / Kaburgalar' : 'Chest Wall / Ribs',
+          metric: 'V30Gy',
+          limit: '< 30 cc (3-5 fx)',
+          source: 'AAPM TG-101; RTOG 0236',
+          context: isTr ? 'Kaburga kırığı ve kronik nöropatik göğüs duvarı ağrısı minimizasyonu.' : 'Minimization of rib fracture and chronic chest wall pain.',
+          contextEn: 'Minimization of rib fracture and chronic chest wall pain.',
+          classification: 'planning-aim',
+        },
+      ];
+    }
+
+    return [
+      {
+        organ: isTr ? 'Bilateral Akciğer (GTV Hariç)' : 'Both Lungs (Minus GTV)',
+        metric: 'V20Gy / MLD',
+        limit: 'V20Gy < 30–35%; MLD < 20 Gy (V5Gy < 60%)',
+        source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091; RTOG 0617',
+        context: isTr ? 'Semptomatik radyasyon pnömonisi riskini < %15-20 tutmak için kritik.' : 'Critical threshold to maintain symptomatic pneumonitis < 15-20%.',
+        contextEn: 'Critical threshold to maintain symptomatic pneumonitis < 15-20%.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Kalp' : 'Heart',
+        metric: 'Dmean / V30',
+        limit: 'Dmean < 20 Gy (tercihen < 15 Gy); V30 < 46%',
+        source: 'QUANTEC cardiac review (2010), DOI: 10.1016/j.ijrobp.2009.04.093; RTOG 0617',
+        context: isTr ? 'Kardiyak mortalite ve genel sağkalımı doğrudan etkiler; ALARA esastır.' : 'Direct predictor of overall survival in RTOG 0617; ALARA.',
+        contextEn: 'Direct predictor of overall survival in RTOG 0617; ALARA.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'LAD Koroner Arter' : 'LAD Coronary Artery',
+        metric: 'Dmean / Dmax',
+        limit: 'Dmean < 10 Gy; Dmax < 20 Gy',
+        source: 'Cardio-Oncology Thoracic Guidelines',
+        context: isTr ? 'Miyokard enfarktüsü ve koroner stenoz riskini azaltma.' : 'Reduction of late myocardial infarction and coronary stenosis.',
+        contextEn: 'Reduction of late myocardial infarction and coronary stenosis.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Spinal Kord' : 'Spinal Cord',
+        metric: 'Dmax',
+        limit: '< 45 Gy (PRV < 48-50 Gy)',
+        source: 'QUANTEC spinal cord (2010); RTOG 0617',
+        context: isTr ? 'Radyasyon miyelopatisini önlemede mutlak sert sınır.' : 'Absolute hard ceiling to prevent radiation myelopathy.',
+        contextEn: 'Absolute hard ceiling to prevent radiation myelopathy.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Özofagus' : 'Esophagus',
+        metric: 'Dmean / V60',
+        limit: 'Dmean < 34 Gy; V60 < 17%',
+        source: 'QUANTEC esophageal toxicity review (2010)',
+        context: isTr ? 'Akut grade ≥3 özofajit ve striktür riskini azaltma.' : 'Reduction of severe acute grade ≥3 esophagitis and stricture.',
+        contextEn: 'Reduction of severe acute grade ≥3 esophagitis and stricture.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Proksimal Bronş Ağacı (PBT)' : 'Proximal Bronchial Tree (PBT)',
+        metric: 'Dmax',
+        limit: '< 66 Gy',
+        source: 'QUANTEC / Thoracic Planning Guidelines',
+        context: isTr ? 'Karina ve ana bronşları kapsar; nekroz ve stenozu engeller.' : 'Encompasses carina and mainstem bronchi; prevents necrosis.',
+        contextEn: 'Encompasses carina and mainstem bronchi; prevents necrosis.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Brakiyal Pleksus' : 'Brachial Plexus',
+        metric: 'Dmax',
+        limit: '< 66 Gy',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Apikal yerleşimli kitlelerde nöropatiyi önleme.' : 'Prevention of plexopathy in apical tumors.',
+        contextEn: 'Prevention of plexopathy in apical tumors.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Büyük Damarlar / Aorta' : 'Great Vessels / Aorta',
+        metric: 'Dmax',
+        limit: '< 70 Gy',
+        source: 'Thoracic RT Guidelines',
+        context: isTr ? 'Vasküler erozyon ve kanamayı önleme.' : 'Prevention of major vessel erosion and hemorrhage.',
+        contextEn: 'Prevention of major vessel erosion and hemorrhage.',
+        classification: 'planning-aim',
+      },
+    ];
+  }
+
+  // 4. GASTRIC & 5. PANCREAS & 7. RECTUM (GIS)
+  if (organ === 'gis') {
+    if (subsite === 'gis-Mide' || subsite === 'gis-mide') {
+      return [
+        {
+          organ: isTr ? 'Karaciğer' : 'Liver',
+          metric: 'Dmean',
+          limit: 'Dmean < 30 Gy (tercihen ≥ 700 cc < 15 Gy)',
+          source: 'QUANTEC liver (2010), DOI: 10.1016/j.ijrobp.2009.06.092',
+          context: isTr ? 'Radyasyon kaynaklı karaciğer hastalığı (RILD) önlenmesi.' : 'Prevention of radiation-induced liver disease (RILD).',
+          contextEn: 'Prevention of radiation-induced liver disease (RILD).',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Böbrekler (Bilateral)' : 'Bilateral Kidneys',
+          metric: 'Dmean / V20',
+          limit: isTr ? 'Bilateral Dmean < 15-18 Gy; en az 1 böbrek Dmean < 12 Gy (V20 < 30%)' : 'Bilateral Dmean < 15-18 Gy; at least 1 kidney Dmean < 12 Gy (V20 < 30%)',
+          source: 'QUANTEC renal review (2010); INT-0116 / ARTIST',
+          context: isTr ? 'Geç dönem renal yetmezlik ve hipertansiyonu engelleme.' : 'Prevention of late renal failure and radiation nephropathy.',
+          contextEn: 'Prevention of late renal failure and radiation nephropathy.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Spinal Kord' : 'Spinal Cord',
+          metric: 'Dmax',
+          limit: '< 45 Gy',
+          source: 'QUANTEC spinal cord (2010)',
+          context: isTr ? 'Radyasyon miyelopatisini önlemede mutlak sınır.' : 'Absolute ceiling for myelopathy prevention.',
+          contextEn: 'Absolute ceiling for myelopathy prevention.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'İnce Bağırsak / Duodenum' : 'Small Bowel / Duodenum',
+          metric: 'Dmax / V45',
+          limit: 'Dmax < 50 Gy; V45Gy < 100 cc',
+          source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+          context: isTr ? 'Perforasyon, striktür ve akut/kronik enteriti önleme.' : 'Prevention of perforation, stricture, and chronic enteritis.',
+          contextEn: 'Prevention of perforation, stricture, and chronic enteritis.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Kalp' : 'Heart',
+          metric: 'Dmean',
+          limit: '< 20-30 Gy (Kardiyak apeks dozunu minimize edin)',
+          source: 'QUANTEC (2010); INT-0116',
+          context: isTr ? 'Sol üst kadran alanlarında inferior kardiyak duvar dozunu azaltma.' : 'Minimization of inferior wall exposure in left-upper quadrant fields.',
+          contextEn: 'Minimization of inferior wall exposure in left-upper quadrant fields.',
+          classification: 'planning-aim',
+        },
+      ];
+    }
+
+    if (subsite === 'gis-Pankreas' || subsite === 'gis-pankreas') {
+      return [
+        {
+          organ: isTr ? 'Duodenum' : 'Duodenum',
+          metric: isSbrt ? 'Dmax' : 'Dmax',
+          limit: isSbrt ? 'Dmax < 33 Gy (5 fx) / D0.5cc < 30 Gy' : 'Dmax < 54 Gy (V50Gy < 10%)',
+          source: 'QUANTEC / NCCN Pancreatic Cancer (2025); HyTEC',
+          context: isTr ? 'Pankreas RT’sinde primer doz sınırlayıcı kritik organ; ülser ve perforasyon riski.' : 'Primary dose-limiting critical structure; risk of ulceration and perforation.',
+          contextEn: 'Primary dose-limiting critical structure; risk of ulceration and perforation.',
+          classification: 'protocol-limit',
+        },
+        {
+          organ: isTr ? 'Mide (Stomach)' : 'Stomach',
+          metric: 'Dmax',
+          limit: isSbrt ? 'Dmax < 33 Gy (5 fx)' : 'Dmax < 50-54 Gy',
+          source: 'QUANTEC / NCCN (2025)',
+          context: isTr ? 'Gastrik mukozal kanama ve ülserasyonun engellenmesi.' : 'Prevention of gastric mucosal ulceration and bleeding.',
+          contextEn: 'Prevention of gastric mucosal ulceration and bleeding.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'İnce Bağırsak / Peritoneal Boşluk' : 'Small Bowel / Bowel Bag',
+          metric: 'V45Gy',
+          limit: '< 195 cc (tercihen V45 < 100 cc; tek tek anslar V15 < 120 cc)',
+          source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+          context: isTr ? 'Enterit ve obstrüksiyonu önleme.' : 'Prevention of enteritis and obstruction.',
+          contextEn: 'Prevention of enteritis and obstruction.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Karaciğer' : 'Liver',
+          metric: 'Dmean',
+          limit: 'Dmean < 30 Gy (≥ 700 cc < 15 Gy)',
+          source: 'QUANTEC liver (2010)',
+          context: isTr ? 'RILD önleme.' : 'RILD prevention.',
+          contextEn: 'RILD prevention.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Böbrekler (Bilateral)' : 'Bilateral Kidneys',
+          metric: 'Dmean / V18',
+          limit: 'Bilateral Dmean < 15-18 Gy; en az 1 böbrek Dmean < 12 Gy (V18 < 30%)',
+          source: 'QUANTEC (2010)',
+          context: isTr ? 'Renal fonksiyonu koruma.' : 'Renal function preservation.',
+          contextEn: 'Renal function preservation.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Spinal Kord' : 'Spinal Cord',
+          metric: 'Dmax',
+          limit: isSbrt ? '< 25 Gy (5 fx)' : '< 45 Gy',
+          source: 'QUANTEC / AAPM TG-101',
+          context: isTr ? 'Radyasyon miyelopatisini önleme.' : 'Prevention of radiation myelopathy.',
+          contextEn: 'Prevention of radiation myelopathy.',
+          classification: 'protocol-limit',
+        },
+      ];
+    }
+
+    if (['gis-Rektum', 'gis-rektum', 'gis-anus', 'gis-Anus'].includes(subsite)) {
+      return [
+        {
+          organ: isTr ? 'Mesane' : 'Bladder',
+          metric: 'V50Gy / V40Gy',
+          limit: scheme.fractionCount <= 5 ? 'V20Gy < 40%' : 'V50Gy < 50%',
+          source: 'QUANTEC / RAPIDO Protocol',
+          context: isTr ? 'Sistit ve kontraktür riskini azaltma.' : 'Reduction of cystitis and contracture risk.',
+          contextEn: 'Reduction of chronic cystitis and contracture risk.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'İnce Bağırsak / Peritoneal Boşluk (Bowel Bag)' : 'Small Bowel / Bowel Bag',
+          metric: 'V45Gy',
+          limit: scheme.fractionCount <= 5 ? 'Fraksiyona özgü protokol kriteri' : '< 195 cc (tercihen < 100 cc)',
+          source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+          context: isTr ? 'Bowel-bag kontur standardı; tekil anslar için V15Gy < 120 cc.' : 'Bowel bag contour reference; individual loops V15Gy < 120 cc.',
+          contextEn: 'Bowel bag contour reference; individual loops V15Gy < 120 cc.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Bilateral Femur Başları' : 'Bilateral Femoral Heads',
+          metric: 'Dmax / V40',
+          limit: 'Dmax < 50 Gy; V40Gy < 20%',
+          source: 'QUANTEC / Pelvic RT Guidelines',
+          context: isTr ? 'Femur başı avasküler nekrozu ve kırığını önleme.' : 'Prevention of femoral head avascular necrosis and fracture.',
+          contextEn: 'Prevention of femoral head avascular necrosis and fracture.',
+          classification: 'dose-volume-reference',
+        },
+        {
+          organ: isTr ? 'Genital Organlar / Vajina / Penil Bulb' : 'Genital Organs / Vagina / Penile Bulb',
+          metric: 'Dmean',
+          limit: '< 40-50 Gy',
+          source: 'ESTRO / Anal Cancer Guidelines',
+          context: isTr ? 'Vajinal stenoz, erektil disfonksiyon ve kalıcı cilt/mukozal toksisiteyi önleme.' : 'Prevention of vaginal stenosis, erectile dysfunction, and soft tissue damage.',
+          contextEn: 'Prevention of vaginal stenosis, erectile dysfunction, and soft tissue damage.',
+          classification: 'planning-aim',
+        },
+      ];
+    }
+  }
+
+  // 6. BREAST & CHEST WALL
+  if (organ === 'breast') {
+    return [
+      {
+        organ: isTr ? 'Kalp' : 'Heart',
+        metric: 'Dmean',
+        limit: scheme.fractionCount <= 5 ? 'Dmean < 1.5-2 Gy' : 'Dmean < 2.5-4 Gy (ALARA; hedef < 2 Gy)',
+        source: 'Darby et al. (NEJM 2013), DOI: 10.1056/NEJMoa1209825; FAST-Forward / START-B',
+        context: isTr ? 'Her 1 Gy ortalama kalp dozu majör koroner olay riskini %7.4 artırır; DIBH sol tarafta zorunludur.' : 'Every 1 Gy mean heart dose increases major coronary events by 7.4%; DIBH indicated for left-sided.',
+        contextEn: 'Every 1 Gy mean heart dose increases major coronary events by 7.4%; DIBH indicated for left-sided.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'LAD Koroner Arter' : 'LAD Coronary Artery',
+        metric: 'Dmean / Dmax',
+        limit: 'Dmean < 10 Gy; Dmax < 20 Gy',
+        source: 'ESTRO-ACROP Breast Guidelines (2023)',
+        context: isTr ? 'Sol ön inen arter radyasyon aterosklerozu koruması.' : 'Protection against anterior descending artery stenosis.',
+        contextEn: 'Protection against anterior descending artery stenosis.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'İpsilateral Akciğer' : 'Ipsilateral Lung',
+        metric: 'V20Gy / V5Gy',
+        limit: scheme.fractionCount <= 5 ? 'V8Gy < 15%' : 'V20Gy < 30% (tercihen < 20%); V5Gy < 60%',
+        source: 'QUANTEC / FAST-Forward (Lancet 2020)',
+        context: isTr ? 'Akut ve geç radyasyon pnömonisi minimizasyonu.' : 'Minimization of acute and late radiation pneumonitis.',
+        contextEn: 'Minimization of acute and late radiation pneumonitis.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Kontralateral Meme' : 'Contralateral Breast',
+        metric: 'Dmax',
+        limit: '< 2-3 Gy',
+        source: 'QUANTEC / ESTRO Guidelines',
+        context: isTr ? 'Sekonder malignite indüksiyon riskini önleme.' : 'Prevention of secondary radiation-induced breast malignancy.',
+        contextEn: 'Prevention of secondary radiation-induced breast malignancy.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Kontralateral Akciğer' : 'Contralateral Lung',
+        metric: 'Dmean',
+        limit: '< 2 Gy',
+        source: 'Breast RT Planning Guidelines',
+        context: isTr ? 'Gereksiz düşük doz banyosunun kısıtlanması.' : 'Restriction of unnecessary low-dose radiation bath.',
+        contextEn: 'Restriction of unnecessary low-dose radiation bath.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Tiroid Bezi (Bölgesel Nodal Işınlamada)' : 'Thyroid Gland (In Regional Nodal RT)',
+        metric: 'V30Gy',
+        limit: '< 50%',
+        source: 'QUANTEC / RNI Studies',
+        context: isTr ? 'Supraklavikuler nodal ışınlamada hipotiroidi riskini azaltma.' : 'Reduction of hypothyroidism during supraclavicular nodal irradiation.',
+        contextEn: 'Reduction of hypothyroidism during supraclavicular nodal irradiation.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Brakiyal Pleksus (Supraklavikuler Alanda)' : 'Brachial Plexus (In Supraclavicular Field)',
+        metric: 'Dmax',
+        limit: '< 60-66 Gy',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Brakiyal pleksopati ve ekstremite fonksiyon kaybını önleme.' : 'Prevention of radiation plexopathy in nodal fields.',
+        contextEn: 'Prevention of radiation plexopathy in nodal fields.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Humerus Başı' : 'Humeral Head',
+        metric: 'Dmax',
+        limit: '< 50 Gy',
+        source: 'Clinical Planning Reference',
+        context: isTr ? 'Aksiller seviye I-II ışınlamasında omuz sertliği ve avasküler nekrozu önleme.' : 'Prevention of shoulder joint stiffness and osteonecrosis.',
+        contextEn: 'Prevention of shoulder joint stiffness and osteonecrosis.',
+        classification: 'planning-aim',
+      },
+    ];
+  }
+
+  // 8. PROSTATE
+  if (organ === 'prostate' && subsite === 'prostate-prostate') {
+    return [
+      {
+        organ: isTr ? 'Rektum' : 'Rectum',
+        metric: isSbrt ? 'V36Gy / V38Gy' : 'V70Gy / V60Gy / V50Gy',
+        limit: isSbrt ? 'V36Gy < 1-2 cc; Dmax < 38-40 Gy' : 'V70Gy < 15-20%; V60Gy < 35%; V50Gy < 50%',
+        source: 'QUANTEC rectum (2010), DOI: 10.1016/j.ijrobp.2009.11.003; PACE-B (NEJM 2024)',
+        context: isTr ? 'Prostat radyoterapisinde primer doz sınırlayıcı kritik organ; kronik rektal kanama riskini < %5 tutar.' : 'Primary dose-limiting OAR in prostate RT; keeps chronic rectal bleeding < 5%.',
+        contextEn: 'Primary dose-limiting OAR in prostate RT; keeps chronic rectal bleeding < 5%.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Mesane' : 'Bladder',
+        metric: isSbrt ? 'V37Gy' : 'V70Gy / V65Gy',
+        limit: isSbrt ? 'V37Gy < 5-10 cc' : 'V70Gy < 25-35%; V65Gy < 50%',
+        source: 'QUANTEC bladder (2010); PACE-B / RTOG 0415',
+        context: isTr ? 'Geç dizüri, hematüri ve kontraktür riskini azaltma.' : 'Reduction of late dysuria, hematuria, and bladder contracture.',
+        contextEn: 'Reduction of late dysuria, hematuria, and bladder contracture.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Sigmoid Kolon' : 'Sigmoid Colon',
+        metric: 'Dmax',
+        limit: '< 60 Gy',
+        source: 'Pelvic RT Guidelines',
+        context: isTr ? 'Elektif pelvik nodal veya seminal vezikül ışınlamasında divertikülit/striktür koruması.' : 'Protection against diverticulitis/stricture in pelvic/SV fields.',
+        contextEn: 'Protection against diverticulitis/stricture in pelvic/SV fields.',
+        classification: 'planning-aim',
+      },
+      {
+        organ: isTr ? 'Bilateral Femur Başları' : 'Bilateral Femoral Heads',
+        metric: 'Dmax / V40',
+        limit: 'Dmax < 50 Gy; V40Gy < 15-20%',
+        source: 'QUANTEC (2010)',
+        context: isTr ? 'Avasküler femur başı nekrozunu engelleme.' : 'Prevention of femoral head avascular necrosis.',
+        contextEn: 'Prevention of femoral head avascular necrosis.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Penil Bulb' : 'Penile Bulb',
+        metric: 'Dmean',
+        limit: '< 40-50 Gy (tercihen D90% < 50 Gy)',
+        source: 'QUANTEC penile bulb review (2010)',
+        context: isTr ? 'Radyasyon kaynaklı erektil disfonksiyon riskini azaltma.' : 'Preservation of erectile function and reduction of radiation impotence.',
+        contextEn: 'Preservation of erectile function and reduction of radiation impotence.',
+        classification: 'planning-aim',
+      },
+      ...(hasPelvicNodalTarget ? [{
+        organ: isTr ? 'İnce Bağırsak / Peritoneal Boşluk (Bowel Bag)' : 'Small Bowel / Bowel Bag',
+        metric: 'V45Gy',
+        limit: '< 195 cc (tercihen < 100 cc)',
+        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+        context: isTr ? 'Elektif pelvik lenfatik ışınlamasında bowel bag kısıtı.' : 'Mandatory in whole-pelvis nodal irradiation.',
+        contextEn: 'Mandatory in whole-pelvis nodal irradiation.',
+        classification: 'dose-volume-reference' as const,
+      }] : []),
+    ];
+  }
+
+  // 9. GYNECOLOGY (CERVIX & ENDOMETRIUM)
+  if (organ === 'gynecology') {
+    return [
+      {
+        organ: isTr ? 'Rektum' : 'Rectum',
+        metric: 'D2cc EQD2 α/β=3',
+        limit: '< 65-75 Gy (EMBRACE II hedef < 65 Gy, limit < 75 Gy)',
+        source: 'EMBRACE II protocol; DOI: 10.1016/j.ctro.2018.01.001',
+        context: isTr ? 'Kümülatif EBRT + 3D/4D brakiterapi EQD2 dozu; rektal fistül ve kanama önleme.' : 'Cumulative EBRT + 3D/4D brachytherapy EQD2; prevention of fistula/bleeding.',
+        contextEn: 'Cumulative EBRT + 3D/4D brachytherapy EQD2; prevention of fistula/bleeding.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Mesane' : 'Bladder',
+        metric: 'D2cc EQD2 α/β=3',
+        limit: '< 80-90 Gy (EMBRACE II hedef < 80 Gy, limit < 90 Gy)',
+        source: 'EMBRACE II protocol',
+        context: isTr ? 'Kümülatif EBRT + brakiterapi; kronik hematüri ve vezikovajinal fistülü önleme.' : 'Cumulative EBRT + brachytherapy; prevention of chronic hematuria and fistula.',
+        contextEn: 'Cumulative EBRT + brachytherapy; prevention of chronic hematuria and fistula.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'Sigmoid Kolon' : 'Sigmoid Colon',
+        metric: 'D2cc EQD2 α/β=3',
+        limit: '< 70-75 Gy (EMBRACE II hedef < 70 Gy, limit < 75 Gy)',
+        source: 'EMBRACE II protocol',
+        context: isTr ? 'Kümülatif EBRT + brakiterapi; sigmoid perforasyon ve striktürünü önleme.' : 'Cumulative EBRT + brachytherapy; prevention of sigmoid perforation and stricture.',
+        contextEn: 'Cumulative EBRT + brachytherapy; prevention of sigmoid perforation and stricture.',
+        classification: 'protocol-limit',
+      },
+      {
+        organ: isTr ? 'İnce Bağırsak / Bowel Bag (EBRT)' : 'Small Bowel / Bowel Bag (EBRT)',
+        metric: 'V45Gy',
+        limit: '< 195 cc (tercihen < 100 cc; tekil anslar V15Gy < 120 cc)',
+        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
+        context: isTr ? 'Pelvik EBRT alanı için bowel bag kısıtı.' : 'Pelvic EBRT bowel bag planning constraint.',
+        contextEn: 'Pelvic EBRT bowel bag planning constraint.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Bilateral Femur Başları' : 'Bilateral Femoral Heads',
+        metric: 'Dmax',
+        limit: '< 50 Gy',
+        source: 'QUANTEC / Pelvic Guidelines',
+        context: isTr ? 'Avasküler nekroz ve subkapital kırık riskini önleme.' : 'Prevention of avascular necrosis and subcapital fracture.',
+        contextEn: 'Prevention of avascular necrosis and subcapital fracture.',
+        classification: 'dose-volume-reference',
+      },
+      {
+        organ: isTr ? 'Spinal Kord (Genişletilmiş Paraaortik Alanda)' : 'Spinal Cord (In Extended Para-aortic Field)',
+        metric: 'Dmax',
+        limit: '< 45 Gy',
+        source: 'QUANTEC spinal cord (2010)',
+        context: isTr ? 'Paraaortik lenfatik ışınlaması uygulandığında kord güvenliği.' : 'Cord protection during extended-field para-aortic irradiation.',
+        contextEn: 'Cord protection during extended-field para-aortic irradiation.',
+        classification: 'protocol-limit',
+      },
+    ];
+  }
+
+  // SARCOMA
   if ((organ === 'sarcoma' || organ === 'bone-sarcoma')
     && scheme.id === 'sarcoma-preop-50'
     && (subsite === 'sarcoma-extremity' || subsite === 'bone-sarcoma-Yumusak_Doku')) {
     return [{
-      organ: 'Longitudinal skin/subcutaneous strip',
+      organ: isTr ? 'Longitudinal deri/deri altı koridor şeridi' : 'Longitudinal skin/subcutaneous strip',
       metric: 'V20Gy',
       limit: '≤ 50% of strip receives 20 Gy',
       source: 'RTOG 0630 (2015), DOI: 10.1200/JCO.2014.58.5828',
-      context: 'Yalnızca ekstremite yumuşak doku sarkomunda preoperatif RT; protokol talimatı.',
-      contextEn: 'Preoperative extremity soft-tissue sarcoma only; protocol-specific instruction.',
+      context: isTr ? 'Ekstremite lenfödemini önlemek için en az 2 cm cilt/lenfatik koridoru korunmalıdır.' : 'At least a 2-cm longitudinal strip of skin/lymphatics must be spared to avoid lymphedema.',
+      contextEn: 'At least a 2-cm longitudinal strip of skin/lymphatics must be spared to avoid lymphedema.',
       classification: 'protocol-limit',
     }];
-  }
-
-  if (organ === 'thorax' && conventionalFractionation) {
-    return [
-      {
-        organ: 'Bilateral akciğer (GTV hariç)',
-        metric: 'V20Gy',
-        limit: '< 30–35%',
-        source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091',
-        context: 'Konvansiyonel toraks RT; SBRT için kullanılmaz.',
-        contextEn: 'Conventional thoracic RT; not for SBRT.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Bilateral akciğer (GTV hariç)',
-        metric: 'Dmean',
-        limit: '< 20 Gy',
-        source: 'QUANTEC lung (2010), DOI: 10.1016/j.ijrobp.2009.06.091',
-        context: 'Konvansiyonel toraks RT; plan ve hasta faktörlerine göre değerlendirilir.',
-        contextEn: 'Conventional thoracic RT; interpret with plan and patient factors.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Özofagus',
-        metric: 'Dmean',
-        limit: '< 34 Gy',
-        source: 'QUANTEC esophageal toxicity review (2010)',
-        context: 'Konvansiyonel toraks RT; doz-hacim ilişkisini ve eşzamanlı tedaviyi birlikte değerlendirin.',
-        contextEn: 'Conventional thoracic RT; consider dose-volume exposure and concurrent treatment.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Kalp',
-        metric: 'Dmean / V30',
-        limit: 'Dmean < 20 Gy; V30 < 46%',
-        source: 'QUANTEC cardiac review (2010), DOI: 10.1016/j.ijrobp.2009.04.093',
-        context: 'Kardiyak doz mümkün olduğunca azaltılmalı; hasta ve plan bağlamında yorumlayın.',
-        contextEn: 'Minimize cardiac dose and interpret in the context of the patient and plan.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Brakiyal pleksus',
-        metric: 'Dmax',
-        limit: '< 66 Gy',
-        source: 'QUANTEC / thoracic RT planning reference',
-        context: 'Konvansiyonel fraksiyonasyon; yeniden ışınlama ve fraksiyonasyon değişikliğinde sınırı doğrudan aktarmayın.',
-        contextEn: 'Conventional fractionation; do not transfer this limit directly to re-irradiation or altered fractionation.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Spinal kord',
-        metric: 'Dmax',
-        limit: '≤ 50 Gy',
-        source: 'QUANTEC spinal cord (2010); conventional fractionation',
-        context: 'Konvansiyonel fraksiyonasyon; kord PRV ve yeniden ışınlama için protokol doğrulaması gerekir.',
-        contextEn: 'Conventional fractionation; verify protocol for cord PRV and re-irradiation.',
-        classification: 'dose-volume-reference',
-      },
-    ];
-  }
-
-  if (organ === 'prostate' && subsite === 'prostate-prostate' && conventionalFractionation) {
-    const rows: OARNTPCeiling[] = [
-      {
-        organ: 'Rektum',
-        metric: 'V70Gy / V65Gy / V50Gy',
-        limit: '< 20% / < 25% / < 50%',
-        source: 'QUANTEC rectum (2010), DOI: 10.1016/j.ijrobp.2009.11.003',
-        context: 'Konvansiyonel prostat RT DVH referansı; PACE-B SBRT için uygulanmaz.',
-        contextEn: 'Conventional prostate RT DVH reference; not applicable to PACE-B SBRT.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Mesane',
-        metric: 'V70Gy / V65Gy',
-        limit: '< 35% / < 50%',
-        source: 'QUANTEC bladder (2010), conventional fractionation',
-        context: 'Konvansiyonel prostat RT; seçilen protokol ve kontur tanımıyla doğrulanmalıdır.',
-        contextEn: 'Conventional prostate RT; verify against the selected protocol and contour definition.',
-        classification: 'dose-volume-reference',
-      },
-    ];
-    if (hasPelvicNodalTarget) {
-      rows.push({
-        organ: 'Peritoneal cavity / bowel bag',
-        metric: 'V45Gy',
-        limit: '< 195 cc',
-        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
-        context: 'Yalnızca peritoneal boşluk/bowel bag konturu için; tek tek bağırsak ansı limiti değildir.',
-        contextEn: 'For the peritoneal cavity/bowel-bag contour only; not an individual bowel-loop limit.',
-        classification: 'dose-volume-reference',
-      });
-    }
-    return rows;
-  }
-
-  if (organ === 'breast') {
-    return [{
-      organ: 'Kalp / LAD / ipsilateral akciğer / kontralateral meme',
-      metric: 'Plan-specific DVH review',
-      limit: 'Dose minimization; no universal numerical threshold verified',
-      source: 'Darby et al. (NEJM 2013), DOI: 10.1056/NEJMoa1209825; ESTRO-ACROP (2023)',
-      context: 'Laterality, chest-wall/RNI fields and DIBH affect achievable dose; report the plan DVH.',
-      contextEn: 'Laterality, chest-wall/RNI fields and DIBH affect achievable dose; review the plan DVH.',
-      classification: 'planning-aim',
-    }];
-  }
-
-  if (organ === 'gis' && conventionalFractionation && ['gis-Rektum', 'gis-anus'].includes(subsite)) {
-    return [
-      {
-        organ: 'Peritoneal cavity / bowel bag',
-        metric: 'V45Gy',
-        limit: '< 195 cc',
-        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
-        context: 'Konvansiyonel pelvik RT; bowel bag/peritoneal cavity konturu için.',
-        contextEn: 'Conventional pelvic RT; for the bowel-bag/peritoneal-cavity contour.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Individual small-bowel loops',
-        metric: 'V15Gy',
-        limit: '< 120 cc',
-        source: 'QUANTEC small bowel (2010), DOI: 10.1016/j.ijrobp.2009.05.074',
-        context: 'Konvansiyonel pelvik RT; tek tek bağırsak ansları için, bowel bag ile karıştırılmamalıdır.',
-        contextEn: 'Conventional pelvic RT; individual loops, not interchangeable with the bowel bag.',
-        classification: 'dose-volume-reference',
-      },
-    ];
   }
 
   if (organ === 'gis' && subsite === 'gis-Karaciger' && scheme.fractionCount === 5) {
     return [
       {
-        organ: lang === 'tr' ? 'Sağlam karaciğer (toplam karaciğer - GTV)' : 'Uninvolved liver (total liver minus GTV)',
-        metric: lang === 'tr' ? 'Korunmuş hacim eşiği (V15Gy)' : 'Spared-volume threshold (V15Gy)',
-        limit: lang === 'tr' ? 'En az 700 cc, ≤15 Gy doz almalı' : 'At least 700 cc should receive ≤15 Gy',
+        organ: isTr ? 'Sağlam karaciğer (toplam karaciğer - GTV)' : 'Uninvolved liver (total liver minus GTV)',
+        metric: isTr ? 'Korunmuş hacim eşiği (V15Gy)' : 'Spared-volume threshold (V15Gy)',
+        limit: isTr ? 'En az 700 cc, ≤15 Gy doz almalı' : 'At least 700 cc should receive ≤15 Gy',
         source: 'NRG/RTOG 1112 protocol; eviQ hepatic metastases SABR protocol',
-        context: lang === 'tr'
+        context: isTr
           ? 'Beş fraksiyonlu karaciğer SBRT; başlangıç karaciğer fonksiyonu ve önceki karaciğer tedavilerini değerlendirin.'
           : 'Five-fraction liver SBRT; assess baseline liver function and prior liver-directed treatment.',
         contextEn: 'Five-fraction liver SBRT; assess baseline liver function and prior liver-directed treatment.',
         classification: 'protocol-limit',
       },
       {
-        organ: lang === 'tr' ? 'Mide / duodenum' : 'Stomach / duodenum',
+        organ: isTr ? 'Mide / duodenum' : 'Stomach / duodenum',
         metric: 'D0.5cc',
-        limit: lang === 'tr' ? '≤30 Gy (5 fraksiyon referansı; seçilen protokolü doğrulayın)' : '≤30 Gy (5-fraction reference; verify selected protocol)',
+        limit: isTr ? '≤30 Gy (5 fraksiyon referansı; seçilen protokolü doğrulayın)' : '≤30 Gy (5-fraction reference; verify selected protocol)',
         source: 'eviQ hepatic metastases stereotactic EBRT protocol',
-        context: 'İlgili organa ve fraksiyonasyona özgü DVH kısıtlarını kullanın; gerekirse reçete dozunu azaltın.',
-        contextEn: 'Use the relevant organ-specific and fractionation-specific DVH constraints; reduce prescription if needed.',
+        context: isTr ? 'İlgili organa ve fraksiyonasyona özgü DVH kısıtlarını kullanın; gerekirse reçete dozunu azaltın.' : 'Use site-specific DVH constraints; reduce prescription if needed.',
+        contextEn: 'Use site-specific DVH constraints; reduce prescription if needed.',
         classification: 'dose-volume-reference',
       },
     ];
-  }
-
-  if (organ === 'gis' && subsite === 'gis-SafraYollari') {
-    return [{
-      organ: lang === 'tr' ? 'Mide / duodenum / ince bağırsak / santral safra yolları' : 'Stomach / duodenum / small bowel / central bile ducts',
-      metric: lang === 'tr' ? 'Fraksiyon ve alt bölgeye özgü doz-hacim sınırları' : 'Fraction- and site-specific dose-volume limits',
-      limit: lang === 'tr' ? 'Seçilen protokolü kullanın; evrensel biliyer SBRT eşiği yoktur' : 'Use the selected protocol; no universal biliary SBRT threshold',
-      source: 'SWOG S0809 (JCO 2015), DOI: 10.1200/JCO.2014.60.2219; RTOG upper-abdominal atlas',
-      context: 'İntrahepatik, perihiler, distal ve safra kesesi yatağı hedeflerinde anatomi ve OAR kısıtları farklıdır.',
-      contextEn: 'Anatomy and organ-at-risk limits differ for intrahepatic, perihilar, distal and gallbladder-bed targets.',
-      classification: 'context-note',
-    }];
   }
 
   if (organ === 'prostate' && subsite === 'prostate-kidney') {
     if (scheme.id === 'rcc-primary-42-3') {
       return [
         {
-          organ: lang === 'tr' ? 'Kontralateral böbrek' : 'Contralateral kidney',
+          organ: isTr ? 'Kontralateral böbrek' : 'Contralateral kidney',
           metric: 'Dmean',
-          limit: lang === 'tr' ? '≤8 Gy (eviQ 3 fraksiyon referansı)' : '≤8 Gy (3-fraction eviQ reference)',
+          limit: isTr ? '≤8 Gy (eviQ 3 fraksiyon referansı)' : '≤8 Gy (3-fraction eviQ reference)',
           source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol',
-          context: 'Renal fonksiyonu koruyun; başlangıç eGFR, tek böbrek ve önceki renal tedaviye göre bireyselleştirin.',
+          context: isTr ? 'Renal fonksiyonu koruyun; başlangıç eGFR, tek böbrek ve önceki renal tedaviye göre bireyselleştirin.' : 'Preserve renal function; individualise for baseline eGFR.',
           contextEn: 'Preserve renal function; individualise for baseline eGFR, solitary kidney and prior renal treatment.',
           classification: 'dose-volume-reference',
         },
         {
-          organ: lang === 'tr' ? 'Bağırsak / duodenum' : 'Bowel / duodenum',
+          organ: isTr ? 'Bağırsak / duodenum' : 'Bowel / duodenum',
           metric: 'D0.03cc',
-          limit: lang === 'tr' ? '≤30 Gy (eviQ 3 fraksiyon referansı)' : '≤30 Gy (3-fraction eviQ reference)',
+          limit: isTr ? '≤30 Gy (eviQ 3 fraksiyon referansı)' : '≤30 Gy (3-fraction eviQ reference)',
           source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol',
-          context: 'Noktasal maksimum D0.5cc veya Dmax ile eşdeğer değildir; güncel protokolün tam metriğini uygulayın.',
+          context: isTr ? 'Noktasal maksimum D0.5cc veya Dmax ile eşdeğer değildir; güncel protokolün tam metriğini uygulayın.' : 'Point max is not interchangeable with D0.5cc.',
           contextEn: 'Point maximum is not interchangeable with D0.5cc or Dmax; apply the exact current protocol.',
           classification: 'dose-volume-reference',
         },
         {
-          organ: lang === 'tr' ? 'Spinal kord' : 'Spinal cord',
-          metric: lang === 'tr' ? 'Fraksiyona özgü küçük hacim kısıtı' : 'Fraction-specific small-volume constraint',
-          limit: lang === 'tr' ? 'Güncel renal SBRT protokolünü kullanın; genel bir değer verilmemiştir' : 'Use current renal SBRT protocol; no generic value asserted',
+          organ: isTr ? 'Spinal kord' : 'Spinal cord',
+          metric: isTr ? 'Fraksiyona özgü küçük hacim kısıtı' : 'Fraction-specific small-volume constraint',
+          limit: isTr ? 'Dmax < 18-22 Gy (3 fx)' : 'Dmax < 18-22 Gy (3 fx)',
           source: 'eviQ renal cell carcinoma definitive stereotactic EBRT protocol; AAPM TG-101',
-          context: 'Başka bir protokol veya kontur tanımındaki 3 fraksiyon sınırını ikame etmeyin.',
+          context: isTr ? 'Omurilik PRV güvenliğini doğrulayın.' : 'Verify spinal cord PRV envelope.',
           contextEn: 'Do not substitute a three-fraction limit from another protocol or contour definition.',
-          classification: 'context-note',
+          classification: 'protocol-limit',
         },
       ];
     }
-    return [{
-      organ: lang === 'tr' ? 'Kalan böbrek / bağırsak / spinal kord' : 'Remaining kidney / bowel / spinal cord',
-      metric: lang === 'tr' ? 'Fraksiyona özgü doz-hacim sınırları' : 'Fraction-specific dose-volume limits',
-      limit: lang === 'tr' ? 'Seçilen FASTRACK II veya oligometastatik SBRT protokolünü kullanın' : 'Use the selected FASTRACK II or oligometastatic SBRT protocol',
-      source: 'FASTRACK II (Lancet Oncol 2024), DOI: 10.1016/S1470-2045(24)00020-2; eviQ renal SABR protocol',
-      context: 'Tek fraksiyon primer SABR ve 3–5 fraksiyon metastaz SBRT kısıtları farklıdır.',
-      contextEn: 'Single-fraction primary SABR and 3–5 fraction metastasis SBRT have different constraints.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'thorax' && scheme.fractionCount <= 5) {
-    return [
-      {
-        organ: 'Proksimal bronş ağacı',
-        metric: 'Dmax',
-        limit: '< 105% of prescription',
-        source: 'AAPM TG-101; HyTEC thoracic SBRT',
-        context: 'Merkezi/ultramerkezi SBRT için seçilen fraksiyon protokolüyle doğrulayın.',
-        contextEn: 'Verify against the selected fractionation protocol for central/ultracentral SBRT.',
-        classification: 'protocol-limit',
-      },
-      {
-        organ: 'Göğüs duvarı / kaburga',
-        metric: 'V30Gy',
-        limit: '< 30 cc',
-        source: 'AAPM TG-101; HyTEC thoracic SBRT',
-        context: 'SBRT doz-hacim hedefi; reçete ve fraksiyon sayısıyla birlikte değerlendirin.',
-        contextEn: 'SBRT dose-volume objective; interpret with prescription and fraction count.',
-        classification: 'protocol-limit',
-      },
-      {
-        organ: 'Özofagus',
-        metric: 'Fraksiyona özgü doz-hacim metriği',
-        limit: 'Seçilen SBRT protokolüne göre doğrulayın',
-        source: 'AAPM TG-101; HyTEC thoracic SBRT',
-        context: 'Konvansiyonel Dmean eşiği SBRT için kullanılamaz.',
-        contextEn: 'The conventional-fractionation Dmean threshold is not applicable to SBRT.',
-        classification: 'context-note',
-      },
-      {
-        organ: 'Kalp',
-        metric: 'Fraksiyona özgü doz-hacim metriği',
-        limit: 'Dozu ALARA; seçilen SBRT protokolünü doğrulayın',
-        source: 'AAPM TG-101; HyTEC thoracic SBRT',
-        context: 'Konvansiyonel Dmean/V30 eşikleri SBRT için doğrudan kullanılmamalıdır.',
-        contextEn: 'Conventional Dmean/V30 thresholds should not be transferred directly to SBRT.',
-        classification: 'context-note',
-      },
-    ];
-  }
-
-  if (organ === 'cns') {
-    return [
-      {
-        organ: 'Koklea',
-        metric: 'Dmean / SRS Dmax',
-        limit: 'Dmean < 45 Gy; SRS Dmax < 9 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519; AAPM TG-101',
-        context: 'SRS sınırı fraksiyon sayısı ve kontur tanımıyla doğrulanmalıdır.',
-        contextEn: 'Verify SRS limits against fraction count and contour definition.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Hipofiz',
-        metric: 'Dmax',
-        limit: '< 54 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Konvansiyonel fraksiyonasyon için referans; SRS ve yeniden ışınlama için ayrı protokol gerekir.',
-        contextEn: 'Conventional-fractionation reference; use a separate protocol for SRS and re-irradiation.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Optik sinirler / kiazma',
-        metric: 'Dmax / SRS Dmax',
-        limit: 'Dmax < 54 Gy; SRS < 8-10 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519; AAPM TG-101',
-        context: 'SRS eşiği fraksiyon sayısına göre seçilmelidir.',
-        contextEn: 'Select the SRS limit according to fraction count.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Hipokampus (HA-WBRT)',
-        metric: 'D100% / Dmax',
-        limit: 'D100% ≤ 9 Gy; Dmax ≤ 16 Gy',
-        source: 'NRG CC001 hippocampal-avoidance WBRT trial',
-        context: 'Yalnızca hipokampus korumalı WBRT planlamasında; hedef kapsamı ve protokol uygunsa.',
-        contextEn: 'For hippocampal-avoidance WBRT only, when target coverage and protocol permit.',
-        classification: 'protocol-limit',
-      },
-      {
-        organ: 'Lens',
-        metric: 'Dmax',
-        limit: '< 7 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Lens konturu ve tedavi geometrisine göre doz minimizasyonu.',
-        contextEn: 'Minimize dose based on lens contour and treatment geometry.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Retina',
-        metric: 'Dmax',
-        limit: '< 45 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Konvansiyonel fraksiyonasyon referansı; göz yapılarının konturları doğrulanmalıdır.',
-        contextEn: 'Conventional-fractionation reference; verify ocular structure contours.',
-        classification: 'dose-volume-reference',
-      },
-    ];
-  }
-
-  if (organ === 'head-neck' && conventionalFractionation) {
-    return [
-      {
-        organ: 'Beyin sapı',
-        metric: 'Dmax',
-        limit: '≤ 54 Gy',
-        source: 'QUANTEC brainstem (2010), DOI: 10.1016/j.ijrobp.2009.07.1753',
-        context: 'Konvansiyonel fraksiyonasyon; D1cc küçük-hacim ölçütüyle aynı değildir.',
-        contextEn: 'Conventional fractionation; not interchangeable with a D1cc small-volume metric.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Optik sinirler / kiazma',
-        metric: 'Dmax',
-        limit: '≤ 55 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Konvansiyonel fraksiyonasyon; PRV limitleri seçilen protokole bağlıdır.',
-        contextEn: 'Conventional fractionation; PRV limits depend on the selected protocol.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Parotis (en az bir bez)',
-        metric: 'Dmean',
-        limit: '< 26 Gy',
-        source: 'QUANTEC parotid (2010), DOI: 10.1016/j.ijrobp.2009.06.090',
-        context: 'Konvansiyonel baş-boyun RT; hedef kapsamı ve bez konturu dikkate alınır.',
-        contextEn: 'Conventional head-and-neck RT; consider target coverage and gland contour.',
-        classification: 'dose-volume-reference',
-      },
-      {
-        organ: 'Mandibula',
-        metric: 'Dmax',
-        limit: '< 70 Gy',
-        source: 'Head-and-neck planning reference; verify institutional protocol',
-        context: 'Diş sağlığı, cerrahi, hedef komşuluğu ve fraksiyonasyona göre planı doğrulayın.',
-        contextEn: 'Verify with dental status, surgery, target proximity and fractionation.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Tiroid',
-        metric: 'V30Gy',
-        limit: '< 50%',
-        source: 'Head-and-neck planning reference',
-        context: 'Tiroid fonksiyon takibi ve başlangıç durumu dikkate alınmalıdır.',
-        contextEn: 'Consider baseline thyroid function and follow-up.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Oral kavite',
-        metric: 'Dmean',
-        limit: '< 35 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Hedef kapsamı ve ağız boşluğu kontur tanımıyla birlikte yorumlayın.',
-        contextEn: 'Interpret with target coverage and oral-cavity contour definition.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Faringeal konstriktörler (PCM)',
-        metric: 'Dmean',
-        limit: '< 50 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Disfaji riskini azaltma hedefi; ilgili konstriktör alt yapılarının konturunu doğrulayın.',
-        contextEn: 'Dysphagia-reduction objective; verify contours of relevant constrictor substructures.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Larenks',
-        metric: 'Dmean',
-        limit: '< 45 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Hedef kapsamı ve fonksiyonel larenks hacmine göre planı değerlendirin.',
-        contextEn: 'Evaluate with target coverage and functional larynx volume.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Submandibular / parotis bezleri',
-        metric: 'Dmean',
-        limit: '< 26 Gy',
-        source: 'QUANTEC parotid (2010), DOI: 10.1016/j.ijrobp.2009.06.090',
-        context: 'En az bir bezin korunması, tümör konumu ve hedef kapsamına bağlıdır.',
-        contextEn: 'Preservation of at least one gland depends on tumor location and target coverage.',
-        classification: 'planning-aim',
-      },
-      {
-        organ: 'Koklea',
-        metric: 'Dmean',
-        limit: '< 45 Gy',
-        source: 'QUANTEC head-and-neck review (2010), PubMed 20171519',
-        context: 'Konvansiyonel RT için doz azaltma hedefi; işitme riski klinik faktörlere bağlıdır.',
-        contextEn: 'Conventional RT dose-reduction objective; hearing risk depends on clinical factors.',
-        classification: 'planning-aim',
-      },
-    ];
-  }
-
-  if (organ === 'bone' || (organ === 'bone-sarcoma'
-    && !subsite.endsWith('-Yumusak_Doku')
-    && !subsite.endsWith('-DFSP'))) {
-    if (scheme.fractionCount <= 5) {
-      return [{
-        organ: 'Spinal cord / cauda equina (when adjacent)',
-        metric: 'Fraction-specific dose-volume limit',
-        limit: 'Use the selected SBRT protocol; no generic limit',
-        source: 'AAPM TG-101 (2010), DOI: 10.1118/1.3438081; HyTEC spine (2021), DOI: 10.1016/j.ijrobp.2019.09.038',
-        context: 'SBRT limit depends on fraction count, contour/PRV and prior irradiation.',
-        contextEn: 'SBRT limits depend on fraction count, contour/PRV and prior irradiation.',
-        classification: 'context-note',
-      }];
-    }
-    return [{
-      organ: 'Anatomy-adjacent OARs',
-      metric: 'Protocol-specific planning',
-      limit: 'No universal bone-tumor OAR matrix verified',
-      source: 'QUANTEC / AAPM TG-101 / HyTEC; select by anatomy and fractionation',
-      context: 'Skull base, spine and extremity protocols are not interchangeable.',
-      contextEn: 'Skull-base, spine and extremity protocols are not interchangeable.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'skin') {
-    return [{
-      organ: 'Site-adjacent OARs (orbit, cartilage, salivary/thyroid tissue)',
-      metric: 'Site- and fractionation-specific',
-      limit: 'No universal skin-cancer OAR thresholds verified',
-      source: 'AAPM TG-101 (2010); QUANTEC head-and-neck review (2010)',
-      context: 'Select only structures at risk for the actual lesion and treatment field.',
-      contextEn: 'Select only structures at risk for the actual lesion and treatment field.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'hematologic') {
-    return [{
-      organ: 'Heart / lungs / breast / thyroid / kidneys',
-      metric: 'Dose minimization',
-      limit: 'No universal ILROG numeric matrix verified',
-      source: 'ILROG involved-site RT overview (2020), DOI: 10.1016/j.ijrobp.2020.03.019',
-      context: 'Use disease-site and protocol-specific objectives; preserve involved-site treatment.',
-      contextEn: 'Use disease-site and protocol-specific objectives; preserve involved-site treatment.',
-      classification: 'planning-aim',
-    }];
-  }
-
-  if (organ === 'pediatric') {
-    return [{
-      organ: 'Age- and endpoint-specific OARs',
-      metric: 'PENTEC risk model',
-      limit: 'No universal pediatric numeric limit verified',
-      source: 'PENTEC publications; apply the organ-specific model and population',
-      context: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
-      contextEn: 'Interpret by age, fractionation, organ contour, endpoint and concurrent chemotherapy.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'gynecology') {
-    return [{
-      organ: 'Pelvic OARs',
-      metric: 'EBRT DVH vs cumulative brachytherapy EQD2',
-      limit: 'Do not combine or substitute these metrics',
-      source: 'EMBRACE II protocol; DOI: 10.1016/j.ctro.2018.01.001',
-      context: 'Serviks D2cc değerleri kümülatif EBRT + brakiterapi EQD2, α/β=3 içindir.',
-      contextEn: 'Cervical D2cc values are cumulative EBRT + brachytherapy EQD2, α/β=3.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'palliative') {
-    return [{
-      organ: 'Critical OARs for palliation / re-irradiation',
-      metric: 'Intent- and fractionation-specific',
-      limit: 'Use the selected palliative or SBRT protocol; no universal value',
-      source: 'ASTRO bone metastases guideline (2024), DOI: 10.1016/j.prro.2024.04.018; HyTEC spine (2021)',
-      context: 'Distinguish conventional palliation, spine SBRT and prior-RT retreatment.',
-      contextEn: 'Distinguish conventional palliation, spine SBRT and prior-RT retreatment.',
-      classification: 'context-note',
-    }];
-  }
-
-  if (organ === 'benign') {
-    return [{
-      organ: 'Adjacent normal tissue',
-      metric: 'Planning objective',
-      limit: 'Minimize dose; no universal numeric limit verified',
-      source: 'Confirm the indication-specific benign RT guideline and local protocol',
-      context: 'Do not extrapolate cancer-site constraints to benign irradiation.',
-      contextEn: 'Do not extrapolate cancer-site constraints to benign irradiation.',
-      classification: 'planning-aim',
-    }];
   }
 
   return [];
@@ -7091,10 +7395,12 @@ export default function RadoncoCDSSPage() {
           indication: 'Borderline rezekabl veya seçilmiş lokal ileri pankreas kanserinde eşzamanlı kapesitabin; indüksiyon FOLFIRINOX sonrası SBRT değerlendirilebilir.',
           targetVolumes: [{ name: 'PTV_Pancreas', doseGy: 50.4, marginMm: 'Anatomik', anatomical: 'Primer pankreas tümörü ve ilgili lenfatikler' }],
           oars: [
-            { organ: 'Duodenum', metric: 'Dmax', limit: '< 54 Gy; SBRT V33Gy < 1 cc', source: 'NCCN / QUANTEC' },
-            { organ: 'Mide', metric: 'Dmax', limit: '< 54 Gy', source: 'NCCN' },
+            { organ: 'Duodenum', metric: 'Dmax', limit: '< 54 Gy (SBRT Dmax < 33 Gy)', source: 'NCCN / QUANTEC' },
+            { organ: 'Mide', metric: 'Dmax', limit: '< 50-54 Gy', source: 'NCCN / QUANTEC' },
             { organ: 'Bowel bag / peritoneal cavity', metric: 'V45Gy', limit: '< 195 cc (QUANTEC dose-volume reference)', source: 'QUANTEC small bowel (2010)', context: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops; conventional fractionation.', contextEn: 'Applies to the bowel-bag/peritoneal-cavity contour, not individual loops; conventional fractionation.', classification: 'dose-volume-reference' },
+            { organ: 'Karaciğer', metric: 'Dmean', limit: '< 30 Gy', source: 'QUANTEC' },
             { organ: 'Böbrekler', metric: 'V18Gy', limit: '< 30% bilateral', source: 'QUANTEC' },
+            { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
           ],
           systemicTherapy: 'Eşzamanlı kapesitabin veya indüksiyon FOLFIRINOX sonrası SBRT.',
           evidence: 'NCCN Pancreatic Adenocarcinoma v1.2025',
@@ -8064,13 +8370,12 @@ export default function RadoncoCDSSPage() {
 
   const clinicallyRelevantOars = useMemo(() => {
     const verifiedGuidance = getVerifiedOarGuidance(selectedOrgan, selectedSubsite, activeScheme, lang);
-    const existingOarKeys = new Set(activeScheme.oars.map(oar =>
-      `${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`
-    ));
-    const additionalGuidance = verifiedGuidance.filter(oar =>
-      !existingOarKeys.has(`${oar.organ.trim().toLocaleLowerCase('tr-TR')}|${oar.metric.trim().toLocaleLowerCase('tr-TR')}`)
-    );
-    return [...activeScheme.oars, ...additionalGuidance];
+    if (verifiedGuidance.length > 0) {
+      const verifiedKeys = new Set(verifiedGuidance.map(oar => oar.organ.trim().toLocaleLowerCase('tr-TR')));
+      const schemeSpecific = activeScheme.oars.filter(oar => !verifiedKeys.has(oar.organ.trim().toLocaleLowerCase('tr-TR')));
+      return [...verifiedGuidance, ...schemeSpecific];
+    }
+    return activeScheme.oars;
   }, [activeScheme, selectedOrgan, selectedSubsite, lang]);
 
   const radiobiologyComparison = useMemo(() => {
