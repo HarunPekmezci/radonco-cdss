@@ -75,8 +75,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr" className="dark min-h-screen bg-[#0B1120]">
-      <body className="min-h-screen flex flex-col bg-[#0B1120] text-slate-100 antialiased">
+    <html lang="tr" className="dark min-h-screen bg-[#070b14]">
+      <body className="min-h-screen flex flex-col bg-[#070b14] text-slate-100 antialiased">
         <LanguageProvider>
           <DynamicClerkProvider>
             <Navbar />
