@@ -1859,6 +1859,10 @@ const calculatePrognosticIndexBase = (
   const isNodalPositive = /^N[1-3]/.test(n);
   const lowerSubsite = subsite.toLowerCase();
 
+  if (organ === 'benign' || organ === 'emergencies') {
+    return null;
+  }
+
   if (organ === 'thorax') {
     if (isM1) {
       const oligometastatic = m.includes('M1b');
@@ -2070,7 +2074,7 @@ const calculatePrognosticIndexBase = (
     };
   }
 
-  if (organ === 'bone-sarcoma' || organ === 'hematologic' || organ === 'pediatric' || organ === 'benign') {
+  if (organ === 'bone-sarcoma' || organ === 'hematologic' || organ === 'pediatric') {
     const advanced = isNodalPositive || /^T[34]/.test(t);
     if (isM1) {
       return {
@@ -2237,6 +2241,7 @@ export const calculatePrognosticIndex = (
     ki67?: number;
   },
 ): PrognosticResult | null => {
+  if (organ === 'benign' || organ === 'emergencies') return null;
   const result = calculatePrognosticIndexBase(organ, subsite, t, n, m, extraParams);
   if (!result) return null;
 
@@ -3833,6 +3838,7 @@ export default function RadoncoCDSSPage() {
   const [isCaseArchiveOpen, setIsCaseArchiveOpen] = useState(false);
   const [selectedSubsite, setSelectedSubsite] = useState<string>('benign-ho');
   const [benignClinicalStatus, setBenignClinicalStatus] = useState<string>('postop-24h');
+  const isBenign = selectedOrgan === 'benign';
 
   // ==========================================
   // 1. TORAKS ALT BAŞLIKLARI VE RİSK FAKTÖRLERİ
@@ -8466,6 +8472,13 @@ export default function RadoncoCDSSPage() {
   const prognosticOutcome = prognosticResult?.medianSurvivalOrRecurrence ?? '';
   const hasLocalControlEstimate = /local control|lokal kontrol/i.test(prognosticOutcome);
   const hasMedianOsEstimate = /median\s*(?:overall\s*)?(?:os|survival)/i.test(prognosticOutcome);
+  const hasPrognosticModel = !isBenign && Boolean(prognosticResult);
+
+  useEffect(() => {
+    if (isGuidedMode && guidedStep === 3 && !hasPrognosticModel) {
+      setGuidedStep(2);
+    }
+  }, [isGuidedMode, guidedStep, hasPrognosticModel]);
 
   const casePrompt = useMemo(
     () =>
@@ -9274,7 +9287,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </div>
 
         {isGuidedMode && (
-          <nav className="col-span-12 mx-auto grid w-full max-w-[1720px] grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
+          <nav className={`col-span-12 mx-auto grid w-full max-w-[1720px] grid-cols-1 gap-2 sm:grid-cols-2 ${hasPrognosticModel ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`} aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
             {[
               {
                 step: 1 as const,
@@ -9284,10 +9297,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 step: 2 as const,
                 title: lang === 'tr' ? 'Evreleme ve Patoloji' : 'Staging & Pathology',
               },
-              {
+              ...(hasPrognosticModel ? [{
                 step: 3 as const,
                 title: lang === 'tr' ? 'Prognostik İndeks ve Risk Sınıflaması' : 'Prognostic Index & Risk Stratification',
-              },
+              }] : []),
               {
                 step: 4 as const,
                 title: lang === 'tr' ? 'Reçete ve Dozimetri' : 'Prescription & Dosimetry',
@@ -9472,7 +9485,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
-            ? (guidedStep === 2 || guidedStep === 3) ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
+            ? (guidedStep === 2 || (guidedStep === 3 && hasPrognosticModel)) ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
             : `${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : 'flex'} lg:col-span-5 xl:col-span-3 2xl:col-span-3`
         }`}>
           <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-sky-950/30 p-3 shadow-sm">
@@ -10769,7 +10782,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
-          {(!isGuidedMode || guidedStep >= 3) && (
+          {(!isGuidedMode || guidedStep >= 3) && hasPrognosticModel && (
           <section
             id="guided-prognostic-assessment"
             className="w-full rounded-2xl glass-panel p-4 shadow-xl sm:p-6"
@@ -11621,11 +11634,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 {isGuidedMode && guidedStep === 4 && (
                   <button
                     type="button"
-                    onClick={() => setGuidedStep(3)}
+                    onClick={() => setGuidedStep(hasPrognosticModel ? 3 : 2)}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 sm:w-auto"
                   >
                     <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                    Geri (Back)
+                    {lang === 'tr'
+                      ? (hasPrognosticModel ? 'Prognostik İndekse Dön' : 'Evrelemeye Dön')
+                      : (hasPrognosticModel ? 'Back to Prognostic Index' : 'Back to Staging')}
                   </button>
                 )}
               </div>
@@ -11707,10 +11722,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             </button>
             <button
               type="button"
-              onClick={() => setGuidedStep(3)}
+              onClick={() => setGuidedStep(hasPrognosticModel ? 3 : 4)}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/30 transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
             >
-              {lang === 'tr' ? 'Prognostik Riski Hesapla' : 'Calculate Prognostic Risk'}
+              {hasPrognosticModel
+                ? (lang === 'tr' ? 'Prognostik Riski Hesapla' : 'Calculate Prognostic Risk')
+                : (lang === 'tr' ? 'Tedavi Reçetesine Devam Et' : 'Proceed to Treatment Prescription')}
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
