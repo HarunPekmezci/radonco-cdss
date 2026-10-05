@@ -224,7 +224,7 @@ export interface ClinicalRecommendation {
 }
 
 export interface EvidenceLink {
-  authority: 'NCCN' | 'ASTRO' | 'ESTRO' | 'RTOG' | 'NRG';
+  authority: 'NCCN' | 'ASTRO' | 'ESTRO' | 'RTOG' | 'NRG' | 'Trial' | 'QUANTEC';
   title: string;
   url: string;
   category?: string; // e.g., "Kategori 1", "Consensus Guideline", "Phase II Protocol"
