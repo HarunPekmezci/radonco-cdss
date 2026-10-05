@@ -755,7 +755,7 @@ const isCustomFavoriteCase = (value: unknown): value is CustomFavoriteCase => {
 type CommandPaletteItem =
   | { id: string; kind: 'organ'; title: string; subtitle: string; searchText: string; organ: OrganId; subsite: string; histologyId?: string }
   | { id: string; kind: 'protocol'; title: string; subtitle: string; searchText: string; preset: QuickCasePreset }
-  | { id: string; kind: 'page'; title: string; subtitle: string; searchText: string; destination: 'references' | 'contact' | 'guidelines' };
+  | { id: string; kind: 'page'; title: string; subtitle: string; searchText: string; destination: 'references' | 'contact' | 'guidelines' | 'disclaimer' };
 
 const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-01', category: 'thorax', title_tr: 'Periferik erken evre KHDAK', title_en: 'Peripheral early-stage NSCLC', detail_tr: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', detail_en: 'T1b N0 M0 • DIBH • SBRT 54 Gy / 3 fx', organ: 'thorax', subsite: 'thorax-nsclc', t: 'T1b', n: 'N0', m: 'M0', histologyId: 'nsclc-adenocarcinoma', regimen: 'ultra_hypo' },
@@ -3461,7 +3461,6 @@ export default function RadoncoCDSSPage() {
   );
   const [guidedStep, setGuidedStep] = useState<GuidedStep>(1);
   const [printMetadata, setPrintMetadata] = useState({ timestamp: '', reportId: '' });
-  const [activeReferenceTab, setActiveReferenceTab] = useState<'guidelines' | 'oar' | 'disclaimer'>('guidelines');
   const tText = useCallback((text: string | undefined): string => {
     if (!text) return '';
     if (lang === 'tr') return text;
@@ -3653,7 +3652,6 @@ export default function RadoncoCDSSPage() {
   const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Beyin' | 'Organ'>('Agri');
 
   // Modal ve Kopyalama State'leri
-  const [showGuidelineModal, setShowGuidelineModal] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [researchExportNotice, setResearchExportNotice] = useState<string>('');
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
@@ -4553,10 +4551,18 @@ export default function RadoncoCDSSPage() {
       {
         id: 'page-guidelines',
         kind: 'page',
-        title: lang === 'tr' ? 'Kılavuz İlkeleri' : 'Guideline Principles',
-        subtitle: lang === 'tr' ? 'Kılavuz ve kanıt penceresini aç' : 'Open the guidelines and evidence dialog',
+        title: lang === 'tr' ? 'Klinik Kılavuzlar' : 'Clinical Guidelines',
+        subtitle: '/guidelines',
         searchText: normalize('guidelines guideline principles kılavuz ilkeleri'),
         destination: 'guidelines',
+      },
+      {
+        id: 'page-disclaimer',
+        kind: 'page',
+        title: lang === 'tr' ? 'Yasal Uyarı ve Sorumluluk Reddi' : 'Legal Disclaimer & Notice',
+        subtitle: '/disclaimer',
+        searchText: normalize('disclaimer legal notice yasal uyari sorumluluk'),
+        destination: 'disclaimer',
       },
     ];
     const query = normalize(searchQuery.trim());
@@ -4604,9 +4610,10 @@ export default function RadoncoCDSSPage() {
       router.push('/references');
     } else if (item.destination === 'contact') {
       router.push('/contact');
+    } else if (item.destination === 'disclaimer') {
+      router.push('/disclaimer');
     } else {
-      setActiveReferenceTab('guidelines');
-      setShowGuidelineModal(true);
+      router.push('/guidelines');
     }
   };
 
@@ -8529,17 +8536,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           >
             <Search className="h-4 w-4" aria-hidden="true" />
           </button>
-          <button
-            onClick={() => {
-              setActiveReferenceTab('guidelines');
-              setShowGuidelineModal(true);
-            }}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1.5 text-xs text-slate-100 transition-colors hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:px-3"
-          >
-            <BookOpen className="w-4 h-4 text-amber-700" />
-            <span aria-hidden="true">📖</span>
-            <span className="hidden sm:inline">{lang === 'tr' ? 'Kılavuz İlkeleri' : 'Clinical Guidelines'}</span>
-          </button>
         </div>
       </header>
 
@@ -11912,100 +11908,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
       )}
 
-      {/* ==========================================
-          MODAL: KILAVUZ BİLGİ DOKÜMANI
-         ========================================== */}
-      {showGuidelineModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="reference-modal-title"
-            className="bg-[#131c31] border border-slate-700 rounded-lg max-w-3xl w-full p-6 text-xs text-slate-200 max-h-[85vh] overflow-y-auto"
-          >
-            <div className="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-4">
-              <h3 id="reference-modal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-amber-700" />
-                {lang === 'tr' ? 'Radyasyon Onkolojisi CDSS - Kılavuzlar ve Yasal Bilgilendirme' : 'Radiation Oncology CDSS - Guidelines & Legal Framework'}</h3>
-              <button
-                onClick={() => setShowGuidelineModal(false)}
-                aria-label={lang === 'tr' ? 'Kılavuz penceresini kapat' : 'Close guidelines window'}
-                className="text-slate-600 hover:text-slate-900 p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                <XCircle className="w-5 h-5" aria-hidden="true" />
-              </button>
-            </div>
 
-            <div role="tablist" aria-label={lang === 'tr' ? 'Kaynakça modalı sekmeleri' : 'Reference modal tabs'} className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700">
-              {([
-              ['guidelines', lang === 'tr' ? 'Kılavuzlar & Landmark Çalışmalar' : 'Guidelines & Landmark Trials'],
-              ['oar', lang === 'tr' ? 'OAR Tolerans Standartları' : 'OAR Dose Constraints & Standards'],
-              ['disclaimer', lang === 'tr' ? 'Yasal Sorumluluk & Telif' : 'Legal Disclaimer & Copyright'],
-              ] as const).map(([tab, label]) => (
-                <button
-                  key={tab}
-                  id={`reference-tab-${tab}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeReferenceTab === tab}
-                  aria-controls="reference-tab-panel"
-                  onClick={() => setActiveReferenceTab(tab)}
-                  className={`border-b-2 px-3 py-2 text-xs font-semibold transition-colors ${
-                    activeReferenceTab === tab
-                      ? 'border-blue-700 text-blue-800 dark:border-blue-400 dark:text-blue-300'
-                      : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div
-              id="reference-tab-panel"
-              role="tabpanel"
-              aria-labelledby={`reference-tab-${activeReferenceTab}`}
-              className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-200"
-            >
-              {activeReferenceTab === 'guidelines' && (
-                <>
-                  <p>{lang === 'tr'
-                    ? 'Klinik kapsam, NCCN v1.2025, ASTRO ve ESTRO kılavuzları ile uluslararası randomize Faz III çalışmaların kanıtları doğrultusunda düzenlenmiştir. Kılavuz sürümleri ve öneriler klinik kullanımdan önce güncel kaynaklardan doğrulanmalıdır.'
-                    : 'Clinical scope is structured in strict alignment with NCCN v1.2025, ASTRO, ESTRO guidelines, and international randomized Phase III clinical trials. Guideline versions and recommendations must be clinically verified against current institutional protocols prior to application.'}</p>
-                  <div>
-                    <h4 className="mb-1 font-bold text-amber-700">{lang === 'tr' ? 'Landmark çalışmalar ve klinik başlıklar' : 'Landmark Trials and Clinical Topics'}</h4>
-                    <ul className="list-disc space-y-1 pl-5">
-                      {lang === 'tr' ? <><li><strong>Toraks:</strong> PACIFIC (evre III KHDAK), Turrisi ve CONVERT (KHAK), Lung-ART (postoperatif toraks RT).</li><li><strong>Meme:</strong> FAST-Forward (hipofraksiyone adjuvan RT).</li><li><strong>GİS:</strong> RAPIDO ve PRODIGE-23 (rektum TNT), PORTEC-3 (endometriyum adjuvan kemoradyoterapi).</li><li><strong>Jinekoloji:</strong> EMBRACE II (serviks KRT ve görüntü kılavuzlu brakiterapi).</li><li><strong>MSS:</strong> Stupp protokolü (glioblastom kemoradyoterapisi).</li></> : <><li>Thorax: PACIFIC (Stage III NSCLC concurrent CRT + durvalumab), Turrisi and CONVERT (SCLC hyperfractionated/conventional CRT), and Lung-ART (PORT indication).</li><li>Breast: FAST-Forward (1-week adjuvant hypofractionation 26 Gy/5 fx), DBCG/BIG (regional nodal irradiation).</li><li>GI: RAPIDO and PRODIGE-23 (total neoadjuvant therapy for LARC), PORTEC-3 (adjuvant chemoradiotherapy for high-risk endometrial cancer).</li><li>Gynecology: EMBRACE II (cervical chemoradiotherapy and 3D MR-IGABT brachytherapy).</li><li>CNS: Stupp protocol (glioblastoma 60 Gy + concurrent/adjuvant TMZ), Perry protocol (elderly hypofractionation).</li></>}
-                    </ul>
-                  </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-200">
-                    {lang === 'tr' ? 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC® ve DEGRO® ilgili kurumların tescilli markalarıdır.' : 'NCCN®, ASTRO®, ESTRO®, RTOG®, QUANTEC®, and DEGRO® are registered trademarks of their respective organizations.'}</p>
-                </>
-              )}
-              {activeReferenceTab === 'oar' && (
-                <>
-                  <p>{lang === 'tr' ? 'Normal doku doz sınırları, kullanılan fraksiyonasyon, hedef hacim, eşzamanlı tedavi ve hastaya özgü klinik koşullarla birlikte değerlendirilmelidir.' : 'Normal tissue dose-volume constraints are derived from QUANTEC (Quantitative Analyses of Normal Tissue Effects in the Clinic), HyTEC (Stereotactic Body Radiotherapy / SRS), and EMBRACE II brachytherapy consensus metrics. Tolerance limits represent safe clinical thresholds and must be individualized per patient anatomy.'}</p>
-                  <ul className="list-disc space-y-2 pl-5">
-                    <li><strong>{tText("QUANTEC:")}</strong> {tText(" Konvansiyonel fraksiyonasyonda normal doku doz-hacim etkilerini özetleyen, organ ve sonlanıma özgü derlemeler.")}</li>
-                    <li><strong>{tText("HyTEC:")}</strong> {tText(" Stereotaktik radyocerrahi ve vücut RT’si için doz-hacim ve toksisite kanıtlarını derleyen raporlar.")}</li>
-                    <li><strong>{tText("UK SABR Consortium:")}</strong> {tText(" SABR hasta seçimi, planlama ve organ riskindeki doz kısıtları için teknik rehberler.")}</li>
-                    <li><strong>{tText("EMBRACE II:")}</strong> {tText(" Serviks kanserinde görüntü kılavuzlu adaptif brakiterapi hedef ve organ riskindeki doz hedefleri/kısıtları.")}</li>
-                  </ul>
-                  <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900">
-                    {lang === 'tr' ? 'Bu merkez tek başına hasta planlaması için doz reçetesi değildir. OAR kısıtları, geçerli protokolün güncel birincil kaynağından ve kurum onaylı planlama yönergelerinden kontrol edilmelidir.' : 'This platform is not a standalone treatment prescription. OAR constraints must be checked against the current primary source and institution-approved planning guidelines.'}</p>
-                </>
-              )}
-              {activeReferenceTab === 'disclaimer' && (
-                <div className="space-y-3">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{lang === 'tr' ? 'Yasal sorumluluk reddi ve telif' : 'Clinical Disclaimer'}</h4>
-                  <p>
-                    {lang === 'tr' ? 'RadOnc CDSS, kanıta dayalı radyasyon onkolojisi literatürünü derleyen bir eğitim ve klinik karar destek aracıdır. Hekimin bireysel tıbbi muhakemesinin ve multidisipliner tümör konseyi (MDT) kararlarının yerine geçemez. Planlama sınırları her hasta için doğrulanmalıdır. NCCN®, ASTRO®, ESTRO®, RTOG® ve QUANTEC® ilgili kurumların tescilli markaları olup resmi sponsorluk bağı bulunmamaktadır.' : 'RadOnc CDSS is an evidence-based clinical decision-support and educational platform. It does not replace individualized clinical judgment, physician evaluation, or multidisciplinary tumor board (MDT) consensus. Treatment planning and organ-at-risk safety constraints must be validated by the radiation oncologist and medical physicist for each patient.'}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
       <article id="print-report" className="hidden print:block" aria-label={lang === 'tr' ? 'Multidisipliner tümör konseyi raporu' : 'Multidisciplinary tumor board summary'}>
         <header className="print-report-header">
