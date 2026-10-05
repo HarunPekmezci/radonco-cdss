@@ -50,6 +50,13 @@ import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 import { NCCN_GUIDELINE_MAP } from '@/data/nccnGuidelineMap';
 import { TRANSLATION_MAP } from '@/data/cdssTranslations';
+import GIForm from '@/components/cdss/forms/GIForm';
+import ThoraxForm from '@/components/cdss/forms/ThoraxForm';
+import GYNForm from '@/components/cdss/forms/GYNForm';
+import HeadNeckForm from '@/components/cdss/forms/HeadNeckForm';
+import GUSForm from '@/components/cdss/forms/GUSForm';
+import BreastForm from '@/components/cdss/forms/BreastForm';
+import CNSForm from '@/components/cdss/forms/CNSForm';
 import CDSSPrintReport from '@/components/cdss/CDSSPrintReport';
 
 import {
@@ -5228,6 +5235,275 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     );
   }
 
+  const formProps = {
+    parameterButtonClass,
+    prostateRiskLabel,
+    guidedStep,
+    printMetadata,
+    selectedOrgan,
+    selectedQuickCaseId,
+    openCategories,
+    isAnatomicRegionsOpen,
+    isSidebarCollapsed,
+    isMobileDrawerOpen,
+    activeMobilePanel,
+    selectedT,
+    selectedN,
+    selectedM,
+    isTnmAccordionOpen,
+    activeSidebarTnmTab,
+    patientAgeYears,
+    patientGender,
+    patientId,
+    favoritePresetIds,
+    customFavorites,
+    caseArchive,
+    isCaseArchiveOpen,
+    selectedSubsite,
+    benignClinicalStatus,
+    thoraxSubtype,
+    thoraxCentrality,
+    breathingMotion,
+    thoraxSurgeryStatus,
+    sclcStage,
+    sclcTiming,
+    thymomaStage,
+    thymomaMargin,
+    thymicHistology,
+    nsclcHistology,
+    mesoIntent,
+    gusSubtype,
+    gleasonPrimary,
+    gleasonSecondary,
+    psaLevel,
+    hasECE,
+    hasSVI,
+    positiveCorePercent,
+    bladderTurbtComplete,
+    bladderTmtSuitable,
+    bladderHydronephrosis,
+    bladderConcurrentCis,
+    prostateHistology,
+    testisHistology,
+    bladderHistology,
+    renalHistology,
+    renalDiseaseSetting,
+    renalTumorSizeCm,
+    breastHistology,
+    breastMenopause,
+    breastSurgery,
+    breastMargin,
+    breastBoost,
+    phyllodesMarginCm,
+    phyllodesHighGrade,
+    breastER,
+    breastPR,
+    breastHER2,
+    breastKi67,
+    breastGrade,
+    gisOrgan,
+    liverHistology,
+    liverBclcStage,
+    biliaryHistology,
+    biliaryTreatmentSetting,
+    biliaryMarginStatus,
+    gisCrmStatus,
+    hnSubsite,
+    hnLarynxSubsite,
+    hnCrossesMidline,
+    hnDistanceFromMidlineCm,
+    hnTumorSizeCm,
+    hnDoiMm,
+    hnENE,
+    hnPositiveMargin,
+    cnsSubtype,
+    gliomaGrade,
+    gliomaRiskFactors,
+    cnsMidlineShift,
+    cnsMetCount,
+    cnsMaxDiameter,
+    cnsSymptoms,
+    cnsResection,
+    meningiomaSimpson,
+    cnsKps,
+    gbmPerformance,
+    meningiomaGrade,
+    gliomaHistology,
+    gynSite,
+    cervixScenario,
+    endoRisk,
+    ovaryScenario,
+    vulvaScenario,
+    sarcomaSubtype,
+    dfspStatus,
+    sarcomaSurgery,
+    osteoScenario,
+    ewingIntent,
+    stsHistology,
+    skinHistology,
+    skinMargin,
+    skinDepthMm,
+    skinPerineuralInvasion,
+    skinBoneInvasion,
+    hematologicSubtype,
+    lymphomaResponse,
+    myelomaFractionation,
+    pediatricSubtype,
+    pediatricRisk,
+    wilmsStage,
+    wilmsWholeAbdomen,
+    palliativeIntent,
+    copied,
+    researchExportNotice,
+    isExportMenuOpen,
+    showEContourHelp,
+    selectedSchemeId,
+    selectedRegimen,
+    isMdrModalOpen,
+    isRadiobiologyModalOpen,
+    isSearchOpen,
+    searchQuery,
+    activeSearchIndex,
+    comparisonDosePerFraction,
+    comparisonFractions,
+    comparisonAlphaBeta,
+    missedTreatmentDays,
+    remainingTreatmentFractions,
+    setGuidedStep,
+    setPrintMetadata,
+    setSelectedOrgan,
+    setSelectedQuickCaseId,
+    setOpenCategories,
+    setIsAnatomicRegionsOpen,
+    setIsSidebarCollapsed,
+    setIsMobileDrawerOpen,
+    setActiveMobilePanel,
+    setSelectedT,
+    setSelectedN,
+    setSelectedM,
+    setIsTnmAccordionOpen,
+    setActiveSidebarTnmTab,
+    setPatientAgeYears,
+    setPatientGender,
+    setPatientId,
+    setFavoritePresetIds,
+    setCustomFavorites,
+    setCaseArchive,
+    setIsCaseArchiveOpen,
+    setSelectedSubsite,
+    setBenignClinicalStatus,
+    setThoraxSubtype,
+    setThoraxCentrality,
+    setBreathingMotion,
+    setThoraxSurgeryStatus,
+    setSclcStage,
+    setSclcTiming,
+    setThymomaStage,
+    setThymomaMargin,
+    setThymicHistology,
+    setNsclcHistology,
+    setMesoIntent,
+    setGusSubtype,
+    setGleasonPrimary,
+    setGleasonSecondary,
+    setPsaLevel,
+    setHasECE,
+    setHasSVI,
+    setPositiveCorePercent,
+    setBladderTurbtComplete,
+    setBladderTmtSuitable,
+    setBladderHydronephrosis,
+    setBladderConcurrentCis,
+    setProstateHistology,
+    setTestisHistology,
+    setBladderHistology,
+    setRenalHistology,
+    setRenalDiseaseSetting,
+    setRenalTumorSizeCm,
+    setBreastHistology,
+    setBreastMenopause,
+    setBreastSurgery,
+    setBreastMargin,
+    setBreastBoost,
+    setPhyllodesMarginCm,
+    setPhyllodesHighGrade,
+    setBreastER,
+    setBreastPR,
+    setBreastHER2,
+    setBreastKi67,
+    setBreastGrade,
+    setGisOrgan,
+    setLiverHistology,
+    setLiverBclcStage,
+    setBiliaryHistology,
+    setBiliaryTreatmentSetting,
+    setBiliaryMarginStatus,
+    setGisCrmStatus,
+    setHnSubsite,
+    setHnLarynxSubsite,
+    setHnCrossesMidline,
+    setHnDistanceFromMidlineCm,
+    setHnTumorSizeCm,
+    setHnDoiMm,
+    setHnENE,
+    setHnPositiveMargin,
+    setCnsSubtype,
+    setGliomaGrade,
+    setGliomaRiskFactors,
+    setCnsMidlineShift,
+    setCnsMetCount,
+    setCnsMaxDiameter,
+    setCnsSymptoms,
+    setCnsResection,
+    setMeningiomaSimpson,
+    setCnsKps,
+    setGbmPerformance,
+    setMeningiomaGrade,
+    setGliomaHistology,
+    setGynSite,
+    setCervixScenario,
+    setEndoRisk,
+    setOvaryScenario,
+    setVulvaScenario,
+    setSarcomaSubtype,
+    setDfspStatus,
+    setSarcomaSurgery,
+    setOsteoScenario,
+    setEwingIntent,
+    setStsHistology,
+    setSkinHistology,
+    setSkinMargin,
+    setSkinDepthMm,
+    setSkinPerineuralInvasion,
+    setSkinBoneInvasion,
+    setHematologicSubtype,
+    setLymphomaResponse,
+    setMyelomaFractionation,
+    setPediatricSubtype,
+    setPediatricRisk,
+    setWilmsStage,
+    setWilmsWholeAbdomen,
+    setPalliativeIntent,
+    setCopied,
+    setResearchExportNotice,
+    setIsExportMenuOpen,
+    setShowEContourHelp,
+    setSelectedSchemeId,
+    setSelectedRegimen,
+    setIsMdrModalOpen,
+    setIsRadiobiologyModalOpen,
+    setIsSearchOpen,
+    setSearchQuery,
+    setActiveSearchIndex,
+    setComparisonDosePerFraction,
+    setComparisonFractions,
+    setComparisonAlphaBeta,
+    setMissedTreatmentDays,
+    setRemainingTreatmentFractions,
+    lang,
+    tText,
+    parseOption
+  };
   return (
     <>
     <div id="clinical-app" className="min-h-screen w-full bg-[#0a0f1d] text-slate-100 flex flex-col font-sans">
@@ -6057,370 +6333,30 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
 
             {/* GİS: CRM VE SOLUNUM HAREKETİ PARAMETRELERİ */}
-            {selectedOrgan === 'gis' && (
-              <div className="flex flex-col gap-3 text-xs">
-                {gisOrgan === 'Rektum' && (
-                  <div>
-                    <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'MR CRM (Mezorektal Fasya) Durumu' : 'MRI CRM (Mesorectal Fascia) Status'}
-                    </span>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {[
-                        { value: 'Negatif' as const, label: lang === 'tr' ? 'CRM Negatif (>1 mm)' : 'CRM Negative (>1 mm)' },
-                        { value: 'Pozitif' as const, label: lang === 'tr' ? 'CRM Pozitif / Tehlikeli (≤1 mm)' : 'CRM Positive / Threatened (≤1 mm)' },
-                      ].map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={gisCrmStatus === option.value}
-                          onClick={() => setGisCrmStatus(option.value)}
-                          className={parameterButtonClass(gisCrmStatus === option.value)}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {gisOrgan === 'Karaciger' && (
-                  <>
-                    {liverHistology === 'hcc' && (
-                      <label className="block font-semibold text-slate-300">
-                        {lang === 'tr' ? 'BCLC klinik evresi' : 'BCLC clinical stage'}
-                        <select
-                          value={liverBclcStage}
-                          onChange={event => {
-                            const stage = event.currentTarget.value as typeof liverBclcStage;
-                            setLiverBclcStage(stage);
-                            setSelectedT(stage === 'C' ? 'T3' : stage === 'B' ? 'T2' : 'T1a');
-                            setSelectedN('N0');
-                            setSelectedM('M0');
-                          }}
-                          className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100"
-                        >
-                          <option value="0">BCLC 0 · {lang === 'tr' ? 'Çok erken' : 'Very early'}</option>
-                          <option value="A">BCLC A · {lang === 'tr' ? 'Erken' : 'Early'}</option>
-                          <option value="B">BCLC B · {lang === 'tr' ? 'Orta' : 'Intermediate'}</option>
-                          <option value="C">BCLC C · {lang === 'tr' ? 'İleri / PVTT' : 'Advanced / PVTT'}</option>
-                        </select>
-                      </label>
-                    )}
-                    <div>
-                      <span className="mb-1 block font-semibold text-slate-300">
-                        {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
-                      </span>
-                      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                        {[
-                          { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                          { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
-                        ].map(option => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            aria-pressed={breathingMotion === option.value}
-                            onClick={() => setBreathingMotion(option.value)}
-                            className={parameterButtonClass(breathingMotion === option.value)}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-                {gisOrgan === 'SafraYollari' && (
-                  <>
-                    <label className="block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Tedavi bağlamı' : 'Treatment setting'}
-                      <select value={biliaryTreatmentSetting} onChange={event => setBiliaryTreatmentSetting(event.currentTarget.value as typeof biliaryTreatmentSetting)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100">
-                        <option value="adjuvant">{lang === 'tr' ? 'Postoperatif yüksek risk / adjuvan' : 'Postoperative high-risk / adjuvant'}</option>
-                        <option value="unresectable">{lang === 'tr' ? 'İnoperabl lokal ileri' : 'Unresectable locally advanced'}</option>
-                      </select>
-                    </label>
-                    {biliaryTreatmentSetting === 'adjuvant' && (
-                      <div>
-                        <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Rezeksiyon marjini' : 'Resection margin'}</span>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {(['R0', 'R1'] as const).map(value => (
-                            <button key={value} type="button" aria-pressed={biliaryMarginStatus === value} onClick={() => setBiliaryMarginStatus(value)} className={parameterButtonClass(biliaryMarginStatus === value)}>{value}</button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            {selectedOrgan === 'gis' && <GIForm {...formProps} />}
 
             {/* TORAKS: KHDAK PARAMETRELERİ */}
-            {selectedOrgan === 'thorax' && thoraxSubtype === 'nsclc' && (
-              <div className="flex flex-col gap-3 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tümör Yerleşimi (Santralite)' : 'Tumor Centrality / Location'}</label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      { id: 'Peripheral', label: lang === 'tr' ? 'Periferik' : 'Peripheral' },
-                      { id: 'Central', label: lang === 'tr' ? 'Santral' : 'Central' },
-                      { id: 'UltraCentral', label: lang === 'tr' ? 'Ultrasantral' : 'Ultracentral' },
-                    ].map(item => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          const value = parseOption(item.id, ['Peripheral', 'Central', 'UltraCentral'] as const);
-                          if (value) setThoraxCentrality(value);
-                        }}
-                        className={parameterButtonClass(thoraxCentrality === item.id)}
-                      >
-                        {tText(item.label)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Cerrahi / Operabilite Durumu' : 'Surgical / Operability Status'}</label>
-                  <select
-                    value={thoraxSurgeryStatus}
-                    onChange={e => {
-                      const value = parseOption(e.currentTarget.value, ['Inoperable', 'Operable', 'Postop_R0', 'Postop_R1_R2'] as const);
-                      if (value) setThoraxSurgeryStatus(value);
-                    }}
-                    className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                  >
-                    <option value="Inoperable">{lang === 'tr' ? 'Medikal İnoperabl / Cerrahi Red' : 'Medically Inoperable / Surgical Refusal'}</option>
-                    <option value="Operable">{lang === 'tr' ? 'Medikal Operabl' : 'Medically Operable'}</option>
-                    <option value="Postop_R0">{lang === 'tr' ? 'Postoperatif R0 Rezeksiyon' : 'Postoperative R0 Resection'}</option>
-                    <option value="Postop_R1_R2">{lang === 'tr' ? 'Postoperatif R1 / R2 Rezeksiyon' : 'Postoperative R1 / R2 Resection'}</option>
-                  </select>
-                </div>
-                {selectedM === 'M0' && selectedN === 'N0' && (selectedT.startsWith('T1') || selectedT === 'T2') && (
-                  <div>
-                    <span className="mb-1 block font-semibold text-slate-300">
-                      {lang === 'tr' ? 'Solunum Hareketi Yönetimi (SBRT)' : 'Respiratory Motion Management'}
-                    </span>
-                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                      {[
-                        { value: '4D-CT' as const, label: lang === 'tr' ? '4D-CT · Serbest Solunum / ITV' : '4D-CT · Free Breathing / ITV' },
-                        { value: 'DIBH' as const, label: lang === 'tr' ? 'DIBH · Nefes Tutma / GTV→PTV' : 'DIBH · Breath-Hold / GTV→PTV' },
-                      ].map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={breathingMotion === option.value}
-                          onClick={() => setBreathingMotion(option.value)}
-                          className={parameterButtonClass(breathingMotion === option.value)}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {selectedOrgan === 'thorax' && <ThoraxForm {...formProps} />}
 
-            {selectedOrgan === 'thorax' && thoraxSubtype === 'thymoma' && (
-              <div className="flex flex-col gap-3 text-xs">
-                <div>
-                  <span className="mb-1 block font-semibold text-slate-300">
-                    {lang === 'tr' ? 'Histolojik Alt Tip' : 'Histologic Subtype'}
-                  </span>
-                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                    {[
-                      { value: 'thymoma' as const, label: lang === 'tr' ? 'Timoma · WHO A–B3' : 'Thymoma · WHO A–B3' },
-                      { value: 'thymic-carcinoma' as const, label: lang === 'tr' ? 'Timik Karsinom · Tip C' : 'Thymic Carcinoma · Type C' },
-                    ].map(option => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={thymicHistology === option.value}
-                        onClick={() => setThymicHistology(option.value)}
-                        className={`rounded-lg border p-2 text-left font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                          thymicHistology === option.value
-                            ? 'border-blue-400 bg-blue-600 text-white'
-                            : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500 hover:bg-slate-700'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {thymicHistology === 'thymoma' && (
-                  <>
-                    <label className="font-medium text-slate-300">
-                      {lang === 'tr' ? 'Masaoka-Koga Evresi' : 'Masaoka-Koga Stage'}
-                      <select
-                        value={thymomaStage}
-                        onChange={event => setThymomaStage(event.currentTarget.value as typeof thymomaStage)}
-                        className="mt-1 w-full rounded-md border border-slate-700 bg-slate-800 p-2.5 text-slate-100"
-                      >
-                        <option value="Masaoka_I">Evre I</option>
-                        <option value="Masaoka_II">Evre II</option>
-                        <option value="Masaoka_III">Evre III</option>
-                        <option value="Masaoka_IV">Evre IV</option>
-                      </select>
-                    </label>
-                    <label className="font-medium text-slate-300">
-                      {lang === 'tr' ? 'Cerrahi Sınır' : 'Surgical Margin'}
-                      <select
-                        value={thymomaMargin}
-                        onChange={event => setThymomaMargin(event.currentTarget.value as typeof thymomaMargin)}
-                        className="mt-1 w-full rounded-md border border-slate-700 bg-slate-800 p-2.5 text-slate-100"
-                      >
-                        <option value="R0">R0 — Negatif</option>
-                        <option value="R1">R1 — Mikroskobik Pozitif</option>
-                        <option value="R2">R2 — Makroskobik Rezidü</option>
-                      </select>
-                    </label>
-                  </>
-                )}
-              </div>
-            )}
+            
 
             {/* TORAKS: KHAK (SCLC) PARAMETRELERİ */}
             {/* MEZOTELYOMA TEDAVİ AMACI */}
-            {selectedOrgan === 'thorax' && thoraxSubtype === 'mesothelioma' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <label className="text-slate-600 block mb-1">{lang === 'tr' ? 'Tedavi Amacı / Cerrahi Durum' : 'Treatment Intent / Surgical Status'}</label>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {[
-                    { id: 'Palyatif', label: lang === 'tr' ? 'Palyatif Semptom Kontrolü (30 Gy/10 fx)' : 'Palliative Symptom Control (30 Gy/10 fx)' },
-                    { id: 'Hemitorasik_Postop', label: lang === 'tr' ? 'Adjuvan Hemitorasik RT (P/D veya EPD Sonrası)' : 'Adjuvant Hemithoracic RT (post P/D or EPD)' },
-                    { id: 'Dren_Yeri', label: lang === 'tr' ? 'Girişim / Dren Yeri Profilaksisi (21 Gy/3 fx)' : 'Procedure / Drain Tract Prophylaxis (21 Gy/3 fx)' },
-                  ].map(item => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        const value = parseOption(item.id, ['Palyatif', 'Hemitorasik_Postop', 'Dren_Yeri'] as const);
-                        if (value) setMesoIntent(value);
-                      }}
-                      className={parameterButtonClass(mesoIntent === item.id)}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            
 
-            {selectedOrgan === 'thorax' && thoraxSubtype === 'sclc' && (
-              <div className="flex flex-col gap-3 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("KHAK Klinik Evresi")}</label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {[
-                      { id: 'Sinirli', label: 'Sınırlı Evre (LS-SCLC)' },
-                      { id: 'Yaygin', label: 'Yaygın Evre (ES-SCLC)' },
-                    ].map(item => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          const value = parseOption(item.id, ['Sinirli', 'Yaygin'] as const);
-                          if (value) setSclcStage(value);
-                        }}
-                        className={parameterButtonClass(sclcStage === item.id)}
-                      >
-                        {tText(item.label)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {sclcStage === 'Sinirli' && (
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Fraksiyonasyon Rejimi")}</label>
-                    <select
-                      value={sclcTiming}
-                      onChange={e => {
-                        const value = parseOption(e.currentTarget.value, ['Erken_BID_45Gy', 'Standart_QD_60Gy'] as const);
-                        if (value) setSclcTiming(value);
-                      }}
-                      className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                    >
-                      <option value="Erken_BID_45Gy">{tText("45 Gy / 30 fx (Günde 2x1.5 Gy - Turrisi Altın Standart)")}</option>
-                      <option value="Standart_QD_60Gy">{tText("60 Gy / 30 fx (Günde tek 2.0 Gy - CONVERT)")}</option>
-                    </select>
-                  </div>
-                )}
-              </div>
-            )}
+            
 
             {/* JİNEKOLOJİ: SERVİKS PARAMETRELERİ */}
-            {selectedOrgan === 'gynecology' && gynSite === 'Serviks' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <label className="text-slate-600 block mb-1">{tText("Klinik Senaryo")}</label>
-                <select
-                  value={cervixScenario}
-                  onChange={e => {
-                    const value = parseOption(e.currentTarget.value, ['Definitif_KRT', 'Adjuvan_Peters', 'Adjuvan_Sedlis'] as const);
-                    if (value) setCervixScenario(value);
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="Definitif_KRT">{tText("Definitif KRT + 3D IGABT (Lokal İleri)")}</option>
-                  <option value="Adjuvan_Peters">{tText("Cerrahi Sonrası Yüksek Risk (Peters: R1/LN+/Parametrium)")}</option>
-                  <option value="Adjuvan_Sedlis">{tText("Cerrahi Sonrası Orta Risk (Sedlis: LVSI/Derin İnvazyon)")}</option>
-                </select>
-              </div>
-            )}
+            {selectedOrgan === 'gynecology' && <GYNForm {...formProps} />}
 
             {/* JİNEKOLOJİ: ENDOMETRİYUM PARAMETRELERİ */}
-            {selectedOrgan === 'gynecology' && gynSite === 'Endometriyum' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <label className="text-slate-600 block mb-1">{tText("Endometriyum Risk Grubu (PORTEC)")}</label>
-                <select
-                  value={endoRisk}
-                  onChange={e => {
-                    const value = parseOption(e.currentTarget.value, ['Low', 'Intermediate', 'High_Intermediate', 'High'] as const);
-                    if (value) setEndoRisk(value);
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full font-medium"
-                >
-                  <option value="Low">{tText("Düşük Risk (Evre IA G1-2, LVSI yok - İzlem)")}</option>
-                  <option value="Intermediate">{tText("Orta Risk (Evre IB G1-2 veya IA G3)")}</option>
-                  <option value="High_Intermediate">{tText("Yüksek-Orta Risk (PORTEC-2: Yalnızca VCB Brakiterapisi)")}</option>
-                  <option value="High">{tText("Yüksek Risk (Evre III / Seröz / Derin İnvazyon - PORTEC-3 KRT)")}</option>
-                </select>
-              </div>
-            )}
+            
 
             {/* JİNEKOLOJİ: OVER & TUBA PARAMETRELERİ */}
-            {selectedOrgan === 'gynecology' && gynSite === 'Over_Tuba' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <label className="text-slate-600 block mb-1">{tText("Radyoterapi Amacı")}</label>
-                <select
-                  value={ovaryScenario}
-                  onChange={e => {
-                    const value = parseOption(e.currentTarget.value, ['Oligometastatik_SBRT', 'Palyatif_Kitle_Agri'] as const);
-                    if (value) setOvaryScenario(value);
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="Oligometastatik_SBRT">{tText("Oligometastatik Nüks SBRT (1-3 odak ablasyonu)")}</option>
-                  <option value="Palyatif_Kitle_Agri">{tText("Palyatif Pelvik Kitle / Hemostaz RT")}</option>
-                </select>
-              </div>
-            )}
+            
 
             {/* JİNEKOLOJİ: VULVA PARAMETRELERİ */}
-            {selectedOrgan === 'gynecology' && gynSite === 'Vulva' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <label className="text-slate-600 block mb-1">{tText("Klinik Evre / Cerrahi")}</label>
-                <select
-                  value={vulvaScenario}
-                  onChange={e => {
-                    const value = parseOption(e.currentTarget.value, ['Adjuvan_Cerrahi_Sonrasi', 'Inoperabl_Lokal_Ileri'] as const);
-                    if (value) setVulvaScenario(value);
-                  }}
-                  className="bg-white border border-slate-300 text-xs rounded-md p-2.5 text-slate-900 w-full"
-                >
-                  <option value="Adjuvan_Cerrahi_Sonrasi">{tText("Cerrahi Sonrası Adjuvan (<8 mm sınır veya Kasık LN+ / ENE)")}</option>
-                  <option value="Inoperabl_Lokal_Ileri">{tText("İnoperabl / Lokal İleri Definitif KRT")}</option>
-                </select>
-              </div>
-            )}
+            
 
             {/* KEMİK & SARKOM: YDS PARAMETRELERİ */}
             {(selectedOrgan === 'bone' || selectedOrgan === 'sarcoma' || selectedOrgan === 'bone-sarcoma') && sarcomaSubtype === 'Yumusak_Doku' && (
@@ -6500,506 +6436,26 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </label>
             )}
 
-            {selectedOrgan === 'head-neck' && (
-              <div className="space-y-2 text-xs">
-                {hnSubsite === 'larynx' && (
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Larinks klinik senaryosu")}</label>
-                    <select
-                      value={hnLarynxSubsite}
-                      onChange={e => {
-                        const value = e.currentTarget.value;
-                        if (value === 'Erken_Glottik_T1_T2' || value === 'Lokal_Ileri_T3_T4') {
-                          setHnLarynxSubsite(value);
-                          setSelectedT(value === 'Erken_Glottik_T1_T2' ? 'T1a/b' : 'T3');
-                          setSelectedN('N0');
-                          setSelectedM('M0');
-                        }
-                      }}
-                      className="bg-white border border-slate-300 rounded-lg p-2 text-slate-900 w-full"
-                    >
-                      <option value="Erken_Glottik_T1_T2">{tText("Erken glottik T1-T2 N0 (yalnız vokal kord, 63 Gy/28 fx)")}</option>
-                      <option value="Lokal_Ileri_T3_T4">{tText("Lokal ileri supraglottik/glottik T3-T4")}</option>
-                    </select>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex items-center gap-2 text-slate-700">
-                    <input type="checkbox" checked={hnCrossesMidline} onChange={e => setHnCrossesMidline(e.currentTarget.checked)} />
-                    {tText("\n                    Orta hattı geçiyor\n                  ")}</label>
-                  <label className="text-slate-600">
-                    {tText("\n                    Orta hatta uzaklık (cm)\n                    ")}<input type="number" min="0" step="0.1" value={hnDistanceFromMidlineCm} onChange={e => setHnDistanceFromMidlineCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />
-                  </label>
-                  <label className="text-slate-600">
-                    {tText("\n                    Tümör çapı (cm)\n                    ")}<input type="number" min="0" step="0.1" value={hnTumorSizeCm} onChange={e => setHnTumorSizeCm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />
-                  </label>
-                  <label className="text-slate-600">
-                    {tText("\n                    Derin invazyon (DOI, mm)\n                    ")}<input type="number" min="0" step="0.1" value={hnDoiMm} onChange={e => setHnDoiMm(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full" />
-                  </label>
-                </div>
-                {(hnSubsite === 'oral-cavity' || hnSubsite === 'maxillary-sinus') && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="flex items-center gap-2 text-slate-700">
-                      <input type="checkbox" checked={hnENE} onChange={e => setHnENE(e.currentTarget.checked)} />
-                      {tText("\n                      Ekstranodal yayılım (ENE)\n                    ")}</label>
-                    <label className="flex items-center gap-2 text-slate-700">
-                      <input type="checkbox" checked={hnPositiveMargin} onChange={e => setHnPositiveMargin(e.currentTarget.checked)} />
-                      {tText("\n                      Pozitif cerrahi sınır (R1)\n                    ")}</label>
-                  </div>
-                )}
-              </div>
-            )}
+            {selectedOrgan === 'head-neck' && <HeadNeckForm {...formProps} />}
 
             {/* GÜS ALT BÖLGE PARAMETRELERİ */}
-            {selectedOrgan === 'prostate' && gusSubtype === 'prostate' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Gleason Skoru")}</label>
-                    <div className="flex gap-1 items-center">
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={gleasonPrimary}
-                        onChange={e => setGleasonPrimary(e.target.value)}
-                        className="bg-white border border-slate-300 rounded-lg p-1.5 text-center w-12 text-slate-900"
-                      />
-                      <span className="text-slate-400">{tText("+")}</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={gleasonSecondary}
-                        onChange={e => setGleasonSecondary(e.target.value)}
-                        className="bg-white border border-slate-300 rounded-lg p-1.5 text-center w-12 text-slate-900"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("PSA (ng/mL)")}</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={psaLevel}
-                      onChange={e => setPsaLevel(e.target.value)}
-                      className="bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Pozitif biyopsi kor oranı (%)")}</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={positiveCorePercent}
-                    onChange={e => setPositiveCorePercent(e.currentTarget.value)}
-                    className="bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    aria-pressed={hasECE}
-                    onClick={() => setHasECE(value => !value)}
-                    className={`rounded-lg border p-2 ${hasECE ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-300 text-slate-600'}`}
-                  >
-                    {tText("\n                    Ekstrakapsüler yayılım (ECE)\n                  ")}</button>
-                  <button
-                    type="button"
-                    aria-pressed={hasSVI}
-                    onClick={() => setHasSVI(value => !value)}
-                    className={`rounded-lg border p-2 ${hasSVI ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-300 text-slate-600'}`}
-                  >
-                    {tText("\n                    Seminal vezikül invazyonu\n                  ")}</button>
-                </div>
-                <div className="rounded-lg border border-sky-300 bg-blue-50 p-2 font-semibold text-blue-900">
-                  {tText("\n                  Otomatik NCCN risk grubu: ")}{prostateRiskLabel}
-                </div>
-              </div>
-            )}
+            {selectedOrgan === 'prostate' && <GUSForm {...formProps} />}
 
-            {selectedOrgan === 'prostate' && gusSubtype === 'kidney' && (
-              <div className="space-y-2 text-xs">
-                <label className="block text-slate-300">
-                  {lang === 'tr' ? 'RCC tedavi bağlamı' : 'RCC treatment setting'}
-                  <select value={renalDiseaseSetting} onChange={event => setRenalDiseaseSetting(event.currentTarget.value as typeof renalDiseaseSetting)} className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100">
-                    <option value="primary-inoperable">{lang === 'tr' ? 'Medikal inoperabl primer RCC' : 'Medically inoperable primary RCC'}</option>
-                    <option value="oligometastatic">{lang === 'tr' ? 'Oligometastatik / immünoterapi altında oligoprogresyon' : 'Oligometastatic / oligoprogressive on immunotherapy'}</option>
-                  </select>
-                </label>
-                {renalDiseaseSetting === 'primary-inoperable' && (
-                  <>
-                    <label className="block text-slate-300">
-                      {lang === 'tr' ? 'Primer tümör çapı (cm; FASTRACK II doz seçimi)' : 'Primary tumour diameter (cm; FASTRACK II dose selection)'}
-                      <input
-                        type="number"
-                        min="0.1"
-                        max="30"
-                        step="0.1"
-                        value={renalTumorSizeCm}
-                        onChange={event => setRenalTumorSizeCm(event.currentTarget.value)}
-                        className="mt-1 w-full rounded-lg border border-slate-700 bg-[#131f33] p-2 text-slate-100"
-                      />
-                    </label>
-                  <p className="rounded-lg border border-amber-700/40 bg-amber-950/20 p-2 text-[10px] leading-relaxed text-amber-200">
-                    {lang === 'tr'
-                      ? 'FASTRACK II doz seçimi gerçek tümör çapına göre yapılır: ≤4 cm için 26 Gy × 1; >4–10 cm için 42 Gy / 3 fx. T kategorisi tek başına tümör çapının yerine geçmez.'
-                      : 'FASTRACK II dose selection is by actual tumour diameter: ≤4 cm, 26 Gy × 1; >4–10 cm, 42 Gy / 3 fx. T category alone does not replace measured tumour size.'}
-                  </p>
-                  </>
-                )}
-              </div>
-            )}
+            
 
-            {selectedOrgan === 'prostate' && gusSubtype === 'bladder' && (
-              <div className="space-y-2 text-xs">
-                <label className="flex items-center gap-2 text-slate-700">
-                  <input type="checkbox" checked={bladderTurbtComplete} onChange={e => setBladderTurbtComplete(e.currentTarget.checked)} />
-                  {tText("\n                  Maksimal TURBT tamamlandı\n                ")}</label>
-                <label className="flex items-center gap-2 text-slate-700">
-                  <input type="checkbox" checked={bladderHydronephrosis} onChange={e => setBladderHydronephrosis(e.currentTarget.checked)} />
-                  {tText("\n                  Hidronefroz\n                ")}</label>
-                <label className="flex items-center gap-2 text-slate-700">
-                  <input type="checkbox" checked={bladderConcurrentCis} onChange={e => setBladderConcurrentCis(e.currentTarget.checked)} />
-                  {tText("\n                  Eşzamanlı CIS\n                ")}</label>
-              </div>
-            )}
+            
 
-            {selectedOrgan === 'prostate' && gusSubtype === 'testis' && (
-              <div className="space-y-2 text-xs">
-                <label className="text-slate-600 block">{tText("Seminom evresi")}</label>
-                <select
-                  value={selectedT}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'I' || value === 'IIA' || value === 'IIB') {
-                      setSelectedT(value);
-                      setSelectedN(value === 'I' ? 'N0' : value === 'IIA' ? 'N1' : 'N2');
-                      setSelectedM('M0');
-                    }
-                  }}
-                  className="bg-white border border-slate-300 rounded-lg p-2 text-slate-900 w-full"
-                >
-                  <option value="I">{tText("Evre I")}</option>
-                  <option value="IIA">{tText("Evre IIA")}</option>
-                  <option value="IIB">{tText("Evre IIB")}</option>
-                </select>
-              </div>
-            )}
+            
 
             {/* MEME PARAMETRELERİ */}
-            {selectedOrgan === 'breast' && (
-              <div className="flex flex-col gap-2 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Menopoz durumu")}</label>
-                  <div role="group" aria-label="Menopoz durumu" className="grid grid-cols-2 gap-1.5">
-                    {(['Premenopozal', 'Postmenopozal'] as const).map(value => (
-                      <button
-                        key={value}
-                        type="button"
-                        aria-pressed={breastMenopause === value}
-                        onClick={() => setBreastMenopause(value)}
-                        className={parameterButtonClass(breastMenopause === value)}
-                      >
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Cerrahi")}</label>
-                    <select
-                      value={breastSurgery}
-                      onChange={e => {
-                        const value = parseOption(e.currentTarget.value, ['MKC', 'Mastektomi'] as const);
-                        if (value) setBreastSurgery(value);
-                      }}
-                      className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                    >
-                      <option value="MKC">{tText("MKC (Lumpektomi)")}</option>
-                      <option value="Mastektomi">{tText("Mastektomi")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Cerrahi Sınır")}</label>
-                    <select
-                      value={breastMargin}
-                      onChange={e => {
-                        const value = parseOption(e.currentTarget.value, ['Negatif', 'Yakin', 'Pozitif'] as const);
-                        if (value) setBreastMargin(value);
-                      }}
-                      className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                    >
-                      <option value="Negatif">{tText("Negatif (≥2 mm)")}</option>
-                      <option value="Yakin">{tText("Yakın (<2 mm)")}</option>
-                      <option value="Pozitif">{tText("Pozitif (R1)")}</option>
-                    </select>
-                  </div>
-                </div>
-                {breastHistology === 'Malign Filloides Tümörü' ? (
-                  <div className="space-y-2">
-                    <label className="text-slate-600 block">{tText("En yakın cerrahi marjin (cm)")}</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={phyllodesMarginCm}
-                      onChange={e => setPhyllodesMarginCm(e.currentTarget.value)}
-                      className="bg-white border border-slate-300 rounded-lg p-1.5 text-slate-900 w-full"
-                    />
-                    <label className="flex items-center gap-2 text-slate-700">
-                      <input type="checkbox" checked={phyllodesHighGrade} onChange={e => setPhyllodesHighGrade(e.currentTarget.checked)} />
-                      {tText("\n                      Yüksek dereceli stromal aşırı büyüme\n                    ")}</label>
-                  </div>
-                ) : (
-                  <>
-                    <label className="flex items-center gap-2 text-slate-700">
-                      <input type="checkbox" checked={breastBoost} onChange={e => setBreastBoost(e.currentTarget.checked)} />
-                      {tText("\n                      Tümör yatağı boostu (10-16 Gy) uygula\n                    ")}</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { label: 'ER', value: breastER, setter: setBreastER },
-                        { label: 'PR', value: breastPR, setter: setBreastPR },
-                        { label: 'HER2', value: breastHER2, setter: setBreastHER2 },
-                      ].map(marker => (
-                        <button
-                            key={marker.label}
-                            type="button"
-                            aria-pressed={marker.value}
-                            aria-label={`${marker.label} ${marker.value ? 'pozitif' : 'negatif'}`}
-                            onClick={() => marker.setter(!marker.value)}
-                            className={parameterButtonClass(marker.value)}
-                          >
-                            {marker.value && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
-                            {marker.label}{marker.value ? '+' : '-'}
-                        </button>
-                      ))}
-                      <div role="group" aria-label="Ki-67" className="col-span-2 grid grid-cols-2 gap-1.5">
-                        {[
-                          { label: '<20%', value: 'Low' },
-                          { label: '≥20%', value: 'High' },
-                        ].map(option => {
-                          const selected = (Number.parseFloat(breastKi67) >= 20) === (option.value === 'High');
-                          return (
-                            <button
-                              key={option.value}
-                              type="button"
-                              aria-pressed={selected}
-                              onClick={() => setBreastKi67(option.value === 'High' ? '20' : '19')}
-                              className={parameterButtonClass(selected)}
-                            >
-                              {tText("\n                              Ki-67 ")}{tText(option.label)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <label className="block text-slate-600">
-                      {tText("\n                      Histolojik Grade\n                      ")}<select
-                        value={breastGrade}
-                        onChange={e => {
-                          const value = parseOption(e.currentTarget.value, ['1', '2', '3'] as const);
-                          if (value) setBreastGrade(value);
-                        }}
-                        className="mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-slate-900"
-                      >
-                        <option value="1">{tText("Grade 1")}</option>
-                        <option value="2">{tText("Grade 2")}</option>
-                        <option value="3">{tText("Grade 3")}</option>
-                      </select>
-                    </label>
-                    <p className="text-[11px] text-slate-400">
-                      {tText("\n                      Biyobelirteçler sistemik tedavi kararında onkoloji ekibiyle birlikte yorumlanır.\n                    ")}</p>
-                  </>
-                )}
-              </div>
-            )}
+            {selectedOrgan === 'breast' && <BreastForm {...formProps} />}
 
             {/* MSS BEYİN METASTAZI PARAMETRELERİ */}
-            {selectedOrgan === 'cns' && cnsSubtype === 'mets' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <label className="text-slate-600 block mb-1">{tText("Orta Hat Şifti (Herniasyon)")}</label>
-                  <select
-                    value={cnsMidlineShift}
-                    onChange={e => {
-                      const value = e.currentTarget.value;
-                      if (value === 'Yok' || value === '<5mm' || value === '>=5mm') setCnsMidlineShift(value);
-                    }}
-                    className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                  >
-                    <option value="Yok">{tText("Şift yok")}</option>
-                    <option value="<5mm">{tText("Hafif şift (<5 mm)")}</option>
-                    <option value=">=5mm">{tText('Kritik Şift (≥5 mm - Acil Dekompresyon)')}</option>
-                  </select>
-                </div>
-                <label className="text-slate-600">
-                  {tText("\n                  Semptom durumu\n                  ")}<select
-                    value={cnsSymptoms}
-                    onChange={e => {
-                      const value = e.currentTarget.value;
-                      if (value === 'Asimptomatik' || value === 'Semptomatik') setCnsSymptoms(value);
-                    }}
-                    className="mt-1 bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                  >
-                    <option value="Asimptomatik">{tText("Asemptomatik")}</option>
-                    <option value="Semptomatik">{tText("Semptomatik (ödem / defisit / kitle etkisi)")}</option>
-                  </select>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Metastaz Sayısı")}</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={cnsMetCount}
-                      onChange={e => setCnsMetCount(e.target.value)}
-                      className="bg-white border border-slate-300 rounded-md p-1.5 text-center text-slate-900 w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-600 block mb-1">{tText("Maks Çap (cm)")}</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={cnsMaxDiameter}
-                      onChange={e => setCnsMaxDiameter(e.target.value)}
-                      className="bg-white border border-slate-300 rounded-md p-1.5 text-center text-slate-900 w-full"
-                    />
-                  </div>
-                </div>
-                <label className="text-slate-600">
-                  {tText("\n                  Cerrahi / rezeksiyon\n                  ")}<select
-                    value={cnsResection}
-                    onChange={e => {
-                      const value = e.currentTarget.value;
-                      if (value === 'Yok' || value === 'GTR' || value === 'STR' || value === 'Biyopsi') setCnsResection(value);
-                    }}
-                    className="mt-1 bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                  >
-                    <option value="Yok">{tText("Cerrahi yok")}</option>
-                    <option value="GTR">{tText("Gross total rezeksiyon (GTR)")}</option>
-                    <option value="STR">{tText("Subtotal rezeksiyon (STR)")}</option>
-                    <option value="Biyopsi">{tText("Biyopsi")}</option>
-                  </select>
-                </label>
-                <label className="text-slate-600">
-                  {tText("\n                  KPS\n                  ")}<input type="number" min="0" max="100" step="10" value={cnsKps} onChange={e => setCnsKps(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />
-                </label>
-              </div>
-            )}
-            {selectedOrgan === 'cns' && cnsSubtype === 'gbm' && (
-              <div className="space-y-2 text-xs">
-                <label className="text-slate-600 block">{tText("Performans / tedavi uygunluğu")}</label>
-                <select
-                  value={gbmPerformance}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'Iyi_ECOG_0_1' || value === 'Duskun_Yasli') setGbmPerformance(value);
-                  }}
-                  className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                >
-                  <option value="Iyi_ECOG_0_1">{tText("İyi performans (ECOG 0-1): Stupp")}</option>
-                  <option value="Duskun_Yasli">{tText("Yaşlı / düşkün: Perry hipofraksiyone KRT")}</option>
-                </select>
-                <label className="text-slate-600">{tText("KPS: ")}{cnsKps}
-                  <input type="range" min="0" max="100" step="10" value={cnsKps} onChange={e => setCnsKps(e.currentTarget.value)} className="block w-full" />
-                </label>
-              </div>
-            )}
+            {selectedOrgan === 'cns' && <CNSForm {...formProps} />}
+            
             {/* MSS GLİOM: GRADE + PIGNATTI / RTOG 9802 RİSK FAKTÖRLERİ */}
-            {selectedOrgan === 'cns' && cnsSubtype === 'glioma' && (
-              <div className="flex flex-col gap-2.5 text-xs">
-                <div>
-                  <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'WHO Grade' : 'WHO Grade'}</span>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {(['Grade_1', 'Grade_2', 'Grade_3', 'Grade_4'] as const).map(grade => (
-                      <button
-                        key={grade}
-                        type="button"
-                        aria-pressed={gliomaGrade === grade}
-                        onClick={() => setGliomaGrade(grade)}
-                        className={parameterButtonClass(gliomaGrade === grade)}
-                      >
-                        {grade.replace('_', ' ')}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <span className="mb-1 block font-semibold text-slate-300">{lang === 'tr' ? 'Pignatti / RTOG 9802 Yüksek Risk Kriterleri' : 'Pignatti / RTOG 9802 High-Risk Criteria'}</span>
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {([
-                      { key: 'age40', label: lang === 'tr' ? 'Yaş ≥ 40' : 'Age ≥ 40' },
-                      { key: 'subtotalResection', label: lang === 'tr' ? 'Subtotal rezeksiyon / biyopsi (STR)' : 'Subtotal resection / biopsy (STR)' },
-                      { key: 'largeOrCrossing', label: lang === 'tr' ? 'Çap ≥ 5 cm veya korpus kallozum geçişi' : 'Diameter ≥ 5 cm or corpus callosum crossing' },
-                      { key: 'neurologicSymptoms', label: lang === 'tr' ? 'Nörolojik defisit / semptom' : 'Neurological deficit / symptoms' },
-                      { key: 'molecularHighRisk', label: lang === 'tr' ? 'Moleküler yüksek risk (IDH-wt, CDKN2A/B del, TERT mut)' : 'Molecular high risk (IDH-wt, CDKN2A/B del, TERT mut)' },
-                    ] as const).map(item => (
-                      <button
-                        key={item.key}
-                        type="button"
-                        aria-pressed={gliomaRiskFactors[item.key]}
-                        onClick={() => setGliomaRiskFactors(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
-                        className={parameterButtonClass(gliomaRiskFactors[item.key])}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            {selectedOrgan === 'cns' && cnsSubtype === 'meningioma' && (
-              <div className="space-y-2 text-xs">
-                <label className="text-slate-600 block">{tText("WHO derece")}</label>
-                <select
-                  value={meningiomaGrade}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'Grade_1' || value === 'Grade_2' || value === 'Grade_3') setMeningiomaGrade(value);
-                    setSelectedT(value.replace('_', '-'));
-                  }}
-                  className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                >
-                  <option value="Grade_1">{tText("WHO Grade 1")}</option>
-                  <option value="Grade_2">{tText("WHO Grade 2")}</option>
-                  <option value="Grade_3">{tText("WHO Grade 3")}</option>
-                </select>
-                <label className="text-slate-600 block">{tText("Rezeksiyon derecesi / cerrahi sınır")}</label>
-                <select
-                  value={cnsResection}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'Yok' || value === 'GTR' || value === 'STR' || value === 'Biyopsi') setCnsResection(value);
-                  }}
-                  className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                >
-                  <option value="Yok">{tText("Cerrahi yapılmadı")}</option>
-                  <option value="GTR">{tText("Gross total rezeksiyon (GTR)")}</option>
-                  <option value="STR">{tText("Subtotal rezeksiyon (STR)")}</option>
-                  <option value="Biyopsi">{tText("Biyopsi")}</option>
-                </select>
-                <label className="text-slate-600 block">{tText("Simpson derecesi")}</label>
-                <select
-                  value={meningiomaSimpson}
-                  onChange={e => {
-                    const value = e.currentTarget.value;
-                    if (value === 'I-III' || value === 'IV-V') setMeningiomaSimpson(value);
-                  }}
-                  className="bg-white border border-slate-300 rounded-md p-2 text-slate-900 w-full"
-                >
-                  <option value="I-III">{tText("Simpson I-III (GTR)")}</option>
-                  <option value="IV-V">{tText("Simpson IV-V (STR / rezidü)")}</option>
-                </select>
-                <label className="text-slate-600">{tText("Maksimum çap (cm)\n                  ")}<input type="number" min="0" step="0.1" value={cnsMaxDiameter} onChange={e => setCnsMaxDiameter(e.currentTarget.value)} className="mt-1 bg-white border border-slate-300 rounded-md p-1.5 text-slate-900 w-full" />
-                </label>
-              </div>
-            )}
+            
+            
             {selectedOrgan === 'skin' && (
               <div className="space-y-2 text-xs">
                 <label className="text-slate-600 block">{tText("Cerrahi marjin / rezektabilite")}</label>
@@ -7706,30 +7162,9 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                           </span>
                         </>
                       )}
-                      {selectedOrgan === 'thorax' && thoraxCentrality && (
-                        <>
-                          <span className="text-slate-500">•</span>
-                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] text-amber-300 font-mono">
-                            {thoraxCentrality}
-                          </span>
-                        </>
-                      )}
-                      {selectedOrgan === 'prostate' && (
-                        <>
-                          <span className="text-slate-500">•</span>
-                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] text-amber-300 font-mono">
-                            PSA: {psaLevel} • Gleason: {gleasonPrimary}+{gleasonSecondary}
-                          </span>
-                        </>
-                      )}
-                      {selectedOrgan === 'gis' && gisOrgan === 'Rektum' && (
-                        <>
-                          <span className="text-slate-500">•</span>
-                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] text-amber-300 font-mono">
-                            CRM: {gisCrmStatus}
-                          </span>
-                        </>
-                      )}
+                      
+                      
+                      
                     </div>
                   </div>
 
@@ -8681,3 +8116,5 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     </>
   );
 }
+
+
