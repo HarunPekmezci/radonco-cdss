@@ -8908,41 +8908,41 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
           <div className="col-span-12 grid grid-cols-1 gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-2 sm:grid-cols-3" aria-label={lang === 'tr' ? 'İsteğe bağlı hasta bilgileri' : 'Optional patient information'}>
             <label className="text-[10px] font-semibold text-slate-300">
-            {lang === 'tr' ? 'Yaş / Age' : 'Age / Yaş'}
-            <input
-              type="number"
-              min="0"
-              max="120"
-              value={patientAgeYears}
-              onChange={event => setPatientAgeYears(event.currentTarget.value)}
-              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
-              placeholder=""
-            />
-          </label>
-          <label className="text-[10px] font-semibold text-slate-300">
-            {lang === 'tr' ? 'Cinsiyet / Gender' : 'Gender / Cinsiyet'}
-            <select
-              value={patientGender}
-              onChange={event => setPatientGender(event.currentTarget.value)}
-              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100"
-            >
-              <option value=""></option>
-              <option value="Kadın">{lang === 'tr' ? 'Kadın' : 'Female'}</option>
-              <option value="Erkek">{lang === 'tr' ? 'Erkek' : 'Male'}</option>
-              <option value="Diğer">{lang === 'tr' ? 'Diğer' : 'Other'}</option>
-            </select>
-          </label>
-          <label className="text-[10px] font-semibold text-slate-300">
-            {lang === 'tr' ? 'Protokol / Hasta ID' : 'Protocol / Patient ID'}
-            <input
-              type="text"
-              value={patientId}
-              onChange={event => setPatientId(event.currentTarget.value)}
-              className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
-              placeholder=""
-            />
-          </label>
-        </div>
+              {lang === 'tr' ? 'Yaş' : 'Age'}
+              <input
+                type="number"
+                min="0"
+                max="120"
+                value={patientAgeYears}
+                onChange={event => setPatientAgeYears(event.currentTarget.value)}
+                className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
+                placeholder={lang === 'tr' ? 'Örn: 65' : 'e.g. 65'}
+              />
+            </label>
+            <label className="text-[10px] font-semibold text-slate-300">
+              {lang === 'tr' ? 'Cinsiyet' : 'Gender'}
+              <select
+                value={patientGender}
+                onChange={event => setPatientGender(event.currentTarget.value)}
+                className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100"
+              >
+                <option value="">{lang === 'tr' ? 'Seçiniz' : 'Select'}</option>
+                <option value="Erkek">{lang === 'tr' ? 'Erkek' : 'Male'}</option>
+                <option value="Kadın">{lang === 'tr' ? 'Kadın' : 'Female'}</option>
+                <option value="Diğer">{lang === 'tr' ? 'Diğer' : 'Other'}</option>
+              </select>
+            </label>
+            <label className="text-[10px] font-semibold text-slate-300">
+              {lang === 'tr' ? 'Protokol / Hasta No' : 'Protocol / Patient ID'}
+              <input
+                type="text"
+                value={patientId}
+                onChange={event => setPatientId(event.currentTarget.value)}
+                className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
+                placeholder=""
+              />
+            </label>
+          </div>
 
         {isGuidedMode && (
           <nav className="col-span-12 mx-auto grid w-full max-w-[1720px] grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label={lang === 'tr' ? 'Klinik karar akışı adımları' : 'Clinical decision flow steps'}>
@@ -9220,32 +9220,48 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
           {currentHistologies.length > 0 && (
-            <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4">
-              <div className="mb-2">
-                <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patoloji' : 'Pathology'}
+            isGuidedMode && guidedStep === 3 ? (
+              /* Compact read-only summary badge in Step 3 */
+              <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sky-400 text-sm">🔬</span>
+                  <span className="text-[11px] font-semibold text-slate-300">
+                    {lang === 'tr' ? 'Seçili Histoloji / Patoloji:' : 'Selected Histology:'}
+                  </span>
+                </div>
+                <span className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-xs font-semibold text-sky-200">
+                  {tText(currentHistologies.find(h => h.id === selectedHistology)?.name || reportHistology || selectedHistology)}
                 </span>
               </div>
-              <div className="flex w-full flex-col gap-2">
-                {currentHistologies.map(h => (
-                  <button
-                    key={h.id}
-                    type="button"
-                    onClick={() => handleHistologySelect(h.id)}
-                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs transition-all ${
-                      selectedHistology === h.id
-                        ? 'bg-sky-600 font-semibold text-white shadow-md shadow-sky-600/20 ring-1 ring-sky-400'
-                        : 'border border-slate-700/80 bg-[#131f33] font-medium text-slate-200 hover:border-slate-500 hover:bg-[#182842] hover:text-white'
-                    }`}
-                  >
-                    <span>{tText(h.name)}</span>
-                    <span className="ml-3 shrink-0" aria-hidden="true">
-                      {selectedHistology === h.id ? '✓' : ''}
-                    </span>
-                  </button>
-                ))}
+            ) : (!isGuidedMode || guidedStep === 2) ? (
+              /* Interactive selector in Step 2 & Full Matrix view */
+              <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4">
+                <div className="mb-2">
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="text-sky-400">🔬</span> {lang === 'tr' ? 'Patoloji & Histoloji' : 'Pathology & Histology'}
+                  </span>
+                </div>
+                <div className="flex w-full flex-col gap-2">
+                  {currentHistologies.map(h => (
+                    <button
+                      key={h.id}
+                      type="button"
+                      onClick={() => handleHistologySelect(h.id)}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs transition-all ${
+                        selectedHistology === h.id
+                          ? 'bg-sky-600 font-semibold text-white shadow-md shadow-sky-600/20 ring-1 ring-sky-400'
+                          : 'border border-slate-700/80 bg-[#131f33] font-medium text-slate-200 hover:border-slate-500 hover:bg-[#182842] hover:text-white'
+                      }`}
+                    >
+                      <span>{tText(h.name)}</span>
+                      <span className="ml-3 shrink-0" aria-hidden="true">
+                        {selectedHistology === h.id ? '✓' : ''}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null
           )}
 
           {/* =========================================================
