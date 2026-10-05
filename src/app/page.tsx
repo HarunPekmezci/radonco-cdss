@@ -10,6 +10,7 @@ import {
   Radiation,
   ShieldCheck,
   Target,
+  GraduationCap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -150,27 +151,69 @@ export default function PortalPage() {
   return (
     <main className="min-h-screen bg-[#0B1120] bg-grid-slate-800/[0.12] py-8 text-slate-100 sm:py-12">
       <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
-        <section className="relative overflow-hidden rounded-3xl glass-panel-glow p-6 sm:p-10">
-          <div className="pointer-events-none absolute -right-12 -top-20 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl" />
-          <div className="relative max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
-              <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
-              {t.heroBadge}
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* CDSS Card */}
+          <div className="relative overflow-hidden rounded-3xl glass-panel-glow p-6 sm:p-10 border border-amber-500/20 bg-amber-900/10">
+            <div className="pointer-events-none absolute -right-12 -top-20 h-72 w-72 rounded-full bg-amber-500/10 blur-3xl" />
+            <div className="relative max-w-xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300">
+                <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
+                Decision Support
+              </div>
+              <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                RadOnco <span className="text-amber-400">CDSS</span>
+              </h1>
+              <p className="mt-2 text-lg font-medium text-slate-200">
+                Evidence-Based Clinical Decision Support
+              </p>
+              <p className="mt-4 text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
+                Deterministic, guideline-adherent radiotherapy decision-making with full rule auditability and MDR Rule 11 compliance.
+              </p>
+              <ul className="mt-6 space-y-2 text-sm text-slate-300">
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> 25+ Landmark Phase III Trials</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> EQD2/BED Isoeffective Math</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> Organ-Specific Risk Engines</li>
+              </ul>
+              <Link
+                href="/cdss"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-amber-950 shadow-lg shadow-amber-900/30 transition hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+              >
+                Launch CDSS
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-5xl">
-              {t.heroTitle.slice(0, titleSeparator)}{' '}
-              <span className="text-sky-400">{t.heroTitle.slice(titleSeparator + 1)}</span>
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
-              {t.heroDescription}
-            </p>
-            <Link
-              href="/cdss"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-950/30 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
-            >
-              {t.heroAction}
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+          </div>
+
+          {/* Academy Card */}
+          <div className="relative overflow-hidden rounded-3xl glass-panel-glow p-6 sm:p-10 border border-emerald-500/20 bg-emerald-900/10">
+            <div className="pointer-events-none absolute -left-12 -bottom-20 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="relative max-w-xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+                Education & Prep
+              </div>
+              <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                RadOnco <span className="text-emerald-400">Academy</span>
+              </h1>
+              <p className="mt-2 text-lg font-medium text-slate-200">
+                Interactive Oncology Education & Board Exam Prep
+              </p>
+              <p className="mt-4 text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
+                Case-based vignette quiz bank, high-yield landmark trial flashcards, and live radiobiological comparator.
+              </p>
+              <ul className="mt-6 space-y-2 text-sm text-slate-300">
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> PICO Case Bank with Clickable DOIs</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> 3D Interactive Flashcards</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> Radiobiological Regimen Calculator</li>
+              </ul>
+              <Link
+                href="/academy"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-bold text-emerald-950 shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+              >
+                Enter Academy
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
           </div>
         </section>
 
