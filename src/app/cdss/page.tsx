@@ -9275,7 +9275,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </select>
             </label>
             <label className="text-[10px] font-semibold text-slate-300">
-              {lang === 'tr' ? 'Protokol / Hasta No' : 'Protocol / Patient ID'}
+              {lang === 'tr' ? 'T.C. Kimlik No' : 'National ID (T.C. Kimlik No)'}
               <input
                 type="text"
                 value={patientId}
