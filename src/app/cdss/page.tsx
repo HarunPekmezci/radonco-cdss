@@ -9552,6 +9552,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           {/* =========================================================
               TNM / EVRELEME AKORDİYONU (TAM MATRİS VE SİHİRBAZ ENTEGRASYONU)
              ========================================================= */}
+          {selectedOrgan !== 'benign' && (
           <div id="sidebar-tnm-stager" className="rounded-2xl glass-panel p-3.5 shadow-sm mb-4">
             <button
               type="button"
@@ -9564,7 +9565,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <Layers className="w-3.5 h-3.5 text-sky-400" />
                   {lang === 'tr' ? 'TNM & Evreleme' : 'TNM & Staging'}
                 </span>
-                {selectedOrgan !== 'benign' && selectedOrgan !== 'palliative' && selectedOrgan !== 'emergencies' ? (
+                {selectedOrgan !== 'palliative' && selectedOrgan !== 'emergencies' ? (
                   <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
                     {selectedT} {selectedN} {selectedM}
                   </span>
@@ -9572,9 +9573,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700 bg-slate-800 text-slate-300">
                     {selectedOrgan === 'emergencies'
                       ? (lang === 'tr' ? 'ACİL PROTOKOL' : 'EMERGENCY PROTOCOL')
-                      : selectedOrgan === 'palliative'
-                        ? (lang === 'tr' ? 'PALYATİF' : 'PALLIATIVE')
-                        : (lang === 'tr' ? 'BENİGN DURUM' : 'BENIGN STATUS')}
+                      : (lang === 'tr' ? 'PALYATİF' : 'PALLIATIVE')}
                   </span>
                 )}
               </div>
@@ -9588,36 +9587,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
 
             {isTnmAccordionOpen && (
               <div className="mt-3 pt-3 border-t border-slate-800/80">
-                {selectedOrgan === 'benign' ? (
-                  <div className="space-y-2">
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
-                      {lang === 'tr'
-                        ? 'Benign hastalıklarda TNM evrelemesi uygulanmaz. Klinik durumu seçin:'
-                        : 'TNM staging does not apply to benign cases. Select clinical status:'}
-                    </p>
-                    <div className="grid grid-cols-1 gap-1.5">
-                      {(BENIGN_CLINICAL_OPTIONS[selectedSubsite] || []).map(option => {
-                        const isSelected = benignClinicalStatus === option.value;
-                        return (
-                          <button
-                            key={option.value}
-                            type="button"
-                            aria-pressed={isSelected}
-                            onClick={() => setBenignClinicalStatus(option.value)}
-                            className={`flex items-center justify-between rounded-xl p-2.5 text-left text-xs transition-colors ${
-                              isSelected
-                                ? 'border border-emerald-500 bg-emerald-500/20 text-emerald-200 font-semibold ring-1 ring-emerald-400/40'
-                                : 'border border-slate-700/80 bg-slate-900/60 text-slate-200 hover:bg-slate-800'
-                            }`}
-                          >
-                            <span>{tText(option.label)}</span>
-                            {isSelected && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" aria-hidden="true" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (
+                {selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (
                   <div className={`rounded-xl border p-2.5 text-xs leading-relaxed ${
                     selectedOrgan === 'emergencies'
                       ? 'border-rose-500/30 bg-rose-950/30 text-rose-200'
@@ -9707,6 +9677,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
+          )}
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
           <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-3 shadow-sm flex flex-col gap-2.5 lg:p-5 lg:gap-3">
