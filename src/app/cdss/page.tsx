@@ -11079,23 +11079,11 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     </div>
                   </div>
 
-                  {/* Guideline provenance and contour link */}
+                  {/* Guideline provenance */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-slate-800/80">
                     <div className="flex items-center gap-1 text-[11px] text-slate-400">
                       <span>{lang === 'tr' ? 'Kılavuz Dayanağı:' : 'Guideline Provenance:'}</span>
                       <span className="text-slate-200 font-semibold">{tText(evaluatedDecision.statusText)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={eContour.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-400 hover:text-sky-300 transition-colors"
-                        title={lang === 'tr' ? '3D konturlama atlasını aç' : 'Open 3D contouring atlas'}
-                      >
-                        <span>eContour 3D Atlas</span>
-                        <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-                      </a>
                     </div>
                   </div>
                 </div>
