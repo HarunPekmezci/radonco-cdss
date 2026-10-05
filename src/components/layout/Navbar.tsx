@@ -106,14 +106,28 @@ export default function Navbar() {
           })}
         </nav>
         <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href="/academy"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/60 shadow-sm shadow-emerald-950/40 transition-all"
-          >
-            <GraduationCap className="h-4 w-4" />
-            {t.nav.academy}
-          </Link>
-          <div className="mx-2 h-5 w-px bg-slate-800" />
+          {pathname !== '/' && (
+            <>
+              {pathname.startsWith('/academy') ? (
+                <Link
+                  href="/cdss"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 shadow-sm shadow-amber-950/40 transition-all"
+                >
+                  <Radiation className="h-4 w-4" />
+                  RadOnco CDSS
+                </Link>
+              ) : (
+                <Link
+                  href="/academy"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/60 shadow-sm shadow-emerald-950/40 transition-all"
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  {t.nav.academy}
+                </Link>
+              )}
+              <div className="mx-2 h-5 w-px bg-slate-800" />
+            </>
+          )}
           <Show when="signed-out">
             <SignInButton mode="redirect">
               <button type="button" className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white">
