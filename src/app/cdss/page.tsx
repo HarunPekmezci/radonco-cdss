@@ -63,6 +63,7 @@ const SUBTYPE_DISPLAY_MAP: Record<string, string> = {
   Endometriyum: 'Endometriyum',
   Yumusak_Doku: 'Yumuşak Doku Sarkomu',
   Osteosarkom: 'Osteosarkom',
+  'gis-Mide': 'Mide Kanseri (Gastric Ca)',
   cns: 'Merkezi Sinir Sistemi',
   gis: 'Gastrointestinal Sistem',
   gynecology: 'Jinekolojik',
@@ -785,6 +786,7 @@ const QUICK_CASE_PRESETS: QuickCasePreset[] = [
   { id: 'case-25', category: 'renal', title_tr: 'Oligometastatik / Rekürren RCC', title_en: 'Oligometastatic / Recurrent RCC', detail_tr: 'Seçilmiş olguda SBRT 30–40 Gy / 5 fx (örnek 35 Gy / 5 fx)', detail_en: 'SBRT 30–40 Gy / 5 fx in selected cases (example: 35 Gy / 5 fx)', organ: 'prostate', subsite: 'prostate-kidney', t: 'T1a', n: 'N0', m: 'M1', histologyId: 'renal-clear-cell', regimen: 'ultra_hypo' },
   { id: 'case-26', category: 'gus', title_tr: 'Prostat ultra-hipofraksiyonasyon (SBRT)', title_en: 'Ultra-hypofractionated prostate SBRT', detail_tr: 'Elverişli orta risk • 36.25 Gy / 5 fx', detail_en: 'Favorable intermediate risk • 36.25 Gy / 5 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T2a', n: 'N0', m: 'M0', histologyId: 'prostate-acinar', regimen: 'ultra_hypo' },
   { id: 'case-27', category: 'gus', title_tr: 'Yüksek riskli prostat SIB', title_en: 'High-risk prostate SIB', detail_tr: '70 Gy prostata / 56 Gy pelvik nodlara • 28 fx', detail_en: '70 Gy to prostate / 56 Gy to pelvic nodes • 28 fx', organ: 'prostate', subsite: 'prostate-prostate', t: 'T3a', n: 'N1', m: 'M0', histologyId: 'prostate-acinar', regimen: 'sib_boost' },
+  { id: 'case-28', category: 'gis', title_tr: 'Postoperatif Mide Adenokarsinomu (INT-0116 / ARTIST)', title_en: 'Postoperative Gastric Adenocarcinoma (INT-0116 / ARTIST)', detail_tr: 'pT3-T4 N+ M0 • <D2 veya nodal+ D2 rezeksiyon • Adjuvan KRT 45 Gy / 25 fx', detail_en: 'pT3-T4 N+ M0 • <D2 or node+ D2 resection • Adjuvant CRT 45 Gy / 25 fx', organ: 'gis', subsite: 'gis-Mide', t: 'T3', n: 'N1', m: 'M0', histologyId: 'gastric-adenocarcinoma', regimen: 'clinical' },
 ];
 
 type GuidedStep = 1 | 2 | 3 | 4;
@@ -833,6 +835,10 @@ const GUIDED_QUICK_SCENARIOS: Partial<Record<string, { title_tr: string; title_e
   'case-27': {
     title_tr: 'Yüksek Riskli Prostat SIB (70/56 Gy/28 fx)',
     title_en: 'High-Risk Prostate SIB (70/56 Gy/28fx)',
+  },
+  'case-28': {
+    title_tr: 'Postoperatif Mide Karsinomu (INT-0116 / ARTIST)',
+    title_en: 'Postoperative Gastric Adenocarcinoma (INT-0116 / ARTIST)',
   },
 };
 
@@ -3120,6 +3126,7 @@ const formatBadgeLabel = (link: EvidenceLink): string => {
     'FAST-Forward', 'PACIFIC', 'RAPIDO', 'STAMPEDE', 'PORTEC-3', 'PORTEC-2', 'PORTEC',
     'EMBRACE II', 'EMBRACE', 'Turrisi', 'CONVERT', 'CREST', 'CHHiP', 'FLAME', 'PROFIT',
     'CROSS', 'Stupp', 'Patchell', 'FASTRACK II', 'FASTRACK', 'PACE-B', 'HYPO-RT-PC',
+    'INT-0116', 'SWOG 9008', 'ARTIST-2', 'ARTIST', 'CRITICS', 'TOPGEAR',
     'AMAROS', 'START', 'GROINSS-V', 'QUANTEC', 'HyTEC', 'Nigro', 'Auperin', 'Slotman'
   ];
   for (const name of knownTrials) {
@@ -3130,7 +3137,7 @@ const formatBadgeLabel = (link: EvidenceLink): string => {
   return link.authority;
 };
 
-const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC(?:-2|-3)?|EMBRACE(?:\s*II)?|Turrisi|CONVERT|CREST|CHHiP|PROFIT|FLAME|CROSS|Stupp|Patchell|FASTRACK(?:\s*II)?|PACE-B|HYPO-RT-PC|AMAROS|START|GROINSS-V|Auperin|Slotman|Rimmer|IMPRINT|Nigro|NCCN|ASTRO|ESTRO|RTOG\s*\d*|NRG\s*[A-Z0-9]*|EORTC\s*\d*|QUANTEC|HyTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
+const evidenceLinkTokens = /(FAST[-\s]?Forward|PACIFIC|RAPIDO|STAMPEDE|PORTEC(?:-2|-3)?|EMBRACE(?:\s*II)?|Turrisi|CONVERT|CREST|CHHiP|PROFIT|FLAME|CROSS|Stupp|Patchell|FASTRACK(?:\s*II)?|PACE-B|HYPO-RT-PC|INT-0116|SWOG\s*9008|ARTIST(?:-2)?|CRITICS|TOPGEAR|AMAROS|START|GROINSS-V|Auperin|Slotman|Rimmer|IMPRINT|Nigro|NCCN|ASTRO|ESTRO|RTOG\s*\d*|NRG\s*[A-Z0-9]*|EORTC\s*\d*|QUANTEC|HyTEC|DEGRO|ILROG|ESMO|EANO|FIGO|DOI:\s*10\.\d{4,9}\/[^\s;,]+)/gi;
 
 const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undefined => {
   if (/FAST[-\s]?Forward/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(20)30932-6';
@@ -3152,6 +3159,10 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   if (/FASTRACK/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(24)00204-3';
   if (/PACE-B/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(19)30569-8';
   if (/HYPO-RT-PC/i.test(token)) return 'https://doi.org/10.1016/S0140-6736(19)31131-6';
+  if (/INT-0116|SWOG\s*9008/i.test(token)) return 'https://doi.org/10.1056/NEJM200109063451001';
+  if (/ARTIST(?:-2)?/i.test(token)) return 'https://doi.org/10.1200/JCO.2011.39.1953';
+  if (/CRITICS/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(18)30132-3';
+  if (/TOPGEAR/i.test(token)) return 'https://doi.org/10.1056/NEJMoa2311451';
   if (/AMAROS/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(14)70449-8';
   if (/START/i.test(token)) return 'https://doi.org/10.1016/S1470-2045(13)70386-3';
   if (/GROINSS-V/i.test(token)) return 'https://doi.org/10.1200/JCO.20.03478';
@@ -3160,6 +3171,9 @@ const resolveEvidenceUrl = (token: string, clinicalContext = ''): string | undef
   if (/Rimmer|IMPRINT/i.test(token)) return 'https://doi.org/10.1200/JCO.2015.65.6595';
   if (/Nigro/i.test(token)) return 'https://doi.org/10.1007/BF02586832';
   if (/NCCN/i.test(token)) {
+    if (/gastric|mide/i.test(clinicalContext)) {
+      return 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1434';
+    }
     return /lung|khdak|nsclc/i.test(clinicalContext)
       ? 'https://www.nccn.org/professionals/physician_gls/pdf/nscl.pdf#page=77'
       : 'https://www.nccn.org/guidelines';
@@ -3257,6 +3271,14 @@ const getEvidenceReferences = (scheme: DoseScheme, clinicalContext: string): Evi
                                       ? 'PACE-B (Lancet Oncol 2019)'
                                       : /HYPO-RT-PC/i.test(token)
                                         ? 'HYPO-RT-PC (Lancet 2019)'
+                                        : /INT-0116|SWOG\s*9008/i.test(token)
+                                          ? 'INT-0116 (Macdonald NEJM 2001)'
+                                          : /ARTIST/i.test(token)
+                                            ? 'ARTIST Trial (Lee JCO 2012 / Park JCO 2021)'
+                                            : /CRITICS/i.test(token)
+                                              ? 'CRITICS Trial (Cats Lancet Oncol 2018)'
+                                              : /TOPGEAR/i.test(token)
+                                                ? 'TOPGEAR Trial (Leong NEJM 2024)'
         : /ASTRO/i.test(token) && /breast|meme|whole breast/i.test(evidence)
           ? 'ASTRO Whole Breast Irradiation Guideline'
           : /ASTRO/i.test(token) && /lung|khdak|nsclc|sbrt/i.test(evidence)
@@ -4041,6 +4063,10 @@ export default function RadoncoCDSSPage() {
       { id: 'biliary-extrahepatic', name: lang === 'tr' ? 'Distal / Ekstrahepatik Kolanjiyokarsinom' : 'Distal / Extrahepatic Cholangiocarcinoma' },
       { id: 'biliary-gallbladder', name: lang === 'tr' ? 'Safra Kesesi Kanseri' : 'Gallbladder Cancer' },
     ];
+    if (selectedOrgan === 'gis' && (gisOrgan === 'Mide' || selectedSubsite === 'gis-Mide')) return [
+      { id: 'gastric-adenocarcinoma', name: lang === 'tr' ? 'Mide Adenokarsinomu (İntestinal / Diffüz Tip)' : 'Gastric Adenocarcinoma (Intestinal / Diffuse)' },
+      { id: 'gastric-gej-adeno', name: lang === 'tr' ? 'Gastroözofageal Bileşke (GEJ Siewert III) Adenokarsinom' : 'Gastroesophageal Junction (GEJ Siewert III) Adenocarcinoma' },
+    ];
     if (selectedOrgan === 'thorax') {
       if (thoraxSubtype === 'nsclc') return [
         { id: 'nsclc-adenocarcinoma', name: 'Adenokarsinom' },
@@ -4330,6 +4356,11 @@ export default function RadoncoCDSSPage() {
         setGisOrgan('Anal');
         setGisCrmStatus('Pozitif');
         break;
+      case 'case-28':
+        setGisOrgan('Mide');
+        setSelectedOrgan('gis');
+        setSelectedSubsite('gis-Mide');
+        break;
       case 'case-18':
         setGynSite('Serviks');
         setCervixScenario('Definitif_KRT');
@@ -4440,8 +4471,15 @@ export default function RadoncoCDSSPage() {
     if (selectedOrgan === 'bone' || selectedOrgan === 'bone-sarcoma' || selectedOrgan === 'sarcoma') {
       return QUICK_CASE_PRESETS.filter(p => p.organ === 'sarcoma' || p.organ === 'bone' || p.organ === 'bone-sarcoma' || p.category === 'sarcoma-palliative');
     }
+    if (selectedOrgan === 'gis') {
+      const giPresets = QUICK_CASE_PRESETS.filter(p => p.organ === 'gis');
+      if (gisOrgan === 'Mide' || selectedSubsite === 'gis-Mide') {
+        return [...giPresets].sort((a, b) => (a.id === 'case-28' ? -1 : b.id === 'case-28' ? 1 : 0));
+      }
+      return giPresets;
+    }
     return QUICK_CASE_PRESETS.filter(p => p.organ === selectedOrgan);
-  }, [selectedOrgan]);
+  }, [selectedOrgan, gisOrgan, selectedSubsite]);
 
   const commandPaletteGroups = useMemo(() => {
     const organNames: Record<OrganId, string> = {
@@ -4472,6 +4510,7 @@ export default function RadoncoCDSSPage() {
       'prostate-testis': 'testis seminoma testicular cancer seminom',
       'breast-idc': 'invasive ductal idc invaziv duktal',
       'gis-Rektum': 'rectum rectal cancer RAPIDO',
+      'gis-Mide': 'gastric cancer stomach mide kanseri int-0116 artist swog critics topgear',
       'gynecology-Serviks': 'cervix cervical cancer EMBRACE',
     };
     const normalize = (value: string) => value
@@ -6833,19 +6872,23 @@ export default function RadoncoCDSSPage() {
           fractionDoseGy: 1.8,
           alphaBeta: 10,
           technique: 'VMAT (Böbrek ve Karaciğer Korumalı)',
-          indication: 'Yetersiz lenf nodu diseksiyonu (<D2 rezeksiyon) veya mikroskopik rezidüel hastalık (R1) varlığında lokal nüksü önler.',
+          indication: 'Rezeke edilmiş evre pT3-T4 veya N+ M0 mide adenokarsinomunda yetersiz lenf nodu diseksiyonu (<D2 rezeksiyon) veya D2 sonrası lenf nodu pozitif olgularda lokorejyonel nüksü önler ve sağkalımı uzatır.',
           targetVolumes: [
-            { name: 'CTV_Stomach_Bed', doseGy: 45, marginMm: 'Anatomik', anatomical: 'Mide yatağı, anastomoz hattı ve perigastrik/çölyak lenf nodları' },
+            { name: 'CTV_Stomach_Bed', doseGy: 45, marginMm: 'Anatomik', anatomical: 'Gastric bed, surgical anastomosis, and perigastric draining nodal stations' },
+            { name: 'CTV_Nodal_Basins', doseGy: 45, marginMm: 'Anatomik', anatomical: 'Celiac axis, suprapancreatic, porta hepatis, and para-aortic nodes as clinically indicated' },
           ],
           oars: [
-            { organ: 'Karaciğer', metric: 'Mean', limit: '< 30 Gy (V30 < 60%)', source: 'QUANTEC' },
-            { organ: 'Bilateral Böbrek', metric: 'Mean', limit: '< 15 Gy (en az bir böbrek Mean < 12 Gy)', source: 'QUANTEC' },
+            { organ: 'Bilateral Böbrek', metric: 'Mean', limit: '< 15-18 Gy (en az 2/3 tek böbrek < 12 Gy)', source: 'QUANTEC' },
+            { organ: 'Karaciğer', metric: 'Mean', limit: '< 30 Gy (en az 700 cc < 15 Gy)', source: 'QUANTEC' },
+            { organ: 'Spinal Kord', metric: 'Dmax', limit: '< 45 Gy', source: 'QUANTEC' },
+            { organ: 'Kalp', metric: 'Mean', limit: '< 20-30 Gy', source: 'QUANTEC' },
+            { organ: 'İnce Bağırsak / Duodenum', metric: 'Dmax / V45', limit: 'Dmax < 50 Gy, V45Gy < 100 cc', source: 'QUANTEC' },
           ],
-          systemicTherapy: 'Eşzamanlı ve takip eden Kapesitabin veya 5-FU/LV.',
-          evidence: 'INT-0116 (Macdonald NEJM), ARTIST Trial',
+          systemicTherapy: 'Eşzamanlı ve takip eden Kapesitabin veya 5-FU/Leukovorin.',
+          evidence: 'INT-0116 / SWOG 9008 (Macdonald NEJM 2001, Smalley JCO 2012), ARTIST & ARTIST-2 (Lee JCO 2012, Park JCO 2021), CRITICS (Lancet Oncol 2018), TOPGEAR (NEJM 2024), NCCN Gastric Cancer v1.2025 (GAST-C)',
         };
         return {
-          statusText: 'ENDİKE: ADJUVAN KEMORADYOTERAPİ (INT-0116 STANDARDI)',
+          statusText: 'ENDİKE: ADJUVAN KEMORADYOTERAPİ (INT-0116 / ARTIST STANDARDI)',
           badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
           primaryScheme: gastricCrt,
           alternativeSchemes: [gastricCrt],

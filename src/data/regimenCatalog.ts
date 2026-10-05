@@ -239,7 +239,7 @@ const refs = {
   lung: reference('ASTRO SBRT Guideline for Early Stage NSCLC', 'https://www.practicalradonc.org/article/S1879-8500(17)30050-2/fulltext', 'ASTRO'),
   sclc: reference('ASTRO Small Cell Lung Cancer Guideline', 'https://www.practicalradonc.org/article/S1879-8500(19)30112-8/fulltext', 'ASTRO'),
   rectum: reference('ASTRO Rectal Cancer Guideline', 'https://www.practicalradonc.org/article/S1879-8500(20)30139-5/fulltext', 'ASTRO'),
-  gastric: reference('NCCN Gastric Cancer Guidelines', 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=151', 'NCCN'),
+  gastric: reference('NCCN Gastric Cancer Guidelines', 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1434', 'NCCN'),
   glioblastoma: reference('EANO guidelines for diffuse gliomas', 'https://www.nature.com/articles/s41571-020-00447-z', 'EANO'),
   brain: reference('ASTRO Brain Metastases Guideline', 'https://www.practicalradonc.org/article/S1879-8500(22)00052-2/fulltext', 'ASTRO'),
   headNeck: reference('ASTRO HPV-positive Oropharyngeal Cancer Guideline', 'https://www.practicalradonc.org/article/S1879-8500(18)30068-6/fulltext', 'ASTRO'),

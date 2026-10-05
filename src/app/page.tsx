@@ -72,6 +72,11 @@ const NCCN_GUIDELINE_MAP: Record<string, { url: string; title: string; hint: str
     title: 'NCCN Rectal Cancer',
     hint: 'REC: SCRT vs Long-Course TNT',
   },
+  'gis-Mide': {
+    url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1434',
+    title: 'NCCN Gastric Cancer',
+    hint: 'Principles of Radiation Therapy (GAST-C)',
+  },
   'cns-mets': {
     url: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
     title: 'NCCN Central Nervous System Cancers',
