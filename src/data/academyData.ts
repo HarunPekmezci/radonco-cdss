@@ -1,4 +1,5 @@
-export type OrganCategory = 'Breast' | 'Prostate' | 'Thorax' | 'GI' | 'CNS' | 'Head & Neck' | 'Gynecology' | 'Sarcoma' | 'GU';
+export type AcademicPillar = 'CLINICAL' | 'RADIOBIOLOGY' | 'PHYSICS';
+export type OrganCategory = 'Breast' | 'Prostate' | 'Thorax' | 'GI' | 'CNS' | 'Head & Neck' | 'Gynecology' | 'Sarcoma' | 'GU' | 'General' | 'Interactions' | 'Dosimetry QA' | '5Rs' | 'LQ Model' | 'Linac Engineering';
 
 export interface VignetteOption {
   id: string;
@@ -7,17 +8,20 @@ export interface VignetteOption {
 
 export interface QuizVignette {
   id: string;
+  pillar: AcademicPillar;
   category: OrganCategory;
   clinicalCase: string;
   options: VignetteOption[];
   correctAnswerId: string;
   explanation: string;
+  distractorRationale?: Record<string, string>;
   landmarkTrialTitle: string;
   doiUrl: string;
 }
 
 export interface Flashcard {
   id: string;
+  pillar: AcademicPillar;
   category: OrganCategory;
   question: string;
   answerPopulation: string;
@@ -30,6 +34,7 @@ export interface Flashcard {
 
 export interface BoardPearl {
   id: string;
+  pillar: AcademicPillar;
   category: OrganCategory;
   title: string;
   points: string[];
@@ -38,6 +43,7 @@ export interface BoardPearl {
 export const quizVignettes: QuizVignette[] = [
   {
     id: 'q1',
+    pillar: 'CLINICAL',
     category: 'Breast',
     clinicalCase: 'A 65-year-old female undergoes lumpectomy for pT1c pN0 ER+ PR+ HER2- invasive ductal carcinoma. She is starting whole breast irradiation. Which of the following regimens is supported by the FAST-Forward trial?',
     options: [
@@ -48,41 +54,17 @@ export const quizVignettes: QuizVignette[] = [
     ],
     correctAnswerId: 'C',
     explanation: 'The FAST-Forward trial demonstrated non-inferiority of 26 Gy in 5 fractions over 1 week compared to 40 Gy in 15 fractions for local control and normal tissue effects.',
+    distractorRationale: {
+      'A': 'This is conventional fractionation (START trials comparator), not the 1-week regimen from FAST-Forward.',
+      'B': 'This is standard hypofractionation from START B, not ultra-hypofractionation.',
+      'D': 'This dose/fractionation was not part of the FAST-Forward or UK FAST trial arms.'
+    },
     landmarkTrialTitle: 'FAST-Forward Trial (Lancet 2020)',
     doiUrl: 'https://doi.org/10.1016/S0140-6736(20)30932-6'
   },
   {
     id: 'q2',
-    category: 'Breast',
-    clinicalCase: 'According to the EORTC 22922 and MA.20 trials, what is the primary benefit of adding Regional Nodal Irradiation (RNI) in high-risk node-negative or 1-3 node-positive breast cancer?',
-    options: [
-      { id: 'A', text: 'Improved Overall Survival by 15%' },
-      { id: 'B', text: 'Improved Disease-Free Survival and distant metastasis-free survival' },
-      { id: 'C', text: 'Reduced risk of contralateral breast cancer' },
-      { id: 'D', text: 'Reduced cardiac toxicity' },
-    ],
-    correctAnswerId: 'B',
-    explanation: 'Both MA.20 and EORTC 22922 demonstrated improvements in DFS and distant metastasis-free survival with the addition of RNI, though OS benefit was marginal or restricted to subgroups.',
-    landmarkTrialTitle: 'MA.20 (NEJM 2015) & EORTC 22922 (NEJM 2015)',
-    doiUrl: 'https://doi.org/10.1056/NEJMoa1412313'
-  },
-  {
-    id: 'q3',
-    category: 'Prostate',
-    clinicalCase: 'A 70-year-old man presents with newly diagnosed metastatic prostate cancer (high-burden). According to STAMPEDE (Arm H), what is the role of prostate-directed radiotherapy?',
-    options: [
-      { id: 'A', text: 'It improves overall survival in high-burden disease' },
-      { id: 'B', text: 'It improves overall survival ONLY in low-burden disease' },
-      { id: 'C', text: 'It reduces the risk of spinal cord compression' },
-      { id: 'D', text: 'It is contraindicated' },
-    ],
-    correctAnswerId: 'B',
-    explanation: 'STAMPEDE showed that radiotherapy to the primary tumor improved overall survival in men with low-burden metastatic prostate cancer, but not in those with high-burden disease.',
-    landmarkTrialTitle: 'STAMPEDE (Lancet 2018)',
-    doiUrl: 'https://doi.org/10.1016/S0140-6736(18)32486-3'
-  },
-  {
-    id: 'q4',
+    pillar: 'CLINICAL',
     category: 'Thorax',
     clinicalCase: 'In patients with unresectable Stage III NSCLC who have not progressed after concurrent chemoradiotherapy, which systemic therapy was shown to improve OS in the PACIFIC trial?',
     options: [
@@ -93,41 +75,17 @@ export const quizVignettes: QuizVignette[] = [
     ],
     correctAnswerId: 'C',
     explanation: 'The PACIFIC trial established consolidation durvalumab for up to 1 year as the standard of care following concurrent chemoradiation in unresectable Stage III NSCLC.',
+    distractorRationale: {
+      'A': 'Pembrolizumab is used in metastatic NSCLC (KEYNOTE-024) or adjuvant setting (PEARLS).',
+      'B': 'Nivolumab is used in metastatic or neo-adjuvant (CheckMate 816), not as post-CRT consolidation.',
+      'D': 'Atezolizumab is used in adjuvant setting (IMpower010) and metastatic disease.'
+    },
     landmarkTrialTitle: 'PACIFIC Trial (NEJM 2017)',
     doiUrl: 'https://doi.org/10.1056/NEJMoa1709937'
   },
   {
-    id: 'q5',
-    category: 'GI',
-    clinicalCase: 'For locally advanced rectal cancer, the RAPIDO trial compared TNT (short-course RT followed by consolidation chemotherapy) to standard CRT. What was the primary endpoint finding?',
-    options: [
-      { id: 'A', text: 'Improved Overall Survival' },
-      { id: 'B', text: 'Decreased disease-related treatment failure (DrTF) and doubled pCR rate' },
-      { id: 'C', text: 'Lower rate of acute toxicity' },
-      { id: 'D', text: 'Higher rate of sphincter preservation' },
-    ],
-    correctAnswerId: 'B',
-    explanation: 'RAPIDO showed that short-course RT (5x5 Gy) followed by CAPOX/FOLFOX reduced DrTF and significantly increased the pathological complete response (pCR) rate compared to standard CRT.',
-    landmarkTrialTitle: 'RAPIDO Trial (Lancet Oncol 2021)',
-    doiUrl: 'https://doi.org/10.1016/S1470-2045(20)30555-6'
-  },
-  {
-    id: 'q6',
-    category: 'CNS',
-    clinicalCase: 'An elderly patient (age 70) with newly diagnosed glioblastoma requires RT. According to the Perry/CCTG CE.6 trial, what is the optimal regimen?',
-    options: [
-      { id: 'A', text: '60 Gy in 30 fractions + concurrent/adjuvant TMZ' },
-      { id: 'B', text: '40 Gy in 15 fractions + concurrent/adjuvant TMZ' },
-      { id: 'C', text: '40 Gy in 15 fractions alone' },
-      { id: 'D', text: '34 Gy in 10 fractions alone' },
-    ],
-    correctAnswerId: 'B',
-    explanation: 'The Perry trial showed that adding TMZ to short-course RT (40 Gy / 15 fx) improved OS in elderly patients with GBM compared to RT alone, establishing it as a standard option.',
-    landmarkTrialTitle: 'Perry / CCTG CE.6 (NEJM 2017)',
-    doiUrl: 'https://doi.org/10.1056/NEJMoa1611977'
-  },
-  {
-    id: 'q7',
+    id: 'q3',
+    pillar: 'CLINICAL',
     category: 'Head & Neck',
     clinicalCase: 'Following surgical resection for oral cavity squamous cell carcinoma, which of the following features mandates the addition of concurrent chemotherapy (cisplatin) to adjuvant radiotherapy?',
     options: [
@@ -138,59 +96,104 @@ export const quizVignettes: QuizVignette[] = [
     ],
     correctAnswerId: 'C',
     explanation: 'Pooled analysis of EORTC 22931 and RTOG 9501 confirmed that concurrent cisplatin improves OS and locoregional control specifically for patients with positive surgical margins or ENE.',
+    distractorRationale: {
+      'A': 'LVSI is a minor risk factor and an indication for adjuvant RT alone, not concurrent CRT.',
+      'B': 'PNI is a minor risk factor, warranting adjuvant RT but not definitively CRT.',
+      'D': 'Multiple positive nodes without ENE was not proven to benefit from concurrent cisplatin in the pooled analysis.'
+    },
     landmarkTrialTitle: 'EORTC 22931 / RTOG 9501 (NEJM 2004)',
     doiUrl: 'https://doi.org/10.1056/NEJMoa032641'
   },
   {
-    id: 'q8',
-    category: 'Gynecology',
-    clinicalCase: 'In the EMBRACE II study protocol for locally advanced cervical cancer, what is the planning aim for the High-Risk CTV (HR-CTV) D90?',
+    id: 'q4',
+    pillar: 'RADIOBIOLOGY',
+    category: 'LQ Model',
+    clinicalCase: 'A patient is being planned for SBRT to a lung lesion. The spinal cord receives a max dose of 24 Gy in 3 fractions. What is the equivalent dose in 2 Gy fractions (EQD2) for late effects (assume α/β = 3)?',
     options: [
-      { id: 'A', text: '≥ 80 Gy EQD2' },
-      { id: 'B', text: '≥ 85-90 Gy EQD2' },
-      { id: 'C', text: '≥ 95 Gy EQD2' },
-      { id: 'D', text: '≥ 75 Gy EQD2' },
-    ],
-    correctAnswerId: 'B',
-    explanation: 'EMBRACE II aims for an HR-CTV D90 of ≥85-90 Gy (EQD2) to optimize local control while adhering strictly to OAR dose constraints.',
-    landmarkTrialTitle: 'EMBRACE II Protocol',
-    doiUrl: 'https://doi.org/10.1016/j.ctro.2018.04.004'
-  },
-  {
-    id: 'q9',
-    category: 'Sarcoma',
-    clinicalCase: 'A patient with an extremity soft tissue sarcoma is being evaluated for radiotherapy. According to the O\'Sullivan trial, pre-operative RT compared to post-operative RT resulted in:',
-    options: [
-      { id: 'A', text: 'Higher rates of local recurrence' },
-      { id: 'B', text: 'Higher rates of late fibrosis and joint stiffness' },
-      { id: 'C', text: 'Higher rates of acute wound complications' },
-      { id: 'D', text: 'Improved overall survival' },
+      { id: 'A', text: '35.2 Gy' },
+      { id: 'B', text: '42.0 Gy' },
+      { id: 'C', text: '52.8 Gy' },
+      { id: 'D', text: '88.0 Gy' },
     ],
     correctAnswerId: 'C',
-    explanation: 'Preoperative RT (50 Gy) is associated with higher acute wound complications but significantly lower late toxicity (fibrosis, edema, joint stiffness) compared to postoperative RT (66 Gy).',
-    landmarkTrialTitle: 'NCIC CTG SR2 (Lancet 2002)',
-    doiUrl: 'https://doi.org/10.1016/s0140-6736(02)09092-d'
+    explanation: 'Dose per fraction (d) = 8 Gy. BED = D × (1 + d / α/β) = 24 × (1 + 8/3) = 24 × (11/3) = 88 Gy₃. EQD2 = BED / (1 + 2 / α/β) = 88 / (1 + 2/3) = 88 / (5/3) = 52.8 Gy.',
+    distractorRationale: {
+      'A': 'Incorrect calculation.',
+      'B': 'Incorrect calculation.',
+      'D': '88.0 is the BED₃, not the EQD2.'
+    },
+    landmarkTrialTitle: 'Radiobiology Principles (Fowler 1989)',
+    doiUrl: 'https://pubmed.ncbi.nlm.nih.gov/2679720/'
   },
   {
-    id: 'q10',
-    category: 'Thorax',
-    clinicalCase: 'For limited-stage small cell lung cancer (LS-SCLC), the Turrisi trial established which of the following RT regimens as a standard of care alongside chemotherapy?',
+    id: 'q5',
+    pillar: 'RADIOBIOLOGY',
+    category: '5Rs',
+    clinicalCase: 'In the definitive radiotherapy of squamous cell carcinoma of the Head & Neck, which of the "5 Rs" is the primary rationale for avoiding treatment interruptions and using altered fractionation (e.g. accelerated fractionation)?',
     options: [
-      { id: 'A', text: '45 Gy in 30 fractions BID' },
-      { id: 'B', text: '60 Gy in 30 fractions QD' },
-      { id: 'C', text: '66 Gy in 33 fractions QD' },
-      { id: 'D', text: '50 Gy in 25 fractions QD' },
+      { id: 'A', text: 'Reoxygenation' },
+      { id: 'B', text: 'Repair of sublethal damage' },
+      { id: 'C', text: 'Repopulation' },
+      { id: 'D', text: 'Redistribution' },
     ],
-    correctAnswerId: 'A',
-    explanation: 'The Turrisi trial (INT 0096) demonstrated improved survival with 45 Gy in 30 twice-daily (BID) fractions compared to 45 Gy QD. Later, CONVERT showed 66 Gy QD was not superior to 45 Gy BID, keeping 45 Gy BID a preferred standard.',
-    landmarkTrialTitle: 'Turrisi / INT 0096 (NEJM 1999)',
-    doiUrl: 'https://doi.org/10.1056/NEJM199901283400404'
+    correctAnswerId: 'C',
+    explanation: 'Accelerated repopulation of tumor clonogens begins approximately 3-4 weeks into a fractionated radiotherapy course, notably in rapidly dividing tumors like SCC of the H&N.',
+    distractorRationale: {
+      'A': 'Reoxygenation occurs between fractions but is not the reason to avoid prolonged overall treatment time.',
+      'B': 'Repair relates to normal tissue sparing when doses are fractionated (allowing 6+ hours between fractions).',
+      'D': 'Redistribution into radiosensitive phases of the cell cycle is a benefit of fractionation, unrelated to overall time.'
+    },
+    landmarkTrialTitle: 'Time-dose relationships (Withers 1988)',
+    doiUrl: 'https://pubmed.ncbi.nlm.nih.gov/3343152/'
+  },
+  {
+    id: 'q6',
+    pillar: 'PHYSICS',
+    category: 'Interactions',
+    clinicalCase: 'Which photon interaction probability is proportional to Z³ / E³ and is the dominant interaction for low-energy orthovoltage beams and diagnostic imaging?',
+    options: [
+      { id: 'A', text: 'Compton Scattering' },
+      { id: 'B', text: 'Photoelectric Effect' },
+      { id: 'C', text: 'Pair Production' },
+      { id: 'D', text: 'Photodisintegration' },
+    ],
+    correctAnswerId: 'B',
+    explanation: 'The photoelectric effect is dominant at lower energies and its cross-section is highly dependent on atomic number (Z³). This makes it excellent for bone/soft tissue contrast in diagnostic imaging.',
+    distractorRationale: {
+      'A': 'Compton scattering is independent of Z and dominant in therapeutic energy ranges (100 keV - 10 MeV).',
+      'C': 'Pair production requires a threshold energy of 1.022 MeV and is proportional to Z.',
+      'D': 'Photodisintegration occurs at >10 MeV and results in neutron emission.'
+    },
+    landmarkTrialTitle: 'Radiation Physics (Podgorsak 2005)',
+    doiUrl: 'https://www-pub.iaea.org/MTCD/Publications/PDF/Pub1196_web.pdf'
+  },
+  {
+    id: 'q7',
+    pillar: 'PHYSICS',
+    category: 'Dosimetry QA',
+    clinicalCase: 'When comparing a 6 MV photon beam to an 18 MV photon beam, which of the following depth-dose characteristics is correct?',
+    options: [
+      { id: 'A', text: '18 MV has a shallower dmax (depth of maximum dose)' },
+      { id: 'B', text: '6 MV has higher surface dose' },
+      { id: 'C', text: '18 MV has a faster dose fall-off past dmax' },
+      { id: 'D', text: '6 MV produces more neutrons' },
+    ],
+    correctAnswerId: 'B',
+    explanation: 'A 6 MV beam has a dmax of ~1.5 cm and a higher surface dose relative to 18 MV (dmax ~3.0-3.5 cm). Higher energies are more penetrating, offering better skin sparing.',
+    distractorRationale: {
+      'A': '18 MV has a deeper dmax than 6 MV.',
+      'C': 'Higher energy beams (18 MV) have a slower, more penetrating dose fall-off.',
+      'D': 'Neutron production via photodisintegration primarily occurs at energies > 10 MV (e.g., 18 MV).'
+    },
+    landmarkTrialTitle: 'Medical Radiations (Khan 2014)',
+    doiUrl: 'https://app.knovel.com/web/toc.v/cid:kpPKROIM05'
   }
 ];
 
 export const flashcards: Flashcard[] = [
   {
     id: 'fc1',
+    pillar: 'CLINICAL',
     category: 'Prostate',
     question: 'What did the FLAME trial investigate in localized prostate cancer?',
     answerPopulation: 'Intermediate- and high-risk localized prostate cancer',
@@ -202,31 +205,34 @@ export const flashcards: Flashcard[] = [
   },
   {
     id: 'fc2',
-    category: 'GI',
-    question: 'What is the standard pre-op chemoradiation regimen for resectable esophageal cancer based on the CROSS trial?',
-    answerPopulation: 'Resectable esophageal or esophagogastric junction cancer (squamous or adeno)',
-    answerIntervention: 'Pre-op CRT (41.4 Gy/23 fx) with concurrent carboplatin and paclitaxel, followed by surgery',
-    answerControl: 'Surgery alone',
-    answerOutcome: 'Significant improvement in median OS (49.4 vs 24.0 months) and R0 resection rates.',
-    trialName: 'CROSS Trial',
-    keyTakeaway: 'Pre-op CRT (41.4 Gy) + Carbo/Taxol is standard for resectable esophageal cancer.'
+    pillar: 'RADIOBIOLOGY',
+    category: 'LQ Model',
+    question: 'What is the generally accepted α/β ratio for prostate cancer, and why does it matter?',
+    answerPopulation: 'Prostate Cancer Cells',
+    answerIntervention: 'Extreme hypofractionation (SBRT)',
+    answerControl: 'Conventional fractionation (1.8-2 Gy/fx)',
+    answerOutcome: 'Prostate cancer is thought to have an extremely low α/β ratio (~1.5 Gy).',
+    trialName: 'PACE-B / HYPO-RT-PC',
+    keyTakeaway: 'Low α/β implies high sensitivity to large fraction sizes, justifying hypofractionation and SBRT.'
   },
   {
     id: 'fc3',
-    category: 'Breast',
-    question: 'When is a tumor bed boost recommended after breast-conserving surgery?',
-    answerPopulation: 'Stage I-II breast cancer patients who underwent BCS and WBI',
-    answerIntervention: '16 Gy / 8 fx boost to the tumor bed',
-    answerControl: 'No boost',
-    answerOutcome: 'Halved the local recurrence rate at 20 years, with the largest absolute benefit in patients ≤ 50 years old.',
-    trialName: 'EORTC 22881-10882',
-    keyTakeaway: 'Boost is mandatory for patients ≤ 50 years, and considered for those with risk factors (high grade, close margins).'
+    pillar: 'PHYSICS',
+    category: 'Linac Engineering',
+    question: 'What is the purpose of a flattening filter in a medical linear accelerator?',
+    answerPopulation: 'X-ray beam generation',
+    answerIntervention: 'Flattening Filter',
+    answerControl: 'Flattening Filter Free (FFF)',
+    answerOutcome: 'Creates a uniform (flat) dose profile at a specific depth.',
+    trialName: 'Linac Component Physics',
+    keyTakeaway: 'FFF beams lack this filter, resulting in a forward-peaked profile but significantly higher dose rates.'
   }
 ];
 
 export const boardPearls: BoardPearl[] = [
   {
     id: 'bp1',
+    pillar: 'CLINICAL',
     category: 'CNS',
     title: 'Brain Tolerance Constraints (QUANTEC)',
     points: [
@@ -238,24 +244,26 @@ export const boardPearls: BoardPearl[] = [
   },
   {
     id: 'bp2',
-    category: 'Head & Neck',
-    title: 'Margin Principles (ICRU 83)',
+    pillar: 'RADIOBIOLOGY',
+    category: '5Rs',
+    title: 'The 5 Rs of Fractionation',
     points: [
-      'GTV to High-Risk CTV: typically 5-10 mm margin (respecting anatomic barriers)',
-      'CTV to PTV: 3-5 mm depending on IGRT setup accuracy',
-      'Nodes: PTV expansion from CTV node typically 3-5 mm'
+      'Repair: Sublethal damage repair (spares late-responding normal tissues)',
+      'Repopulation: Tumor cell proliferation (harmful, limits overall time)',
+      'Reoxygenation: Hypoxic cells become oxygenated between fractions',
+      'Redistribution: Cells move into sensitive phases (M/G2)',
+      'Radiosensitivity: Inherent cellular susceptibility to radiation'
     ]
   },
   {
     id: 'bp3',
-    category: 'Gynecology',
-    title: 'Cervix IGABT (EMBRACE)',
+    pillar: 'PHYSICS',
+    category: 'Dosimetry QA',
+    title: 'TG-51 Dosimetry Protocol',
     points: [
-      'HR-CTV D90 aim: 85-90 Gy (EQD2)',
-      'IR-CTV D90 aim: > 60 Gy',
-      'Rectum D2cc < 65-70 Gy',
-      'Bladder D2cc < 80-90 Gy',
-      'Sigmoid / Bowel D2cc < 70-75 Gy'
+      'Defines absorbed dose to water (D_w) in a reference water phantom',
+      'Requires a cylindrical ion chamber calibrated at a standards lab (N_{D,w})',
+      'Measurements are taken at a reference depth (10 cm for photons)'
     ]
   }
 ];

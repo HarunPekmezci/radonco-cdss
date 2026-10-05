@@ -1,26 +1,35 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { quizVignettes, flashcards, boardPearls, type OrganCategory } from '@/data/academyData';
-import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { quizVignettes, flashcards, boardPearls, type AcademicPillar } from '@/data/academyData';
+import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck, Beaker, Atom, AlertCircle } from 'lucide-react';
+
+const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: string; glow: string; icon: React.ReactNode }> = {
+  CLINICAL: { text: 'text-sky-400', bg: 'bg-sky-900/20', border: 'border-sky-500/30', glow: 'shadow-[0_0_15px_rgba(56,189,248,0.15)]', icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+  RADIOBIOLOGY: { text: 'text-emerald-400', bg: 'bg-emerald-900/20', border: 'border-emerald-500/30', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]', icon: <Beaker className="w-3.5 h-3.5" /> },
+  PHYSICS: { text: 'text-violet-400', bg: 'bg-violet-900/20', border: 'border-violet-500/30', glow: 'shadow-[0_0_15px_rgba(139,92,246,0.15)]', icon: <Atom className="w-3.5 h-3.5" /> },
+};
 
 export default function AcademyPage() {
-  const [activeTab, setActiveTab] = useState<'quizzes' | 'flashcards' | 'radiobiology' | 'pearls'>('quizzes');
-  const [filter, setFilter] = useState<OrganCategory | 'All'>('All');
+  const [activeTab, setActiveTab] = useState<'hub' | 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls'>('hub');
+  const [pillarFilter, setPillarFilter] = useState<AcademicPillar | 'ALL'>('ALL');
   const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
 
   const [score, setScore] = useState(0);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(quizVignettes.length);
+  const [resetKey, setResetKey] = useState(0);
 
   const resetQuizzes = () => {
     setScore(0);
     setAnsweredCount(0);
-    // Needs a way to trigger index reset in QuizzesTab, will handle via key or exposed state.
-    // Let's pass a resetKey
     setResetKey(prev => prev + 1);
   };
-  const [resetKey, setResetKey] = useState(0);
+
+  const handleHubNavigation = (tab: any, filter: AcademicPillar | 'ALL') => {
+    setActiveTab(tab);
+    setPillarFilter(filter);
+  };
 
   return (
     <div className="min-h-screen bg-[#060b14] text-slate-200 selection:bg-sky-500/30 font-sans">
@@ -34,88 +43,185 @@ export default function AcademyPage() {
               RadOnco Academy
             </h1>
             <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
-              Professional Medical Oncology Board-Prep Workstation. Master high-yield clinical vignettes, landmark evidence, and radiobiology.
+              Premier 3-Pillar Radiation Oncology Workstation. Master clinical oncology, radiobiology, and medical physics.
             </p>
           </div>
           
           <div className="flex flex-wrap gap-2 rounded-2xl bg-[#0c1322] p-2 border border-slate-800 shadow-xl">
-            <TabButton id="quizzes" icon={<Library className="h-4 w-4" />} label="Case Quizzes" isActive={activeTab === 'quizzes'} onClick={() => setActiveTab('quizzes')} />
+            <TabButton id="hub" icon={<Activity className="h-4 w-4" />} label="Academy Hub" isActive={activeTab === 'hub'} onClick={() => setActiveTab('hub')} />
+            <TabButton id="quizzes" icon={<Library className="h-4 w-4" />} label="Quizzes" isActive={activeTab === 'quizzes'} onClick={() => setActiveTab('quizzes')} />
             <TabButton id="flashcards" icon={<BookOpen className="h-4 w-4" />} label="Flashcards" isActive={activeTab === 'flashcards'} onClick={() => setActiveTab('flashcards')} />
-            <TabButton id="radiobiology" icon={<Activity className="h-4 w-4" />} label="Comparator" isActive={activeTab === 'radiobiology'} onClick={() => setActiveTab('radiobiology')} />
-            <TabButton id="pearls" icon={<ChevronRight className="h-4 w-4" />} label="Board Pearls" isActive={activeTab === 'pearls'} onClick={() => setActiveTab('pearls')} />
+            <TabButton id="radiobiology" icon={<Beaker className="h-4 w-4" />} label="LQ Lab" isActive={activeTab === 'radiobiology'} onClick={() => setActiveTab('radiobiology')} />
+            <TabButton id="pearls" icon={<ChevronRight className="h-4 w-4" />} label="Pearls" isActive={activeTab === 'pearls'} onClick={() => setActiveTab('pearls')} />
           </div>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Left Column (30% -> col-span-3) */}
-          <aside className="xl:col-span-3 space-y-6">
-            
-            {/* Readiness Card */}
-            <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-[#131f33] to-[#0c1322] p-6 shadow-xl">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <Target className="h-4 w-4 text-emerald-400" />
-                Exam Readiness
-              </h3>
-              <div className="flex items-center justify-around mb-8">
-                 <ReadinessStats score={score} answeredCount={answeredCount} totalQuestions={totalQuestions} />
-              </div>
+        {activeTab === 'hub' ? (
+          <HubDashboard onNavigate={handleHubNavigation} />
+        ) : (
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            {/* Left Column */}
+            <aside className="xl:col-span-3 space-y-6">
               
-              <div className="flex items-center justify-between border-t border-slate-800/80 pt-5">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mode</span>
-                <button 
-                  onClick={() => setMode(m => m === 'tutor' ? 'exam' : 'tutor')}
-                  className="flex items-center gap-1 rounded-full bg-slate-900 p-1 border border-slate-700 shadow-inner transition hover:border-slate-500"
-                >
-                  <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'tutor' ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Tutor</span>
-                  <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'exam' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Exam</span>
-                </button>
+              <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-[#131f33] to-[#0c1322] p-6 shadow-xl">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-sky-400" />
+                  Discipline Filter
+                </h3>
+                <div className="flex flex-col gap-3">
+                  <FilterButton id="ALL" label="All Pillars" icon={<Library className="w-4 h-4"/>} active={pillarFilter === 'ALL'} onClick={() => setPillarFilter('ALL')} color="slate" />
+                  <FilterButton id="CLINICAL" label="Clinical Oncology" icon={<ShieldCheck className="w-4 h-4"/>} active={pillarFilter === 'CLINICAL'} onClick={() => setPillarFilter('CLINICAL')} color="sky" />
+                  <FilterButton id="RADIOBIOLOGY" label="Radiobiology" icon={<Beaker className="w-4 h-4"/>} active={pillarFilter === 'RADIOBIOLOGY'} onClick={() => setPillarFilter('RADIOBIOLOGY')} color="emerald" />
+                  <FilterButton id="PHYSICS" label="Medical Physics" icon={<Atom className="w-4 h-4"/>} active={pillarFilter === 'PHYSICS'} onClick={() => setPillarFilter('PHYSICS')} color="violet" />
+                </div>
               </div>
-            </div>
 
-            {/* Filters */}
-            <div className="rounded-2xl border border-slate-800 bg-[#0c1322] p-6 shadow-xl">
-               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Organ Subsite Filters</h3>
-               <div className="flex flex-wrap gap-2">
-                 <OrganFilter filter={filter} setFilter={setFilter} />
-               </div>
-            </div>
+              {activeTab === 'quizzes' && (
+                <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-[#131f33] to-[#0c1322] p-6 shadow-xl">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <Target className="h-4 w-4 text-emerald-400" />
+                    Exam Readiness
+                  </h3>
+                  <div className="flex items-center justify-around mb-8">
+                    <ReadinessStats score={score} answeredCount={answeredCount} totalQuestions={totalQuestions} />
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t border-slate-800/80 pt-5">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mode</span>
+                    <button 
+                      onClick={() => setMode(m => m === 'tutor' ? 'exam' : 'tutor')}
+                      className="flex items-center gap-1 rounded-full bg-slate-900 p-1 border border-slate-700 shadow-inner transition hover:border-slate-500"
+                    >
+                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'tutor' ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Tutor</span>
+                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'exam' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Exam</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
-            <div className="flex gap-3">
-               <button onClick={resetQuizzes} className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
-                 <RotateCcw className="h-4 w-4" /> Reset
-               </button>
-               <button className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
-                 <Bookmark className="h-4 w-4" /> Saved
-               </button>
-            </div>
+              <div className="flex gap-3">
+                 <button onClick={resetQuizzes} className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
+                   <RotateCcw className="h-4 w-4" /> Reset
+                 </button>
+                 <button className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
+                   <Bookmark className="h-4 w-4" /> Saved
+                 </button>
+              </div>
 
-          </aside>
+            </aside>
 
-          {/* Right Column (70% -> col-span-9) */}
-          <section className="xl:col-span-9">
-            <div className="rounded-3xl border border-slate-800 bg-[#0c1322] p-6 sm:p-10 shadow-2xl min-h-[700px] flex flex-col">
-              {activeTab === 'quizzes' && <QuizzesTab key={resetKey} filter={filter} mode={mode} score={score} setScore={setScore} answeredCount={answeredCount} setAnsweredCount={setAnsweredCount} setTotalQuestions={setTotalQuestions} />}
-              {activeTab === 'flashcards' && <FlashcardsTab filter={filter} />}
-              {activeTab === 'radiobiology' && <RadiobiologyTab />}
-              {activeTab === 'pearls' && <PearlsTab filter={filter} />}
-            </div>
-          </section>
-        </div>
+            {/* Right Column */}
+            <section className="xl:col-span-9">
+              <div className="rounded-3xl border border-slate-800 bg-[#0c1322] p-6 sm:p-10 shadow-2xl min-h-[700px] flex flex-col">
+                {activeTab === 'quizzes' && <QuizzesTab key={resetKey} filter={pillarFilter} mode={mode} score={score} setScore={setScore} answeredCount={answeredCount} setAnsweredCount={setAnsweredCount} setTotalQuestions={setTotalQuestions} />}
+                {activeTab === 'flashcards' && <FlashcardsTab filter={pillarFilter} />}
+                {activeTab === 'radiobiology' && <RadiobiologyTab />}
+                {activeTab === 'pearls' && <PearlsTab filter={pillarFilter} />}
+              </div>
+            </section>
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
-function TabButton({ id, icon, label, isActive, onClick }: { id: string, icon: React.ReactNode, label: string, isActive: boolean, onClick: () => void }) {
+function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
+      {/* Clinical Suite */}
+      <div className="rounded-3xl border border-sky-500/30 bg-gradient-to-br from-sky-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-sky-500/20 transition-all flex flex-col">
+        <div className="h-16 w-16 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mb-6">
+          <ShieldCheck className="h-8 w-8 text-sky-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-4">Clinical Oncology</h2>
+        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
+          Evidence-based practice covering Organ-specific vignettes, Phase III landmark trials, and NCCN guideline adherence.
+        </p>
+        <div className="space-y-3">
+          <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-sky-300 hover:border-sky-500/50 hover:bg-sky-900/20 transition">
+            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Case Quizzes</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+          <button onClick={() => onNavigate('flashcards', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-sky-300 hover:border-sky-500/50 hover:bg-sky-900/20 transition">
+            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> Landmark Flashcards</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Radiobiology Lab */}
+      <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-emerald-500/20 transition-all flex flex-col">
+        <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-6">
+          <Beaker className="h-8 w-8 text-emerald-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-4">Radiobiology Lab</h2>
+        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
+          Master the LQ model, fractionations, α/β values, the 5Rs, acute vs late tissue effects, and tumor repopulation dynamics.
+        </p>
+        <div className="space-y-3">
+          <button onClick={() => onNavigate('radiobiology', 'ALL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-900/20 transition">
+            <span className="flex items-center gap-2"><Activity className="w-4 h-4"/> BED / EQD2 Comparator</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+          <button onClick={() => onNavigate('quizzes', 'RADIOBIOLOGY')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-900/20 transition">
+            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Concept Quizzes</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Physics Suite */}
+      <div className="rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-violet-500/20 transition-all flex flex-col">
+        <div className="h-16 w-16 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center mb-6">
+          <Atom className="h-8 w-8 text-violet-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-4">Medical Physics</h2>
+        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
+          Photon/electron interactions, linac engineering, PDD/TMR curves, dosimetry (TG-51), and rigorous machine QA standards.
+        </p>
+        <div className="space-y-3">
+          <button onClick={() => onNavigate('quizzes', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-violet-300 hover:border-violet-500/50 hover:bg-violet-900/20 transition">
+            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Physics Vignettes</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+          <button onClick={() => onNavigate('pearls', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-violet-300 hover:border-violet-500/50 hover:bg-violet-900/20 transition">
+            <span className="flex items-center gap-2"><ChevronRight className="w-4 h-4"/> TG-51 & QA Pearls</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabButton({ id, icon, label, isActive, onClick }: any) {
   return (
     <button
       onClick={onClick}
       className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${
-        isActive ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent'
+        isActive ? 'bg-slate-800 text-white border border-slate-500 shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent'
       }`}
     >
       {icon}
       {label}
+    </button>
+  );
+}
+
+function FilterButton({ id, label, icon, active, onClick, color }: { id: string, label: string, icon: React.ReactNode, active: boolean, onClick: () => void, color: 'sky' | 'emerald' | 'violet' | 'slate' }) {
+  const activeClass = {
+    sky: 'bg-sky-500 text-[#060b14] border-sky-500 shadow-[0_0_15px_rgba(56,189,248,0.3)]',
+    emerald: 'bg-emerald-500 text-[#060b14] border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+    violet: 'bg-violet-500 text-[#060b14] border-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]',
+    slate: 'bg-slate-200 text-slate-900 border-slate-300 shadow-md'
+  }[color];
+
+  const inactiveClass = `border-slate-700 bg-[#060b14] text-slate-400 hover:bg-slate-800 hover:text-white hover:border-${color}-500/50`;
+
+  return (
+    <button onClick={onClick} className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition-all border ${active ? activeClass : inactiveClass}`}>
+      <span className="flex items-center gap-3">{icon} {label}</span>
     </button>
   );
 }
@@ -144,25 +250,8 @@ function ReadinessStats({ score, answeredCount, totalQuestions }: any) {
   );
 }
 
-function OrganFilter({ filter, setFilter }: any) {
-  const categories = ['All', 'Breast', 'Prostate', 'Thorax', 'GI', 'CNS', 'Head & Neck', 'Gynecology', 'Sarcoma', 'GU'];
-  return (
-    <>
-      {categories.map(cat => (
-        <button 
-          key={cat} 
-          onClick={() => setFilter(cat)} 
-          className={`rounded-lg px-4 py-2 text-xs font-bold transition border ${filter === cat ? 'bg-sky-500 text-white border-sky-400 shadow-md' : 'border-slate-700/50 bg-[#060b14] text-slate-400 hover:bg-slate-800 hover:text-slate-200 hover:border-slate-600'}`}
-        >
-          {cat}
-        </button>
-      ))}
-    </>
-  );
-}
-
 function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredCount, setTotalQuestions }: any) {
-  const filteredQuizzes = useMemo(() => filter === 'All' ? quizVignettes : quizVignettes.filter(q => q.category === filter), [filter]);
+  const filteredQuizzes = useMemo(() => filter === 'ALL' ? quizVignettes : quizVignettes.filter(q => q.pillar === filter), [filter]);
   
   useEffect(() => {
     setTotalQuestions(filteredQuizzes.length);
@@ -177,10 +266,11 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
   }, [filter]);
 
   if (filteredQuizzes.length === 0) {
-    return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><Library className="h-12 w-12 text-slate-700"/> No questions available for this category yet.</div>;
+    return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><Library className="h-12 w-12 text-slate-700"/> No questions available for this module yet.</div>;
   }
 
   const quiz = filteredQuizzes[currentIndex];
+  const pStyle = PILLAR_STYLES[quiz.pillar];
 
   const handleSelect = (id: string) => {
     if (selectedAnswer) return;
@@ -199,31 +289,31 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
   };
 
   const formattedClinicalCase = quiz.clinicalCase
-    .replace(/((\d+-year-old|\d+ yo)( male| female)?|pT\d[a-c]? pN\d[a-c]?|ER\+|PR\+|HER2-|lumpectomy|mastectomy)/gi, '<strong class="text-white bg-slate-800 px-1 py-0.5 rounded">$1</strong>');
+    .replace(/((\d+-year-old|\d+ yo)( male| female)?|pT\d[a-c]? pN\d[a-c]?|ER\+|PR\+|HER2-|lumpectomy|mastectomy|\d+ Gy in \d+ fractions|SBRT|EBRT)/gi, '<strong class="text-white bg-slate-800 px-1 py-0.5 rounded border border-slate-700">$1</strong>');
 
   return (
     <div className="flex flex-col h-full flex-1">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-5 border-b border-slate-800">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="inline-flex items-center rounded-lg bg-sky-900/40 px-3 py-1.5 text-xs font-bold text-sky-400 uppercase tracking-widest border border-sky-500/20 shadow-sm">
-            {quiz.category}
+          <span className={`inline-flex items-center gap-1.5 rounded-lg ${pStyle.bg} px-3 py-1.5 text-xs font-bold ${pStyle.text} uppercase tracking-widest border ${pStyle.border} shadow-sm`}>
+            {pStyle.icon}
+            {quiz.pillar}
           </span>
-          <span className="inline-flex items-center text-xs font-bold text-emerald-400 uppercase tracking-widest border border-emerald-500/20 rounded-lg px-3 py-1.5 bg-emerald-900/20 shadow-sm">
-            <Target className="h-3.5 w-3.5 mr-1.5" />
-            {quiz.landmarkTrialTitle.split(' (')[0]}
+          <span className="inline-flex items-center text-xs font-bold text-slate-300 uppercase tracking-widest border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50 shadow-sm">
+            {quiz.category}
           </span>
         </div>
         <div className="flex items-center gap-5 text-sm font-bold text-slate-400 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 shadow-inner">
-          <button onClick={prevQuiz} className="hover:text-sky-400 transition p-1"><ArrowLeft className="h-4 w-4"/></button>
+          <button onClick={prevQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowLeft className="h-4 w-4"/></button>
           <span className="tracking-widest uppercase text-[10px]">Q {currentIndex + 1} OF {filteredQuizzes.length}</span>
-          <button onClick={nextQuiz} className="hover:text-sky-400 transition p-1"><ArrowRight className="h-4 w-4"/></button>
+          <button onClick={nextQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowRight className="h-4 w-4"/></button>
         </div>
       </div>
 
       {/* Clinical Vignette Box */}
       <div className="mb-8 rounded-2xl border border-slate-700 bg-slate-900/90 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-sky-400 to-indigo-500"></div>
+        <div className={`absolute top-0 left-0 w-1.5 h-full ${pStyle.bg.replace('/20', '/80')} ${pStyle.glow}`}></div>
         <h2 className="text-lg sm:text-xl font-medium leading-loose text-slate-300" dangerouslySetInnerHTML={{ __html: formattedClinicalCase }}></h2>
       </div>
 
@@ -233,31 +323,41 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
           const isSelected = selectedAnswer === option.id;
           const isCorrect = option.id === quiz.correctAnswerId;
           const showCorrectness = selectedAnswer !== null; 
+          const isDistractor = showCorrectness && !isCorrect && (isSelected || mode === 'tutor');
 
-          let buttonClass = "group w-full flex items-center gap-5 rounded-2xl border border-slate-700 bg-[#0d1527] p-5 sm:p-6 text-left transition-all hover:border-amber-500/50 hover:bg-slate-800/80 shadow-md";
-          let badgeClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 bg-slate-800 text-base font-black text-slate-400 transition-colors group-hover:border-amber-500 group-hover:text-amber-500 group-hover:bg-amber-500/10";
+          let buttonClass = "group w-full flex flex-col gap-2 rounded-2xl border border-slate-700 bg-[#0d1527] p-5 sm:p-6 text-left transition-all hover:border-slate-500/50 hover:bg-slate-800/80 shadow-md";
+          let badgeClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 bg-slate-800 text-base font-black text-slate-400 transition-colors group-hover:border-slate-400 group-hover:text-slate-300 group-hover:bg-slate-700";
           let icon = null;
 
           if (showCorrectness) {
             if (isCorrect) {
-              buttonClass = "w-full flex items-center gap-5 rounded-2xl border-2 border-emerald-500 bg-emerald-900/20 p-5 sm:p-6 text-left shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all transform scale-[1.01]";
+              buttonClass = "w-full flex flex-col gap-2 rounded-2xl border-2 border-emerald-500 bg-emerald-900/10 p-5 sm:p-6 text-left shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all";
               badgeClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-emerald-500 bg-emerald-500 text-base font-black text-[#060b14]";
-              icon = <CheckCircle className="h-7 w-7 text-emerald-500 ml-auto" />;
+              icon = <CheckCircle className="h-7 w-7 text-emerald-500 shrink-0" />;
             } else if (isSelected) {
-              buttonClass = "w-full flex items-center gap-5 rounded-2xl border-2 border-rose-500/80 bg-rose-900/10 p-5 sm:p-6 text-left transition-all";
+              buttonClass = "w-full flex flex-col gap-2 rounded-2xl border-2 border-rose-500/80 bg-rose-900/10 p-5 sm:p-6 text-left transition-all";
               badgeClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-rose-500 bg-rose-500 text-base font-black text-[#060b14]";
-              icon = <XCircle className="h-7 w-7 text-rose-500 ml-auto" />;
+              icon = <XCircle className="h-7 w-7 text-rose-500 shrink-0" />;
             } else {
-              buttonClass = "w-full flex items-center gap-5 rounded-2xl border border-slate-800 bg-[#0a101d] p-5 sm:p-6 text-left text-slate-500 opacity-50";
+              buttonClass = "w-full flex flex-col gap-2 rounded-2xl border border-slate-800 bg-[#0a101d] p-5 sm:p-6 text-left text-slate-500 opacity-70";
               badgeClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-700 bg-slate-800 text-base font-black text-slate-600";
             }
           }
 
           return (
             <button key={option.id} onClick={() => handleSelect(option.id)} disabled={!!selectedAnswer} className={buttonClass}>
-              <span className={badgeClass}>{option.id}</span>
-              <span className={`text-base sm:text-lg font-medium ${showCorrectness && isCorrect ? 'text-emerald-100' : ''}`}>{option.text}</span>
-              {icon}
+              <div className="flex items-center gap-5 w-full">
+                <span className={badgeClass}>{option.id}</span>
+                <span className={`text-base sm:text-lg font-medium ${showCorrectness && isCorrect ? 'text-emerald-100' : ''}`}>{option.text}</span>
+                <div className="ml-auto">{icon}</div>
+              </div>
+              {/* Distractor Rationale for Tutor Mode */}
+              {isDistractor && quiz.distractorRationale && quiz.distractorRationale[option.id] && (
+                <div className="mt-3 ml-15 pl-4 border-l-2 border-rose-500/30 text-sm text-slate-400 animate-in fade-in slide-in-from-top-2">
+                  <span className="font-bold text-rose-400 mr-2">Why incorrect:</span>
+                  {quiz.distractorRationale[option.id]}
+                </div>
+              )}
             </button>
           );
         })}
@@ -266,37 +366,37 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
       {/* Rationale Card (Tutor Mode) */}
       {selectedAnswer && mode === 'tutor' && (
         <div className="mt-auto animate-in fade-in slide-in-from-bottom-6">
-          <div className="rounded-3xl border border-sky-500/30 bg-gradient-to-br from-[#0c1a2e] to-[#0c1322] p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div className={`rounded-3xl border ${pStyle.border} bg-gradient-to-br from-[#0c1a2e] to-[#0c1322] p-8 sm:p-10 shadow-2xl relative overflow-hidden`}>
              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <BookOpen className="w-40 h-40" />
+                <Target className="w-40 h-40" />
              </div>
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10">
-              <h3 className="text-sm font-black tracking-widest text-sky-400 uppercase flex items-center gap-3">
-                <BookOpen className="h-5 w-5" />
-                Clinical Rationale
+              <h3 className={`text-sm font-black tracking-widest uppercase flex items-center gap-3 ${pStyle.text}`}>
+                <AlertCircle className="h-5 w-5" />
+                Correct Answer Rationale
               </h3>
-              <span className="inline-flex rounded-lg bg-emerald-500/20 px-3 py-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest border border-emerald-500/30 shadow-sm">
-                NCCN Category 1
+              <span className={`inline-flex rounded-lg ${pStyle.bg} px-3 py-1.5 text-[10px] font-black ${pStyle.text} uppercase tracking-widest border ${pStyle.border} shadow-sm`}>
+                High-Yield Board Concept
               </span>
             </div>
             
             <p className="mb-8 text-base sm:text-lg leading-relaxed text-slate-200 relative z-10 font-medium">{quiz.explanation}</p>
             
             <div className="mb-8 rounded-2xl bg-[#060b14]/80 p-6 border border-slate-700/80 shadow-inner relative z-10">
-              <div className="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2"><Target className="w-4 h-4"/> Trial Summary (PICO)</div>
+              <div className="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2"><Target className="w-4 h-4"/> Reference Summary</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
-                <div><span className="text-sky-500 block text-[10px] font-bold uppercase tracking-widest mb-1">Trial / Landmark</span> <span className="text-slate-100 font-medium text-base">{quiz.landmarkTrialTitle}</span></div>
-                <div><span className="text-sky-500 block text-[10px] font-bold uppercase tracking-widest mb-1">Evidence Level</span> <span className="text-slate-100 font-medium text-base">Practice-changing standard of care</span></div>
+                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>Source / Landmark</span> <span className="text-slate-100 font-medium text-base">{quiz.landmarkTrialTitle}</span></div>
+                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>Topic</span> <span className="text-slate-100 font-medium text-base">{quiz.category}</span></div>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-700/80 pt-8 gap-4 relative z-10">
-              <a href={quiz.doiUrl} target="_blank" rel="noreferrer" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d1527] border border-slate-600 px-6 py-3.5 text-xs font-bold text-sky-400 hover:bg-slate-800 transition shadow-md">
+              <a href={quiz.doiUrl} target="_blank" rel="noreferrer" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d1527] border border-slate-600 px-6 py-3.5 text-xs font-bold ${pStyle.text} hover:bg-slate-800 transition shadow-md`}>
                 <ArrowUpRight className="h-4 w-4" />
-                View Source on PubMed
+                Review Full Evidence
               </a>
-              <button onClick={nextQuiz} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-8 py-3.5 text-sm font-black text-slate-950 hover:bg-sky-400 transition shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]">
-                Next Case <ArrowRight className="h-5 w-5" />
+              <button onClick={nextQuiz} className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-8 py-3.5 text-sm font-black text-slate-900 hover:bg-white transition shadow-lg`}>
+                Next Question <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -315,8 +415,8 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
   );
 }
 
-function FlashcardsTab({ filter }: { filter: OrganCategory | 'All' }) {
-  const filtered = filter === 'All' ? flashcards : flashcards.filter(fc => fc.category === filter);
+function FlashcardsTab({ filter }: any) {
+  const filtered = filter === 'ALL' ? flashcards : flashcards.filter(fc => fc.pillar === filter);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -325,8 +425,9 @@ function FlashcardsTab({ filter }: { filter: OrganCategory | 'All' }) {
     setFlipped(false);
   }, [filter]);
 
-  if (filtered.length === 0) return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><BookOpen className="h-12 w-12 text-slate-700"/> No flashcards for this category.</div>;
+  if (filtered.length === 0) return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><BookOpen className="h-12 w-12 text-slate-700"/> No flashcards for this module.</div>;
   const fc = filtered[currentIndex];
+  const pStyle = PILLAR_STYLES[fc.pillar];
 
   const nextCard = () => {
     setFlipped(false);
@@ -340,24 +441,24 @@ function FlashcardsTab({ filter }: { filter: OrganCategory | 'All' }) {
       <div className="w-full max-w-3xl relative h-[500px] [perspective:1500px]">
         <div className={`relative h-full w-full transition-all duration-700 ease-in-out [transform-style:preserve-3d] cursor-pointer shadow-2xl rounded-[2rem] ${flipped ? '[transform:rotateY(180deg)]' : ''}`} onClick={() => setFlipped(!flipped)}>
           {/* Front */}
-          <div className="absolute inset-0 flex flex-col justify-center rounded-[2rem] border border-slate-700 bg-gradient-to-br from-[#131f33] to-[#0c1322] p-12 text-center [backface-visibility:hidden] hover:border-sky-500/30 transition-colors">
-            <div className="absolute top-8 left-8 rounded-lg bg-sky-900/30 px-4 py-2 text-xs font-black text-sky-400 uppercase tracking-widest border border-sky-500/20">{fc.category}</div>
+          <div className="absolute inset-0 flex flex-col justify-center rounded-[2rem] border border-slate-700 bg-gradient-to-br from-[#131f33] to-[#0c1322] p-12 text-center [backface-visibility:hidden] hover:border-slate-500/50 transition-colors">
+            <div className={`absolute top-8 left-8 rounded-lg ${pStyle.bg} px-4 py-2 text-xs font-black ${pStyle.text} uppercase tracking-widest border ${pStyle.border} flex items-center gap-2`}>{pStyle.icon} {fc.category}</div>
             <div className="absolute top-8 right-8 text-sm text-slate-500 font-bold tracking-widest bg-slate-900/50 px-4 py-2 rounded-lg">{currentIndex + 1} / {filtered.length}</div>
             <h3 className="text-2xl sm:text-3xl font-medium leading-relaxed text-white">{fc.question}</h3>
             <div className="absolute bottom-10 left-0 right-0 text-sm font-bold tracking-widest uppercase text-slate-500 animate-pulse flex items-center justify-center gap-2"><ArrowRight className="h-4 w-4"/> Click anywhere to flip <ArrowLeft className="h-4 w-4"/></div>
           </div>
           {/* Back */}
-          <div className="absolute inset-0 flex flex-col justify-between rounded-[2rem] border border-emerald-500/30 bg-gradient-to-br from-[#0a1a15] to-[#06100d] p-10 sm:p-12 text-left [backface-visibility:hidden] [transform:rotateY(180deg)] shadow-[0_0_50px_rgba(16,185,129,0.1)]">
-            <h3 className="text-xl sm:text-2xl font-black text-emerald-400 mb-6 uppercase tracking-widest border-b border-emerald-900/50 pb-6">{fc.trialName}</h3>
+          <div className={`absolute inset-0 flex flex-col justify-between rounded-[2rem] border ${pStyle.border} bg-gradient-to-br from-[#0a1a15] to-[#06100d] p-10 sm:p-12 text-left [backface-visibility:hidden] [transform:rotateY(180deg)] ${pStyle.glow}`}>
+            <h3 className={`text-xl sm:text-2xl font-black ${pStyle.text} mb-6 uppercase tracking-widest border-b border-slate-800 pb-6`}>{fc.trialName}</h3>
             <div className="space-y-5 text-sm sm:text-base flex-1">
-              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className="text-emerald-500 text-lg">P:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerPopulation}</span></div>
-              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className="text-emerald-500 text-lg">I:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerIntervention}</span></div>
-              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className="text-emerald-500 text-lg">C:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerControl}</span></div>
-              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className="text-emerald-500 text-lg">O:</strong> <span className="text-emerald-200 leading-relaxed font-bold mt-1">{fc.answerOutcome}</span></div>
+              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className={`${pStyle.text} text-lg`}>P:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerPopulation}</span></div>
+              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className={`${pStyle.text} text-lg`}>I:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerIntervention}</span></div>
+              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className={`${pStyle.text} text-lg`}>C:</strong> <span className="text-slate-200 leading-relaxed font-medium mt-1">{fc.answerControl}</span></div>
+              <div className="grid grid-cols-[30px_1fr] gap-3 items-start"><strong className={`${pStyle.text} text-lg`}>O:</strong> <span className="text-white leading-relaxed font-bold mt-1">{fc.answerOutcome}</span></div>
             </div>
-            <div className="mt-8 rounded-2xl bg-emerald-950/40 p-5 border border-emerald-900/50 shadow-inner">
-              <div className="text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-2"><CheckCircle className="w-4 h-4"/> Key Takeaway</div>
-              <div className="text-base font-semibold text-emerald-100 leading-relaxed">{fc.keyTakeaway}</div>
+            <div className="mt-8 rounded-2xl bg-[#060b14]/50 p-5 border border-slate-800 shadow-inner">
+              <div className={`text-[11px] font-black ${pStyle.text} uppercase tracking-widest mb-2 flex items-center gap-2`}><CheckCircle className="w-4 h-4"/> Key Takeaway</div>
+              <div className="text-base font-semibold text-slate-100 leading-relaxed">{fc.keyTakeaway}</div>
             </div>
           </div>
         </div>
@@ -393,8 +494,8 @@ function RadiobiologyTab() {
   return (
     <div className="flex flex-col h-full flex-1 w-full max-w-5xl mx-auto py-4">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3"><Activity className="w-8 h-8 text-sky-400"/> Live Radiobiological Comparator</h2>
-        <p className="text-base text-slate-400 mt-2 font-medium">Compare standard fractionation vs hypofractionation with live BED and EQD2 math.</p>
+        <h2 className="text-2xl font-bold text-white flex items-center gap-3"><Activity className="w-8 h-8 text-emerald-400"/> Live Radiobiological Comparator</h2>
+        <p className="text-base text-slate-400 mt-2 font-medium">Compare standard fractionation vs hypofractionation with live BED and EQD2 math (Linear-Quadratic Model).</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 mb-10">
@@ -458,7 +559,7 @@ function RadiobiologyTab() {
   );
 }
 
-function RegimenCard({ title, reg, setReg, color }: { title: string, reg: any, setReg: any, color: 'sky' | 'amber' }) {
+function RegimenCard({ title, reg, setReg, color }: any) {
   const borderColor = color === 'sky' ? 'border-sky-500/30' : 'border-amber-500/30';
   const bgColor = color === 'sky' ? 'bg-sky-500/5' : 'bg-amber-500/5';
   const textColor = color === 'sky' ? 'text-sky-400' : 'text-amber-400';
@@ -485,26 +586,31 @@ function RegimenCard({ title, reg, setReg, color }: { title: string, reg: any, s
   );
 }
 
-function PearlsTab({ filter }: { filter: string }) {
-  const filtered = filter === 'All' ? boardPearls : boardPearls.filter(p => p.category === filter);
-  if (filtered.length === 0) return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><ChevronRight className="h-12 w-12 text-slate-700"/> No pearls for this category.</div>;
+function PearlsTab({ filter }: any) {
+  const filtered = filter === 'ALL' ? boardPearls : boardPearls.filter(p => p.pillar === filter);
+  if (filtered.length === 0) return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><ChevronRight className="h-12 w-12 text-slate-700"/> No pearls for this module.</div>;
 
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 py-4">
-      {filtered.map(pearl => (
-        <div key={pearl.id} className="rounded-3xl border border-slate-700 bg-gradient-to-br from-[#131f33] to-[#0c1322] p-8 shadow-xl hover:border-sky-500/40 transition-colors group">
-          <div className="mb-6 inline-block rounded-lg bg-indigo-500/20 px-3 py-1.5 text-[10px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/30">{pearl.category}</div>
-          <h3 className="mb-6 text-xl font-bold text-white leading-snug group-hover:text-sky-300 transition-colors">{pearl.title}</h3>
-          <ul className="space-y-4 text-sm text-slate-300 font-medium">
-            {pearl.points.map((pt, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-1.5 block h-2 w-2 shrink-0 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]" />
-                <span className="leading-relaxed">{pt}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {filtered.map(pearl => {
+        const pStyle = PILLAR_STYLES[pearl.pillar];
+        return (
+          <div key={pearl.id} className={`rounded-3xl border border-slate-700 bg-gradient-to-br from-[#131f33] to-[#0c1322] p-8 shadow-xl hover:${pStyle.border} transition-colors group`}>
+            <div className={`mb-6 inline-flex items-center gap-2 rounded-lg ${pStyle.bg} px-3 py-1.5 text-[10px] font-black ${pStyle.text} uppercase tracking-widest border ${pStyle.border}`}>
+              {pStyle.icon} {pearl.category}
+            </div>
+            <h3 className={`mb-6 text-xl font-bold text-white leading-snug group-hover:${pStyle.text} transition-colors`}>{pearl.title}</h3>
+            <ul className="space-y-4 text-sm text-slate-300 font-medium">
+              {pearl.points.map((pt, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className={`mt-1.5 block h-2 w-2 shrink-0 rounded-full ${pStyle.bg.replace('/20', '')} ${pStyle.glow}`} />
+                  <span className="leading-relaxed">{pt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 }
