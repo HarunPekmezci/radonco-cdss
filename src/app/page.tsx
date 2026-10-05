@@ -150,13 +150,13 @@ export default function PortalPage() {
 
   return (
     <main className="min-h-screen bg-[#070b14] relative py-8 text-slate-100 sm:py-12 overflow-hidden">
-      <div className="pointer-events-none absolute top-[-150px] left-[-150px] bg-amber-500/10 blur-[130px] rounded-full w-[450px] h-[450px] z-0" />
-      <div className="pointer-events-none absolute top-[-150px] right-[-150px] bg-emerald-500/10 blur-[130px] rounded-full w-[450px] h-[450px] z-0" />
+      <div className="pointer-events-none absolute top-[-150px] left-[-150px] bg-amber-500/10 blur-[140px] rounded-full w-[450px] h-[450px] z-0" />
+      <div className="pointer-events-none absolute top-[-150px] right-[-150px] bg-emerald-500/10 blur-[140px] rounded-full w-[450px] h-[450px] z-0" />
       
       <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10">
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* CDSS Card */}
-          <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/70 shadow-2xl border-t-2 border-t-amber-500/50 p-6 sm:p-10 transition-all duration-300 hover:border-slate-700 hover:shadow-sky-950/30 hover:-translate-y-0.5 group">
+          <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl border-t-2 border-t-amber-500/60 p-6 sm:p-10 transition-all duration-300 hover:border-slate-700/80 hover:-translate-y-0.5 group">
             <div className="relative max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300">
                 <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
@@ -187,7 +187,7 @@ export default function PortalPage() {
           </div>
 
           {/* Academy Card */}
-          <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/70 shadow-2xl border-t-2 border-t-emerald-500/50 p-6 sm:p-10 transition-all duration-300 hover:border-slate-700 hover:shadow-sky-950/30 hover:-translate-y-0.5 group">
+          <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl border-t-2 border-t-emerald-500/60 p-6 sm:p-10 transition-all duration-300 hover:border-slate-700/80 hover:-translate-y-0.5 group">
             <div className="relative max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300">
                 <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
@@ -232,7 +232,7 @@ export default function PortalPage() {
                 <Link
                   key={module.href}
                   href={module.href}
-                  className="group flex min-h-40 flex-col rounded-2xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/70 shadow-2xl transition-all duration-300 hover:border-slate-700 hover:shadow-sky-950/30 hover:-translate-y-0.5 p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                  className="group flex min-h-40 flex-col rounded-2xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl transition-all duration-300 hover:border-slate-700/80 hover:-translate-y-0.5 p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className={`inline-flex rounded-xl p-2.5 ring-1 ${module.accent}`}>
@@ -264,7 +264,7 @@ export default function PortalPage() {
               <Link
                 key={protocol.quickCaseId}
                 href={`/cdss?quickCase=${protocol.quickCaseId}`}
-                className="group flex min-h-56 flex-col rounded-2xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/70 shadow-2xl transition-all duration-300 hover:border-slate-700 hover:shadow-sky-950/30 hover:-translate-y-0.5 p-4 sm:p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                className="group flex min-h-56 flex-col rounded-2xl backdrop-blur-xl bg-slate-900/60 border border-slate-800/80 shadow-2xl transition-all duration-300 hover:border-slate-700/80 hover:-translate-y-0.5 p-4 sm:p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
               >
                 <div className="flex items-start justify-between gap-3">
                   <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue-300" aria-hidden="true" />

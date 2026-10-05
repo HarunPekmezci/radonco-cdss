@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Radiation, GraduationCap } from 'lucide-react';
+import { Check, ChevronDown, Radiation, GraduationCap, Zap } from 'lucide-react';
 import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -113,7 +113,7 @@ export default function Navbar() {
                   href="/cdss"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60 shadow-sm shadow-amber-950/40 transition-all"
                 >
-                  <Radiation className="h-4 w-4" />
+                  <Zap className="h-4 w-4" />
                   RadOnco CDSS
                 </Link>
               ) : (
