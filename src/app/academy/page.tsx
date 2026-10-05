@@ -128,68 +128,256 @@ export default function AcademyPage() {
 
 function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
-      {/* Clinical Suite */}
-      <div className="rounded-3xl border border-sky-500/30 bg-gradient-to-br from-sky-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-sky-500/20 transition-all flex flex-col">
-        <div className="h-16 w-16 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mb-6">
-          <ShieldCheck className="h-8 w-8 text-sky-400" />
+    <div className="flex flex-col gap-8 py-4">
+      {/* Top 3 Pillar Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Clinical Suite */}
+        <div className="rounded-3xl border border-sky-500/40 bg-slate-900/90 shadow-lg shadow-sky-950/40 p-8 hover:-translate-y-1 hover:shadow-sky-900/50 transition-all duration-300 flex flex-col backdrop-blur-md relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+            <ShieldCheck className="w-32 h-32 text-sky-400" />
+          </div>
+          <div className="h-14 w-14 rounded-2xl bg-sky-500/20 border border-sky-500/50 flex items-center justify-center mb-5 relative z-10">
+            <ShieldCheck className="h-7 w-7 text-sky-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Clinical Oncology</h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
+            Evidence-based practice covering Organ-specific vignettes, Phase III landmark trials, and NCCN guideline adherence.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-6 relative z-10">
+            {['Breast', 'Thorax', 'GI', 'GU', 'H&N', 'CNS'].map(pill => (
+              <span key={pill} className="rounded-md bg-sky-950/50 border border-sky-500/20 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-300">{pill}</span>
+            ))}
+            <span className="rounded-md bg-sky-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">+120 Q's</span>
+          </div>
+          <div className="space-y-3 relative z-10">
+            <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-sky-300 hover:border-sky-500 hover:bg-sky-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Case Quizzes</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button onClick={() => onNavigate('flashcards', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-sky-300 hover:border-sky-500 hover:bg-sky-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> Landmark Flashcards</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-4">Clinical Oncology</h2>
-        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
-          Evidence-based practice covering Organ-specific vignettes, Phase III landmark trials, and NCCN guideline adherence.
-        </p>
-        <div className="space-y-3">
-          <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-sky-300 hover:border-sky-500/50 hover:bg-sky-900/20 transition">
-            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Case Quizzes</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          <button onClick={() => onNavigate('flashcards', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-sky-300 hover:border-sky-500/50 hover:bg-sky-900/20 transition">
-            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4"/> Landmark Flashcards</span>
-            <ArrowRight className="w-4 h-4" />
+
+        {/* Radiobiology Lab */}
+        <div className="rounded-3xl border border-emerald-500/40 bg-slate-900/90 shadow-lg shadow-emerald-950/40 p-8 hover:-translate-y-1 hover:shadow-emerald-900/50 transition-all duration-300 flex flex-col backdrop-blur-md relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Beaker className="w-32 h-32 text-emerald-400" />
+          </div>
+          <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mb-5 relative z-10">
+            <Beaker className="h-7 w-7 text-emerald-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Radiobiology Lab</h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
+            Master the LQ model, fractionations, α/β values, the 5Rs, acute vs late tissue effects, and tumor repopulation.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-6 relative z-10">
+            {['LQ Model', '5Rs', 'EQD2', 'Hypofractionation'].map(pill => (
+              <span key={pill} className="rounded-md bg-emerald-950/50 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">{pill}</span>
+            ))}
+            <span className="rounded-md bg-emerald-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">+40 Q's</span>
+          </div>
+          <div className="space-y-3 relative z-10">
+            <button onClick={() => onNavigate('radiobiology', 'ALL')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-emerald-300 hover:border-emerald-500 hover:bg-emerald-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><Activity className="w-4 h-4"/> BED / EQD2 Comparator</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button onClick={() => onNavigate('quizzes', 'RADIOBIOLOGY')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-emerald-300 hover:border-emerald-500 hover:bg-emerald-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Concept Quizzes</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Physics Suite */}
+        <div className="rounded-3xl border border-violet-500/40 bg-slate-900/90 shadow-lg shadow-violet-950/40 p-8 hover:-translate-y-1 hover:shadow-violet-900/50 transition-all duration-300 flex flex-col backdrop-blur-md relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Atom className="w-32 h-32 text-violet-400" />
+          </div>
+          <div className="h-14 w-14 rounded-2xl bg-violet-500/20 border border-violet-500/50 flex items-center justify-center mb-5 relative z-10">
+            <Atom className="h-7 w-7 text-violet-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Medical Physics</h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
+            Photon/electron interactions, linac engineering, PDD/TMR curves, dosimetry (TG-51), and rigorous machine QA standards.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-6 relative z-10">
+            {['Linac Anatomy', 'TG-51', 'Interactions', 'MLC QA'].map(pill => (
+              <span key={pill} className="rounded-md bg-violet-950/50 border border-violet-500/20 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-violet-300">{pill}</span>
+            ))}
+            <span className="rounded-md bg-violet-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">+55 Q's</span>
+          </div>
+          <div className="space-y-3 relative z-10">
+            <button onClick={() => onNavigate('quizzes', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-violet-300 hover:border-violet-500 hover:bg-violet-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Physics Vignettes</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button onClick={() => onNavigate('pearls', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-violet-300 hover:border-violet-500 hover:bg-violet-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><ChevronRight className="w-4 h-4"/> TG-51 & QA Pearls</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured Clinical Case of the Day */}
+      <div className="rounded-3xl border border-amber-500/40 bg-gradient-to-r from-amber-950/30 to-slate-900/90 shadow-lg shadow-amber-900/20 p-8 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-2 h-full bg-amber-500"></div>
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-black text-amber-400 uppercase tracking-widest border border-amber-500/40">
+              <AlertCircle className="w-3.5 h-3.5" /> Featured Case of the Day
+            </span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50">
+              Breast Cancer
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-3">FAST-Forward: Ultra-Hypofractionation</h3>
+          <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
+            A 65-year-old female undergoes lumpectomy for pT1c pN0 ER+ PR+ HER2- invasive ductal carcinoma. She is starting whole breast irradiation. Which of the following regimens is supported by the FAST-Forward trial?
+          </p>
+        </div>
+        <div className="shrink-0">
+          <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="flex items-center justify-center gap-2 rounded-2xl bg-amber-500 px-8 py-4 text-sm font-black text-amber-950 hover:bg-amber-400 transition shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]">
+            Solve Case <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Radiobiology Lab */}
-      <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-emerald-500/20 transition-all flex flex-col">
-        <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-6">
-          <Beaker className="h-8 w-8 text-emerald-400" />
-        </div>
-        <h2 className="text-2xl font-bold text-white mb-4">Radiobiology Lab</h2>
-        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
-          Master the LQ model, fractionations, α/β values, the 5Rs, acute vs late tissue effects, and tumor repopulation dynamics.
-        </p>
-        <div className="space-y-3">
-          <button onClick={() => onNavigate('radiobiology', 'ALL')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-900/20 transition">
-            <span className="flex items-center gap-2"><Activity className="w-4 h-4"/> BED / EQD2 Comparator</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          <button onClick={() => onNavigate('quizzes', 'RADIOBIOLOGY')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-900/20 transition">
-            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Concept Quizzes</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      {/* 2-Column High-Yield Board Knowledge Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        
+        {/* Landmark Phase III Trial Quick-Matrix */}
+        <div className="rounded-3xl border border-slate-700 bg-slate-900/90 shadow-xl p-8 backdrop-blur-md">
+          <h3 className="text-lg font-black text-white mb-6 uppercase tracking-widest flex items-center gap-3 border-b border-slate-800 pb-4">
+            <BookOpen className="w-5 h-5 text-sky-400" /> Landmark Trial Matrix
+          </h3>
+          <div className="space-y-4">
+            {/* Trial 1 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#060b14] border border-slate-800 hover:border-sky-500/30 transition-colors">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-bold text-sky-400">FLAME</h4>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded">Prostate</span>
+                </div>
+                <p className="text-xs text-slate-300 font-medium">EBRT + Focal boost up to 95 Gy to intraprostatic lesion</p>
+              </div>
+              <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                <span className="text-[11px] font-bold text-emerald-400">Improved bDFS</span>
+                <a href="https://doi.org/10.1200/JCO.20.02873" target="_blank" rel="noreferrer" className="text-[10px] text-slate-500 hover:text-sky-400 flex items-center gap-1 font-bold"><ArrowUpRight className="w-3 h-3"/> PubMed</a>
+              </div>
+            </div>
+            
+            {/* Trial 2 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#060b14] border border-slate-800 hover:border-sky-500/30 transition-colors">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-bold text-sky-400">PACIFIC</h4>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded">NSCLC</span>
+                </div>
+                <p className="text-xs text-slate-300 font-medium">Stage III unresectable post-CRT + Durvalumab</p>
+              </div>
+              <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                <span className="text-[11px] font-bold text-emerald-400">Improved OS & PFS</span>
+                <a href="https://doi.org/10.1056/NEJMoa1709937" target="_blank" rel="noreferrer" className="text-[10px] text-slate-500 hover:text-sky-400 flex items-center gap-1 font-bold"><ArrowUpRight className="w-3 h-3"/> PubMed</a>
+              </div>
+            </div>
 
-      {/* Physics Suite */}
-      <div className="rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-900/10 to-[#0c1322] p-8 shadow-xl hover:shadow-violet-500/20 transition-all flex flex-col">
-        <div className="h-16 w-16 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center mb-6">
-          <Atom className="h-8 w-8 text-violet-400" />
+            {/* Trial 3 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#060b14] border border-slate-800 hover:border-sky-500/30 transition-colors">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-bold text-sky-400">CROSS</h4>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded">Esophageal</span>
+                </div>
+                <p className="text-xs text-slate-300 font-medium">Pre-op CRT 41.4 Gy + Carbo/Taxol</p>
+              </div>
+              <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                <span className="text-[11px] font-bold text-emerald-400">Improved OS & R0 Resection</span>
+                <a href="https://doi.org/10.1056/NEJMoa1205128" target="_blank" rel="noreferrer" className="text-[10px] text-slate-500 hover:text-sky-400 flex items-center gap-1 font-bold"><ArrowUpRight className="w-3 h-3"/> PubMed</a>
+              </div>
+            </div>
+            
+            {/* Trial 4 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#060b14] border border-slate-800 hover:border-sky-500/30 transition-colors">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-bold text-sky-400">EORTC 22881</h4>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded">Breast</span>
+                </div>
+                <p className="text-xs text-slate-300 font-medium">16 Gy tumor bed boost after 50 Gy WBI</p>
+              </div>
+              <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                <span className="text-[11px] font-bold text-emerald-400">Halved Local Recurrence</span>
+                <a href="https://doi.org/10.1056/NEJMoa070140" target="_blank" rel="noreferrer" className="text-[10px] text-slate-500 hover:text-sky-400 flex items-center gap-1 font-bold"><ArrowUpRight className="w-3 h-3"/> PubMed</a>
+              </div>
+            </div>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-4">Medical Physics</h2>
-        <p className="text-slate-400 leading-relaxed mb-8 flex-1">
-          Photon/electron interactions, linac engineering, PDD/TMR curves, dosimetry (TG-51), and rigorous machine QA standards.
-        </p>
-        <div className="space-y-3">
-          <button onClick={() => onNavigate('quizzes', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-violet-300 hover:border-violet-500/50 hover:bg-violet-900/20 transition">
-            <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Physics Vignettes</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          <button onClick={() => onNavigate('pearls', 'PHYSICS')} className="w-full flex items-center justify-between rounded-xl bg-[#0a101d] border border-slate-700 px-5 py-3.5 text-sm font-bold text-violet-300 hover:border-violet-500/50 hover:bg-violet-900/20 transition">
-            <span className="flex items-center gap-2"><ChevronRight className="w-4 h-4"/> TG-51 & QA Pearls</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+
+        {/* Essential Radiobiology & Physics Cheat-Sheet */}
+        <div className="rounded-3xl border border-slate-700 bg-slate-900/90 shadow-xl p-8 backdrop-blur-md">
+          <h3 className="text-lg font-black text-white mb-6 uppercase tracking-widest flex items-center gap-3 border-b border-slate-800 pb-4">
+            <Activity className="w-5 h-5 text-emerald-400" /> Radiobiology & Physics
+          </h3>
+          <div className="grid gap-4">
+            
+            {/* QUANTEC Table */}
+            <div className="rounded-2xl bg-[#060b14] border border-slate-800 p-5">
+               <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="w-3.5 h-3.5"/> QUANTEC OAR Constraints</h4>
+               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs font-medium">
+                 <div className="flex justify-between border-b border-slate-800 pb-1">
+                   <span className="text-slate-300">Spinal Cord</span>
+                   <span className="text-rose-400 font-bold max-w-[100px] text-right">Max &lt; 45-50 Gy</span>
+                 </div>
+                 <div className="flex justify-between border-b border-slate-800 pb-1">
+                   <span className="text-slate-300">Brainstem</span>
+                   <span className="text-rose-400 font-bold max-w-[100px] text-right">Max &lt; 54 Gy</span>
+                 </div>
+                 <div className="flex justify-between border-b border-slate-800 pb-1">
+                   <span className="text-slate-300">Optic Chiasm</span>
+                   <span className="text-rose-400 font-bold max-w-[100px] text-right">Max &lt; 54 Gy</span>
+                 </div>
+                 <div className="flex justify-between border-b border-slate-800 pb-1">
+                   <span className="text-slate-300">Rectum</span>
+                   <span className="text-rose-400 font-bold max-w-[100px] text-right">V70 &lt; 20%</span>
+                 </div>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {/* LQ Formula */}
+              <div className="rounded-2xl bg-[#060b14] border border-emerald-900/30 p-5">
+                <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3">LQ Model Math</h4>
+                <div className="space-y-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-500 uppercase">BED</span>
+                    <span className="text-sm font-mono text-emerald-300">nd [1 + d/(α/β)]</span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-500 uppercase">EQD2</span>
+                    <span className="text-sm font-mono text-emerald-300">BED / [1 + 2/(α/β)]</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Photon Physics */}
+              <div className="rounded-2xl bg-[#060b14] border border-violet-900/30 p-5">
+                <h4 className="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-3">Photon Physics</h4>
+                <ul className="space-y-2 text-xs font-medium text-slate-300">
+                  <li className="flex justify-between"><span className="text-slate-400">6 MV dmax:</span> <span className="text-violet-300 font-bold">1.5 cm</span></li>
+                  <li className="flex justify-between"><span className="text-slate-400">18 MV dmax:</span> <span className="text-violet-300 font-bold">3.5 cm</span></li>
+                  <li className="flex justify-between"><span className="text-slate-400">Compton:</span> <span className="text-violet-300 font-bold">Z⁰ dep.</span></li>
+                  <li className="flex justify-between"><span className="text-slate-400">Photoelectric:</span> <span className="text-violet-300 font-bold">Z³ dep.</span></li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
         </div>
+
       </div>
     </div>
   );
