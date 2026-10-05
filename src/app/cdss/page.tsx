@@ -8358,17 +8358,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       ? `Nodal: ${prescriptionNodalTarget.anatomical}`
       : 'Nodal: Elektif nodal hedef yok')));
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-100 dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
-        <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-          {lang === 'tr' ? 'Yükleniyor...' : 'Loading...'}
-        </div>
-      </div>
-    );
-  }
-
   const reportOrganNames: Record<OrganId, string> = {
     thorax: lang === 'tr' ? 'Toraks' : 'Thorax',
     prostate: lang === 'tr' ? 'Genitoüriner Sistem' : 'Genitourinary',
@@ -8483,6 +8472,17 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
     [activeScheme, selectedOrgan, selectedSubsite, thoraxCentrality, evidenceReferences, isSclcTurrisiScheme]
   );
   const verifyReference = evidenceReferences[0];
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-100 dark:bg-[#070b14] text-slate-800 dark:text-slate-200 font-sans" role="status" aria-live="polite">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true" />
+        <div className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+          {lang === 'tr' ? 'Yükleniyor...' : 'Loading...'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
