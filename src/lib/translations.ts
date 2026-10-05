@@ -22,6 +22,14 @@ export type TranslationDictionary = {
   heroTitle: string;
   heroDescription: string;
   heroAction: string;
+  hero: {
+    cdss: { badge: string; title: string; subtitle: string; description: string; bullet1: string; bullet2: string; bullet3: string; button: string; };
+    academy: { badge: string; title: string; subtitle: string; description: string; bullet1: string; bullet2: string; bullet3: string; button: string; };
+  };
+  academy: {
+    tabs: { hub: string; quizzes: string; flashcards: string; radiobiology: string; pearls: string; };
+    pillars: { clinical: string; radiobiology: string; physics: string; };
+  };
   sectionTitle: string;
   sectionDescription: string;
   portalBadge: string;
@@ -65,6 +73,42 @@ export const translations: Record<Language, TranslationDictionary> = {
     heroTitle: 'RadOnco CDSS',
     heroDescription: 'Radyasyon onkolojisi klinik karar desteği, dozimetri araçları ve kanıt kaynakları tek bir çalışma alanında. Tüm çıktılar klinik değerlendirmeyi desteklemek içindir; hekim kararının yerini almaz.',
     heroAction: 'Karar Destek Matrisini Aç',
+    hero: {
+      cdss: {
+        badge: 'KLİNİK KARAR DESTEK',
+        title: 'RadOnco CDSS',
+        subtitle: 'Kanıta Dayalı Klinik Karar Destek Sistemi',
+        description: 'MDR Kural 11 uyumlu, tam kural izlenebilirliği sunan deterministik radyoterapi karar motoru.',
+        bullet1: '25+ Faz III Landmark Çalışma Havuzu',
+        bullet2: 'EQD2 / BED Biyo-Eşdeğer Doz Matematiği',
+        bullet3: 'Organa Özgü Risk ve Evreleme Motorları',
+        button: 'CDSS Motorunu Başlat',
+      },
+      academy: {
+        badge: 'EĞİTİM & SINAV HAZIRLIK',
+        title: 'RadOnco Akademi',
+        subtitle: 'İnteraktif Onkoloji Eğitimi & Yeterlik Sınavı Merkezi',
+        description: 'Vaka temelli soru bankası, yüksek verimli landmark akıl kartları ve canlı radyobiyoloji/fizik laboratuvarı.',
+        bullet1: 'Tıklanabilir DOI Bağlantılı PICO Vaka Havuzu',
+        bullet2: '3D İnteraktif Akıl Kartları (Flashcards)',
+        bullet3: 'Radyobiyolojik Doz & Fraksiyonasyon Hesaplayıcı',
+        button: 'Akademiye Gir',
+      },
+    },
+    academy: {
+      tabs: {
+        hub: 'Akademi Merkezi',
+        quizzes: 'Vaka Soruları',
+        flashcards: 'Akıl Kartları',
+        radiobiology: 'LQ Laboratuvarı',
+        pearls: 'Klinik İnciler',
+      },
+      pillars: {
+        clinical: 'Klinik Onkoloji',
+        radiobiology: 'Radyobiyoloji Laboratuvarı',
+        physics: 'Tıbbi Radyofizik',
+      },
+    },
     sectionTitle: 'Klinik araçlar ve kaynaklar',
     sectionDescription: 'Çalışma alanını seçerek devam edin.',
     portalBadge: 'RadOnco Portal',
@@ -153,6 +197,42 @@ export const translations: Record<Language, TranslationDictionary> = {
     heroTitle: 'RadOnco CDSS',
     heroDescription: 'Radiation oncology clinical decision support, dosimetry tools and evidence sources in a unified workspace. All outputs support clinical evaluation; they do not replace clinician judgement.',
     heroAction: 'Open Decision Support Matrix',
+    hero: {
+      cdss: {
+        badge: 'DECISION SUPPORT',
+        title: 'RadOnco CDSS',
+        subtitle: 'Evidence-Based Clinical Decision Support',
+        description: 'Deterministic, guideline-adherent radiotherapy decision-making with full rule auditability and MDR Rule 11 compliance.',
+        bullet1: '25+ Landmark Phase III Trials',
+        bullet2: 'EQD2/BED Isoeffective Math',
+        bullet3: 'Organ-Specific Risk Engines',
+        button: 'Launch CDSS',
+      },
+      academy: {
+        badge: 'EDUCATION & PREP',
+        title: 'RadOnco Academy',
+        subtitle: 'Interactive Oncology Education & Board Exam Prep',
+        description: 'Case-based vignette quiz bank, high-yield landmark trial flashcards, and live radiobiology comparator.',
+        bullet1: 'PICO Case Bank with Clickable DOIs',
+        bullet2: '3D Interactive Flashcards',
+        bullet3: 'Radiobiological Regimen Calculator',
+        button: 'Enter Academy',
+      },
+    },
+    academy: {
+      tabs: {
+        hub: 'Academy Hub',
+        quizzes: 'Case Quizzes',
+        flashcards: 'Flashcards',
+        radiobiology: 'LQ Lab',
+        pearls: 'Board Pearls',
+      },
+      pillars: {
+        clinical: 'Clinical Oncology',
+        radiobiology: 'Radiobiology Lab',
+        physics: 'Medical Physics',
+      },
+    },
     sectionTitle: 'Clinical tools and resources',
     sectionDescription: 'Select a workspace to proceed.',
     portalBadge: 'RadOnco Portal',

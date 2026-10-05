@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { quizVignettes, flashcards, boardPearls, type AcademicPillar } from '@/data/academyData';
 import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck, Beaker, Atom, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: string; glow: string; icon: React.ReactNode }> = {
   CLINICAL: { text: 'text-sky-400', bg: 'bg-sky-900/20', border: 'border-sky-500/30', glow: 'shadow-[0_0_15px_rgba(56,189,248,0.15)]', icon: <ShieldCheck className="w-3.5 h-3.5" /> },
@@ -11,6 +12,7 @@ const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: 
 };
 
 export default function AcademyPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'hub' | 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls'>('hub');
   const [pillarFilter, setPillarFilter] = useState<AcademicPillar | 'ALL'>('ALL');
   const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
@@ -48,16 +50,16 @@ export default function AcademyPage() {
           </div>
           
           <div className="flex flex-wrap gap-2 rounded-2xl bg-[#0c1322] p-2 border border-slate-800 shadow-xl">
-            <TabButton id="hub" icon={<Activity className="h-4 w-4" />} label="Academy Hub" isActive={activeTab === 'hub'} onClick={() => setActiveTab('hub')} />
-            <TabButton id="quizzes" icon={<Library className="h-4 w-4" />} label="Quizzes" isActive={activeTab === 'quizzes'} onClick={() => setActiveTab('quizzes')} />
-            <TabButton id="flashcards" icon={<BookOpen className="h-4 w-4" />} label="Flashcards" isActive={activeTab === 'flashcards'} onClick={() => setActiveTab('flashcards')} />
-            <TabButton id="radiobiology" icon={<Beaker className="h-4 w-4" />} label="LQ Lab" isActive={activeTab === 'radiobiology'} onClick={() => setActiveTab('radiobiology')} />
-            <TabButton id="pearls" icon={<ChevronRight className="h-4 w-4" />} label="Pearls" isActive={activeTab === 'pearls'} onClick={() => setActiveTab('pearls')} />
+            <TabButton id="hub" icon={<Activity className="h-4 w-4" />} label={t.academy.tabs.hub} isActive={activeTab === 'hub'} onClick={() => setActiveTab('hub')} />
+            <TabButton id="quizzes" icon={<Library className="h-4 w-4" />} label={t.academy.tabs.quizzes} isActive={activeTab === 'quizzes'} onClick={() => setActiveTab('quizzes')} />
+            <TabButton id="flashcards" icon={<BookOpen className="h-4 w-4" />} label={t.academy.tabs.flashcards} isActive={activeTab === 'flashcards'} onClick={() => setActiveTab('flashcards')} />
+            <TabButton id="radiobiology" icon={<Beaker className="h-4 w-4" />} label={t.academy.tabs.radiobiology} isActive={activeTab === 'radiobiology'} onClick={() => setActiveTab('radiobiology')} />
+            <TabButton id="pearls" icon={<ChevronRight className="h-4 w-4" />} label={t.academy.tabs.pearls} isActive={activeTab === 'pearls'} onClick={() => setActiveTab('pearls')} />
           </div>
         </header>
 
         {activeTab === 'hub' ? (
-          <HubDashboard onNavigate={handleHubNavigation} />
+          <HubDashboard onNavigate={handleHubNavigation} t={t} />
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
             {/* Left Column */}
@@ -70,9 +72,9 @@ export default function AcademyPage() {
                 </h3>
                 <div className="flex flex-col gap-3">
                   <FilterButton id="ALL" label="All Pillars" icon={<Library className="w-4 h-4"/>} active={pillarFilter === 'ALL'} onClick={() => setPillarFilter('ALL')} color="slate" />
-                  <FilterButton id="CLINICAL" label="Clinical Oncology" icon={<ShieldCheck className="w-4 h-4"/>} active={pillarFilter === 'CLINICAL'} onClick={() => setPillarFilter('CLINICAL')} color="sky" />
-                  <FilterButton id="RADIOBIOLOGY" label="Radiobiology" icon={<Beaker className="w-4 h-4"/>} active={pillarFilter === 'RADIOBIOLOGY'} onClick={() => setPillarFilter('RADIOBIOLOGY')} color="emerald" />
-                  <FilterButton id="PHYSICS" label="Medical Physics" icon={<Atom className="w-4 h-4"/>} active={pillarFilter === 'PHYSICS'} onClick={() => setPillarFilter('PHYSICS')} color="violet" />
+                  <FilterButton id="CLINICAL" label={t.academy.pillars.clinical} icon={<ShieldCheck className="w-4 h-4"/>} active={pillarFilter === 'CLINICAL'} onClick={() => setPillarFilter('CLINICAL')} color="sky" />
+                  <FilterButton id="RADIOBIOLOGY" label={t.academy.pillars.radiobiology} icon={<Beaker className="w-4 h-4"/>} active={pillarFilter === 'RADIOBIOLOGY'} onClick={() => setPillarFilter('RADIOBIOLOGY')} color="emerald" />
+                  <FilterButton id="PHYSICS" label={t.academy.pillars.physics} icon={<Atom className="w-4 h-4"/>} active={pillarFilter === 'PHYSICS'} onClick={() => setPillarFilter('PHYSICS')} color="violet" />
                 </div>
               </div>
 
@@ -126,7 +128,7 @@ export default function AcademyPage() {
   );
 }
 
-function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void }) {
+function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void, t: any }) {
   return (
     <div className="flex flex-col gap-8 py-4">
       {/* Top 3 Pillar Cards */}
@@ -139,7 +141,7 @@ function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcard
           <div className="h-14 w-14 rounded-2xl bg-sky-500/20 border border-sky-500/50 flex items-center justify-center mb-5 relative z-10">
             <ShieldCheck className="h-7 w-7 text-sky-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Clinical Oncology</h2>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">{t.academy.pillars.clinical}</h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
             Evidence-based practice covering Organ-specific vignettes, Phase III landmark trials, and NCCN guideline adherence.
           </p>
@@ -169,7 +171,7 @@ function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcard
           <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mb-5 relative z-10">
             <Beaker className="h-7 w-7 text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Radiobiology Lab</h2>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">{t.academy.pillars.radiobiology}</h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
             Master the LQ model, fractionations, α/β values, the 5Rs, acute vs late tissue effects, and tumor repopulation.
           </p>
@@ -199,7 +201,7 @@ function HubDashboard({ onNavigate }: { onNavigate: (tab: 'quizzes' | 'flashcard
           <div className="h-14 w-14 rounded-2xl bg-violet-500/20 border border-violet-500/50 flex items-center justify-center mb-5 relative z-10">
             <Atom className="h-7 w-7 text-violet-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Medical Physics</h2>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">{t.academy.pillars.physics}</h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1 relative z-10">
             Photon/electron interactions, linac engineering, PDD/TMR curves, dosimetry (TG-51), and rigorous machine QA standards.
           </p>

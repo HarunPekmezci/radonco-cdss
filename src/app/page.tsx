@@ -158,27 +158,27 @@ export default function PortalPage() {
             <div className="relative max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300">
                 <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
-                Decision Support
+                {t.hero.cdss.badge}
               </div>
               <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                RadOnco <span className="text-amber-400">CDSS</span>
+                {t.hero.cdss.title.split(' ')[0]} <span className="text-amber-400">{t.hero.cdss.title.split(' ').slice(1).join(' ')}</span>
               </h1>
               <p className="mt-2 text-lg font-medium text-slate-200">
-                Evidence-Based Clinical Decision Support
+                {t.hero.cdss.subtitle}
               </p>
               <p className="mt-4 text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
-                Deterministic, guideline-adherent radiotherapy decision-making with full rule auditability and MDR Rule 11 compliance.
+                {t.hero.cdss.description}
               </p>
               <ul className="mt-6 space-y-2 text-sm text-slate-300">
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> 25+ Landmark Phase III Trials</li>
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> EQD2/BED Isoeffective Math</li>
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> Organ-Specific Risk Engines</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> {t.hero.cdss.bullet1}</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> {t.hero.cdss.bullet2}</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-amber-400"/> {t.hero.cdss.bullet3}</li>
               </ul>
               <Link
                 href="/cdss"
                 className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-amber-950 shadow-lg shadow-amber-900/30 transition hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
               >
-                Launch CDSS
+                {t.hero.cdss.button}
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
@@ -190,27 +190,27 @@ export default function PortalPage() {
             <div className="relative max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300">
                 <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
-                Education & Prep
+                {t.hero.academy.badge}
               </div>
               <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                RadOnco <span className="text-emerald-400">Academy</span>
+                {t.hero.academy.title.split(' ')[0]} <span className="text-emerald-400">{t.hero.academy.title.split(' ').slice(1).join(' ')}</span>
               </h1>
               <p className="mt-2 text-lg font-medium text-slate-200">
-                Interactive Oncology Education & Board Exam Prep
+                {t.hero.academy.subtitle}
               </p>
               <p className="mt-4 text-sm leading-6 text-slate-300 sm:text-base sm:leading-7">
-                Case-based vignette quiz bank, high-yield landmark trial flashcards, and live radiobiological comparator.
+                {t.hero.academy.description}
               </p>
               <ul className="mt-6 space-y-2 text-sm text-slate-300">
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> PICO Case Bank with Clickable DOIs</li>
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> 3D Interactive Flashcards</li>
-                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> Radiobiological Regimen Calculator</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> {t.hero.academy.bullet1}</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> {t.hero.academy.bullet2}</li>
+                <li className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400"/> {t.hero.academy.bullet3}</li>
               </ul>
               <Link
                 href="/academy"
                 className="mt-8 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-bold text-emerald-950 shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
               >
-                Enter Academy
+                {t.hero.academy.button}
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
