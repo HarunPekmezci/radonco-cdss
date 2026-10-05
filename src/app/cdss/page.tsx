@@ -12315,12 +12315,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           <table className="print-report-table">
             <tbody>
               <tr>
-                <th>{lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Site'}</th><td>{reportOrganNames[selectedOrgan]}</td>
-                <th>{lang === 'tr' ? 'Yaş' : 'Age'}</th><td>{patientAgeYears || '—'}</td>
+                <th>{lang === 'tr' ? 'T.C. Kimlik No' : 'National ID (T.C. No)'}</th><td>{patientId || '—'}</td>
+                <th>{lang === 'tr' ? 'Yaş / Cinsiyet' : 'Age / Gender'}</th><td>{patientAgeYears ? `${patientAgeYears} ${lang === 'tr' ? 'yaş' : 'yo'}` : '—'}{patientGender ? ` / ${patientGender}` : ''}</td>
               </tr>
               <tr>
+                <th>{lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Site'}</th><td>{reportOrganNames[selectedOrgan]}</td>
                 <th>{lang === 'tr' ? 'Tanı / Alt Tip' : 'Diagnosis / Subsite'}</th><td>{reportDiagnosis}</td>
-                <th>{lang === 'tr' ? 'Histoloji' : 'Histology'}</th><td>{reportHistology}</td>
+              </tr>
+              <tr>
+                <th>{lang === 'tr' ? 'Histoloji' : 'Histology'}</th><td colSpan={3}>{reportHistology}</td>
               </tr>
               <tr>
                 <th>{lang === 'tr' ? 'Moleküler / Klinik Parametreler' : 'Molecular / Clinical Parameters'}</th><td colSpan={3}>{reportMolecular}</td>
