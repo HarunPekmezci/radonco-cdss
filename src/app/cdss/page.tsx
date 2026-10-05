@@ -4274,6 +4274,9 @@ export default function RadoncoCDSSPage() {
   const handleOrganChange = (newOrgan: OrganId) => {
     setIsMobileDrawerOpen(false);
     setSelectedOrgan(newOrgan);
+    if (newOrgan === 'benign' && activeMobilePanel === 'parameters') {
+      setActiveMobilePanel('tnm');
+    }
     setSelectedSubsite(newOrgan === 'emergencies' || newOrgan === 'palliative' ? ORGAN_TREE[newOrgan][0]?.id ?? '' : '');
     if (newOrgan === 'palliative') setPalliativeIntent('Agri');
     setSelectedQuickCaseId(null);
@@ -4321,6 +4324,9 @@ export default function RadoncoCDSSPage() {
     );
     if (parentOrgan) {
       setSelectedOrgan(parentOrgan);
+      if (parentOrgan === 'benign' && activeMobilePanel === 'parameters') {
+        setActiveMobilePanel('tnm');
+      }
     }
     if (subKey === 'palliative-bone') setPalliativeIntent('Agri');
     if (subKey === 'palliative-brain') setPalliativeIntent('Beyin');
@@ -8563,7 +8569,7 @@ export default function RadoncoCDSSPage() {
 
     return `${labels.clinicalSummary} (RadOnco CDSS)
 ${labels.organSystem}: ${lang === 'tr' ? selectedOrgan.toUpperCase() : organNames[selectedOrgan]} (${patientAgeYears ? `${lang === 'tr' ? 'Yaş' : 'Age'} ${patientAgeYears}; ` : ''}${subInfo})
-${labels.stage}: ${selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (lang === 'tr' ? 'Uygulanmaz' : 'Not applicable') : `${selectedT} ${selectedN} ${selectedM}`}
+${labels.stage}: ${isBenign || selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (lang === 'tr' ? 'Uygulanmaz' : 'Not applicable') : `${selectedT} ${selectedN} ${selectedM}`}
 ${labels.decision}: ${tText(evaluatedDecision.statusText)}
 ${labels.prescription}: ${tText(activeScheme.name)} [${tText(activeScheme.tag)}]
 ${labels.totalDose}: ${activeScheme.totalDoseGy} Gy | ${labels.fraction}: ${activeScheme.fractionCount} ${labels.fx} (${activeScheme.fractionDoseGy} Gy/${labels.fx})
@@ -8637,7 +8643,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
       age: patientAgeYears,
       gender: patientGender,
       diagnosis,
-      stage: `${selectedT} ${selectedN} ${selectedM}`,
+      stage: isBenign || selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (lang === 'tr' ? 'Uygulanmaz' : 'Not applicable') : `${selectedT} ${selectedN} ${selectedM}`,
       prescription: `${activeScheme.name} · ${activeScheme.totalDoseGy} Gy / ${activeScheme.fractionCount} fx`,
       bed: radiobiologyByAlphaBeta.find(item => item.ab === 10)?.bed ?? radiobiology.bed,
       eqd2: radiobiologyByAlphaBeta.find(item => item.ab === 10)?.eqd2 ?? radiobiology.eqd2,
@@ -8831,11 +8837,15 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           : '');
   const clinicalDecisionFactors = [
     { label: 'Tanı / Diagnosis', value: tText(reportDiagnosis) },
-    { label: 'Evre / Stage', value: `${selectedT}${selectedN}${selectedM}` },
-    { label: 'Histoloji / Histology', value: tText(reportHistology) },
-    ...(selectedRisk ? [{ label: 'Risk Grubu / Risk Category', value: tText(selectedRisk) }] : []),
-    ...(surgeryLogic ? [{ label: 'Cerrahi / Surgery', value: surgeryLogic }] : []),
-    ...(surgicalMarginLogic ? [{ label: 'Cerrahi Sınır / Margin', value: surgicalMarginLogic }] : []),
+    ...(isBenign
+      ? [{ label: lang === 'tr' ? 'Klinik Durum' : 'Clinical Status', value: tText(BENIGN_CLINICAL_OPTIONS[selectedSubsite]?.find(opt => opt.value === benignClinicalStatus)?.label ?? '') }]
+      : selectedOrgan !== 'emergencies' && selectedOrgan !== 'palliative'
+        ? [{ label: 'Evre / Stage', value: `${selectedT} ${selectedN} ${selectedM}` }]
+        : []),
+    ...(!isBenign && reportHistology ? [{ label: 'Histoloji / Histology', value: tText(reportHistology) }] : []),
+    ...(selectedRisk && !isBenign ? [{ label: 'Risk Grubu / Risk Category', value: tText(selectedRisk) }] : []),
+    ...(surgeryLogic && !isBenign ? [{ label: 'Cerrahi / Surgery', value: surgeryLogic }] : []),
+    ...(surgicalMarginLogic && !isBenign ? [{ label: 'Cerrahi Sınır / Margin', value: surgicalMarginLogic }] : []),
     { label: 'Endikasyon / Indication', value: tText(activeScheme.indication) },
     {
       label: 'Önerilen Şema / Recommended Scheme',
@@ -9456,12 +9466,18 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         )}
 
         {!isGuidedMode && (
-          <div className="col-span-12 mb-3 grid h-11 grid-cols-3 items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden" role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
-            {[
-              { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
-              { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
-              { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
-            ].map(tab => (
+          <div className={`col-span-12 mb-3 grid h-11 ${isBenign ? 'grid-cols-2' : 'grid-cols-3'} items-center gap-1 rounded-xl border border-slate-800 bg-[#0e1726] p-1 lg:hidden`} role="tablist" aria-label={lang === 'tr' ? 'Klinik paneller' : 'Clinical panels'}>
+            {(isBenign
+              ? [
+                  { id: 'tnm' as const, label: lang === 'tr' ? '1. Klinik Durum' : '1. Clinical Status' },
+                  { id: 'prescription' as const, label: lang === 'tr' ? '2. Reçete & Doz' : '2. Prescription & Dose' },
+                ]
+              : [
+                  { id: 'parameters' as const, label: lang === 'tr' ? '1. Parametreler' : '1. Parameters' },
+                  { id: 'tnm' as const, label: lang === 'tr' ? '2. TNM Tablosu' : '2. TNM Table' },
+                  { id: 'prescription' as const, label: lang === 'tr' ? '3. Reçete & Doz' : '3. Prescription & Dose' },
+                ]
+            ).map(tab => (
               <button
                 key={tab.id}
                 type="button"
@@ -9485,8 +9501,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
-            ? (guidedStep === 2 || (guidedStep === 3 && hasPrognosticModel)) ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
-            : `${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : 'flex'} lg:col-span-5 xl:col-span-3 2xl:col-span-3`
+            ? (guidedStep === 2 || (guidedStep === 3 && hasPrognosticModel)) ? (isBenign ? 'hidden' : 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end') : 'hidden'
+            : isBenign
+              ? 'hidden'
+              : `${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : 'flex'} lg:col-span-5 xl:col-span-3 2xl:col-span-3`
         }`}>
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
           {currentHistologies.length > 0 && (
@@ -9665,6 +9683,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           )}
 
           {/* DİNAMİK RİSK FAKTÖRLERİ VE CERRAHİ FORMU */}
+          {!isBenign && (
           <div className="rounded-2xl bg-[#0c1322] border border-slate-800 p-3 shadow-sm flex flex-col gap-2.5 lg:p-5 lg:gap-3">
             <h2 className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5" />
@@ -10754,7 +10773,8 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </div>
             )}
           </div>
-          {(!isGuidedMode || guidedStep >= 3) && hasPrognosticModel && (
+          )}
+          {(!isGuidedMode || guidedStep >= 3) && !isBenign && hasPrognosticModel && (
           <section
             id="guided-prognostic-assessment"
             className="w-full rounded-2xl glass-panel p-4 shadow-xl sm:p-6"
@@ -10902,8 +10922,10 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
-            ? guidedStep === 2 ? 'lg:col-span-7 xl:max-w-[1100px]' : 'hidden'
-            : `${activeMobilePanel !== 'tnm' ? 'hidden xl:flex' : 'flex'} xl:col-span-4 2xl:col-span-4`
+            ? guidedStep === 2 ? (isBenign ? 'lg:col-span-12 mx-auto w-full max-w-[1200px]' : 'lg:col-span-7 xl:max-w-[1100px]') : 'hidden'
+            : isBenign
+              ? `${activeMobilePanel !== 'tnm' && activeMobilePanel !== 'parameters' ? 'hidden xl:flex' : 'flex'} xl:col-span-5 2xl:col-span-5`
+              : `${activeMobilePanel !== 'tnm' ? 'hidden xl:flex' : 'flex'} xl:col-span-4 2xl:col-span-4`
         }`}>
           {!isGuidedMode && selectedOrgan !== 'emergencies' && currentOrganPresets.length > 0 && (
             <div
@@ -11109,7 +11131,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         <section className={`col-span-12 flex flex-col gap-4 ${
           isGuidedMode
             ? guidedStep === 4 ? 'lg:col-span-12 mx-auto w-full max-w-[1720px]' : 'hidden'
-            : `${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : 'flex'} lg:col-span-7 xl:col-span-5 2xl:col-span-5`
+            : `${activeMobilePanel !== 'prescription' ? 'hidden lg:flex' : 'flex'} ${isBenign ? 'lg:col-span-12 xl:col-span-7 2xl:col-span-7' : 'lg:col-span-7 xl:col-span-5 2xl:col-span-5'}`
         }`}>
           <div className="rounded-2xl glass-panel-glow p-5 sm:p-6 shadow-xl shadow-black/40">
 
@@ -11308,10 +11330,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                       <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 font-mono text-[11px] text-white">
                         {reportOrganNames[selectedOrgan]}
                       </span>
-                      <span className="text-slate-500">•</span>
-                      <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 font-mono text-[11px] text-sky-300 font-bold">
-                        {selectedT} {selectedN} {selectedM}
-                      </span>
+                      {selectedOrgan !== 'benign' && selectedOrgan !== 'palliative' && selectedOrgan !== 'emergencies' ? (
+                        <>
+                          <span className="text-slate-500">•</span>
+                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 font-mono text-[11px] text-sky-300 font-bold">
+                            {selectedT} {selectedN} {selectedM}
+                          </span>
+                        </>
+                      ) : selectedOrgan === 'benign' ? (
+                        <>
+                          <span className="text-slate-500">•</span>
+                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] text-emerald-300 font-medium">
+                            {tText(BENIGN_CLINICAL_OPTIONS[selectedSubsite]?.find(opt => opt.value === benignClinicalStatus)?.label ?? '')}
+                          </span>
+                        </>
+                      ) : null}
                       {selectedHistology && (
                         <>
                           <span className="text-slate-500">•</span>
@@ -12301,7 +12334,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 <th>{lang === 'tr' ? 'Moleküler / Klinik Parametreler' : 'Molecular / Clinical Parameters'}</th><td colSpan={3}>{reportMolecular}</td>
               </tr>
               <tr>
-                <th>{lang === 'tr' ? 'Klinik Evre' : 'Clinical Stage'}</th><td colSpan={3}>{selectedT} {selectedN} {selectedM} • {tText(evaluatedDecision.statusText)}</td>
+                <th>{lang === 'tr' ? 'Klinik Evre' : 'Clinical Stage'}</th><td colSpan={3}>{isBenign || selectedOrgan === 'emergencies' || selectedOrgan === 'palliative' ? (lang === 'tr' ? 'Uygulanmaz' : 'Not applicable') : `${selectedT} ${selectedN} ${selectedM}`} • {tText(evaluatedDecision.statusText)}</td>
               </tr>
             </tbody>
           </table>
