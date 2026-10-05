@@ -9,6 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const navigation = [
   { href: '/cdss', labelKey: 'cdss' },
+  { href: '/academy', labelKey: 'academy' },
   { href: '/doz-kisitlari', labelKey: 'constraints' },
   { href: '/doz-hesaplayici', labelKey: 'calculator' },
   { href: '/hedef-hacim', labelKey: 'contouring' },

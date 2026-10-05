@@ -3,6 +3,7 @@ export type Language = 'tr' | 'en';
 export type TranslationDictionary = {
   nav: {
     cdss: string;
+    academy: string;
     constraints: string;
     calculator: string;
     contouring: string;
@@ -48,6 +49,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   tr: {
     nav: {
       cdss: 'CDSS',
+      academy: 'Akademi',
       constraints: 'Doz Kısıtları',
       calculator: 'Doz Hesaplayıcı',
       contouring: 'Hedef Hacim',
@@ -135,6 +137,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   en: {
     nav: {
       cdss: 'CDSS',
+      academy: 'Academy',
       constraints: 'OAR Constraints',
       calculator: 'Dose Calculator',
       contouring: 'Target Volumes',
