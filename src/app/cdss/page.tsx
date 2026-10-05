@@ -9488,34 +9488,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             ? (guidedStep === 2 || (guidedStep === 3 && hasPrognosticModel)) ? 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end' : 'hidden'
             : `${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : 'flex'} lg:col-span-5 xl:col-span-3 2xl:col-span-3`
         }`}>
-          <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-sky-950/30 p-3 shadow-sm">
-            <div className="mb-1 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-                <span className="text-xs font-bold text-white">
-                  {lang === 'tr' ? 'Deterministik Karar Doğrulama' : 'Deterministic Decision Verification'}
-                </span>
-              </div>
-              <span className="rounded border border-emerald-400/40 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-300">
-                MDR Kural 11 / SaMD
-              </span>
-            </div>
-            <p className="mb-2 text-[11px] leading-relaxed text-slate-300">
-              {lang === 'tr'
-                ? 'Tüm öneriler ASTRO, ESTRO ve NCCN kılavuz kurallarından deterministik olarak türetilir. Halüsinasyon riski taşıyan serbest metin AI ayrıştırıcıları klinik güvenlik gereğince devre dışıdır.'
-                : 'All recommendations derive deterministically from peer-reviewed ASTRO, ESTRO, and NCCN matrices. Free-text AI extraction is excluded per SaMD safety standards.'}
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsMdrModalOpen(true)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
-            >
-              <Info className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
-              <span>{lang === 'tr' ? 'MDR Yönetişim & Güvenlik Kriterleri' : 'MDR Governance & Safety Framework'}</span>
-            </button>
-          </div>
-
-
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
           {currentHistologies.length > 0 && (
             isGuidedMode && guidedStep === 3 ? (
