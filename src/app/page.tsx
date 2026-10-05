@@ -170,14 +170,9 @@ export default function PortalPage() {
         </section>
 
         <section className="mt-10 sm:mt-12" aria-labelledby="tools-heading">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 id="tools-heading" className="text-lg font-semibold text-white">{t.sectionTitle}</h2>
-              <p className="mt-1 text-xs text-slate-400">{t.sectionDescription}</p>
-            </div>
-            <span className="hidden rounded-full border border-slate-700 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:inline-flex">
-              {t.portalBadge}
-            </span>
+          <div className="mb-4">
+            <h2 id="tools-heading" className="text-lg font-semibold text-white">{t.sectionTitle}</h2>
+            <p className="mt-1 text-xs text-slate-400">{t.sectionDescription}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -197,13 +192,6 @@ export default function PortalPage() {
                     <ArrowUpRight className="h-4 w-4 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-sky-300" aria-hidden="true" />
                   </div>
                   <h3 className="mt-4 flex-1 text-base font-semibold leading-snug text-white">{card.title}</h3>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {card.badges.map(badge => (
-                      <span key={badge} className="rounded-md border border-slate-700/80 bg-slate-900/70 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-300">
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
                 </Link>
               );
             })}
