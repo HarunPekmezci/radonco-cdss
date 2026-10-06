@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { quizVignettes, flashcards, boardPearls, type AcademicPillar } from '@/data/academyData';
-import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck, Beaker, Atom, AlertCircle } from 'lucide-react';
+import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck, Beaker, Atom, AlertCircle, Search, X, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: string; glow: string; icon: React.ReactNode }> = {
@@ -776,31 +776,152 @@ function RegimenCard({ title, reg, setReg, color }: any) {
   );
 }
 
-function PearlsTab({ filter }: any) {
-  const filtered = filter === 'ALL' ? boardPearls : boardPearls.filter(p => p.pillar === filter);
-  if (filtered.length === 0) return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><ChevronRight className="h-12 w-12 text-slate-700"/> No pearls for this module.</div>;
+function formatPearlText(text: string) {
+  const colonIndex = text.indexOf(':');
+  let prefix = '';
+  let body = text;
+  if (colonIndex > 0 && colonIndex < 45) {
+    prefix = text.substring(0, colonIndex + 1);
+    body = text.substring(colonIndex + 1).trim();
+  }
+
+  // Capturing regex to identify numbers, percentages, constraints, units and key parameters
+  const regex = /((?:[<>≤≥]=?\s*)?\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?\s*(?:%|Gy\d*|Gy|cGy\/MU|cc|cm|mm|fx|weeks|days|MeV|keV\/µm|MV|HU|mSv)\b|(?:[<>≤≥]=?\s*\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)|α\/β\s*≈?\s*\d+(?:\.\d+)?\s*Gy|Dmax|Dmean|D90|D2cc|V\d+(?:\s*Gy)?|EQD2|BED\d*)/gi;
+  const bodyParts = body.split(regex);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 py-4">
-      {filtered.map(pearl => {
-        const pStyle = PILLAR_STYLES[pearl.pillar];
-        return (
-          <div key={pearl.id} className={`rounded-3xl border border-slate-700 bg-gradient-to-br from-[#131f33] to-[#0c1322] p-8 shadow-xl hover:${pStyle.border} transition-colors group`}>
-            <div className={`mb-6 inline-flex items-center gap-2 rounded-lg ${pStyle.bg} px-3 py-1.5 text-[10px] font-black ${pStyle.text} uppercase tracking-widest border ${pStyle.border}`}>
-              {pStyle.icon} {pearl.category}
-            </div>
-            <h3 className={`mb-6 text-xl font-bold text-white leading-snug group-hover:${pStyle.text} transition-colors`}>{pearl.title}</h3>
-            <ul className="space-y-4 text-sm text-slate-300 font-medium">
-              {pearl.points.map((pt, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className={`mt-1.5 block h-2 w-2 shrink-0 rounded-full ${pStyle.bg.replace('/20', '')} ${pStyle.glow}`} />
-                  <span className="leading-relaxed">{pt}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
+    <span>
+      {prefix && <strong className="font-semibold text-slate-100 mr-1.5">{prefix}</strong>}
+      {bodyParts.map((part, i) => {
+        if (i % 2 === 1) {
+          return (
+            <strong key={i} className="font-bold text-white drop-shadow-sm">
+              {part}
+            </strong>
+          );
+        }
+        return <span key={i}>{part}</span>;
       })}
+    </span>
+  );
+}
+
+function PearlsTab({ filter }: any) {
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const baseFiltered = useMemo(() => {
+    return filter === 'ALL' ? boardPearls : boardPearls.filter(p => p.pillar === filter);
+  }, [filter]);
+
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return baseFiltered;
+    return baseFiltered.filter(p => {
+      return p.title.toLowerCase().includes(q) || 
+             p.category.toLowerCase().includes(q) || 
+             p.points.some(pt => pt.toLowerCase().includes(q));
+    });
+  }, [baseFiltered, searchQuery]);
+
+  return (
+    <div className="flex flex-col gap-6 py-2">
+      {/* Live Search Filter and Metric Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400" />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search pearls, constraints, trials, or physics concepts..."
+            className="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl py-3.5 pl-12 pr-10 text-sm sm:text-base text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-inner"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors"
+              title="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 font-medium shrink-0 self-start sm:self-auto">
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          <span>
+            Showing <strong className="text-white font-bold">{filtered.length}</strong> of {baseFiltered.length} high-yield pearls
+          </span>
+        </div>
+      </div>
+
+      {/* Grid or Empty State */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-20 text-slate-400 flex flex-col items-center gap-4 bg-slate-900/40 rounded-3xl border border-slate-800/60 p-8 my-4">
+          <Search className="h-12 w-12 text-slate-600" />
+          <p className="text-base">No pearls found matching &ldquo;<span className="text-white font-semibold">{searchQuery}</span>&rdquo;.</p>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-xs font-bold uppercase tracking-wider text-sky-400 hover:text-sky-300 underline"
+          >
+            Clear Search
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map(pearl => {
+            const pStyle = PILLAR_STYLES[pearl.pillar];
+            const pillarLabel = pearl.pillar === 'CLINICAL' ? 'Clinical' : pearl.pillar === 'RADIOBIOLOGY' ? 'Radiobiology' : 'Physics';
+            const borderHover = pearl.pillar === 'CLINICAL' ? 'hover:border-sky-500/50' : pearl.pillar === 'RADIOBIOLOGY' ? 'hover:border-emerald-500/50' : 'hover:border-violet-500/50';
+            const glowHover = pearl.pillar === 'CLINICAL' ? 'hover:shadow-[0_8px_30px_rgba(56,189,248,0.12)]' : pearl.pillar === 'RADIOBIOLOGY' ? 'hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]' : 'hover:shadow-[0_8px_30px_rgba(139,92,246,0.12)]';
+
+            return (
+              <div 
+                key={pearl.id} 
+                className={`rounded-3xl backdrop-blur-xl bg-slate-900/70 border border-slate-800/90 p-6 sm:p-7 shadow-xl hover:-translate-y-1 ${borderHover} ${glowHover} transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
+              >
+                {/* Subtle top indicator bar */}
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${pearl.pillar === 'CLINICAL' ? 'from-sky-500/50 via-sky-400/20 to-transparent' : pearl.pillar === 'RADIOBIOLOGY' ? 'from-emerald-500/50 via-emerald-400/20 to-transparent' : 'from-violet-500/50 via-violet-400/20 to-transparent'}`} />
+                
+                <div>
+                  {/* Header Badges */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className={`inline-flex items-center gap-1.5 rounded-lg ${pStyle.bg} px-2.5 py-1 text-[11px] font-black ${pStyle.text} uppercase tracking-wider border ${pStyle.border}`}>
+                      {pStyle.icon} {pearl.category}
+                    </span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500 bg-slate-950/60 border border-slate-800/80 px-2 py-0.5 rounded">
+                      {pillarLabel}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="mb-5 text-lg sm:text-xl font-bold text-white leading-snug group-hover:text-sky-200 transition-colors">
+                    {pearl.title}
+                  </h3>
+
+                  {/* Bulleted Points */}
+                  <ul className="space-y-3.5 text-xs sm:text-sm text-slate-300">
+                    {pearl.points.map((pt, i) => (
+                      <li key={i} className="flex items-start gap-2.5 leading-relaxed">
+                        <span className={`mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full ${pearl.pillar === 'CLINICAL' ? 'bg-sky-400' : pearl.pillar === 'RADIOBIOLOGY' ? 'bg-emerald-400' : 'bg-violet-400'} ${pStyle.glow}`} />
+                        <div className="flex-1">{formatPearlText(pt)}</div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Card Footer */}
+                <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="font-mono text-[10px] tracking-wider uppercase">{pearl.id.toUpperCase()} • HIGH YIELD</span>
+                  <span className="text-slate-400 font-medium">Board Atlas</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
