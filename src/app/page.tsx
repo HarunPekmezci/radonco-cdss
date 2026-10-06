@@ -76,103 +76,143 @@ export default function PortalPage() {
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}
         <div className="flex flex-col items-center text-center mb-16 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-slate-800/80 border border-slate-700/80 text-amber-300 shadow-sm shadow-amber-500/10 mb-6">
-            ✨ RADONCO PORTAL
-          </div>
-          <h1 className="bg-gradient-to-r from-slate-100 via-white to-slate-300 bg-clip-text text-transparent text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+          <span className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2 block">
+            RADONCO SUITE
+          </span>
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-[1.2] pb-3 pt-1 overflow-visible">
             {language === 'tr' ? 'Klinik Karar & Onkoloji Akademisi' : 'Clinical Decision Support & Oncology Academy'}
           </h1>
-          <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl">
+          <p className="text-sm md:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed mt-2">
             {t.heroDescription}
           </p>
         </div>
 
         <section className="grid w-full grid-cols-1 gap-8 lg:grid-cols-2">
           {/* CDSS Card */}
-          <div className="relative group overflow-hidden rounded-3xl p-8 bg-gradient-to-b from-slate-800/80 via-slate-900/80 to-slate-950/95 border border-slate-700/60 border-t-2 border-t-amber-400/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_20px_50px_-15px_rgba(0,0,0,0.8),0_0_30px_rgba(245,158,11,0.2)] backdrop-blur-2xl transition-all duration-300 hover:border-slate-500/60 flex flex-col">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
-            <div className="absolute -right-16 -top-16 w-56 h-56 bg-amber-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/25 transition-all duration-500" />
+          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all duration-300 hover:border-white/20 hover:-translate-y-1 flex flex-col overflow-hidden">
+            {/* Razor-sharp 1px top highlight line & subtle warmth */}
+            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+            <div className="absolute -right-16 -top-16 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/15 transition-all duration-500" />
             
             <div className="relative z-10 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-400 mb-6">
                 <Radiation className="h-3.5 w-3.5" aria-hidden="true" />
                 {t.hero.cdss.badge}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
                 {t.hero.cdss.title.split(' ')[0]} <span className="text-amber-400">{t.hero.cdss.title.split(' ').slice(1).join(' ')}</span>
               </h2>
-              <p className="text-base font-medium text-slate-200 mb-4">
+              <p className="text-sm font-medium text-slate-200 mb-3">
                 {t.hero.cdss.subtitle}
               </p>
-              <p className="text-sm leading-relaxed text-slate-400 mb-6">
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-400 mb-6">
                 {t.hero.cdss.description}
               </p>
-              <ul className="space-y-3 text-sm text-slate-300 mb-10">
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.cdss.bullet1}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.cdss.bullet2}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.cdss.bullet3}</span>
-                </li>
-              </ul>
+              
+              {/* Feature Rows */}
+              <div className="space-y-2.5 mb-8">
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">📑</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? '25+ Faz III Landmark Çalışma' : '25+ Phase III Landmark Trials'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'PICO rejimleri ve NCCN Kategori 1 kanıtlar.' : 'PICO regimens & NCCN Category 1 evidence.'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">🧮</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? 'Biyo-Eşdeğer Doz Matematiği' : 'Isoeffective Dose Math'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'Doğrulanmış EQD2, BED10 ve BED3 LQ algoritmaları.' : 'Verified EQD2, BED10, and BED3 LQ algorithms.'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">🛡️</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? 'MDR Kural 11 Uyumluluğu' : 'MDR Rule 11 Compliance'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'Tam deterministik klinik denetim izi.' : 'Full deterministic clinical audit trace.'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <Link
               href="/cdss"
-              className="relative z-10 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 font-bold px-6 py-3.5 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 mt-auto"
+              className="relative z-10 w-full py-3 px-5 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all flex items-center justify-center gap-2 mt-auto"
             >
               {t.hero.cdss.button}
-              <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
 
           {/* Academy Card */}
-          <div className="relative group overflow-hidden rounded-3xl p-8 bg-gradient-to-b from-slate-800/80 via-slate-900/80 to-slate-950/95 border border-slate-700/60 border-t-2 border-t-emerald-400/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_20px_50px_-15px_rgba(0,0,0,0.8),0_0_30px_rgba(16,185,129,0.2)] backdrop-blur-2xl transition-all duration-300 hover:border-slate-500/60 flex flex-col">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
-            <div className="absolute -right-16 -top-16 w-56 h-56 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/25 transition-all duration-500" />
+          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all duration-300 hover:border-white/20 hover:-translate-y-1 flex flex-col overflow-hidden">
+            {/* Razor-sharp 1px top highlight line & subtle teal */}
+            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+            <div className="absolute -right-16 -top-16 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500" />
             
             <div className="relative z-10 flex-1">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400 mb-6">
                 <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
                 {t.hero.academy.badge}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
                 {t.hero.academy.title.split(' ')[0]} <span className="text-emerald-400">{t.hero.academy.title.split(' ').slice(1).join(' ')}</span>
               </h2>
-              <p className="text-base font-medium text-slate-200 mb-4">
+              <p className="text-sm font-medium text-slate-200 mb-3">
                 {t.hero.academy.subtitle}
               </p>
-              <p className="text-sm leading-relaxed text-slate-400 mb-6">
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-400 mb-6">
                 {t.hero.academy.description}
               </p>
-              <ul className="space-y-3 text-sm text-slate-300 mb-10">
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.academy.bullet1}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.academy.bullet2}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <ArrowUpRight className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" /> 
-                  <span className="leading-snug">{t.hero.academy.bullet3}</span>
-                </li>
-              </ul>
+              
+              {/* Feature Rows */}
+              <div className="space-y-2.5 mb-8">
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">🎓</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? 'Vaka Soru Bankası' : 'Case Vignette Bank'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'Tıklanabilir DOI referanslı sınav formatında senaryolar.' : 'Board-style scenarios with clickable DOI references.'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">📇</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? '3D Landmark Akıl Kartları' : '3D Landmark Flashcards'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'Yüksek verimli klinik çalışma özetleri.' : 'High-yield clinical trial pearl review.'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-white/5 p-3 text-xs leading-relaxed transition-all hover:bg-slate-800/60 hover:border-white/10">
+                  <span className="text-base shrink-0 select-none mt-0.5">⚛️</span>
+                  <div>
+                    <strong className="font-semibold text-slate-100">
+                      {language === 'tr' ? 'Fizik & Radyobiyoloji Lab' : 'Physics & Radiobiology Lab'}
+                    </strong>
+                    <span className="text-slate-400">: {language === 'tr' ? 'İnteraktif lineer hızlandırıcı fiziği ve fraksiyonasyon simülatörü.' : 'Interactive linac physics & fractionation simulator.'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <Link
               href="/academy"
-              className="relative z-10 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 text-slate-950 font-bold px-6 py-3.5 rounded-xl shadow-[0_0_30px_rgba(16,185,129,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 mt-auto"
+              className="relative z-10 w-full py-3 px-5 rounded-xl font-semibold text-sm bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 mt-auto"
             >
               {t.hero.academy.button}
-              <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>
