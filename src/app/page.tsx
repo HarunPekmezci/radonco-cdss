@@ -42,7 +42,7 @@ const modules: PortalModule[] = [
     accent: 'text-emerald-300 bg-emerald-400/10 ring-emerald-300/20',
   },
   {
-    href: '/cdss?tab=prognostic',
+    href: '/prognostic',
     cardKey: 'prognostic',
     icon: Scale,
     accent: 'text-fuchsia-400 bg-fuchsia-400/10 ring-fuchsia-400/20',
