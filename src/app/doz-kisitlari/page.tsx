@@ -98,7 +98,7 @@ const regionMatches = (filter: RegionFilter, region: OARRegion) => {
 const fractionationMatches = (filter: FractionationFilter, fractionation: OARFractionation) => {
   if (filter === 'all') return true;
   if (filter === 'sbrt') return fractionation === 'sbrt-2fx' || fractionation === 'sbrt-3fx' || fractionation === 'sbrt-5fx';
-  if (filter === 'srs') return fractionation === 'srs-1fx' || fractionation === 'srs-3fx';
+  if (filter === 'srs') return fractionation === 'srs-1fx' || fractionation === 'srs-3fx' || fractionation === 'srs-5fx';
   return filter === fractionation;
 };
 
@@ -111,6 +111,7 @@ const fractionationLabel = (fractionation: OARFractionation, language: UiLanguag
     case 'sbrt-5fx': return 'SBRT · 5 fx';
     case 'srs-1fx': return 'SRS · 1 fx';
     case 'srs-3fx': return 'SRS · 3 fx';
+    case 'srs-5fx': return 'SRS · 5 fx';
   }
 };
 
