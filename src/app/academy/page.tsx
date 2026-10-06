@@ -12,7 +12,7 @@ const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: 
 };
 
 export default function AcademyPage() {
-  const { t } = useLanguage();
+  const { t, language: lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'hub' | 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls'>('hub');
   const [pillarFilter, setPillarFilter] = useState<AcademicPillar | 'ALL'>('ALL');
   const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
@@ -68,10 +68,10 @@ export default function AcademyPage() {
               <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-[#131f33] to-[#0c1322] p-6 shadow-xl">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                   <Target className="h-4 w-4 text-sky-400" />
-                  Discipline Filter
+                  {lang === 'tr' ? 'Disiplin Filtresi' : 'Discipline Filter'}
                 </h3>
                 <div className="flex flex-col gap-3">
-                  <FilterButton id="ALL" label="All Pillars" icon={<Library className="w-4 h-4"/>} active={pillarFilter === 'ALL'} onClick={() => setPillarFilter('ALL')} color="slate" />
+                  <FilterButton id="ALL" label={lang === 'tr' ? 'Tüm Disiplinler' : 'All Pillars'} icon={<Library className="w-4 h-4"/>} active={pillarFilter === 'ALL'} onClick={() => setPillarFilter('ALL')} color="slate" />
                   <FilterButton id="CLINICAL" label={t.academy.pillars.clinical} icon={<ShieldCheck className="w-4 h-4"/>} active={pillarFilter === 'CLINICAL'} onClick={() => setPillarFilter('CLINICAL')} color="sky" />
                   <FilterButton id="RADIOBIOLOGY" label={t.academy.pillars.radiobiology} icon={<Beaker className="w-4 h-4"/>} active={pillarFilter === 'RADIOBIOLOGY'} onClick={() => setPillarFilter('RADIOBIOLOGY')} color="emerald" />
                   <FilterButton id="PHYSICS" label={t.academy.pillars.physics} icon={<Atom className="w-4 h-4"/>} active={pillarFilter === 'PHYSICS'} onClick={() => setPillarFilter('PHYSICS')} color="violet" />
@@ -82,20 +82,20 @@ export default function AcademyPage() {
                 <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-[#131f33] to-[#0c1322] p-6 shadow-xl">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                     <Target className="h-4 w-4 text-emerald-400" />
-                    Exam Readiness
+                    {lang === 'tr' ? 'Sınav Hazırlığı' : 'Exam Readiness'}
                   </h3>
                   <div className="flex items-center justify-around mb-8">
                     <ReadinessStats score={score} answeredCount={answeredCount} totalQuestions={totalQuestions} />
                   </div>
                   
                   <div className="flex items-center justify-between border-t border-slate-800/80 pt-5">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mode</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{lang === 'tr' ? 'Mod' : 'Mode'}</span>
                     <button 
                       onClick={() => setMode(m => m === 'tutor' ? 'exam' : 'tutor')}
                       className="flex items-center gap-1 rounded-full bg-slate-900 p-1 border border-slate-700 shadow-inner transition hover:border-slate-500"
                     >
-                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'tutor' ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Tutor</span>
-                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'exam' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>Exam</span>
+                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'tutor' ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>{lang === 'tr' ? 'Eğitimci' : 'Tutor'}</span>
+                      <span className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${mode === 'exam' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>{lang === 'tr' ? 'Sınav' : 'Exam'}</span>
                     </button>
                   </div>
                 </div>
@@ -103,10 +103,10 @@ export default function AcademyPage() {
 
               <div className="flex gap-3">
                  <button onClick={resetQuizzes} className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
-                   <RotateCcw className="h-4 w-4" /> Reset
+                   <RotateCcw className="h-4 w-4" /> {lang === 'tr' ? 'Sıfırla' : 'Reset'}
                  </button>
                  <button className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1322] py-3.5 text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition shadow-lg">
-                   <Bookmark className="h-4 w-4" /> Saved
+                   <Bookmark className="h-4 w-4" /> {lang === 'tr' ? 'Kaydedilenler' : 'Saved'}
                  </button>
               </div>
 
@@ -129,6 +129,7 @@ export default function AcademyPage() {
 }
 
 function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void, t: any }) {
+  const { language: lang } = useLanguage();
   return (
     <div className="flex flex-col gap-8 py-4">
       {/* Top 3 Pillar Cards */}
@@ -230,20 +231,20 @@ function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashc
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-black text-amber-400 uppercase tracking-widest border border-amber-500/40">
-              <AlertCircle className="w-3.5 h-3.5" /> Featured Case of the Day
+              <AlertCircle className="w-3.5 h-3.5" /> {lang === 'tr' ? 'Günün Öne Çıkan Vakası' : 'Featured Case of the Day'}
             </span>
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50">
-              Breast Cancer
+              {lang === 'tr' ? 'Meme Kanseri' : 'Breast Cancer'}
             </span>
           </div>
           <h3 className="text-2xl font-bold text-white mb-3">FAST-Forward: Ultra-Hypofractionation</h3>
           <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
-            A 65-year-old female undergoes lumpectomy for pT1c pN0 ER+ PR+ HER2- invasive ductal carcinoma. She is starting whole breast irradiation. Which of the following regimens is supported by the FAST-Forward trial?
+            {lang === 'tr' ? '65 yaşında kadın hasta pT1c pN0 ER+ PR+ HER2- invaziv duktal karsinom nedeniyle lumpektomi olmuştur. Tüm meme radyoterapisine başlayacaktır. FAST-Forward çalışmasına göre aşağıdaki rejimlerden hangisi desteklenmektedir?' : 'A 65-year-old female undergoes lumpectomy for pT1c pN0 ER+ PR+ HER2- invasive ductal carcinoma. She is starting whole breast irradiation. Which of the following regimens is supported by the FAST-Forward trial?'}
           </p>
         </div>
         <div className="shrink-0">
           <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="flex items-center justify-center gap-2 rounded-2xl bg-amber-500 px-8 py-4 text-sm font-black text-amber-950 hover:bg-amber-400 transition shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)]">
-            Solve Case <ArrowRight className="w-5 h-5" />
+            {lang === 'tr' ? 'Vakayı Çöz' : 'Solve Case'} <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -461,6 +462,7 @@ function FilterButton({
 }
 
 function ReadinessStats({ score, answeredCount, totalQuestions }: any) {
+  const { language: lang } = useLanguage();
   const acc = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0;
   const progress = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
   
@@ -468,23 +470,24 @@ function ReadinessStats({ score, answeredCount, totalQuestions }: any) {
     <>
       <div className="flex flex-col items-center">
         <div className="text-3xl font-black text-white">{score} <span className="text-sm font-medium text-slate-600">/ {answeredCount}</span></div>
-        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">Correct</div>
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">{lang === 'tr' ? 'Doğru' : 'Correct'}</div>
       </div>
       <div className="w-px h-12 bg-slate-800"></div>
       <div className="flex flex-col items-center">
         <div className="text-3xl font-black text-emerald-400">{acc}%</div>
-        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">Accuracy</div>
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">{lang === 'tr' ? 'Başarı' : 'Accuracy'}</div>
       </div>
       <div className="w-px h-12 bg-slate-800"></div>
       <div className="flex flex-col items-center">
         <div className="text-3xl font-black text-sky-400">{progress}%</div>
-        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">Completed</div>
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">{lang === 'tr' ? 'Tamamlanan' : 'Completed'}</div>
       </div>
     </>
   );
 }
 
 function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredCount, setTotalQuestions }: any) {
+  const { language: lang } = useLanguage();
   const filteredQuizzes = useMemo(() => filter === 'ALL' ? quizVignettes : quizVignettes.filter(q => q.pillar === filter), [filter]);
   
   useEffect(() => {
@@ -540,7 +543,7 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
         </div>
         <div className="flex items-center gap-5 text-sm font-bold text-slate-400 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 shadow-inner">
           <button onClick={prevQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowLeft className="h-4 w-4"/></button>
-          <span className="tracking-widest uppercase text-[10px]">Q {currentIndex + 1} OF {filteredQuizzes.length}</span>
+          <span className="tracking-widest uppercase text-[10px]">Q {currentIndex + 1} / {filteredQuizzes.length}</span>
           <button onClick={nextQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowRight className="h-4 w-4"/></button>
         </div>
       </div>
@@ -588,7 +591,7 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
               {/* Distractor Rationale for Tutor Mode */}
               {isDistractor && quiz.distractorRationale && quiz.distractorRationale[option.id] && (
                 <div className="mt-3 ml-15 pl-4 border-l-2 border-rose-500/30 text-sm text-slate-400 animate-in fade-in slide-in-from-top-2">
-                  <span className="font-bold text-rose-400 mr-2">Why incorrect:</span>
+                  <span className="font-bold text-rose-400 mr-2">{lang === 'tr' ? 'Neden yanlış:' : 'Why incorrect:'}</span>
                   {quiz.distractorRationale[option.id]}
                 </div>
               )}
@@ -607,30 +610,30 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10">
               <h3 className={`text-sm font-black tracking-widest uppercase flex items-center gap-3 ${pStyle.text}`}>
                 <AlertCircle className="h-5 w-5" />
-                Correct Answer Rationale
+                {lang === 'tr' ? 'Doğru Cevap Özeti' : 'Correct Answer Rationale'}
               </h3>
               <span className={`inline-flex rounded-lg ${pStyle.bg} px-3 py-1.5 text-[10px] font-black ${pStyle.text} uppercase tracking-widest border ${pStyle.border} shadow-sm`}>
-                High-Yield Board Concept
+                {lang === 'tr' ? 'Yüksek Verimli Konsept' : 'High-Yield Board Concept'}
               </span>
             </div>
             
             <p className="mb-8 text-base sm:text-lg leading-relaxed text-slate-200 relative z-10 font-medium">{quiz.explanation}</p>
             
             <div className="mb-8 rounded-2xl bg-[#060b14]/80 p-6 border border-slate-700/80 shadow-inner relative z-10">
-              <div className="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2"><Target className="w-4 h-4"/> Reference Summary</div>
+              <div className="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2"><Target className="w-4 h-4"/> {lang === 'tr' ? 'Referans Özeti' : 'Reference Summary'}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
-                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>Source / Landmark</span> <span className="text-slate-100 font-medium text-base">{quiz.landmarkTrialTitle}</span></div>
-                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>Topic</span> <span className="text-slate-100 font-medium text-base">{quiz.category}</span></div>
+                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>{lang === 'tr' ? 'Kaynak / Landmark' : 'Source / Landmark'}</span> <span className="text-slate-100 font-medium text-base">{quiz.landmarkTrialTitle}</span></div>
+                <div><span className={`${pStyle.text} block text-[10px] font-bold uppercase tracking-widest mb-1`}>{lang === 'tr' ? 'Konu' : 'Topic'}</span> <span className="text-slate-100 font-medium text-base">{quiz.category}</span></div>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-700/80 pt-8 gap-4 relative z-10">
               <a href={quiz.doiUrl} target="_blank" rel="noreferrer" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d1527] border border-slate-600 px-6 py-3.5 text-xs font-bold ${pStyle.text} hover:bg-slate-800 transition shadow-md`}>
                 <ArrowUpRight className="h-4 w-4" />
-                Review Full Evidence
+                {lang === 'tr' ? 'Kanıtı İncele' : 'Review Full Evidence'}
               </a>
               <button onClick={nextQuiz} className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-8 py-3.5 text-sm font-black text-slate-900 hover:bg-white transition shadow-lg`}>
-                Next Question <ArrowRight className="h-5 w-5" />
+                {lang === 'tr' ? 'Sıradaki Soru' : 'Next Question'} <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -641,7 +644,7 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
       {selectedAnswer && mode === 'exam' && (
          <div className="mt-auto flex justify-end pt-8 border-t border-slate-800">
              <button onClick={nextQuiz} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-8 py-3.5 text-sm font-black text-amber-950 hover:bg-amber-400 transition shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                Next Question <ArrowRight className="h-5 w-5" />
+                {lang === 'tr' ? 'Sıradaki Soru' : 'Next Question'} <ArrowRight className="h-5 w-5" />
               </button>
          </div>
       )}

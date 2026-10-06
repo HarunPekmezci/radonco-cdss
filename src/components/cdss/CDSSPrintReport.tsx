@@ -63,8 +63,8 @@ export default function CDSSPrintReport({
         <table className="print-report-table">
           <tbody>
             <tr>
-              <th>{lang === 'tr' ? 'T.C. Kimlik No' : 'National ID (T.C. No)'}</th><td>{patientId || '—'}</td>
-              <th>{lang === 'tr' ? 'Yaş / Cinsiyet' : 'Age / Gender'}</th><td>{patientAgeYears ? `${patientAgeYears} ${lang === 'tr' ? 'yaş' : 'yo'}` : '—'}{patientGender ? ` / ${patientGender}` : ''}</td>
+              <th>{lang === 'tr' ? 'T.C. Kimlik No / Hasta No' : 'National ID / Patient MRN'}</th><td>{patientId || '—'}</td>
+              <th>{lang === 'tr' ? 'Yaş / Cinsiyet' : 'Age / Gender'}</th><td>{patientAgeYears ? `${patientAgeYears} ${lang === 'tr' ? 'yaş' : 'yo'}` : '—'}{patientGender ? ` / ${patientGender === 'Erkek' ? (lang === 'tr' ? 'Erkek' : 'Male') : patientGender === 'Kadın' ? (lang === 'tr' ? 'Kadın' : 'Female') : (lang === 'tr' ? 'Diğer' : 'Other')}` : ''}</td>
             </tr>
             <tr>
               <th>{lang === 'tr' ? 'Anatomik Bölge' : 'Anatomic Site'}</th><td>{reportOrganNames[selectedOrgan]}</td>

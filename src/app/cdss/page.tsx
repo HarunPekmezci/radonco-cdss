@@ -151,8 +151,9 @@ export default function RadoncoCDSSPage() {
   const tText = useCallback((text: string | undefined): string => {
     if (!text) return '';
     if (lang === 'tr') return text;
-    // Robust dictionary lookup pattern (deprecating regex matching)
-    return TRANSLATION_MAP[text] ?? text;
+    // Robust dictionary lookup pattern with trim support
+    const trimmed = text.trim();
+    return TRANSLATION_MAP[trimmed] ?? TRANSLATION_MAP[text] ?? trimmed;
   }, [lang]);
 
   useEffect(() => {
@@ -1440,8 +1441,8 @@ export default function RadoncoCDSSPage() {
 
     const sbrt54: DoseScheme = {
       id: 'lung-sbrt-54',
-      name: '54 Gy / 3 fx (Periferik SBRT · 18 Gy/fx)',
-      tag: '🎯 Periferik SBRT',
+      name: lang === 'tr' ? '54 Gy / 3 fx (Periferik SBRT · 18 Gy/fx)' : '54 Gy / 3 fx (Peripheral SBRT · 18 Gy/fx)',
+      tag: lang === 'tr' ? '🎯 Periferik SBRT' : '🎯 Peripheral SBRT',
       totalDoseGy: 54,
       fractionCount: 3,
       fractionDoseGy: 18,
@@ -1459,8 +1460,8 @@ export default function RadoncoCDSSPage() {
 
     const sbrt48: DoseScheme = {
       id: 'lung-sbrt-48',
-      name: '48 Gy / 4 fx (Periferik 4 fx · 12 Gy/fx)',
-      tag: '🎯 Periferik 4 fx',
+      name: lang === 'tr' ? '48 Gy / 4 fx (Periferik 4 fx · 12 Gy/fx)' : '48 Gy / 4 fx (Peripheral 4 fx · 12 Gy/fx)',
+      tag: lang === 'tr' ? '🎯 Periferik 4 fx' : '🎯 Peripheral 4 fx',
       totalDoseGy: 48,
       fractionCount: 4,
       fractionDoseGy: 12,
@@ -1478,8 +1479,8 @@ export default function RadoncoCDSSPage() {
 
     const sbrt50: DoseScheme = {
       id: 'lung-sbrt-50',
-      name: '50 Gy / 5 fx (Risk-Uyumlu SBRT · 10 Gy/fx)',
-      tag: '⚠️ Risk-Uyumlu SBRT',
+      name: lang === 'tr' ? '50 Gy / 5 fx (Risk-Uyumlu SBRT · 10 Gy/fx)' : '50 Gy / 5 fx (Risk-Adapted SBRT · 10 Gy/fx)',
+      tag: lang === 'tr' ? '⚠️ Risk-Uyumlu SBRT' : '⚠️ Risk-Adapted SBRT',
       totalDoseGy: 50,
       fractionCount: 5,
       fractionDoseGy: 10,
@@ -1497,8 +1498,8 @@ export default function RadoncoCDSSPage() {
 
     const hypo55: DoseScheme = {
       id: 'lung-hypo-55',
-      name: '55 Gy / 20 fx (Ilımlı HipoToraks · 2.75 Gy/fx)',
-      tag: '🎯 Ilımlı HipoToraks',
+      name: lang === 'tr' ? '55 Gy / 20 fx (Ilımlı Hipofraksiyone Toraks · 2.75 Gy/fx)' : '55 Gy / 20 fx (Moderate Hypofractionated Thorax · 2.75 Gy/fx)',
+      tag: lang === 'tr' ? '🎯 Ilımlı Hipofraksiyone Toraks' : '🎯 Moderate Hypofractionated Thorax',
       totalDoseGy: 55,
       fractionCount: 20,
       fractionDoseGy: 2.75,
@@ -1521,8 +1522,8 @@ export default function RadoncoCDSSPage() {
 
     const hypo60: DoseScheme = {
       id: 'lung-hypo-60',
-      name: '60 Gy / 15 fx (Hızlandırılmış Hipo · 4.0 Gy/fx)',
-      tag: '⚡ Hızlandırılmış Hipo',
+      name: lang === 'tr' ? '60 Gy / 15 fx (Hızlandırılmış Hipo · 4.0 Gy/fx)' : '60 Gy / 15 fx (Accelerated Hypo · 4.0 Gy/fx)',
+      tag: lang === 'tr' ? '⚡ Hızlandırılmış Hipo' : '⚡ Accelerated Hypo',
       totalDoseGy: 60,
       fractionCount: 15,
       fractionDoseGy: 4.0,
@@ -1545,8 +1546,8 @@ export default function RadoncoCDSSPage() {
 
     const hypo45: DoseScheme = {
       id: 'lung-hypo-45',
-      name: '45 Gy / 15 fx (Hafif Hipo · 3.0 Gy/fx)',
-      tag: '🛡️ Hafif Hipo',
+      name: lang === 'tr' ? '45 Gy / 15 fx (Hafif Hipo · 3.0 Gy/fx)' : '45 Gy / 15 fx (Mild Hypo · 3.0 Gy/fx)',
+      tag: lang === 'tr' ? '🛡️ Hafif Hipo' : '🛡️ Mild Hypo',
       totalDoseGy: 45,
       fractionCount: 15,
       fractionDoseGy: 3.0,
@@ -1567,8 +1568,8 @@ export default function RadoncoCDSSPage() {
 
     const conv60: DoseScheme = {
       id: 'lung-conv-60',
-      name: '60 Gy / 30 fx (Standart Definitif RT · 2.0 Gy/fx)',
-      tag: '🎯 Standart Definitif',
+      name: lang === 'tr' ? '60 Gy / 30 fx (Standart Definitif RT · 2.0 Gy/fx)' : '60 Gy / 30 fx (Standard Definitive RT · 2.0 Gy/fx)',
+      tag: lang === 'tr' ? '🎯 Standart Definitif' : '🎯 Standard Definitive',
       totalDoseGy: 60,
       fractionCount: 30,
       fractionDoseGy: 2.0,
@@ -1592,8 +1593,8 @@ export default function RadoncoCDSSPage() {
 
     const conv66: DoseScheme = {
       id: 'lung-conv-66',
-      name: '66 Gy / 33 fx (Eskalasyon Dozu · 2.0 Gy/fx)',
-      tag: '⚡ Eskalasyon Dozu',
+      name: lang === 'tr' ? '66 Gy / 33 fx (Eskalasyon Dozu · 2.0 Gy/fx)' : '66 Gy / 33 fx (Dose Escalation · 2.0 Gy/fx)',
+      tag: lang === 'tr' ? '⚡ Eskalasyon Dozu' : '⚡ Dose Escalation',
       totalDoseGy: 66,
       fractionCount: 33,
       fractionDoseGy: 2.0,
@@ -1616,8 +1617,8 @@ export default function RadoncoCDSSPage() {
 
     const sib60: DoseScheme = {
       id: 'lung-sib-60',
-      name: '60 Gy / 30 fx (Eşzamanlı KRT + SIB Boost)',
-      tag: '🧬 Eşzamanlı SIB',
+      name: lang === 'tr' ? '60 Gy / 30 fx (Eşzamanlı KRT + SIB Boost)' : '60 Gy / 30 fx (Concurrent CRT + SIB Boost)',
+      tag: lang === 'tr' ? '🧬 Eşzamanlı SIB' : '🧬 Concurrent SIB',
       totalDoseGy: 60,
       fractionCount: 30,
       fractionDoseGy: 2.0,
@@ -2573,7 +2574,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {lang === 'tr' ? 'Kılavuzlu Sihirbaz Modu' : 'Guided Wizard Mode'}
+              {lang === 'tr' ? 'Rehberli Sihirbaz Modu' : 'Guided Wizard Mode'}
             </button>
             <button
               type="button"
@@ -2627,7 +2628,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                     stageName = `${selectedT} ${selectedN} ${selectedM}`;
                   }
                   
-                  let regName = activeScheme ? activeScheme.name : '';
+                  let regName = activeScheme ? tText(activeScheme.name) : '';
                   
                   return [oName, sName, stageName, regName].filter(Boolean).join(' > ');
                 })()
@@ -2717,7 +2718,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               </select>
             </label>
             <label className="text-[10px] font-semibold text-slate-300">
-              {lang === 'tr' ? 'T.C. Kimlik No' : 'National ID (T.C. Kimlik No)'}
+              {lang === 'tr' ? 'T.C. Kimlik No / Hasta No' : 'National ID / Patient MRN'}
               <input
                 type="text"
                 value={patientId}
@@ -3054,7 +3055,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                             }`}
                           >
-                            <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">{axis} Evresi</span>
+                            <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">{lang === 'tr' ? `${axis} Evresi` : `${axis} Stage`}</span>
                             <span className="font-mono text-xs font-bold text-white">{activeVal}</span>
                           </button>
                         );
