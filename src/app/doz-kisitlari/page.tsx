@@ -136,7 +136,7 @@ export default function DoseConstraintsPage() {
     return true;
   });
 
-  const filteredItems = useMemo(() => {
+const filteredItems = useMemo(() => {
     const locale = language === 'tr' ? 'tr-TR' : 'en-US';
     const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
     return oarConstraintsData.filter(item => {
@@ -154,6 +154,18 @@ export default function DoseConstraintsPage() {
       return terms.every(term => searchable.includes(term));
     });
   }, [fractionation, language, query, region]);
+
+  const groupedItems = useMemo(() => {
+    const map = new Map<string, typeof filteredItems[0] & { metricsList: { metric: string, limit: string }[] }>();
+    for (const item of filteredItems) {
+      const key = item.organ + '|' + item.fractionation;
+      if (!map.has(key)) {
+        map.set(key, { ...item, metricsList: [] });
+      }
+      map.get(key)!.metricsList.push({ metric: item.metric, limit: item.limit });
+    }
+    return Array.from(map.values());
+  }, [filteredItems]);
 
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
