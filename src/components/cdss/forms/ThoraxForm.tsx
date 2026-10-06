@@ -224,14 +224,6 @@ export default function ThoraxForm({ parameterButtonClass, prostateRiskLabel, se
                 )}
               </div>
             )}
-      {selectedOrgan === 'thorax' && thoraxCentrality && (
-                        <>
-                          <span className="text-slate-500">•</span>
-                          <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] text-amber-300 font-mono">
-                            {thoraxCentrality}
-                          </span>
-                        </>
-                      )}
     </>
   );
 }

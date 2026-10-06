@@ -2934,28 +2934,13 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
            ========================================== */}
         <aside className={`col-span-12 flex flex-col gap-2.5 lg:gap-4 ${
           isGuidedMode
-            ? (guidedStep === 2 || (guidedStep === 3 && hasPrognosticModel)) ? (isBenign ? 'hidden' : 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end') : 'hidden'
+            ? (guidedStep === 2) ? (isBenign ? 'hidden' : 'lg:col-span-5 xl:max-w-[760px] xl:justify-self-end') : (guidedStep === 3 && hasPrognosticModel ? 'lg:col-span-12 mx-auto w-full max-w-[1200px]' : 'hidden')
             : isBenign
               ? 'hidden'
               : `${activeMobilePanel !== 'parameters' ? 'hidden lg:flex' : 'flex'} lg:col-span-5 xl:col-span-3 2xl:col-span-3`
         }`}>
           {/* EVRENSEL PATOLOJİK HİSTOLOJİ / ALT TİP SEÇİCİ */}
-          {currentHistologies.length > 0 && (
-            isGuidedMode && guidedStep === 3 ? (
-              /* Compact read-only summary badge in Step 3 */
-              <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sky-400 text-sm">🔬</span>
-                  <span className="text-[11px] font-semibold text-slate-300">
-                    {lang === 'tr' ? 'Seçili Histoloji / Patoloji:' : 'Selected Histology:'}
-                  </span>
-                </div>
-                <span className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-xs font-semibold text-sky-200">
-                  {tText(currentHistologies.find(h => h.id === selectedHistology)?.name || reportHistology || selectedHistology)}
-                </span>
-              </div>
-            ) : (!isGuidedMode || guidedStep === 2) ? (
-              /* Interactive selector in Step 2 & Full Matrix view */
+          {currentHistologies.length > 0 && (!isGuidedMode || guidedStep === 2) && (
               <div className="p-3 rounded-2xl bg-[#0f172a] border border-slate-800 shadow-sm mb-4">
                 <div className="mb-2">
                   <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -2982,13 +2967,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                   ))}
                 </div>
               </div>
-            ) : null
           )}
 
           {/* =========================================================
               TNM / EVRELEME AKORDİYONU (TAM MATRİS VE SİHİRBAZ ENTEGRASYONU)
              ========================================================= */}
-          {selectedOrgan !== 'benign' && (
+          {selectedOrgan !== 'benign' && (!isGuidedMode || guidedStep === 2) && (
           <div id="sidebar-tnm-stager" className="rounded-2xl glass-panel p-3.5 shadow-sm mb-4">
             <button
               type="button"
