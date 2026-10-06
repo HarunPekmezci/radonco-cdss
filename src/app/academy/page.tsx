@@ -399,19 +399,63 @@ function TabButton({ id, icon, label, isActive, onClick }: any) {
   );
 }
 
-function FilterButton({ id, label, icon, active, onClick, color }: { id: string, label: string, icon: React.ReactNode, active: boolean, onClick: () => void, color: 'sky' | 'emerald' | 'violet' | 'slate' }) {
-  const activeClass = {
-    sky: 'bg-sky-500 text-[#060b14] border-sky-500 shadow-[0_0_15px_rgba(56,189,248,0.3)]',
-    emerald: 'bg-emerald-500 text-[#060b14] border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]',
-    violet: 'bg-violet-500 text-[#060b14] border-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.3)]',
-    slate: 'bg-slate-200 text-slate-900 border-slate-300 shadow-md'
+function FilterButton({
+  id,
+  label,
+  icon,
+  active,
+  onClick,
+  color,
+}: {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  color: 'sky' | 'emerald' | 'violet' | 'slate';
+}) {
+  const activeStyles = {
+    sky: {
+      button: 'bg-sky-500/20 text-sky-300 border-sky-500/50 shadow-sm shadow-sky-500/20 font-semibold',
+      icon: 'text-sky-400',
+      dot: 'bg-sky-400',
+    },
+    emerald: {
+      button: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm shadow-emerald-500/20 font-semibold',
+      icon: 'text-emerald-400',
+      dot: 'bg-emerald-400',
+    },
+    violet: {
+      button: 'bg-violet-500/20 text-violet-300 border-violet-500/50 shadow-sm shadow-violet-500/20 font-semibold',
+      icon: 'text-violet-400',
+      dot: 'bg-violet-400',
+    },
+    slate: {
+      button: 'bg-sky-500/20 text-sky-300 border-sky-500/50 shadow-sm shadow-sky-500/20 font-semibold',
+      icon: 'text-sky-400',
+      dot: 'bg-sky-400',
+    },
   }[color];
 
-  const inactiveClass = `border-slate-700 bg-[#060b14] text-slate-400 hover:bg-slate-800 hover:text-white hover:border-${color}-500/50`;
+  const inactiveClass =
+    'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700/80 hover:bg-slate-800/50 transition-all font-medium';
 
   return (
-    <button onClick={onClick} className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition-all border ${active ? activeClass : inactiveClass}`}>
-      <span className="flex items-center gap-3">{icon} {label}</span>
+    <button
+      onClick={onClick}
+      className={`group flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all border ${
+        active ? activeStyles.button : inactiveClass
+      }`}
+    >
+      <span className="flex items-center gap-3">
+        <span className={active ? activeStyles.icon : 'text-slate-400 group-hover:text-slate-200 transition-colors'}>
+          {icon}
+        </span>
+        <span>{label}</span>
+      </span>
+      {active && (
+        <span className={`h-1.5 w-1.5 rounded-full ${activeStyles.dot}`} />
+      )}
     </button>
   );
 }
