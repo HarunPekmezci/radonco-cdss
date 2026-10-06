@@ -69,9 +69,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       languagePicker: 'Dil seçimi',
     },
     languageNames: { tr: 'Türkçe', en: 'English' },
-    heroBadge: 'ONKOLOJİ KARAR & DOZİMETRİ PORTALI',
-    heroTitle: 'RadOnco CDSS',
-    heroDescription: 'Radyasyon onkolojisi klinik karar desteği, dozimetri araçları ve kanıt kaynakları tek bir çalışma alanında. Tüm çıktılar klinik değerlendirmeyi desteklemek içindir; hekim kararının yerini almaz.',
+    heroBadge: 'RADONCO PORTAL',
+    heroTitle: 'Klinik Karar & Onkoloji Akademisi',
+    heroDescription: 'Radyasyon onkolojisi klinik karar desteği ve yeterlik sınavı / onkoloji eğitimi için birleşik çalışma istasyonu.',
     heroAction: 'Karar Destek Matrisini Aç',
     hero: {
       cdss: {
@@ -193,9 +193,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       languagePicker: 'Language selection',
     },
     languageNames: { tr: 'Türkçe', en: 'English' },
-    heroBadge: 'ONCOLOGY DECISION & DOSIMETRY PORTAL',
-    heroTitle: 'RadOnco CDSS',
-    heroDescription: 'Radiation oncology clinical decision support, dosimetry tools and evidence sources in a unified workspace. All outputs support clinical evaluation; they do not replace clinician judgement.',
+    heroBadge: 'RADONCO PORTAL',
+    heroTitle: 'Clinical Decision Support & Oncology Academy',
+    heroDescription: 'Unified clinical decision support and radiation oncology board training workstation.',
     heroAction: 'Open Decision Support Matrix',
     hero: {
       cdss: {
