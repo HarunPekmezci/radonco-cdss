@@ -137,8 +137,8 @@ export const translations: Record<Language, TranslationDictionary> = {
         badges: ['DS-GPA', 'CAPRA', 'RPA'],
       },
       references: {
-        title: 'Kaynakça ve Kanıt Kütüphanesi',
-        description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve Faz III çalışmalar.',
+        title: 'Klinik Kılavuzlar & Kaynakça',
+        description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve dönüm noktası kanıtlar.',
         badges: ['NCCN 2025', 'Faz III'],
       },
       toxicity: {
@@ -261,8 +261,8 @@ export const translations: Record<Language, TranslationDictionary> = {
         badges: ['DS-GPA', 'CAPRA', 'RPA'],
       },
       references: {
-        title: 'References & Evidence Library',
-        description: 'Current NCCN 2025, ASTRO, and ESTRO guidelines and phase III studies.',
+        title: 'Clinical Guidelines & References',
+        description: 'NCCN 2025, ASTRO, and ESTRO clinical guidelines and landmark evidence.',
         badges: ['NCCN 2025', 'Phase III'],
       },
       toxicity: {
