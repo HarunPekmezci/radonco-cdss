@@ -26,14 +26,19 @@ export const metadata: Metadata = {
     'QUANTEC',
     'NCCN',
   ],
+  alternates: {
+    canonical: '/',
+  },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
-      'max-snippet': -1,
+      'max-video-preview': -1,
       'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
   openGraph: {
