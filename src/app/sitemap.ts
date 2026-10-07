@@ -15,22 +15,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/cdss`,
       lastModified: now,
       changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/hedef-hacim`,
-      lastModified: now,
-      changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/contouring-atlas`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/doz-hesaplayici`,
+      url: `${baseUrl}/academy`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
@@ -39,13 +27,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/doz-kisitlari`,
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/doz-hesaplayici`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/hedef-hacim`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/prognostic`,
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/contouring-atlas`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/toxicity`,
@@ -66,10 +72,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/academy`,
+      url: `${baseUrl}/references`,
       lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/kaynakca`,
@@ -78,10 +84,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/references`,
+      url: `${baseUrl}/disclaimer`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.5,
     },
     {
       url: `${baseUrl}/iletisim`,
@@ -115,12 +121,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/privacy`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/disclaimer`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.3,
