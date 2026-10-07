@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { ParticleBackground } from '@/components/ui/ParticleBackground';
 
 type PortalModule = {
   href: string;
@@ -65,13 +66,16 @@ export default function PortalPage() {
   const { t, language } = useLanguage();
 
   return (
-    <main className="bg-gradient-to-b from-slate-900 via-[#0a0f1d] to-[#040711] min-h-screen relative overflow-hidden text-slate-100 py-12 sm:py-20">
-      {/* High-End Specular Top Reflection (Rim Light) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[400px] bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.18),transparent_60%)] pointer-events-none" />
+    <main className="relative min-h-screen bg-gradient-to-b from-slate-900 via-[#0a0f1d] to-[#040711] text-slate-100 overflow-hidden py-12 sm:py-20">
+      {/* Particle & Cosmic Ray Background Aura */}
+      <ParticleBackground />
 
-      {/* Radiant Lateral Lighting */}
-      <div className="pointer-events-none absolute w-[600px] h-[500px] bg-gradient-to-br from-amber-400/20 via-orange-500/10 to-transparent rounded-full blur-[130px] -top-24 -left-12" />
-      <div className="pointer-events-none absolute w-[600px] h-[500px] bg-gradient-to-bl from-emerald-400/20 via-teal-500/10 to-transparent rounded-full blur-[130px] -top-24 -right-12" />
+      {/* Top Specular Metallic Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[380px] bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.15),transparent_60%)] pointer-events-none z-0" />
+
+      {/* Lateral Ambient Glows */}
+      <div className="w-[550px] h-[450px] bg-gradient-to-br from-amber-400/15 via-orange-500/5 to-transparent rounded-full blur-[130px] -top-20 -left-10 pointer-events-none absolute z-0" />
+      <div className="w-[550px] h-[450px] bg-gradient-to-bl from-emerald-400/15 via-teal-500/5 to-transparent rounded-full blur-[130px] -top-20 -right-10 pointer-events-none absolute z-0" />
 
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}
@@ -86,8 +90,8 @@ export default function PortalPage() {
 
         <section className="grid w-full grid-cols-1 gap-8 lg:grid-cols-2">
           {/* CDSS Card */}
-          <div className="relative group rounded-3xl p-8 bg-slate-900/40 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-2xl flex flex-col justify-between">
-            {/* Razor-sharp 1px top highlight line & subtle warmth */}
+          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
+            {/* CDSS Top Accent */}
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
             <div className="absolute -right-16 -top-16 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/15 transition-all duration-500" />
             
@@ -139,7 +143,7 @@ export default function PortalPage() {
             
             <Link
               href="/cdss"
-              className="mt-8 w-full py-3.5 px-6 rounded-2xl font-semibold text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group-hover:gap-3 z-10"
+              className="mt-8 w-full py-3.5 px-6 rounded-2xl font-semibold text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 hover:shadow-amber-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group-hover:gap-3 z-10"
             >
               {t.hero.cdss.button}
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -147,8 +151,8 @@ export default function PortalPage() {
           </div>
 
           {/* Academy Card */}
-          <div className="relative group rounded-3xl p-8 bg-slate-900/40 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-2xl flex flex-col justify-between">
-            {/* Razor-sharp 1px top highlight line & subtle teal */}
+          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
+            {/* Academy Top Accent */}
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
             <div className="absolute -right-16 -top-16 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500" />
             
@@ -200,7 +204,7 @@ export default function PortalPage() {
             
             <Link
               href="/academy"
-              className="mt-8 w-full py-3.5 px-6 rounded-2xl font-semibold text-sm bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group-hover:gap-3 z-10"
+              className="mt-8 w-full py-3.5 px-6 rounded-2xl font-semibold text-sm bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group-hover:gap-3 z-10"
             >
               {t.hero.academy.button}
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
