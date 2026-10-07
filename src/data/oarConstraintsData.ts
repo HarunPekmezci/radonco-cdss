@@ -1,6 +1,56 @@
 import type { OARNTPCeiling } from '@/types/oar-guide';
 
 export const oarConstraintsData: OARNTPCeiling[] = [
+  // === THORAX SBRT (3-5 fx) ===
+  // Lungs
+  { id: 'thorax-lungs-v20-sbrt-3fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'V20Gy', limit: 'V20Gy < 10-12%', endpoint: 'Radyasyon pnömonisi < 10%', priority: 'hard', alphaBeta: 3, source: 'RTOG 0236 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-v12-sbrt-3fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'V12.5Gy', limit: 'V12.5Gy < 15%', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0236 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-v5-sbrt-3fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'V5Gy', limit: 'V5Gy < 26-30%', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0236 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-mean-sbrt-3fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmean', limit: 'Mean < 8 Gy', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0236 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-critical-sbrt-3fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Kritik Volüm (1000 cc)', limit: 'Total Lung - GTV >= 1000 cc receiving < 12.5 Gy', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0236 / AAPM TG-101', context: '' },
+  
+  { id: 'thorax-lungs-v20-sbrt-5fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'V20Gy', limit: 'V20Gy < 12-15%', endpoint: 'Radyasyon pnömonisi < 10%', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-v12-sbrt-5fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'V12.5Gy', limit: 'V12.5Gy < 15%', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-v5-sbrt-5fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'V5Gy', limit: 'V5Gy < 26-30%', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-mean-sbrt-5fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmean', limit: 'Mean < 8 Gy', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / AAPM TG-101', context: '' },
+  { id: 'thorax-lungs-critical-sbrt-5fx', organ: 'Bilateral Akciğer (GTV hariç)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Kritik Volüm (1000 cc)', limit: 'Total Lung - GTV >= 1000 cc receiving < 12.5 Gy', endpoint: 'Radyasyon pnömonisi', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / AAPM TG-101', context: '' },
+
+  // Spinal Cord
+  { id: 'thorax-spinal-cord-sbrt-3fx', organ: 'Spinal Kord', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax & V14Gy', limit: 'Dmax < 18 Gy (V14Gy < 1.2 cc; D0.035cc < 18 Gy)', endpoint: 'Miyelopati', priority: 'hard', alphaBeta: 2, source: 'AAPM TG-101', context: '' },
+  { id: 'thorax-spinal-cord-sbrt-5fx', organ: 'Spinal Kord', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V20Gy', limit: 'Dmax < 23-25 Gy (V20Gy < 0.5 cc; D0.035cc < 25 Gy)', endpoint: 'Miyelopati', priority: 'hard', alphaBeta: 2, source: 'AAPM TG-101', context: '' },
+
+  // Heart
+  { id: 'thorax-heart-sbrt-3fx', organ: 'Kalp & Perikard', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax & V24Gy', limit: 'Dmax < 30 Gy (V24Gy < 15 cc)', endpoint: 'Perikardit / kardiyak olaylar', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / TG-101', context: '' },
+  { id: 'thorax-heart-sbrt-5fx', organ: 'Kalp & Perikard', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V32Gy', limit: 'Dmax < 38-40 Gy (V32Gy < 15 cc; D0.035cc < 40 Gy)', endpoint: 'Perikardit / kardiyak olaylar', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / TG-101', context: '' },
+
+  // PBT
+  { id: 'thorax-pbt-sbrt-3fx', organ: 'Proksimal Bronşiyal Ağaç & Ana Karina', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax & V24Gy', limit: 'Dmax < 30 Gy (V24Gy < 0.5 cc)', endpoint: 'Fatal hemoptizi / bronşiyal nekroz', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / SUNSET', context: '' },
+  { id: 'thorax-pbt-sbrt-5fx', organ: 'Proksimal Bronşiyal Ağaç & Ana Karina', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V35Gy', limit: 'Dmax < 38-40 Gy (D0.035cc < 40 Gy; V35Gy < 0.5 cc)', endpoint: 'Fatal hemoptizi / bronşiyal nekroz', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / SUNSET', context: '' },
+
+  // Esophagus
+  { id: 'thorax-esophagus-sbrt-3fx', organ: 'Özofagus', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax & V24Gy', limit: 'Dmax < 27 Gy (V24Gy < 0.5 cc)', endpoint: 'Ülserasyon / perforasyon / fistül', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / TG-101', context: '' },
+  { id: 'thorax-esophagus-sbrt-5fx', organ: 'Özofagus', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V30Gy', limit: 'Dmax < 32-35 Gy (D0.035cc < 35 Gy; V30Gy < 0.5 cc)', endpoint: 'Ülserasyon / perforasyon / fistül', priority: 'hard', alphaBeta: 3, source: 'RTOG 0813 / TG-101', context: '' },
+
+  // Brachial Plexus
+  { id: 'thorax-brachial-sbrt-3fx', organ: 'Brakial Pleksus', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax & V20Gy', limit: 'Dmax < 24 Gy (V20Gy < 0.2 cc)', endpoint: 'Pleksopati', priority: 'soft', alphaBeta: 2, source: 'Clinical Guidelines', context: 'Apikal/Pancoast SBRT için kritik.' },
+  { id: 'thorax-brachial-sbrt-5fx', organ: 'Brakial Pleksus', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & D0.035cc', limit: 'Dmax < 30-32 Gy (D0.035cc < 32 Gy)', endpoint: 'Pleksopati', priority: 'soft', alphaBeta: 2, source: 'Clinical Guidelines', context: 'Apikal/Pancoast SBRT için kritik.' },
+
+  // Great Vessels
+  { id: 'thorax-vessels-sbrt-3fx', organ: 'Büyük Damarlar & Aort', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax', limit: 'Dmax < 45 Gy', endpoint: 'Psödoanevrizma & rüptür', priority: 'soft', alphaBeta: 3, source: 'AAPM TG-101', context: '' },
+  { id: 'thorax-vessels-sbrt-5fx', organ: 'Büyük Damarlar & Aort', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V47Gy', limit: 'Dmax < 50 Gy (V47Gy < 1.5 cc)', endpoint: 'Psödoanevrizma & rüptür', priority: 'soft', alphaBeta: 3, source: 'AAPM TG-101', context: '' },
+
+  // Chest Wall
+  { id: 'thorax-chestwall-sbrt-3fx', organ: 'Göğüs Duvarı & Kaburga', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'V30Gy & Dmax', limit: 'V30Gy < 30 cc (Dmax < 40 Gy)', endpoint: 'Kosta kırığı & kronik ağrı', priority: 'soft', alphaBeta: 3, source: 'Dunlap et al. / TG-101', context: '' },
+  { id: 'thorax-chestwall-sbrt-5fx', organ: 'Göğüs Duvarı & Kaburga', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'V30Gy & Dmax', limit: 'V30Gy < 30 cc; V35Gy < 10 cc (Dmax < 50 Gy)', endpoint: 'Kosta kırığı & kronik ağrı', priority: 'soft', alphaBeta: 3, source: 'Dunlap et al. / TG-101', context: '' },
+
+  // Trachea
+  { id: 'thorax-trachea-sbrt-3fx', organ: 'Trakea & Ana Bronşlar', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax', limit: 'Dmax < 30 Gy', endpoint: 'Nekroz / fistül', priority: 'soft', alphaBeta: 3, source: 'Clinical Guidelines', context: '' },
+  { id: 'thorax-trachea-sbrt-5fx', organ: 'Trakea & Ana Bronşlar', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax', limit: 'Dmax < 38-40 Gy', endpoint: 'Nekroz / fistül', priority: 'soft', alphaBeta: 3, source: 'Clinical Guidelines', context: '' },
+
+  // Skin
+  { id: 'thorax-skin-sbrt-3fx', organ: 'Cilt (Skin)', region: 'toraks', fractionation: 'sbrt-3fx', metric: 'Dmax', limit: 'Dmax < 30 Gy', endpoint: 'Cilt ülserasyonu', priority: 'soft', alphaBeta: 3, source: 'Clinical Guidelines', context: '' },
+  { id: 'thorax-skin-sbrt-5fx', organ: 'Cilt (Skin)', region: 'toraks', fractionation: 'sbrt-5fx', metric: 'Dmax & V32Gy', limit: 'Dmax < 36-38 Gy (V32Gy < 10 cc)', endpoint: 'Cilt ülserasyonu', priority: 'soft', alphaBeta: 3, source: 'Clinical Guidelines', context: '' },
+
   // === THORAX (HYPOFRACTIONATION) ===
   {
     id: 'thorax-lungs-v20-hypo',
@@ -1055,19 +1105,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     context: 'Laterality, alanlar ve DIBH dozları etkiler; sayısal eşik yerine plan DVH’sini değerlendirin.',
   },
   {
-    id: 'esophagus-spine-sbrt-2fx',
-    organ: 'Özofagus',
-    region: 'toraks',
-    fractionation: 'sbrt-2fx',
-    metric: 'Dmax',
-    limit: '< 25 Gy / 2 fx (seçilmiş omurga SBRT protokolü)',
-    endpoint: 'Özofajit ve ülserasyon riski.',
-    priority: 'hard',
-    alphaBeta: 3,
-    source: 'HyTEC spine SBRT; RTOG 0631',
-    context: 'Bu protokol değeri iki fraksiyonlu omurga SBRT içindir; 3 fraksiyon sınırı olarak kullanmayın.',
-  },
-  {
     id: 'liver-spared-volume-5fx',
     organ: 'Sağlam karaciğer (toplam karaciğer - GTV)',
     region: 'abdomen',
@@ -1265,32 +1302,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     alphaBeta: 2,
     source: 'QUANTEC / konvansiyonel toraks RT doz planlama referansı',
     context: 'Fraksiyonasyon ve önceki ışınlama değiştiğinde bu eşiği doğrudan kullanmayın.',
-  },
-  {
-    id: 'thorax-proximal-bronchial-sbrt-5fx',
-    organ: 'Proksimal bronş ağacı',
-    region: 'toraks',
-    fractionation: 'sbrt-5fx',
-    metric: 'Dmax',
-    limit: '< 105% reçete dozu',
-    endpoint: 'Bronş nekrozu, fistül ve ciddi hava yolu toksisitesi.',
-    priority: 'soft',
-    alphaBeta: 2,
-    source: 'AAPM TG-101; HyTEC thoracic SBRT',
-    context: 'Santral/ultr santral tümörlerde seçilen fraksiyon ve kontur protokolüyle doğrulayın.',
-  },
-  {
-    id: 'thorax-chest-wall-sbrt-5fx',
-    organ: 'Göğüs duvarı / kaburga',
-    region: 'toraks',
-    fractionation: 'sbrt-5fx',
-    metric: 'V30Gy',
-    limit: '< 30 cc',
-    endpoint: 'Göğüs duvarı ağrısı ve kaburga kırığı.',
-    priority: 'soft',
-    alphaBeta: 3,
-    source: 'AAPM TG-101; HyTEC thoracic SBRT',
-    context: 'Protokol ve reçete fraksiyonasyonuna göre doğrulayın.',
   },
   {
     id: 'brain-cochlea-conventional',
@@ -1590,19 +1601,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     alphaBeta: 3,
     source: 'Cardio-Oncology Thoracic Guidelines',
     context: 'Sol ön inen koroner arter dozunu ALARA prensibiyle sınırlayın.',
-  },
-  {
-    id: 'thorax-great-vessels-sbrt-5fx',
-    organ: 'Büyük damarlar / aorta',
-    region: 'toraks',
-    fractionation: 'sbrt-5fx',
-    metric: 'Dmax',
-    limit: '< 47-50 Gy',
-    endpoint: 'Aortik ve pulmoner arter rüptürü veya psödoanevrizma.',
-    priority: 'hard',
-    alphaBeta: 2,
-    source: 'AAPM TG-101; HyTEC (2021)',
-    context: 'Santral ve ultrasantral torasik SBRT olgularında vasküler sert sınır.',
   },
   // Abdomen (Gastric & Pancreas) Additions
   {
