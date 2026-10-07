@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Search, ShieldAlert, SlidersHorizontal } from 'lucide-react';
 import { oarConstraintsData } from '@/data/oarConstraintsData';
-import type { OARFractionation, OARRegion } from '@/types/oar-guide';
+import type { OARFractionation, OARPriority, OARRegion, OARNTPCeiling } from '@/types/oar-guide';
 import { useLanguage } from '@/context/LanguageContext';
 
 type RegionFilter = 'all' | OARRegion | 'pelvis-palliative';
@@ -26,63 +26,62 @@ const fractionations: { id: FractionationFilter; label_tr: string; label_en: str
   { id: 'konvansiyonel', label_tr: 'Konvansiyonel', label_en: 'Conventional' },
   { id: 'hipofraksiyon', label_tr: 'Hipofraksiyon', label_en: 'Hypofractionation' },
   { id: 'sbrt', label_tr: 'SBRT (3–5 fx)', label_en: 'SBRT (3–5 fx)' },
-  { id: 'srs', label_tr: 'SRS (1–3 fx)', label_en: 'SRS (1–3 fx)' },
+  { id: 'srs', label_tr: 'SRS (1–5 fx)', label_en: 'SRS (1–5 fx)' },
 ];
 
 const organNamesEn: Record<string, string> = {
   'Beyin sapı': 'Brainstem',
   'Optik sinirler / kiazma': 'Optic nerves / chiasm',
-  'Beyin / kritik yapılar': 'Brain / critical structures',
-  'Parotis (en az bir bez)': 'Parotid gland (at least one)',
-  Koklea: 'Cochlea',
-  'Optik yapılar / beyin sapı / mandibula': 'Optic structures / brainstem / mandible',
-  'Bilateral akciğer (GTV hariç)': 'Both lungs (excluding GTV)',
-  'Kalp / LAD': 'Heart / LAD',
-  Özofagus: 'Esophagus',
-  'Sağlam karaciğer (toplam karaciğer - GTV)': 'Uninvolved liver (total liver - GTV)',
-  'Mide / duodenum': 'Stomach / duodenum',
-  'Mide / duodenum / ince bağırsak / santral safra yolları': 'Stomach / duodenum / small bowel / central bile ducts',
-  'Kontralateral böbrek': 'Contralateral kidney',
-  'Bağırsak / duodenum': 'Bowel / duodenum',
-  'Peritoneal boşluk / bowel bag': 'Peritoneal cavity / bowel bag',
-  'Tek tek ince bağırsak ansları': 'Individual small-bowel loops',
-  Rektum: 'Rectum',
-  Mesane: 'Bladder',
-  'Spinal kord': 'Spinal cord',
-  'Spinal kord / thecal sac': 'Spinal cord / thecal sac',
+  'Hipokampus': 'Hippocampus',
+  'Koklea': 'Cochlea',
   'Normal beyin dokusu (Brain - GTV)': 'Normal brain tissue (Brain - GTV)',
-  'Lakrimal bez': 'Lacrimal gland',
-  'Saçlı deri / skalp': 'Scalp / skin',
-  'Spinal kord PRV': 'Spinal cord PRV',
-  'Servikal özofagus': 'Cervical esophagus',
-  'Brakiyal pleksus': 'Brachial plexus',
-  'Temporomandibüler eklem (TMJ)': 'Temporomandibular joint (TMJ)',
-  'LAD koroner arter': 'LAD coronary artery',
-  'Büyük damarlar / aorta': 'Great vessels / aorta',
-  'Duodenum': 'Duodenum',
-  'Mide (Stomach)': 'Stomach',
-  'Böbrekler (Bilateral)': 'Bilateral kidneys',
-  'İpsilateral akciğer': 'Ipsilateral lung',
-  'Kontralateral meme': 'Contralateral breast',
-  'Kontralateral akciğer': 'Contralateral lung',
-  'Humerus başı': 'Humeral head',
-  'Bilateral femur başları': 'Bilateral femoral heads',
-  'Penil bulb': 'Penile bulb',
-  'Genital organlar / vajina / penil bulb': 'Genital organs / vagina / penile bulb',
-  'Sigmoid kolon': 'Sigmoid colon',
+  'Kranial sinirler (CN V, VII, VIII)': 'Cranial nerves (CN V, VII, VIII)',
   'Hipofiz': 'Pituitary gland',
-  'Hipokampus (HA-WBRT)': 'Hippocampus (HA-WBRT)',
   'Lens': 'Lens',
   'Retina': 'Retina',
+  'Lakrimal bez': 'Lacrimal gland',
+  'Kafa derisi / skalp': 'Scalp / skin',
+  'Spinal kord': 'Spinal cord',
+  'Spinal kord PRV': 'Spinal cord PRV',
+  'Karotis arter': 'Carotid artery',
   'Mandibula': 'Mandible',
+  'Larenks': 'Larynx',
+  'Trakea & ana bronşlar': 'Trachea & main bronchi',
+  'Larenks & trakea': 'Larynx & trachea',
+  'Faringeal konstriktörler (PCM)': 'Pharyngeal constrictors (PCM)',
+  'Farinks & servikal özofagus': 'Pharynx & cervical esophagus',
+  'Servikal özofagus': 'Cervical esophagus',
+  'Parotis bezi': 'Parotid gland',
+  'Submandibular bez': 'Submandibular gland',
+  'Brakial pleksus': 'Brachial plexus',
+  'Temporomandibüler eklem (TMJ)': 'Temporomandibular joint (TMJ)',
   'Tiroid': 'Thyroid gland',
   'Oral kavite': 'Oral cavity',
-  'Faringeal konstriktörler (PCM)': 'Pharyngeal constrictor muscles (PCM)',
-  'Larenks': 'Larynx',
-  'Submandibular / parotis bezleri': 'Submandibular / parotid glands',
+  'Bilateral akciğer (GTV hariç)': 'Both lungs (excluding GTV)',
+  'İpsilateral akciğer': 'Ipsilateral lung',
+  'Kontralateral akciğer': 'Contralateral lung',
+  'Kontralateral meme': 'Contralateral breast',
   'Kalp': 'Heart',
-  'Proksimal bronş ağacı': 'Proximal bronchial tree',
-  'Göğüs duvarı / kaburga': 'Chest wall / ribs',
+  'LAD koroner arter': 'LAD coronary artery',
+  'Proksimal bronşiyal ağaç & ana karina': 'Proximal bronchial tree & main carina',
+  'Özofagus': 'Esophagus',
+  'Büyük damarlar & aort': 'Great vessels & aorta',
+  'Göğüs duvarı & kaburga': 'Chest wall & ribs',
+  'Cilt (Skin)': 'Skin',
+  'Humerus başı': 'Humeral head',
+  'Sağlam karaciğer (toplam karaciğer - GTV)': 'Uninvolved liver (total liver - GTV)',
+  'Duodenum': 'Duodenum',
+  'Mide': 'Stomach',
+  'Böbrekler (Bilateral)': 'Bilateral kidneys',
+  'Kontralateral böbrek': 'Contralateral kidney',
+  'İnce bağırsak (Small bowel)': 'Small bowel',
+  'Peritoneal boşluk / bowel bag': 'Peritoneal cavity / bowel bag',
+  'Rektum': 'Rectum',
+  'Mesane': 'Bladder',
+  'Sigmoid kolon': 'Sigmoid colon',
+  'Bilateral femur başları': 'Bilateral femoral heads',
+  'Penil bulb': 'Penile bulb',
+  'Genital organlar / vajina': 'Genital organs / vagina',
 };
 
 const organLabel = (organ: string, language: UiLanguage) => (
@@ -115,6 +114,20 @@ const fractionationLabel = (fractionation: OARFractionation, language: UiLanguag
   }
 };
 
+type GroupedOARCard = {
+  id: string;
+  organ: string;
+  region: OARRegion;
+  fractionation: OARFractionation;
+  alphaBeta?: number;
+  priority: OARPriority;
+  endpoint: string;
+  context: string;
+  source: string;
+  sourceUrl?: string;
+  metricsList: { metric: string; limit: string; priority?: OARPriority }[];
+};
+
 export default function DoseConstraintsPage() {
   const { language } = useLanguage();
   const [region, setRegion] = useState<RegionFilter>('all');
@@ -136,7 +149,7 @@ export default function DoseConstraintsPage() {
     return true;
   });
 
-const filteredItems = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const locale = language === 'tr' ? 'tr-TR' : 'en-US';
     const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
     return oarConstraintsData.filter(item => {
@@ -156,14 +169,44 @@ const filteredItems = useMemo(() => {
   }, [fractionation, language, query, region]);
 
   const groupedItems = useMemo(() => {
-    const map = new Map<string, typeof filteredItems[0] & { metricsList: { metric: string, limit: string }[] }>();
+    const map = new Map<string, GroupedOARCard>();
+
     for (const item of filteredItems) {
-      const key = item.organ + '|' + item.fractionation;
+      const key = `${item.organ.trim().toLowerCase()}|${item.fractionation}`;
       if (!map.has(key)) {
-        map.set(key, { ...item, metricsList: [] });
+        map.set(key, {
+          id: item.id,
+          organ: item.organ,
+          region: item.region,
+          fractionation: item.fractionation,
+          alphaBeta: item.alphaBeta,
+          priority: item.priority,
+          endpoint: item.endpoint,
+          context: item.context,
+          source: item.source,
+          sourceUrl: item.sourceUrl,
+          metricsList: [{ metric: item.metric, limit: item.limit, priority: item.priority }],
+        });
+      } else {
+        const existing = map.get(key)!;
+        if (!existing.metricsList.some(m => m.metric === item.metric && m.limit === item.limit)) {
+          existing.metricsList.push({ metric: item.metric, limit: item.limit, priority: item.priority });
+        }
+        if (item.priority === 'hard') {
+          existing.priority = 'hard';
+        }
+        if (item.context && !existing.context.includes(item.context)) {
+          existing.context = existing.context ? `${existing.context} ${item.context}` : item.context;
+        }
+        if (item.endpoint && !existing.endpoint.includes(item.endpoint)) {
+          existing.endpoint = existing.endpoint ? `${existing.endpoint}; ${item.endpoint}` : item.endpoint;
+        }
+        if (item.source && !existing.source.includes(item.source)) {
+          existing.source = existing.source ? `${existing.source}; ${item.source}` : item.source;
+        }
       }
-      map.get(key)!.metricsList.push({ metric: item.metric, limit: item.limit });
     }
+
     return Array.from(map.values());
   }, [filteredItems]);
 
@@ -182,7 +225,7 @@ const filteredItems = useMemo(() => {
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             {language === 'en'
               ? 'Explore evidence-based references contextualized by organ, anatomy, and fractionation. Assess clinical endpoint and DVH metrics in conjunction.'
-              : 'Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her satırdaki klinik bağlam ve kullanılan DVH metriği birlikte değerlendirilmelidir.'}
+              : 'Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her karttaki klinik bağlam ve kullanılan DVH metrikleri birlikte değerlendirilmelidir.'}
           </p>
         </header>
 
@@ -200,7 +243,7 @@ const filteredItems = useMemo(() => {
               type="search"
               value={query ?? ''}
               onChange={event => setQuery(event.target.value)}
-              placeholder="Kritik organ veya doz metriği ara..."
+              placeholder={language === 'en' ? 'Search organ, metric, or toxicity endpoint...' : 'Kritik organ veya doz metriği ara...'}
               className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-500"
             />
           </div>
@@ -244,65 +287,115 @@ const filteredItems = useMemo(() => {
           </div>
           <p className="mt-4 text-xs text-slate-400" aria-live="polite">
             {language === 'en'
-              ? `Showing ${filteredItems.length} records`
-              : `${filteredItems.length} kayıt gösteriliyor`}
+              ? `Showing ${groupedItems.length} protocols (${filteredItems.length} metric constraints)`
+              : `${groupedItems.length} protokol (${filteredItems.length} doz metriği) gösteriliyor`}
           </p>
         </section>
 
-        {filteredItems.length ? (
-          <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
-            {filteredItems.map(item => (
-              <article key={item.id} className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
-                    <span className="mt-1 inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
-                    <p className="mt-1 text-[11px] font-medium text-slate-400">{fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}</p>
-                  </div>
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${item.priority === 'hard' ? 'border-rose-400/30 bg-rose-400/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'}`}>
-                    <ShieldAlert className="h-3 w-3" aria-hidden="true" />
-                    {item.priority === 'hard'
-                      ? (language === 'en' ? 'Mandatory · Hard' : 'Zorunlu · Hard')
-                      : 'Optimal · Soft'}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 rounded-xl border border-slate-800 bg-[#0a0f1d] p-3">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      {language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}
+        {groupedItems.length ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {groupedItems.map(item => (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
+                      <span className="mt-1 inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">
+                        NTCP ceiling
+                      </span>
+                      <p className="mt-1 text-[11px] font-medium text-slate-400">
+                        {fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}
+                      </p>
                     </div>
-                    <div className="mt-1 text-sm font-semibold text-cyan-200">{item.metric}</div>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+                        item.priority === 'hard'
+                          ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
+                          : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+                      }`}
+                    >
+                      <ShieldAlert className="h-3 w-3" aria-hidden="true" />
+                      {item.priority === 'hard'
+                        ? language === 'en'
+                          ? 'Mandatory · Hard'
+                          : 'Zorunlu · Hard'
+                        : 'Optimal · Soft'}
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      <span className="text-rose-300">{language === 'en' ? 'NTCP Ceiling' : 'NTCP Tavan Sınırı'}</span>
-                    </div>
-                    <div className="mt-1 max-w-64 text-sm font-bold text-white">{item.limit}</div>
-                  </div>
-                </div>
 
-                <div className="mt-3 space-y-2 text-xs leading-5">
-                  <p>
-                    <span className="font-semibold text-slate-300">{language === 'en' ? 'Clinical endpoint: ' : 'Klinik endpoint: '}</span>
-                    <span className="text-slate-400">{item.endpoint}</span>
-                  </p>
-                  <p>
-                    <span className="font-semibold text-slate-300">{language === 'en' ? 'Context: ' : 'Bağlam: '}</span>
-                    <span className="text-slate-400">{item.context}</span>
-                  </p>
-                  <p className="text-slate-400">
-                    {language === 'en' ? 'Source: ' : 'Kaynak: '}
-                    {item.sourceUrl ? (
-                      <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200">{item.source}</a>
-                    ) : item.source}
-                  </p>
+                  {/* Clean, High-Contrast Metrics Table */}
+                  <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-[#0a0f1d]">
+                    <table className="w-full text-left text-xs">
+                      <thead className="border-b border-slate-800 bg-slate-900/80 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <tr>
+                          <th className="px-3.5 py-2.5">{language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}</th>
+                          <th className="px-3.5 py-2.5 text-right">
+                            <span className="text-rose-300">{language === 'en' ? 'NTCP Ceiling' : 'NTCP Tavan Sınırı'}</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60">
+                        {item.metricsList.map((m, idx) => (
+                          <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                            <td className="px-3.5 py-2.5 font-semibold text-sky-400">{m.metric}</td>
+                            <td className="px-3.5 py-2.5 text-right font-mono font-bold text-slate-100">{m.limit}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="mt-3 space-y-2 text-xs leading-5">
+                    {item.endpoint && (
+                      <p>
+                        <span className="font-semibold text-slate-300">
+                          {language === 'en' ? 'Clinical endpoint: ' : 'Klinik endpoint: '}
+                        </span>
+                        <span className="text-slate-400">{item.endpoint}</span>
+                      </p>
+                    )}
+                    {item.context && (
+                      <p>
+                        <span className="font-semibold text-slate-300">
+                          {language === 'en' ? 'Context: ' : 'Bağlam: '}
+                        </span>
+                        <span className="text-slate-400">{item.context}</span>
+                      </p>
+                    )}
+                    {item.source && (
+                      <p className="text-slate-400">
+                        <span className="font-semibold text-slate-300">
+                          {language === 'en' ? 'Source: ' : 'Kaynak: '}
+                        </span>
+                        {item.sourceUrl ? (
+                          <a
+                            href={item.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+                          >
+                            {item.source}
+                          </a>
+                        ) : (
+                          item.source
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <Link
                   href={{
                     pathname: '/doz-hesaplayici',
-                    query: { organ: item.organ, metric: item.metric, limit: item.limit, fractionation: item.fractionation },
+                    query: {
+                      organ: item.organ,
+                      metric: item.metricsList[0]?.metric ?? '',
+                      limit: item.metricsList[0]?.limit ?? '',
+                      fractionation: item.fractionation,
+                    },
                   }}
                   className="mt-4 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15"
                 >
