@@ -73,9 +73,10 @@ export default function PortalPage() {
       {/* Top Specular Metallic Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[380px] bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.15),transparent_60%)] pointer-events-none z-0" />
 
-      {/* Lateral Ambient Glows */}
-      <div className="w-[550px] h-[450px] bg-gradient-to-br from-amber-400/15 via-orange-500/5 to-transparent rounded-full blur-[130px] -top-20 -left-10 pointer-events-none absolute z-0" />
-      <div className="w-[550px] h-[450px] bg-gradient-to-bl from-emerald-400/15 via-teal-500/5 to-transparent rounded-full blur-[130px] -top-20 -right-10 pointer-events-none absolute z-0" />
+      {/* Ethereal Cosmic Nebula Clouds */}
+      <div className="w-[800px] h-[550px] bg-gradient-to-tr from-indigo-600/12 via-purple-900/8 to-transparent rounded-full blur-[170px] -top-24 left-1/3 pointer-events-none absolute z-0" />
+      <div className="w-[650px] h-[500px] bg-gradient-to-br from-amber-500/14 via-rose-950/6 to-transparent rounded-full blur-[180px] top-10 -left-16 pointer-events-none absolute z-0" />
+      <div className="w-[650px] h-[500px] bg-gradient-to-bl from-cyan-500/14 via-teal-950/6 to-transparent rounded-full blur-[180px] top-10 -right-16 pointer-events-none absolute z-0" />
 
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}
