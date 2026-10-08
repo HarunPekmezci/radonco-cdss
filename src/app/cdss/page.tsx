@@ -172,6 +172,7 @@ export default function RadoncoCDSSPage() {
   const [selectedQuickCaseId, setSelectedQuickCaseId] = useState<string | null>(null);
   const [openCategories, setOpenCategories] = useState<string[]>(['emergencies', 'thorax']);
   const [isAnatomicRegionsOpen, setIsAnatomicRegionsOpen] = useState(true);
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeMobilePanel, setActiveMobilePanel] = useState<'parameters' | 'tnm' | 'prescription'>('parameters');
@@ -2400,6 +2401,98 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
           </button>
         </div>
         <div className="flex flex-col gap-1">
+        {/* ==========================================
+            FAVORİLER (SIDEBAR ÜST KISIM)
+           ========================================== */}
+        {isSidebarCollapsed ? (
+          <div className="flex flex-col items-center py-1 mb-2 border-b border-slate-800/80 pb-2" title={lang === 'tr' ? 'Favoriler' : 'Favorites'}>
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed(false)}
+              className="rounded-lg p-1.5 text-amber-400 hover:bg-slate-800 transition"
+              aria-label={lang === 'tr' ? 'Favoriler' : 'Favorites'}
+            >
+              <span className="text-sm" aria-hidden="true">⭐</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={() => setIsFavoritesOpen(open => !open)}
+              className="flex items-center justify-between w-full text-left group"
+              aria-expanded={isFavoritesOpen}
+            >
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">
+                <span aria-hidden="true">⭐</span>
+                <span>{lang === 'tr' ? 'Favoriler' : 'Favorites'}</span>
+                {(favoritePresetIds.length > 0 || customFavorites.length > 0) && (
+                  <span className="ml-1 rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-300">
+                    {favoritePresetIds.length + customFavorites.length}
+                  </span>
+                )}
+              </div>
+              <ChevronDown
+                className={`h-3.5 w-3.5 text-amber-400/70 transition-transform mb-1.5 group-hover:text-amber-300 ${
+                  isFavoritesOpen ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+
+            {isFavoritesOpen && (
+              <div className="flex flex-col gap-1 pl-1">
+                {QUICK_CASE_PRESETS.filter(preset => favoritePresetIds.includes(preset.id)).map(preset => (
+                  <div key={preset.id} className="group flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] leading-tight text-slate-300 transition-colors hover:bg-slate-800/80 hover:text-white">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickCaseSelect(preset)}
+                      className="min-w-0 flex-1 truncate text-left font-medium"
+                      title={lang === 'tr' ? preset.title_tr : preset.title_en}
+                    >
+                      {lang === 'tr' ? preset.title_tr : preset.title_en}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`${lang === 'tr' ? 'Favorilerden çıkar' : 'Remove favorite'}: ${lang === 'tr' ? preset.title_tr : preset.title_en}`}
+                      onClick={() => toggleFavoritePreset(preset.id)}
+                      className="shrink-0 p-0.5 text-amber-400 opacity-60 hover:opacity-100 transition-opacity"
+                    >
+                      <span aria-hidden="true">⭐</span>
+                    </button>
+                  </div>
+                ))}
+                {customFavorites.map(fav => (
+                  <div key={fav.id} className="group flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] leading-tight text-emerald-300 transition-colors hover:bg-slate-800/80 hover:text-white">
+                    <button
+                      type="button"
+                      onClick={() => restoreCustomFavorite(fav)}
+                      className="min-w-0 flex-1 truncate text-left font-medium"
+                      title={`${fav.label} (${fav.organ} / ${fav.subsite} ${fav.selectedT}${fav.selectedN}${fav.selectedM})`}
+                    >
+                      ★ {fav.label}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`${lang === 'tr' ? 'Özel favoriyi sil' : 'Remove custom favorite'}: ${fav.label}`}
+                      onClick={() => removeCustomFavorite(fav.id)}
+                      className="shrink-0 p-0.5 text-rose-400 opacity-60 hover:opacity-100 transition-opacity"
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                ))}
+                {favoritePresetIds.length === 0 && customFavorites.length === 0 && (
+                  <p className="text-[11px] text-slate-400/80 italic px-2 py-1">
+                    {lang === 'tr' ? 'Yıldızladığınız protokoller burada listelenir' : 'Add scenarios with ⭐'}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="border-b border-slate-800/80 my-3" />
+          </div>
+        )}
         {[
           { id: 'emergencies', name_tr: 'Acil Radyoterapi', name_en: 'Emergency Radiotherapy', icon: ShieldAlert, color: 'text-rose-400' },
           { id: 'thorax', name_tr: 'Toraks', name_en: 'Thorax', icon: Wind, color: 'text-sky-700' },
@@ -2490,62 +2583,6 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
       </nav>
 
-      {/* ==========================================
-          FAVORİLERİM: KLASİK NAVİGASYON ÇUBUĞUNUN HEMEN SAĞINDA, AYRI SÜTUN
-         ========================================== */}
-      <aside
-        className={`${isGuidedMode && guidedStep !== 1 ? 'hidden' : 'hidden lg:flex'} w-52 xl:w-56 shrink-0 flex-col sticky top-14 h-fit max-h-[calc(100vh-3.5rem)] overflow-y-auto rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-2.5 shadow-sm`}
-        aria-label={lang === 'tr' ? 'Favori klinik senaryolar' : 'Favorite clinical scenarios'}
-      >
-        <h2 className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-          ⭐ {lang === 'tr' ? 'Favorilerim' : 'Favorites'}
-        </h2>
-        {QUICK_CASE_PRESETS.filter(preset => favoritePresetIds.includes(preset.id)).map(preset => (
-          <div key={preset.id} className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => handleQuickCaseSelect(preset)}
-              className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-left text-[10px] font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white"
-              title={lang === 'tr' ? preset.title_tr : preset.title_en}
-            >
-              <span>{lang === 'tr' ? preset.title_tr : preset.title_en}</span>
-            </button>
-            <button
-              type="button"
-              aria-label={`${lang === 'tr' ? 'Favorilerden çıkar' : 'Remove favorite'}: ${lang === 'tr' ? preset.title_tr : preset.title_en}`}
-              onClick={() => toggleFavoritePreset(preset.id)}
-              className="rounded p-1 text-amber-300 hover:bg-amber-400/10"
-            >
-              <span aria-hidden="true">⭐</span>
-            </button>
-          </div>
-        ))}
-        {customFavorites.map(fav => (
-          <div key={fav.id} className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => restoreCustomFavorite(fav)}
-              className="min-w-0 flex-1 truncate rounded-md px-2 py-1.5 text-left text-[10px] font-medium text-emerald-200 transition hover:bg-slate-800 hover:text-white"
-              title={`${fav.label} (${fav.organ} / ${fav.subsite} ${fav.selectedT}${fav.selectedN}${fav.selectedM})`}
-            >
-              <span>★ {fav.label}</span>
-            </button>
-            <button
-              type="button"
-              aria-label={`${lang === 'tr' ? 'Özel favoriyi sil' : 'Remove custom favorite'}: ${fav.label}`}
-              onClick={() => removeCustomFavorite(fav.id)}
-              className="rounded p-1 text-rose-300 hover:bg-rose-400/10"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-        ))}
-        {favoritePresetIds.length === 0 && customFavorites.length === 0 && (
-          <p className="px-1 py-1 text-[10px] text-slate-400">
-            {lang === 'tr' ? 'Senaryoların yanındaki ☆ ile ekleyin.' : 'Add scenarios with the ☆ button.'}
-          </p>
-        )}
-      </aside>
 
       {/* ==========================================
           12 KOLONLUK FULL-WIDTH GRID
