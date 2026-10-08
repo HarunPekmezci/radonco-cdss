@@ -210,6 +210,16 @@ export default function DoseConstraintsPage() {
     return Array.from(map.values());
   }, [filteredItems]);
 
+  const sortedConstraints = useMemo(() => {
+    return [...groupedItems].sort((a, b) => {
+      const nameA = (organLabel(a.organ, language) || a.organ || '').trim();
+      const nameB = (organLabel(b.organ, language) || b.organ || '').trim();
+      const cmp = nameA.localeCompare(nameB, language === 'tr' ? 'tr' : 'en', { sensitivity: 'base' });
+      if (cmp !== 0) return cmp;
+      return a.fractionation.localeCompare(b.fractionation);
+    });
+  }, [groupedItems, language]);
+
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
       <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
@@ -287,14 +297,14 @@ export default function DoseConstraintsPage() {
           </div>
           <p className="mt-4 text-xs text-slate-400" aria-live="polite">
             {language === 'en'
-              ? `Showing ${groupedItems.length} protocols (${filteredItems.length} metric constraints)`
-              : `${groupedItems.length} protokol (${filteredItems.length} doz metriği) gösteriliyor`}
+              ? `Showing ${sortedConstraints.length} protocols (${filteredItems.length} metric constraints)`
+              : `${sortedConstraints.length} protokol (${filteredItems.length} doz metriği) gösteriliyor`}
           </p>
         </section>
 
-        {groupedItems.length ? (
+        {sortedConstraints.length ? (
           <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
-            {groupedItems.map(item => (
+            {sortedConstraints.map(item => (
               <article
                 key={item.id}
                 className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5 flex flex-col justify-between"
