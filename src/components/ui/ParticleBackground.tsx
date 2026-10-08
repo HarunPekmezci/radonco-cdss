@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 
 // 40 deterministic twinkling quantum points (avoids SSR hydration mismatches)
 const PARTICLES = Array.from({ length: 42 }, (_, i) => {
@@ -13,8 +13,8 @@ const PARTICLES = Array.from({ length: 42 }, (_, i) => {
   const left = `${(pseudoRand(i * 2.71 + 2) * 96 + 2).toFixed(2)}%`;
   const size = i % 3 === 0 ? 'w-1 h-1' : 'w-0.5 h-0.5';
   const duration = `${(2.2 + pseudoRand(i * 3.14 + 3) * 3.8).toFixed(1)}s`; // 2.2s to 6.0s
-  const delay = `${(pseudoRand(i * 4.67 + 4) * 4).toFixed(1)}s`;
-  const maxOpacity = (0.2 + pseudoRand(i * 5.89 + 5) * 0.5).toFixed(2); // 0.20 to 0.70
+  const delay = `${(2.0 + pseudoRand(i * 4.67 + 4) * 4.0).toFixed(1)}s`; // 2.0s to 6.0s
+  const maxOpacity = (0.2 + pseudoRand(i * 5.89 + 5) * 0.6).toFixed(2); // 0.20 to 0.80
   const color =
     i % 6 === 0
       ? 'bg-cyan-300 shadow-[0_0_6px_rgba(103,232,249,0.85)]'
@@ -49,7 +49,7 @@ const BEAMS = [
   },
 ];
 
-export function ParticleBackground() {
+export const ParticleBackground = memo(function ParticleBackground() {
   return (
     <div
       aria-hidden="true"
@@ -116,7 +116,7 @@ export function ParticleBackground() {
       {BEAMS.map((beam) => (
         <div
           key={beam.id}
-          className="cosmic-beam absolute h-[1px] w-[130px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_rgba(34,211,238,0.7)]"
+          className="cosmic-beam absolute h-[1px] w-[140px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.8)]"
           style={{
             top: beam.top,
             right: beam.right,
@@ -128,6 +128,6 @@ export function ParticleBackground() {
       ))}
     </div>
   );
-}
+});
 
 export default ParticleBackground;
