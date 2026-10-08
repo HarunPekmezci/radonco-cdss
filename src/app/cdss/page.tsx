@@ -2738,7 +2738,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 value={patientAgeYears}
                 onChange={event => setPatientAgeYears(event.currentTarget.value)}
                 className="mt-1 h-9 w-full rounded-md border border-slate-700 bg-[#0b1220] px-2 text-xs text-slate-100 placeholder:text-slate-400"
-                placeholder={lang === 'tr' ? 'Örn: 65' : 'e.g. 65'}
+                placeholder=""
               />
             </label>
             <label className="text-[10px] font-semibold text-slate-300">
