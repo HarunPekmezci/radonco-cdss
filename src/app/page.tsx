@@ -70,13 +70,16 @@ export default function PortalPage() {
       {/* Particle & Cosmic Ray Background Aura */}
       <ParticleBackground />
 
+      {/* Celestial Orbital Horizon Arc */}
+      <div className="absolute -top-[340px] left-1/2 -translate-x-1/2 w-[1600px] h-[450px] rounded-[100%] border-b border-cyan-400/25 shadow-[0_15px_60px_-10px_rgba(34,211,238,0.25)] pointer-events-none z-0 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent" />
+
       {/* Top Specular Metallic Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[380px] bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.15),transparent_60%)] pointer-events-none z-0" />
 
-      {/* Ethereal Cosmic Nebula Clouds */}
-      <div className="w-[800px] h-[550px] bg-gradient-to-tr from-indigo-600/12 via-purple-900/8 to-transparent rounded-full blur-[170px] -top-24 left-1/3 pointer-events-none absolute z-0" />
-      <div className="w-[650px] h-[500px] bg-gradient-to-br from-amber-500/14 via-rose-950/6 to-transparent rounded-full blur-[180px] top-10 -left-16 pointer-events-none absolute z-0" />
-      <div className="w-[650px] h-[500px] bg-gradient-to-bl from-cyan-500/14 via-teal-950/6 to-transparent rounded-full blur-[180px] top-10 -right-16 pointer-events-none absolute z-0" />
+      {/* Ethereal Deep-Space Nebula Mesh */}
+      <div className="w-[800px] h-[500px] bg-indigo-950/30 rounded-full blur-[160px] top-10 left-1/4 pointer-events-none absolute z-0" />
+      <div className="w-[600px] h-[450px] bg-cyan-950/25 rounded-full blur-[170px] top-32 right-10 pointer-events-none absolute z-0" />
+      <div className="w-[500px] h-[400px] bg-amber-950/20 rounded-full blur-[160px] top-48 left-10 pointer-events-none absolute z-0" />
 
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}

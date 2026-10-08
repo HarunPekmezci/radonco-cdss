@@ -2,8 +2,8 @@
 
 import React, { memo } from 'react';
 
-// 330 deterministic twinkling quantum points across 3 cosmic visual tiers (avoids SSR hydration mismatches)
-const TOTAL_PARTICLES = 330;
+// 320 deterministic razor-sharp astronomical star points (avoids SSR hydration mismatches)
+const TOTAL_PARTICLES = 320;
 
 const PARTICLES = Array.from({ length: TOTAL_PARTICLES }, (_, i) => {
   const pseudoRand = (seed: number) => {
@@ -14,59 +14,42 @@ const PARTICLES = Array.from({ length: TOTAL_PARTICLES }, (_, i) => {
   const top = `${(pseudoRand(i * 1.37 + 1) * 98 + 1).toFixed(2)}%`;
   const left = `${(pseudoRand(i * 2.71 + 2) * 98 + 1).toFixed(2)}%`;
 
-  // Staggered twinkle duration (1.5s to 5.0s) and delays (0s to 5s)
-  const duration = `${(1.5 + pseudoRand(i * 3.14 + 3) * 3.5).toFixed(2)}s`;
+  // Staggered twinkle duration (1.5s to 4.5s) and delays (0s to 5s)
+  const duration = `${(1.5 + pseudoRand(i * 3.14 + 3) * 3.0).toFixed(2)}s`;
   const delay = `${(pseudoRand(i * 4.67 + 4) * 5.0).toFixed(2)}s`;
 
-  // 3 distinct visual tiers for deep cosmic layering
-  const tierSeed = pseudoRand(i * 7.31 + 7);
-
+  // Razor-sharp star sizing (no blurry circles or firefly bokeh)
+  const seed = pseudoRand(i * 7.31 + 7);
   let size: string;
-  let minOpacity: string;
-  let maxOpacity: string;
   let color: string;
 
-  if (tierSeed >= 0.90) {
-    // Radiant Diamond Puncta (~10%): ~33 prominent sparkling nodes (w-2 h-2) with colored glowing auras
-    size = 'w-2 h-2';
-    minOpacity = (0.35 + pseudoRand(i * 5.12 + 8) * 0.15).toFixed(2);
-    maxOpacity = (0.92 + pseudoRand(i * 6.43 + 9) * 0.08).toFixed(2);
-
-    const colorSeed = pseudoRand(i * 8.77 + 10);
-    if (colorSeed < 0.38) {
-      // Pure Diamond White
-      color = 'bg-white shadow-[0_0_12px_3px_rgba(255,255,255,0.95)]';
-    } else if (colorSeed < 0.72) {
-      // High-Energy Cyan
-      color = 'bg-cyan-200 shadow-[0_0_12px_3px_rgba(34,211,238,0.9)]';
-    } else {
-      // Warm Solar Amber
-      color = 'bg-amber-200 shadow-[0_0_12px_3px_rgba(251,191,36,0.9)]';
-    }
-  } else if (tierSeed >= 0.65) {
-    // Prominent Twinkling Stars (~25%): ~82 crisp glowing stars (w-1.5 h-1.5) pure white with soft halos
-    size = 'w-1.5 h-1.5';
-    minOpacity = (0.25 + pseudoRand(i * 5.12 + 8) * 0.15).toFixed(2);
-    maxOpacity = (0.85 + pseudoRand(i * 6.43 + 9) * 0.12).toFixed(2);
-    color = 'bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]';
+  if (seed >= 0.90) {
+    // 10% Bright pinpoint starlets
+    size = 'w-[2px] h-[2px]';
+    color = pseudoRand(i * 9.19 + 2) > 0.6 ? 'bg-cyan-100' : 'bg-white';
+  } else if (seed >= 0.65) {
+    // 25% Crisp medium pinpricks
+    size = 'w-[1.5px] h-[1.5px]';
+    color = 'bg-white/90';
   } else {
-    // Deep Space Dust (~65%): ~215 micro-points (w-1 h-1), subtle opacity, slow ambient pulse
-    size = 'w-1 h-1';
-    minOpacity = (0.15 + pseudoRand(i * 5.12 + 8) * 0.15).toFixed(2);
-    maxOpacity = (0.35 + pseudoRand(i * 6.43 + 9) * 0.20).toFixed(2);
-    color = 'bg-slate-200/70 shadow-[0_0_3px_rgba(255,255,255,0.4)]';
+    // 65% Microscopic razor-sharp deep cosmos points
+    size = 'w-[1px] h-[1px]';
+    color = pseudoRand(i * 8.41 + 6) > 0.5 ? 'bg-white/80' : 'bg-cyan-100/70';
   }
+
+  const minOpacity = (0.2 + pseudoRand(i * 5.12 + 8) * 0.2).toFixed(2);
+  const maxOpacity = (0.75 + pseudoRand(i * 6.43 + 9) * 0.2).toFixed(2);
 
   return { id: i, top, left, size, duration, delay, minOpacity, maxOpacity, color };
 });
 
-// 5 prominent Anchor Stars with delicate 4-point diamond cross sparkles (diffraction spikes)
-const ANCHOR_STARS = [
-  { id: 'anchor-1', top: '16%', left: '22%', delay: '0.4s', duration: '3.2s' },
-  { id: 'anchor-2', top: '24%', left: '82%', delay: '1.2s', duration: '3.8s' },
-  { id: 'anchor-3', top: '68%', left: '14%', delay: '2.0s', duration: '3.4s' },
-  { id: 'anchor-4', top: '76%', left: '88%', delay: '0.8s', duration: '4.0s' },
-  { id: 'anchor-5', top: '48%', left: '46%', delay: '1.6s', duration: '3.6s' },
+// 5 JWST Hero Stars with 4-Point Diffraction Spikes (✦)
+const JWST_HERO_STARS = [
+  { id: 'jwst-1', top: '15%', left: '18%', delay: '0.3s', duration: '3.4s' },
+  { id: 'jwst-2', top: '22%', left: '82%', delay: '1.2s', duration: '4.0s' },
+  { id: 'jwst-3', top: '65%', left: '14%', delay: '2.0s', duration: '3.6s' },
+  { id: 'jwst-4', top: '78%', left: '86%', delay: '0.7s', duration: '4.2s' },
+  { id: 'jwst-5', top: '44%', left: '50%', delay: '1.5s', duration: '3.8s' },
 ];
 
 interface ShootingStarBeam {
@@ -77,21 +60,17 @@ interface ShootingStarBeam {
   type: 'cyan' | 'amber';
 }
 
-// 13 continuous soft-gliding streams staggered every 1.3s across the top edge
+// 9 delicate high-velocity meteor streaks gliding diagonally (-45 deg)
 const BEAMS: ShootingStarBeam[] = [
-  { id: 1, top: '-30px', left: '98%', delay: '0s', type: 'cyan' },
-  { id: 2, top: '-55px', left: '72%', delay: '1.3s', type: 'amber' },
-  { id: 3, top: '-20px', left: '86%', delay: '2.6s', type: 'cyan' },
-  { id: 4, top: '-65px', left: '50%', delay: '3.9s', type: 'cyan' },
-  { id: 5, top: '-35px', left: '108%', delay: '5.2s', type: 'amber' },
-  { id: 6, top: '-45px', left: '62%', delay: '6.5s', type: 'cyan' },
-  { id: 7, top: '-25px', left: '32%', delay: '7.8s', type: 'cyan' },
-  { id: 8, top: '-60px', left: '92%', delay: '9.1s', type: 'amber' },
-  { id: 9, top: '-35px', left: '44%', delay: '10.4s', type: 'cyan' },
-  { id: 10, top: '-40px', left: '18%', delay: '11.7s', type: 'amber' },
-  { id: 11, top: '-50px', left: '80%', delay: '13.0s', type: 'cyan' },
-  { id: 12, top: '-30px', left: '60%', delay: '14.3s', type: 'amber' },
-  { id: 13, top: '-45px', left: '102%', delay: '15.6s', type: 'cyan' },
+  { id: 1, top: '-30px', left: '96%', delay: '0s', type: 'cyan' },
+  { id: 2, top: '-55px', left: '72%', delay: '1.5s', type: 'amber' },
+  { id: 3, top: '-20px', left: '85%', delay: '3.0s', type: 'cyan' },
+  { id: 4, top: '-65px', left: '48%', delay: '4.5s', type: 'cyan' },
+  { id: 5, top: '-35px', left: '106%', delay: '6.0s', type: 'amber' },
+  { id: 6, top: '-45px', left: '62%', delay: '7.5s', type: 'cyan' },
+  { id: 7, top: '-25px', left: '30%', delay: '9.0s', type: 'cyan' },
+  { id: 8, top: '-60px', left: '90%', delay: '10.5s', type: 'amber' },
+  { id: 9, top: '-35px', left: '42%', delay: '12.0s', type: 'cyan' },
 ];
 
 export const ParticleBackground = memo(function ParticleBackground() {
@@ -101,51 +80,47 @@ export const ParticleBackground = memo(function ParticleBackground() {
       className="pointer-events-none absolute inset-0 overflow-hidden z-0 select-none"
     >
       <style>{`
+        /* Pure luminosity twinkle without blurry scaling expansion */
         @keyframes scintillationPulse {
           0%, 100% {
-            opacity: var(--min-op, 0.2);
-            transform: scale(0.85);
+            opacity: var(--min-op, 0.25);
           }
           50% {
-            opacity: var(--max-op, 0.95);
-            transform: scale(1.35);
+            opacity: var(--max-op, 0.85);
           }
         }
 
-        /* 17s cycle where each star glides gracefully for 3.6s (21.2% of cycle) */
+        /* 13.5s cycle where each star glides smoothly for 3.2s */
         @keyframes shootingStarFlight {
           0% {
             transform: translate3d(0, 0, 0);
             opacity: 0;
           }
           3% {
-            /* Gentle flare-up */
             opacity: 0.95;
           }
-          16% {
-            /* Sustained soft glide */
+          18% {
             transform: translate3d(-700px, 700px, 0);
-            opacity: 0.8;
+            opacity: 0.75;
           }
-          21.2% {
-            /* Gentle fade-out across 960px */
-            transform: translate3d(-960px, 960px, 0);
+          23.7% {
+            transform: translate3d(-950px, 950px, 0);
             opacity: 0;
           }
           100% {
-            transform: translate3d(-960px, 960px, 0);
+            transform: translate3d(-950px, 950px, 0);
             opacity: 0;
           }
         }
 
         .quantum-particle {
-          will-change: opacity, transform;
+          will-change: opacity;
         }
 
         .cosmic-beam {
           will-change: transform, opacity;
           animation-name: shootingStarFlight;
-          animation-duration: 17s;
+          animation-duration: 13.5s;
           animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
           animation-iteration-count: infinite;
         }
@@ -161,7 +136,7 @@ export const ParticleBackground = memo(function ParticleBackground() {
         }
       `}</style>
 
-      {/* Twinkling Quantum Points / Scintillation (330 Points Across 3 Cosmic Tiers) */}
+      {/* Razor-sharp Astronomical Cosmic Starfield (320 Crisp Pinpricks) */}
       {PARTICLES.map((p) => (
         <span
           key={p.id}
@@ -180,32 +155,28 @@ export const ParticleBackground = memo(function ParticleBackground() {
         />
       ))}
 
-      {/* 5 Anchor Stars with Delicate 4-Point Diamond Cross Sparkles (Diffraction Spikes) */}
-      {ANCHOR_STARS.map((anchor) => (
+      {/* JWST Hero Stars with 4-Point Diffraction Spikes (✦) */}
+      {JWST_HERO_STARS.map((star) => (
         <div
-          key={anchor.id}
-          className="quantum-particle absolute flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
+          key={star.id}
+          className="quantum-particle absolute pointer-events-none -translate-x-1/2 -translate-y-1/2"
           style={
             {
-              top: anchor.top,
-              left: anchor.left,
-              animation: `scintillationPulse ${anchor.duration} ease-in-out infinite`,
-              animationDelay: anchor.delay,
-              '--min-op': 0.6,
+              top: star.top,
+              left: star.left,
+              animation: `scintillationPulse ${star.duration} ease-in-out infinite`,
+              animationDelay: star.delay,
+              '--min-op': 0.5,
               '--max-op': 1.0,
             } as React.CSSProperties
           }
         >
-          {/* Horizontal diffraction spike */}
-          <span className="absolute w-8 h-[1px] bg-gradient-to-r from-transparent via-cyan-200/90 to-transparent pointer-events-none" />
-          {/* Vertical diffraction spike */}
-          <span className="absolute h-8 w-[1px] bg-gradient-to-b from-transparent via-cyan-200/90 to-transparent pointer-events-none" />
-          {/* Glowing Anchor Core */}
-          <span className="w-2 h-2 rounded-full bg-white shadow-[0_0_16px_4px_rgba(255,255,255,1),0_0_24px_6px_rgba(56,189,248,0.8)] shrink-0 z-10" />
+          {/* Luminous Core with 4-Point Diffraction Spikes */}
+          <div className="relative w-[2px] h-[2px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,1)] before:absolute before:w-[14px] before:h-[1px] before:bg-cyan-300 before:top-1/2 before:-translate-y-1/2 before:-left-[6px] after:absolute after:h-[14px] after:w-[1px] after:bg-cyan-300 after:left-1/2 after:-translate-x-1/2 after:-top-[6px]" />
         </div>
       ))}
 
-      {/* Continuous Celestial Shooting Stars with Soft Glowing Cores (13 Streams) */}
+      {/* Plasma Particle Trails (Meteor Streams) */}
       {BEAMS.map((beam) => (
         <div
           key={beam.id}
@@ -221,21 +192,15 @@ export const ParticleBackground = memo(function ParticleBackground() {
             className="relative flex items-center"
             style={{ transform: 'rotate(-45deg)' }}
           >
-            {/* Radiant Glowing Star Head */}
-            <div
-              className={`w-2 h-2 rounded-full bg-white shrink-0 z-10 ${
-                beam.type === 'amber'
-                  ? 'shadow-[0_0_14px_rgba(255,255,255,1),0_0_22px_6px_rgba(251,191,36,0.7)]'
-                  : 'shadow-[0_0_14px_rgba(255,255,255,1),0_0_22px_6px_rgba(34,211,238,0.7)]'
-              }`}
-            />
+            {/* White Glowing Meteor Head */}
+            <div className="w-1.5 h-1.5 rounded-full bg-white shrink-0 z-10 shadow-[0_0_8px_rgba(255,255,255,1)]" />
 
-            {/* Long, Elegant Tail Gradient (200px - 280px) */}
+            {/* Translucent Plasma Tail */}
             <div
-              className={`h-[1.5px] -ml-1 ${
+              className={`h-[1px] -ml-0.5 ${
                 beam.type === 'amber'
-                  ? 'w-[200px] md:w-[280px] bg-gradient-to-r from-white via-amber-300/80 to-transparent shadow-[0_0_10px_rgba(251,191,36,0.5)]'
-                  : 'w-[200px] md:w-[280px] bg-gradient-to-r from-white via-cyan-300/80 to-transparent shadow-[0_0_10px_rgba(34,211,238,0.5)]'
+                  ? 'w-[180px] md:w-[240px] bg-gradient-to-r from-white via-amber-300/60 to-transparent'
+                  : 'w-[180px] md:w-[240px] bg-gradient-to-r from-white via-cyan-300/60 to-transparent'
               }`}
             />
           </div>
