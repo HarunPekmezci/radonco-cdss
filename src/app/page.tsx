@@ -94,7 +94,7 @@ export default function PortalPage() {
 
         <section className="grid w-full grid-cols-1 gap-8 lg:grid-cols-2">
           {/* CDSS Card */}
-          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
+          <div className="relative group rounded-3xl p-8 bg-slate-950/40 backdrop-blur-xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
             {/* CDSS Top Accent */}
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
             <div className="absolute -right-16 -top-16 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/15 transition-all duration-500" />
@@ -155,7 +155,7 @@ export default function PortalPage() {
           </div>
 
           {/* Academy Card */}
-          <div className="relative group rounded-3xl p-8 bg-slate-900/50 backdrop-blur-2xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
+          <div className="relative group rounded-3xl p-8 bg-slate-950/40 backdrop-blur-xl border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all duration-300 flex flex-col justify-between">
             {/* Academy Top Accent */}
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
             <div className="absolute -right-16 -top-16 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500" />
