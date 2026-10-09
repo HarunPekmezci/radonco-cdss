@@ -143,27 +143,27 @@ const METEOR_STYLES: Record<
 > = {
   emerald: {
     headShadow:
-      'shadow-[0_0_24px_8px_rgba(255,255,255,1),0_0_40px_14px_rgba(16,185,129,0.9)]',
+      'shadow-[0_0_10px_2px_rgba(255,255,255,0.9),0_0_16px_4px_rgba(16,185,129,0.85)]',
     tailClass:
-      'w-[240px] md:w-[320px] bg-gradient-to-r from-white via-teal-300 via-emerald-400 to-transparent shadow-[0_0_25px_6px_rgba(16,185,129,0.85)]',
+      'w-[160px] md:w-[210px] bg-gradient-to-r from-white via-teal-300 via-emerald-400 to-transparent shadow-[0_0_10px_rgba(16,185,129,0.7)]',
   },
   crimson: {
     headShadow:
-      'shadow-[0_0_24px_8px_rgba(255,255,255,1),0_0_40px_14px_rgba(244,63,94,0.9)]',
+      'shadow-[0_0_10px_2px_rgba(255,255,255,0.9),0_0_16px_4px_rgba(244,63,94,0.85)]',
     tailClass:
-      'w-[240px] md:w-[320px] bg-gradient-to-r from-white via-pink-400 via-rose-500 to-transparent shadow-[0_0_25px_6px_rgba(244,63,94,0.85)]',
+      'w-[160px] md:w-[210px] bg-gradient-to-r from-white via-pink-400 via-rose-500 to-transparent shadow-[0_0_10px_rgba(244,63,94,0.7)]',
   },
   cyan: {
     headShadow:
-      'shadow-[0_0_24px_8px_rgba(255,255,255,1),0_0_40px_14px_rgba(34,211,238,0.9)]',
+      'shadow-[0_0_10px_2px_rgba(255,255,255,0.9),0_0_16px_4px_rgba(34,211,238,0.85)]',
     tailClass:
-      'w-[240px] md:w-[320px] bg-gradient-to-r from-white via-sky-300 via-cyan-400 to-transparent shadow-[0_0_25px_6px_rgba(34,211,238,0.85)]',
+      'w-[160px] md:w-[210px] bg-gradient-to-r from-white via-sky-300 via-cyan-400 to-transparent shadow-[0_0_10px_rgba(34,211,238,0.7)]',
   },
   amber: {
     headShadow:
-      'shadow-[0_0_24px_8px_rgba(255,255,255,1),0_0_40px_14px_rgba(251,191,36,0.9)]',
+      'shadow-[0_0_10px_2px_rgba(255,255,255,0.9),0_0_16px_4px_rgba(251,191,36,0.85)]',
     tailClass:
-      'w-[240px] md:w-[320px] bg-gradient-to-r from-white via-orange-300 via-amber-400 to-transparent shadow-[0_0_25px_6px_rgba(251,191,36,0.85)]',
+      'w-[160px] md:w-[210px] bg-gradient-to-r from-white via-orange-300 via-amber-400 to-transparent shadow-[0_0_10px_rgba(251,191,36,0.7)]',
   },
 };
 
@@ -295,12 +295,12 @@ export const ParticleBackground = memo(function ParticleBackground() {
             >
               {/* Spectral Radiant Glowing Meteor Head */}
               <div
-                className={`w-2 h-2 rounded-full bg-white shrink-0 z-10 ${style.headShadow}`}
+                className={`w-[5px] h-[5px] rounded-full bg-white shrink-0 z-10 ${style.headShadow}`}
               />
 
               {/* Spectral Elongated Glowing Plasma Tail */}
               <div
-                className={`h-[2.5px] -ml-0.5 ${style.tailClass}`}
+                className={`h-[1.2px] -ml-0.5 ${style.tailClass}`}
               />
             </div>
           </div>
