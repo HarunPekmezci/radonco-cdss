@@ -124,6 +124,7 @@ const organNamesEn: Record<string, string> = {
   'Servikal özofagus': 'Cervical esophagus',
   'Sigmoid kolon': 'Sigmoid colon',
   'Spinal kord': 'Spinal cord',
+  'Spinal kord (Paraaortik alan)': 'Spinal cord (Para-aortic field)',
   'Spinal kord PRV': 'Spinal cord PRV',
   'Submandibular bez': 'Submandibular gland',
   'Temporomandibüler eklem (TMJ)': 'Temporomandibular joint (TMJ)',
@@ -265,26 +266,87 @@ export default function DoseConstraintsPage() {
         });
       } else {
         const existing = map.get(key)!;
-        if (!existing.metricsList.some(m => m.metric === item.metric && m.limit === item.limit)) {
+
+        // Metric deduplication and consolidation
+        const existingMetricIdx = existing.metricsList.findIndex(
+          m => m.metric.trim().toLowerCase() === item.metric.trim().toLowerCase()
+        );
+
+        if (existingMetricIdx >= 0) {
+          const ex = existing.metricsList[existingMetricIdx];
+          const exLimit = ex.limit.trim();
+          const newLimit = item.limit.trim();
+
+          if (exLimit !== newLimit) {
+            if (exLimit.toLowerCase().includes(newLimit.toLowerCase())) {
+              // Existing limit is already comprehensive
+            } else if (newLimit.toLowerCase().includes(exLimit.toLowerCase())) {
+              existing.metricsList[existingMetricIdx] = {
+                metric: item.metric,
+                limit: newLimit,
+                priority: ex.priority === 'hard' || item.priority === 'hard' ? 'hard' : 'soft',
+              };
+            } else {
+              const exNum = parseFloat(exLimit.replace(/[^0-9.]/g, ''));
+              const newNum = parseFloat(newLimit.replace(/[^0-9.]/g, ''));
+              if (!isNaN(exNum) && !isNaN(newNum) && exNum !== newNum) {
+                const lower = Math.min(exNum, newNum);
+                const higher = Math.max(exNum, newNum);
+                const unit = exLimit.includes('Gy') ? 'Gy' : exLimit.includes('%') ? '%' : '';
+                const ceilWord = language === 'en' ? 'Ceiling' : 'Tavan';
+                existing.metricsList[existingMetricIdx] = {
+                  metric: item.metric,
+                  limit: `< ${lower} ${unit} (${ceilWord}: ${higher} ${unit})`.trim(),
+                  priority: 'hard',
+                };
+              } else {
+                existing.metricsList[existingMetricIdx] = {
+                  metric: item.metric,
+                  limit: `${exLimit} / ${newLimit}`,
+                  priority: ex.priority === 'hard' || item.priority === 'hard' ? 'hard' : 'soft',
+                };
+              }
+            }
+          }
+        } else {
           existing.metricsList.push({ metric: item.metric, limit: item.limit, priority: item.priority });
         }
+
         if (item.priority === 'hard') {
           existing.priority = 'hard';
         }
-        if (item.context && !existing.context.includes(item.context)) {
-          existing.context = existing.context ? `${existing.context} ${item.context}` : item.context;
+
+        // Clean endpoint deduplication
+        if (item.endpoint) {
+          const currentEps = existing.endpoint.split(';').map(s => s.trim());
+          const newEp = item.endpoint.trim();
+          const isDup = currentEps.some(
+            e => e.toLowerCase() === newEp.toLowerCase() ||
+                 e.toLowerCase().includes(newEp.toLowerCase()) ||
+                 newEp.toLowerCase().includes(e.toLowerCase())
+          );
+          if (!isDup) {
+            existing.endpoint = `${existing.endpoint}; ${newEp}`;
+          }
         }
-        if (item.endpoint && !existing.endpoint.includes(item.endpoint)) {
-          existing.endpoint = existing.endpoint ? `${existing.endpoint}; ${item.endpoint}` : item.endpoint;
+
+        // Clean context deduplication
+        if (item.context) {
+          const currentCtx = existing.context.trim();
+          const newCtx = item.context.trim();
+          if (!currentCtx.toLowerCase().includes(newCtx.toLowerCase()) && !newCtx.toLowerCase().includes(currentCtx.toLowerCase())) {
+            existing.context = `${currentCtx} ${newCtx}`;
+          }
         }
-        if (item.source && !existing.source.includes(item.source)) {
-          existing.source = existing.source ? `${existing.source}; ${item.source}` : item.source;
+
+        if (item.source && !existing.source.toLowerCase().includes(item.source.toLowerCase())) {
+          existing.source = `${existing.source}; ${item.source}`;
         }
       }
     }
 
     return Array.from(map.values());
-  }, [filteredItems, selectedSite]);
+  }, [filteredItems, language, selectedSite]);
 
   const sortedConstraints = useMemo(() => {
     return [...groupedItems].sort((a, b) => {
@@ -298,7 +360,7 @@ export default function DoseConstraintsPage() {
 
   return (
     <main className="min-h-full bg-[#0a0f1d] px-3 py-6 text-slate-100 sm:px-6 sm:py-9">
-      <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-6">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -405,7 +467,7 @@ export default function DoseConstraintsPage() {
         </section>
 
         {sortedConstraints.length ? (
-          <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
             {sortedConstraints.map(item => (
               <article
                 key={item.id}

@@ -607,7 +607,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "region": "kranial",
     "fractionation": "konvansiyonel",
     "metric": "Dmax",
-    "limit": "< 7 Gy",
+    "limit": "< 5-10 Gy (tercihen < 7 Gy)",
     "endpoint": "Katarakt riski",
     "priority": "soft",
     "alphaBeta": 2,
@@ -800,13 +800,13 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "region": "bas-boyun",
     "fractionation": "konvansiyonel",
     "metric": "Dmean",
-    "limit": "< 26 Gy",
+    "limit": "< 20-26 Gy",
     "endpoint": "Tükürük akışının korunması ve kserostomi riskinin azaltılması",
     "priority": "soft",
     "alphaBeta": 3,
     "source": "QUANTEC Parotid (2010)",
     "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2009.06.090",
-    "context": "En az bir bezde Dmean < 26 Gy veya her iki bezde Dmean < 20 Gy hedeflenmelidir.",
+    "context": "En az bir bezde Dmean < 26 Gy veya bilateral bezlerde Dmean < 20 Gy hedeflenmelidir.",
     "tumorSites": [
       "head-neck",
       "parotid"
@@ -835,7 +835,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "fractionation": "konvansiyonel",
     "metric": "Dmax",
     "limit": "< 70 Gy",
-    "endpoint": "Osteoradyonekroz (ORN) riski",
+    "endpoint": "Osteoradyonekroz (ORN limit) < %5",
     "priority": "soft",
     "alphaBeta": 2,
     "source": "QUANTEC (2010)",
@@ -883,7 +883,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "region": "bas-boyun",
     "fractionation": "konvansiyonel",
     "metric": "Dmean",
-    "limit": "< 35 Gy",
+    "limit": "< 40 Gy (tercihen < 35 Gy)",
     "endpoint": "Mukozit, tat kaybı (disgezi) ve ağrı",
     "priority": "soft",
     "alphaBeta": 3,
@@ -916,8 +916,8 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "region": "bas-boyun",
     "fractionation": "konvansiyonel",
     "metric": "Dmax",
-    "limit": "< 45 Gy",
-    "endpoint": "Radyasyon miyelopatisi riski",
+    "limit": "< 45-48 Gy (tercihen < 45 Gy)",
+    "endpoint": "Radyasyon miyelopatisi riski < %0.2",
     "priority": "hard",
     "alphaBeta": 2,
     "source": "QUANTEC Spinal Cord (2010)",
@@ -2842,7 +2842,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "region": "pelvis",
     "fractionation": "konvansiyonel",
     "metric": "Dmean",
-    "limit": "< 40-50 Gy",
+    "limit": "< 50 Gy (tercihen < 40-50 Gy)",
     "endpoint": "Radyasyona bağlı erektil disfonksiyon (empotans)",
     "priority": "soft",
     "alphaBeta": 3,
@@ -2899,7 +2899,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
   },
   {
     "id": "cord-paraaortic-conv",
-    "organ": "Spinal kord",
+    "organ": "Spinal kord (Paraaortik alan)",
     "region": "omurilik",
     "fractionation": "konvansiyonel",
     "metric": "Dmax",
@@ -2928,24 +2928,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "QUANTEC Brain (2010)",
     "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2009.07.1753",
     "context": "Baş-boyun, nazofarinks ve parotis planlarında temporal lob ve normal beyin dokusu sınırlanmalıdır."
-  },
-  {
-    "id": "hn-brainstem-conv",
-    "organ": "Beyin sapı",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "cranial-cns"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 54 Gy",
-    "endpoint": "Ciddi nörolojik toksisite / Kranial nöropati riski",
-    "priority": "hard",
-    "alphaBeta": 2,
-    "source": "QUANTEC Brainstem (2010)",
-    "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2009.07.1753",
-    "context": "Baş-boyun IMRT/VMAT için Dmax nokta dozu < 54 Gy (< 1-10 cc fokal < 59 Gy tolere edilebilir)."
   },
   {
     "id": "hn-chiasm-conv",
@@ -3017,40 +2999,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "context": "Göz küresi ortalama dozu sınırlanmalıdır."
   },
   {
-    "id": "hn-lens-conv",
-    "organ": "Lens",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "cranial-cns"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 5-10 Gy",
-    "endpoint": "Katarakt oluşumu",
-    "priority": "soft",
-    "alphaBeta": 2,
-    "source": "QUANTEC Lens (2010)",
-    "context": "ALARA kuralı uygulanır; tercihen Dmax < 5-7 Gy tutulur, 10 Gy üzerinde katarakt riski belirgindir."
-  },
-  {
-    "id": "hn-cochlea-conv",
-    "organ": "Koklea",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "cranial-cns"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmean",
-    "limit": "< 45 Gy",
-    "endpoint": "Sensörinöral işitme kaybının önlenmesi",
-    "priority": "soft",
-    "alphaBeta": 3,
-    "source": "QUANTEC Cochlea (2010)",
-    "context": "Eşzamanlı sisplatin alan baş-boyun hastalarında Dmean < 35-45 Gy hedeflenmelidir."
-  },
-  {
     "id": "hn-pituitary-conv",
     "organ": "Hipofiz bezi",
     "region": "bas-boyun",
@@ -3066,58 +3014,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "alphaBeta": 2,
     "source": "QUANTEC",
     "context": "Nazofarinks ve kafa tabanı ışınlamalarında hipofiz aksı korunmalıdır."
-  },
-  {
-    "id": "hn-mandible-conv-70",
-    "organ": "Mandibula",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "parotid"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 70 Gy",
-    "endpoint": "Osteoradyonekroz (ORN limit) < %5",
-    "priority": "hard",
-    "alphaBeta": 2,
-    "source": "QUANTEC Mandible (2010)",
-    "context": "Dmax < 70 Gy (tercihen < 66 Gy) ORN tavan limitidir; diş çekim sahalarında aşılmamalıdır."
-  },
-  {
-    "id": "hn-oral-cavity-conv-40",
-    "organ": "Oral kavite",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "parotid"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmean",
-    "limit": "< 40 Gy",
-    "endpoint": "Şiddetli mukozit, disgezi ve kronik ağrı",
-    "priority": "soft",
-    "alphaBeta": 3,
-    "source": "QUANTEC (2010)",
-    "context": "Tümör dışı oral kavite ortalama dozu < 40 Gy tutulmalıdır."
-  },
-  {
-    "id": "hn-parotid-conv-20-26",
-    "organ": "Parotis bezi",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "parotid"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmean",
-    "limit": "< 20-26 Gy",
-    "endpoint": "Tükürük akışının korunması ve kserostominin önlenmesi",
-    "priority": "soft",
-    "alphaBeta": 3,
-    "source": "QUANTEC Parotid (2010)",
-    "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2009.06.090",
-    "context": "En az bir bezde Dmean < 26 Gy veya her iki bezde Dmean < 20 Gy hedeflenmelidir."
   },
   {
     "id": "hn-thyroid-conv-dmean-45",
@@ -3150,40 +3046,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "alphaBeta": 3,
     "source": "Head and Neck Planning Guidelines",
     "context": "Tiroid dokusunun %50’sinden fazlasının 30 Gy alması hipotiroidi riskini artırır."
-  },
-  {
-    "id": "hn-spinal-cord-conv-45-48",
-    "organ": "Spinal kord",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "parotid"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 45-48 Gy",
-    "endpoint": "Radyasyon miyelopatisi riski < %0.2",
-    "priority": "hard",
-    "alphaBeta": 2,
-    "source": "QUANTEC Spinal Cord (2010)",
-    "context": "Baş-boyun IMRT/VMAT için mutlak güvenlik tavanı (tercihen < 45 Gy)."
-  },
-  {
-    "id": "hn-cord-prv-conv-48-50",
-    "organ": "Spinal kord PRV",
-    "region": "bas-boyun",
-    "tumorSites": [
-      "head-neck",
-      "parotid"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 48-50 Gy",
-    "endpoint": "Radyasyon miyelopatisini önlemede geometrik güvenlik marjı",
-    "priority": "hard",
-    "alphaBeta": 2,
-    "source": "RTOG / ESTRO Guidelines",
-    "context": "Spinal korda 1.5-2 mm geometrik genişletme ile elde edilen PRV için mutlak sınır."
   },
   {
     "id": "cns-chiasm-srs-1fx",
@@ -3378,38 +3240,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "context": "Kalbin yüksek doz alan hacmi sıkı kısıtlanmalıdır (V25Gy < %5)."
   },
   {
-    "id": "breast-lad-mean-10",
-    "organ": "LAD koroner arter",
-    "region": "toraks",
-    "tumorSites": [
-      "breast"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmean",
-    "limit": "< 10 Gy",
-    "endpoint": "Sol anterior inen arter stenozu ve akut miyokard enfarktüsü",
-    "priority": "hard",
-    "alphaBeta": 3,
-    "source": "Cardio-Oncology Thoracic Guidelines / Taylor et al.",
-    "context": "Sol meme RT’sinde sol anterior inen arter (LAD) dozu kısıtlanmalıdır."
-  },
-  {
-    "id": "breast-lad-dmax-20",
-    "organ": "LAD koroner arter",
-    "region": "toraks",
-    "tumorSites": [
-      "breast"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmax",
-    "limit": "< 20 Gy",
-    "endpoint": "Radyasyon kaynaklı koroner stenoz riski",
-    "priority": "hard",
-    "alphaBeta": 3,
-    "source": "Cardio-Oncology Thoracic Guidelines",
-    "context": "LAD nokta maksimum dozu Dmax < 20 Gy tutulmalıdır."
-  },
-  {
     "id": "breast-ipsi-lung-v20-30",
     "organ": "İpsilateral akciğer",
     "region": "toraks",
@@ -3523,22 +3353,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "alphaBeta": 2,
     "source": "QUANTEC (2010)",
     "context": "V50Gy < %5 AVN riskini minimal seviyede tutar."
-  },
-  {
-    "id": "prostate-penile-bulb-50",
-    "organ": "Penil bulb",
-    "region": "pelvis",
-    "tumorSites": [
-      "prostate"
-    ],
-    "fractionation": "konvansiyonel",
-    "metric": "Dmean",
-    "limit": "< 50 Gy",
-    "endpoint": "Radyasyona bağlı erektil disfonksiyon (empotans)",
-    "priority": "soft",
-    "alphaBeta": 3,
-    "source": "QUANTEC Penile Bulb (2010)",
-    "context": "Erektil potansı korumak için penil bulb ortalama dozu < 50 Gy (tercihen < 40 Gy) tutulmalıdır."
   },
   {
     "id": "gyn-broad-ligament",
