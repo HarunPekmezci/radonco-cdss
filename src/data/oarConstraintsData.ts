@@ -1126,6 +1126,22 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
+    "id": "hn-carotid-srs-1fx",
+    "organ": "Karotis arter",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 37 Gy",
+    "endpoint": "Karotis rüptürü (Carotid blowout syndrome - CBS)",
+    "priority": "hard",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101 / MSKCC",
+    "context": "D0.035cc < 37 Gy. Yeniden ışınlamada ve tek fraksiyon SRS'de damarın >180° sarmalanmasından kaçının.",
+    "tumorSites": [
+      "head-neck"
+    ]
+  },
+  {
     "id": "hn-carotid-sbrt-3fx",
     "organ": "Karotis arter",
     "region": "bas-boyun",
@@ -1171,6 +1187,40 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "context": "V35Gy < 1 cc ve >180° çevresel sarılma olmamalıdır.",
     "tumorSites": [
       "head-neck"
+    ]
+  },
+  {
+    "id": "hn-cord-srs-1fx-dmax",
+    "organ": "Spinal kord",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 12-14 Gy",
+    "endpoint": "Miyelopati (Myelopathy)",
+    "priority": "hard",
+    "alphaBeta": 2,
+    "source": "AAPM TG-101",
+    "context": "V10Gy < 0.35 cc; D0.035cc < 14 Gy.",
+    "tumorSites": [
+      "head-neck",
+      "parotid"
+    ]
+  },
+  {
+    "id": "hn-cord-srs-1fx-v10",
+    "organ": "Spinal kord",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "V10Gy",
+    "limit": "< 0.35 cc",
+    "endpoint": "Miyelopati (Myelopathy)",
+    "priority": "hard",
+    "alphaBeta": 2,
+    "source": "AAPM TG-101",
+    "context": "V10Gy < 0.35 cc kritik spinal kord hacim sınırlaması.",
+    "tumorSites": [
+      "head-neck",
+      "parotid"
     ]
   },
   {
@@ -1257,6 +1307,40 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
+    "id": "hn-mandible-srs-1fx-dmax",
+    "organ": "Mandibula",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 14-17.5 Gy",
+    "endpoint": "Osteoradyonekroz (ORN)",
+    "priority": "soft",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101",
+    "context": "V12.5Gy < 0.1 cc; D0.035cc < 17.5 Gy.",
+    "tumorSites": [
+      "head-neck",
+      "parotid"
+    ]
+  },
+  {
+    "id": "hn-mandible-srs-1fx-v12",
+    "organ": "Mandibula",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "V12.5Gy",
+    "limit": "< 0.1 cc",
+    "endpoint": "Osteoradyonekroz (ORN)",
+    "priority": "soft",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101",
+    "context": "V12.5Gy < 0.1 cc kritik mandibula hacim sınırlaması.",
+    "tumorSites": [
+      "head-neck",
+      "parotid"
+    ]
+  },
+  {
     "id": "hn-mandible-sbrt-3fx",
     "organ": "Mandibula",
     "region": "bas-boyun",
@@ -1308,6 +1392,22 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
+    "id": "hn-brachial-srs-1fx",
+    "organ": "Brakial pleksus",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 14-17.5 Gy",
+    "endpoint": "Brakiyal pleksopati (Plexopathy)",
+    "priority": "soft",
+    "alphaBeta": 2,
+    "source": "AAPM TG-101",
+    "context": "D0.035cc < 17.5 Gy.",
+    "tumorSites": [
+      "head-neck"
+    ]
+  },
+  {
     "id": "hn-brachial-sbrt-3fx",
     "organ": "Brakial pleksus",
     "region": "bas-boyun",
@@ -1335,6 +1435,22 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "alphaBeta": 2,
     "source": "Clinical Guidelines",
     "context": "D0.035cc < 32 Gy.",
+    "tumorSites": [
+      "head-neck"
+    ]
+  },
+  {
+    "id": "hn-larynx-srs-1fx",
+    "organ": "Larenks & trakea",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 17 Gy",
+    "endpoint": "Kıkırdak nekrozu ve laringeal kollaps (Cartilage necrosis / collapse)",
+    "priority": "soft",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101",
+    "context": "D0.035cc < 17 Gy; kıkırdak nekrozu ve laringeal kollaps önleme.",
     "tumorSites": [
       "head-neck"
     ]
@@ -1369,6 +1485,23 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "context": "V35Gy < 1 cc.",
     "tumorSites": [
       "head-neck"
+    ]
+  },
+  {
+    "id": "hn-pharynx-srs-1fx",
+    "organ": "Farinks & servikal özofagus",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 15.4 Gy",
+    "endpoint": "Perforasyon / şiddetli ülserasyon (Perforation / severe ulceration)",
+    "priority": "soft",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101",
+    "context": "D0.035cc < 15.4 Gy; mukozal nekroz ve perforasyon önleme.",
+    "tumorSites": [
+      "head-neck",
+      "esophagus"
     ]
   },
   {

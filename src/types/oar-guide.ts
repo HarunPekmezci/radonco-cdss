@@ -9,6 +9,7 @@ export type OARRegion =
 export type OARFractionation =
   | 'konvansiyonel'
   | 'hipofraksiyon'
+  | 'sbrt-1fx'
   | 'sbrt-2fx'
   | 'sbrt-3fx'
   | 'sbrt-5fx'

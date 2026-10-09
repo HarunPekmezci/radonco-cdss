@@ -94,7 +94,7 @@ const organNamesEn: Record<string, string> = {
   'Kafa derisi / skalp': 'Scalp / skin',
   'Kalp': 'Heart',
   'Karaciğer (Sağlam karaciğer)': 'Liver (Uninvolved liver)',
-  'Karotis arter': 'Carotid artery',
+  'Karotis arter': 'Carotid artery / Great vessels',
   'Koklea': 'Cochlea',
   'Kontralateral akciğer': 'Contralateral lung',
   'Kontralateral böbrek': 'Contralateral kidney',
@@ -151,8 +151,28 @@ const regionMatches = (filter: RegionFilter, region: OARRegion) => {
 
 const fractionationMatches = (filter: FractionationFilter, fractionation: OARFractionation) => {
   if (filter === 'all') return true;
-  if (filter === 'sbrt') return fractionation === 'sbrt-2fx' || fractionation === 'sbrt-3fx' || fractionation === 'sbrt-5fx';
-  if (filter === 'srs') return fractionation === 'srs-1fx' || fractionation === 'srs-3fx' || fractionation === 'srs-5fx';
+  if (filter === 'sbrt') {
+    return (
+      fractionation === 'sbrt-1fx' ||
+      fractionation === 'sbrt-2fx' ||
+      fractionation === 'sbrt-3fx' ||
+      fractionation === 'sbrt-5fx' ||
+      fractionation === 'srs-1fx' ||
+      fractionation === 'srs-3fx' ||
+      fractionation === 'srs-5fx'
+    );
+  }
+  if (filter === 'srs') {
+    return (
+      fractionation === 'srs-1fx' ||
+      fractionation === 'srs-3fx' ||
+      fractionation === 'srs-5fx' ||
+      fractionation === 'sbrt-1fx' ||
+      fractionation === 'sbrt-2fx' ||
+      fractionation === 'sbrt-3fx' ||
+      fractionation === 'sbrt-5fx'
+    );
+  }
   return filter === fractionation;
 };
 
@@ -160,6 +180,7 @@ const fractionationLabel = (fractionation: OARFractionation, language: UiLanguag
   switch (fractionation) {
     case 'konvansiyonel': return language === 'en' ? 'Conventional (1.8–2 Gy)' : 'Konvansiyonel (1.8–2 Gy)';
     case 'hipofraksiyon': return language === 'en' ? 'Hypofractionation' : 'Hipofraksiyon';
+    case 'sbrt-1fx': return 'SBRT · 1 fx';
     case 'sbrt-2fx': return 'SBRT · 2 fx';
     case 'sbrt-3fx': return 'SBRT · 3 fx';
     case 'sbrt-5fx': return 'SBRT · 5 fx';
@@ -193,6 +214,7 @@ const getVariantBucketKey = (fractionation: OARFractionation) => {
   switch (fractionation) {
     case 'konvansiyonel': return 'conv';
     case 'hipofraksiyon': return 'hypo';
+    case 'sbrt-1fx':
     case 'srs-1fx': return '1fx';
     case 'sbrt-2fx': return '2fx';
     case 'srs-3fx':
@@ -394,7 +416,7 @@ export default function DoseConstraintsPage() {
     setRegion(nextRegion);
     if (nextRegion === 'kranial' && fractionation === 'sbrt') {
       setFractionation('all');
-    } else if (nextRegion !== 'kranial' && nextRegion !== 'all' && fractionation === 'srs') {
+    } else if (nextRegion !== 'kranial' && nextRegion !== 'bas-boyun' && nextRegion !== 'all' && fractionation === 'srs') {
       setFractionation('all');
     }
   };
@@ -403,13 +425,14 @@ export default function DoseConstraintsPage() {
     setSelectedSite(nextSite);
     if (nextSite === 'cranial-cns' && fractionation === 'sbrt') {
       setFractionation('all');
-    } else if (nextSite !== 'cranial-cns' && nextSite !== 'all' && fractionation === 'srs') {
+    } else if (nextSite !== 'cranial-cns' && nextSite !== 'head-neck' && nextSite !== 'all' && fractionation === 'srs') {
       setFractionation('all');
     }
   };
 
   const visibleFractionations = fractionations.filter(item => {
     if (selectedSite === 'cranial-cns' || region === 'kranial') return item.id !== 'sbrt';
+    if (selectedSite === 'head-neck' || region === 'bas-boyun') return true;
     if (selectedSite !== 'all' && item.id === 'srs') return false;
     if (region !== 'all' && item.id === 'srs') return false;
     return true;
