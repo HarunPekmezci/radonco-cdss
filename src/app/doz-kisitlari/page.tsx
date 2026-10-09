@@ -2,14 +2,55 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, Search, ShieldAlert, SlidersHorizontal } from 'lucide-react';
+import { ArrowUpRight, Search, ShieldAlert, SlidersHorizontal, Stethoscope } from 'lucide-react';
 import { oarConstraintsData } from '@/data/oarConstraintsData';
-import type { OARFractionation, OARPriority, OARRegion, OARNTPCeiling } from '@/types/oar-guide';
+import type { OARFractionation, OARPriority, OARRegion, TumorSite } from '@/types/oar-guide';
 import { useLanguage } from '@/context/LanguageContext';
 
+type TumorSiteFilter = 'all' | TumorSite;
 type RegionFilter = 'all' | OARRegion | 'pelvis-palliative';
 type FractionationFilter = 'all' | 'konvansiyonel' | 'hipofraksiyon' | 'sbrt' | 'srs';
 type UiLanguage = 'tr' | 'en';
+
+const tumorSitesList: { id: TumorSiteFilter; label_tr: string; label_en: string }[] = [
+  { id: 'all', label_tr: 'Tüm Sahalar', label_en: 'All Sites' },
+  { id: 'head-neck', label_tr: 'Baş-Boyun', label_en: 'Head & Neck' },
+  { id: 'cranial-cns', label_tr: 'Kranial & MSS', label_en: 'Cranial & CNS' },
+  { id: 'breast', label_tr: 'Meme', label_en: 'Breast' },
+  { id: 'thorax-lung', label_tr: 'Toraks / Akciğer', label_en: 'Thorax / Lung' },
+  { id: 'prostate', label_tr: 'Prostat', label_en: 'Prostate' },
+  { id: 'cervix-gyn', label_tr: 'Serviks & Jinekoloji', label_en: 'Cervix & GYN' },
+  { id: 'stomach-pancreas', label_tr: 'Mide & Pankreas', label_en: 'Stomach & Pancreas' },
+  { id: 'esophagus', label_tr: 'Özofagus', label_en: 'Esophagus' },
+  { id: 'rectum-bladder', label_tr: 'Rektum & Mesane', label_en: 'Rectum & Bladder' },
+  { id: 'parotid', label_tr: 'Parotis', label_en: 'Parotid' },
+];
+
+const tumorSiteNamesEn: Record<TumorSite, string> = {
+  'head-neck': 'Head & Neck',
+  'cranial-cns': 'Cranial & CNS',
+  'breast': 'Breast',
+  'thorax-lung': 'Thorax / Lung',
+  'prostate': 'Prostate',
+  'cervix-gyn': 'Cervix & GYN',
+  'stomach-pancreas': 'Stomach & Pancreas',
+  'esophagus': 'Esophagus',
+  'rectum-bladder': 'Rectum & Bladder',
+  'parotid': 'Parotid',
+};
+
+const tumorSiteNamesTr: Record<TumorSite, string> = {
+  'head-neck': 'Baş-Boyun',
+  'cranial-cns': 'Kranial & MSS',
+  'breast': 'Meme',
+  'thorax-lung': 'Toraks / Akciğer',
+  'prostate': 'Prostat',
+  'cervix-gyn': 'Serviks & Jinekoloji',
+  'stomach-pancreas': 'Mide & Pankreas',
+  'esophagus': 'Özofagus',
+  'rectum-bladder': 'Rektum & Mesane',
+  'parotid': 'Parotis',
+};
 
 const regions: { id: RegionFilter; label_tr: string; label_en: string }[] = [
   { id: 'all', label_tr: 'Tümü', label_en: 'All' },
@@ -30,58 +71,71 @@ const fractionations: { id: FractionationFilter; label_tr: string; label_en: str
 ];
 
 const organNamesEn: Record<string, string> = {
+  'Abdominal aort': 'Abdominal aorta',
   'Beyin sapı': 'Brainstem',
-  'Optik sinirler / kiazma': 'Optic nerves / chiasm',
-  'Hipokampus': 'Hippocampus',
-  'Koklea': 'Cochlea',
-  'Normal beyin dokusu (Brain - GTV)': 'Normal brain tissue (Brain - GTV)',
-  'Kranial sinirler (CN V, VII, VIII)': 'Cranial nerves (CN V, VII, VIII)',
-  'Hipofiz': 'Pituitary gland',
-  'Lens': 'Lens',
-  'Retina': 'Retina',
-  'Lakrimal bez': 'Lacrimal gland',
-  'Kafa derisi / skalp': 'Scalp / skin',
-  'Spinal kord': 'Spinal cord',
-  'Spinal kord PRV': 'Spinal cord PRV',
-  'Karotis arter': 'Carotid artery',
-  'Mandibula': 'Mandible',
-  'Larenks': 'Larynx',
-  'Trakea & ana bronşlar': 'Trachea & main bronchi',
-  'Larenks & trakea': 'Larynx & trachea',
+  'Bilateral akciğer (GTV hariç)': 'Both lungs (excluding GTV)',
+  'Bilateral femur başları': 'Bilateral femoral heads',
+  'Brakial pleksus': 'Brachial plexus',
+  'Bulbus okuli / Göz küresi': 'Eye / Globe',
+  'Böbrekler (Bilateral)': 'Bilateral kidneys',
+  'Büyük damarlar & aort': 'Great vessels & aorta',
+  'Cilt (Skin)': 'Skin',
+  'Dalak': 'Spleen',
+  'Duodenum': 'Duodenum',
   'Faringeal konstriktörler (PCM)': 'Pharyngeal constrictors (PCM)',
   'Farinks & servikal özofagus': 'Pharynx & cervical esophagus',
-  'Servikal özofagus': 'Cervical esophagus',
+  'Genital organlar / vajina': 'Genital organs / vagina',
+  'Geniş ligaman (Broad ligament)': 'Broad ligament',
+  'Göğüs duvarı & kaburga': 'Chest wall & ribs',
+  'Hipofiz': 'Pituitary gland',
+  'Hipofiz bezi': 'Pituitary gland',
+  'Hipokampus': 'Hippocampus',
+  'Humerus başı': 'Humeral head',
+  'Kafa derisi / skalp': 'Scalp / skin',
+  'Kalp': 'Heart',
+  'Karaciğer (Sağlam karaciğer)': 'Liver (Uninvolved liver)',
+  'Karotis arter': 'Carotid artery',
+  'Koklea': 'Cochlea',
+  'Kontralateral akciğer': 'Contralateral lung',
+  'Kontralateral böbrek': 'Contralateral kidney',
+  'Kontralateral meme': 'Contralateral breast',
+  'Kranial sinirler (CN V, VII, VIII)': 'Cranial nerves (CN V, VII, VIII)',
+  'LAD koroner arter': 'LAD coronary artery',
+  'Lakrimal bez': 'Lacrimal gland',
+  'Larenks': 'Larynx',
+  'Larenks & trakea': 'Larynx & trachea',
+  'Lens': 'Lens',
+  'Mandibula': 'Mandible',
+  'Mesane': 'Bladder',
+  'Mide': 'Stomach',
+  'Normal beyin dokusu (Brain - GTV)': 'Normal brain tissue (Brain - GTV)',
+  'Optik kiazma': 'Optic chiasm',
+  'Optik sinir': 'Optic nerve',
+  'Optik sinirler / kiazma': 'Optic nerves / chiasm',
+  'Oral kavite': 'Oral cavity',
   'Parotis bezi': 'Parotid gland',
+  'Pelvik kemik iliği': 'Pelvic bone marrow',
+  'Penil bulb': 'Penile bulb',
+  'Peritoneal boşluk / bowel bag': 'Peritoneal cavity / bowel bag',
+  'Proksimal bronşiyal ağaç & ana karina': 'Proximal bronchial tree & main carina',
+  'Rektum': 'Rectum',
+  'Retina': 'Retina',
+  'Sağlam karaciğer (toplam karaciğer - GTV)': 'Uninvolved liver (total liver - GTV)',
+  'Servikal özofagus': 'Cervical esophagus',
+  'Sigmoid kolon': 'Sigmoid colon',
+  'Spinal kord': 'Spinal cord',
+  'Spinal kord PRV': 'Spinal cord PRV',
   'Submandibular bez': 'Submandibular gland',
-  'Brakial pleksus': 'Brachial plexus',
   'Temporomandibüler eklem (TMJ)': 'Temporomandibular joint (TMJ)',
   'Tiroid': 'Thyroid gland',
-  'Oral kavite': 'Oral cavity',
-  'Bilateral akciğer (GTV hariç)': 'Both lungs (excluding GTV)',
-  'İpsilateral akciğer': 'Ipsilateral lung',
-  'Kontralateral akciğer': 'Contralateral lung',
-  'Kontralateral meme': 'Contralateral breast',
-  'Kalp': 'Heart',
-  'LAD koroner arter': 'LAD coronary artery',
-  'Proksimal bronşiyal ağaç & ana karina': 'Proximal bronchial tree & main carina',
+  'Tiroid bezi': 'Thyroid gland',
+  'Trakea & ana bronşlar': 'Trachea & main bronchi',
+  'Uterus': 'Uterus',
+  'Vajina': 'Vagina',
+  'Vena kava inferior': 'Inferior vena cava',
   'Özofagus': 'Esophagus',
-  'Büyük damarlar & aort': 'Great vessels & aorta',
-  'Göğüs duvarı & kaburga': 'Chest wall & ribs',
-  'Cilt (Skin)': 'Skin',
-  'Humerus başı': 'Humeral head',
-  'Sağlam karaciğer (toplam karaciğer - GTV)': 'Uninvolved liver (total liver - GTV)',
-  'Duodenum': 'Duodenum',
-  'Mide': 'Stomach',
-  'Böbrekler (Bilateral)': 'Bilateral kidneys',
-  'Kontralateral böbrek': 'Contralateral kidney',
   'İnce bağırsak (Small bowel)': 'Small bowel',
-  'Peritoneal boşluk / bowel bag': 'Peritoneal cavity / bowel bag',
-  'Rektum': 'Rectum',
-  'Mesane': 'Bladder',
-  'Sigmoid kolon': 'Sigmoid colon',
-  'Bilateral femur başları': 'Bilateral femoral heads',
-  'Penil bulb': 'Penile bulb',
-  'Genital organlar / vajina': 'Genital organs / vagina',
+  'İpsilateral akciğer': 'Ipsilateral lung',
 };
 
 const organLabel = (organ: string, language: UiLanguage) => (
@@ -118,6 +172,7 @@ type GroupedOARCard = {
   id: string;
   organ: string;
   region: OARRegion;
+  tumorSites?: TumorSite[];
   fractionation: OARFractionation;
   alphaBeta?: number;
   priority: OARPriority;
@@ -130,6 +185,7 @@ type GroupedOARCard = {
 
 export default function DoseConstraintsPage() {
   const { language } = useLanguage();
+  const [selectedSite, setSelectedSite] = useState<TumorSiteFilter>('all');
   const [region, setRegion] = useState<RegionFilter>('all');
   const [fractionation, setFractionation] = useState<FractionationFilter>('all');
   const [query, setQuery] = useState('');
@@ -143,9 +199,19 @@ export default function DoseConstraintsPage() {
     }
   };
 
+  const handleSiteChange = (nextSite: TumorSiteFilter) => {
+    setSelectedSite(nextSite);
+    if (nextSite === 'cranial-cns' && fractionation === 'sbrt') {
+      setFractionation('all');
+    } else if (nextSite !== 'cranial-cns' && nextSite !== 'all' && fractionation === 'srs') {
+      setFractionation('all');
+    }
+  };
+
   const visibleFractionations = fractionations.filter(item => {
-    if (region === 'kranial') return item.id !== 'sbrt';
-    if (region !== 'all') return item.id !== 'srs';
+    if (selectedSite === 'cranial-cns' || region === 'kranial') return item.id !== 'sbrt';
+    if (selectedSite !== 'all' && item.id === 'srs') return false;
+    if (region !== 'all' && item.id === 'srs') return false;
     return true;
   });
 
@@ -153,6 +219,9 @@ export default function DoseConstraintsPage() {
     const locale = language === 'tr' ? 'tr-TR' : 'en-US';
     const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
     return oarConstraintsData.filter(item => {
+      if (selectedSite !== 'all') {
+        if (!item.tumorSites || !item.tumorSites.includes(selectedSite)) return false;
+      }
       if (!regionMatches(region, item.region) || !fractionationMatches(fractionation, item.fractionation)) return false;
       const searchable = [
         item.organ,
@@ -163,21 +232,28 @@ export default function DoseConstraintsPage() {
         item.source,
         item.context,
         fractionationLabel(item.fractionation, language),
+        ...(item.tumorSites?.map(s => language === 'en' ? tumorSiteNamesEn[s] : tumorSiteNamesTr[s]) ?? []),
       ].join(' ').toLocaleLowerCase(locale);
       return terms.every(term => searchable.includes(term));
     });
-  }, [fractionation, language, query, region]);
+  }, [fractionation, language, query, region, selectedSite]);
 
   const groupedItems = useMemo(() => {
     const map = new Map<string, GroupedOARCard>();
 
     for (const item of filteredItems) {
-      const key = `${item.organ.trim().toLowerCase()}|${item.fractionation}`;
+      const siteQualifier = selectedSite !== 'all'
+        ? selectedSite
+        : (item.tumorSites && item.tumorSites.length > 0 ? [...item.tumorSites].sort().join(',') : item.region);
+
+      const key = `${item.organ.trim().toLowerCase()}|${item.fractionation}|${siteQualifier}`;
+
       if (!map.has(key)) {
         map.set(key, {
           id: item.id,
           organ: item.organ,
           region: item.region,
+          tumorSites: item.tumorSites,
           fractionation: item.fractionation,
           alphaBeta: item.alphaBeta,
           priority: item.priority,
@@ -208,7 +284,7 @@ export default function DoseConstraintsPage() {
     }
 
     return Array.from(map.values());
-  }, [filteredItems]);
+  }, [filteredItems, selectedSite]);
 
   const sortedConstraints = useMemo(() => {
     return [...groupedItems].sort((a, b) => {
@@ -230,12 +306,14 @@ export default function DoseConstraintsPage() {
           </div>
           <h1 className="mt-2 flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
             {language === 'en' ? 'Organs at Risk (OAR) Dose Constraints' : 'Kritik Organ Doz Kısıtları'}
-            <span className="rounded border border-rose-400/40 bg-rose-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-200">NTCP ceiling</span>
+            <span className="rounded border border-rose-400/40 bg-rose-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-200">
+              QUANTEC · HyTEC · EMBRACE
+            </span>
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             {language === 'en'
-              ? 'Explore evidence-based references contextualized by organ, anatomy, and fractionation. Assess clinical endpoint and DVH metrics in conjunction.'
-              : 'Organ, anatomi ve fraksiyonasyon bağlamına göre kaynaklandırılmış referansları keşfedin. Her karttaki klinik bağlam ve kullanılan DVH metrikleri birlikte değerlendirilmelidir.'}
+              ? 'Institutional hospital clinical practice constraints contextualized by tumor site, organ anatomy, and fractionation. Multiple metrics per organ are integrated into single protocol cards.'
+              : 'Tümör bölgesi, organ anatomisi ve fraksiyonasyona göre kurumsal hastane klinik protokol standartları. Organ başına çoklu metrikler tek kartta gruplanmıştır.'}
           </p>
         </header>
 
@@ -244,7 +322,7 @@ export default function DoseConstraintsPage() {
           aria-label={language === 'en' ? 'OAR filters' : 'OAR filtreleri'}
         >
           <label htmlFor="oar-search" className="sr-only">
-            {language === 'en' ? 'Search organs, metrics, or toxicity' : 'Organ, metrik veya toksisite ara'}
+            {language === 'en' ? 'Search organs, tumor sites, metrics, or toxicity' : 'Organ, tümör alanı, metrik veya toksisite ara'}
           </label>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
@@ -253,11 +331,33 @@ export default function DoseConstraintsPage() {
               type="search"
               value={query ?? ''}
               onChange={event => setQuery(event.target.value)}
-              placeholder={language === 'en' ? 'Search organ, metric, or toxicity endpoint...' : 'Kritik organ veya doz metriği ara...'}
+              placeholder={language === 'en' ? 'Search organ, tumor site, metric, or toxicity endpoint...' : 'Kritik organ, tümör sahası veya doz metriği ara...'}
               className="w-full rounded-xl border border-slate-700 bg-[#0a0f1d] py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-500"
             />
           </div>
 
+          {/* Tumor Site / Clinical Protocol Filter */}
+          <div className="mt-4">
+            <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-sky-400">
+              <Stethoscope className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{language === 'en' ? 'Clinical Tumor Site (Hospital Protocol)' : 'Klinik Tümör Sahası (Hastane Protokolü)'}</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {tumorSitesList.map(item => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSiteChange(item.id)}
+                  aria-pressed={selectedSite === item.id}
+                  className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold transition ${selectedSite === item.id ? 'border-sky-500/70 bg-sky-500/20 text-sky-100 shadow-sm shadow-sky-500/20' : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-white'}`}
+                >
+                  {language === 'en' ? item.label_en : item.label_tr}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Anatomical Region Filter */}
           <div className="mt-4">
             <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               {language === 'en' ? 'Anatomical Region' : 'Anatomik Bölge'}
@@ -277,6 +377,7 @@ export default function DoseConstraintsPage() {
             </div>
           </div>
 
+          {/* Fractionation Filter */}
           <div className="mt-4">
             <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               {language === 'en' ? 'Fractionation' : 'Fraksiyonasyon'}
@@ -295,15 +396,16 @@ export default function DoseConstraintsPage() {
               ))}
             </div>
           </div>
+
           <p className="mt-4 text-xs text-slate-400" aria-live="polite">
             {language === 'en'
-              ? `Showing ${sortedConstraints.length} protocols (${filteredItems.length} metric constraints)`
-              : `${sortedConstraints.length} protokol (${filteredItems.length} doz metriği) gösteriliyor`}
+              ? `Showing ${sortedConstraints.length} protocol cards (${filteredItems.length} metric constraints)`
+              : `${sortedConstraints.length} protokol kartı (${filteredItems.length} doz metriği) gösteriliyor`}
           </p>
         </section>
 
         {sortedConstraints.length ? (
-          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2">
             {sortedConstraints.map(item => (
               <article
                 key={item.id}
@@ -313,10 +415,19 @@ export default function DoseConstraintsPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
-                      <span className="mt-1 inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">
-                        NTCP ceiling
-                      </span>
-                      <p className="mt-1 text-[11px] font-medium text-slate-400">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">
+                          NTCP ceiling
+                        </span>
+                        {item.tumorSites && item.tumorSites.length > 0 && (
+                          item.tumorSites.map(s => (
+                            <span key={s} className="inline-flex rounded border border-sky-400/30 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-200">
+                              {language === 'en' ? tumorSiteNamesEn[s] : tumorSiteNamesTr[s]}
+                            </span>
+                          ))
+                        )}
+                      </div>
+                      <p className="mt-1.5 text-[11px] font-medium text-slate-400">
                         {fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}
                       </p>
                     </div>
@@ -336,7 +447,7 @@ export default function DoseConstraintsPage() {
                     </span>
                   </div>
 
-                  {/* Clean, High-Contrast Metrics Table */}
+                  {/* Clean, High-Contrast Metrics Table Grouping All Metrics for the Organ */}
                   <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-[#0a0f1d]">
                     <table className="w-full text-left text-xs">
                       <thead className="border-b border-slate-800 bg-slate-900/80 text-[10px] font-bold uppercase tracking-wider text-slate-400">

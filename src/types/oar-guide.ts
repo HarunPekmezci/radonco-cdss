@@ -18,10 +18,23 @@ export type OARFractionation =
 
 export type OARPriority = 'hard' | 'soft';
 
+export type TumorSite =
+  | 'head-neck'
+  | 'cranial-cns'
+  | 'breast'
+  | 'thorax-lung'
+  | 'prostate'
+  | 'cervix-gyn'
+  | 'stomach-pancreas'
+  | 'esophagus'
+  | 'rectum-bladder'
+  | 'parotid';
+
 export interface OARNTPCeiling {
   id: string;
   organ: string;
   region: OARRegion;
+  tumorSites?: TumorSite[];
   fractionation: OARFractionation;
   metric: string;
   limit: string;
