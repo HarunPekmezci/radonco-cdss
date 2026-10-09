@@ -169,12 +169,9 @@ const fractionationLabel = (fractionation: OARFractionation, language: UiLanguag
   }
 };
 
-type GroupedOARCard = {
-  id: string;
-  organ: string;
-  region: OARRegion;
-  tumorSites?: TumorSite[];
+type OARFractionationVariant = {
   fractionation: OARFractionation;
+  fractionationLabel: string;
   alphaBeta?: number;
   priority: OARPriority;
   endpoint: string;
@@ -183,6 +180,208 @@ type GroupedOARCard = {
   sourceUrl?: string;
   metricsList: { metric: string; limit: string; priority?: OARPriority }[];
 };
+
+type ConsolidatedOARCard = {
+  id: string;
+  organ: string;
+  region: OARRegion;
+  tumorSites: TumorSite[];
+  variants: OARFractionationVariant[];
+};
+
+const getVariantBucketKey = (fractionation: OARFractionation) => {
+  switch (fractionation) {
+    case 'konvansiyonel': return 'conv';
+    case 'hipofraksiyon': return 'hypo';
+    case 'srs-1fx': return '1fx';
+    case 'sbrt-2fx': return '2fx';
+    case 'srs-3fx':
+    case 'sbrt-3fx': return '3fx';
+    case 'srs-5fx':
+    case 'sbrt-5fx': return '5fx';
+  }
+};
+
+const getFractionationPillLabel = (fractionation: OARFractionation, language: UiLanguage) => {
+  const bucket = getVariantBucketKey(fractionation);
+  switch (bucket) {
+    case 'conv': return language === 'en' ? 'Conventional' : 'Konvansiyonel';
+    case 'hypo': return language === 'en' ? 'Hypofractionation' : 'Hipofraksiyon';
+    case '1fx': return '1 fx';
+    case '2fx': return '2 fx';
+    case '3fx': return '3 fx';
+    case '5fx': return '5 fx';
+    default: return bucket;
+  }
+};
+
+const bucketSortOrder: Record<string, number> = {
+  conv: 1,
+  hypo: 2,
+  '1fx': 3,
+  '2fx': 4,
+  '3fx': 5,
+  '5fx': 6,
+};
+
+const normalizeOrganTitle = (organ: string) => {
+  const o = organ.trim();
+  if (o === 'Hipofiz bezi') return 'Hipofiz';
+  if (o === 'Tiroid bezi') return 'Tiroid';
+  return o;
+};
+
+function OrganConstraintCard({
+  card,
+  language,
+}: {
+  card: ConsolidatedOARCard;
+  language: UiLanguage;
+}) {
+  const [selectedVariant, setSelectedVariant] = useState(0);
+
+  const safeVariantIdx = selectedVariant < card.variants.length ? selectedVariant : 0;
+  const activeVariant = card.variants[safeVariantIdx] ?? card.variants[0];
+
+  if (!activeVariant) return null;
+
+  return (
+    <article className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5 flex flex-col justify-between">
+      <div>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-white">{organLabel(card.organ, language)}</h2>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">
+                NTCP ceiling
+              </span>
+              {card.tumorSites && card.tumorSites.length > 0 && (
+                card.tumorSites.map(s => (
+                  <span key={s} className="inline-flex rounded border border-sky-400/30 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-200">
+                    {language === 'en' ? tumorSiteNamesEn[s] : tumorSiteNamesTr[s]}
+                  </span>
+                ))
+              )}
+            </div>
+            <p className="mt-1.5 text-[11px] font-medium text-slate-400">
+              {fractionationLabel(activeVariant.fractionation, language)} · α/β {activeVariant.alphaBeta ?? '—'}
+            </p>
+          </div>
+          <span
+            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+              activeVariant.priority === 'hard'
+                ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
+                : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+            }`}
+          >
+            <ShieldAlert className="h-3 w-3" aria-hidden="true" />
+            {activeVariant.priority === 'hard'
+              ? language === 'en'
+                ? 'Mandatory · Hard'
+                : 'Zorunlu · Hard'
+              : 'Optimal · Soft'}
+          </span>
+        </div>
+
+        {/* In-Card Interactive Fractionation Segmented Control */}
+        {card.variants.length > 1 && (
+          <div className="mt-3.5 flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-950/60 border border-slate-800">
+            {card.variants.map((v, idx) => (
+              <button
+                key={v.fractionationLabel}
+                type="button"
+                onClick={() => setSelectedVariant(idx)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  safeVariantIdx === idx
+                    ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/25'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                {v.fractionationLabel}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Clean, High-Contrast Metrics Table Grouping All Metrics for active variant */}
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-[#0a0f1d]">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-800 bg-slate-900/80 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <tr>
+                <th className="px-3.5 py-2.5">{language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}</th>
+                <th className="px-3.5 py-2.5 text-right">
+                  <span className="text-rose-300">{language === 'en' ? 'NTCP Ceiling' : 'NTCP Tavan Sınırı'}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {activeVariant.metricsList.map((m, idx) => (
+                <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                  <td className="px-3.5 py-2.5 font-semibold text-sky-400">{m.metric}</td>
+                  <td className="px-3.5 py-2.5 text-right font-mono font-bold text-slate-100">{m.limit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-3 space-y-2 text-xs leading-5">
+          {activeVariant.endpoint && (
+            <p>
+              <span className="font-semibold text-slate-300">
+                {language === 'en' ? 'Clinical endpoint: ' : 'Klinik endpoint: '}
+              </span>
+              <span className="text-slate-400">{activeVariant.endpoint}</span>
+            </p>
+          )}
+          {activeVariant.context && (
+            <p>
+              <span className="font-semibold text-slate-300">
+                {language === 'en' ? 'Context: ' : 'Bağlam: '}
+              </span>
+              <span className="text-slate-400">{activeVariant.context}</span>
+            </p>
+          )}
+          {activeVariant.source && (
+            <p className="text-slate-400">
+              <span className="font-semibold text-slate-300">
+                {language === 'en' ? 'Source: ' : 'Kaynak: '}
+              </span>
+              {activeVariant.sourceUrl ? (
+                <a
+                  href={activeVariant.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
+                >
+                  {activeVariant.source}
+                </a>
+              ) : (
+                activeVariant.source
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <Link
+        href={{
+          pathname: '/doz-hesaplayici',
+          query: {
+            organ: card.organ,
+            metric: activeVariant.metricsList[0]?.metric ?? '',
+            limit: activeVariant.metricsList[0]?.limit ?? '',
+            fractionation: activeVariant.fractionation,
+          },
+        }}
+        className="mt-4 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15"
+      >
+        {language === 'en' ? 'Calculate in Dose Engine' : 'Doz Motorunda Hesapla'}
+        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+      </Link>
+    </article>
+  );
+}
 
 export default function DoseConstraintsPage() {
   const { language } = useLanguage();
@@ -240,40 +439,58 @@ export default function DoseConstraintsPage() {
   }, [fractionation, language, query, region, selectedSite]);
 
   const groupedItems = useMemo(() => {
-    const map = new Map<string, GroupedOARCard>();
+    const map = new Map<string, ConsolidatedOARCard>();
 
     for (const item of filteredItems) {
-      const siteQualifier = selectedSite !== 'all'
-        ? selectedSite
-        : (item.tumorSites && item.tumorSites.length > 0 ? [...item.tumorSites].sort().join(',') : item.region);
+      const canonicalOrgan = normalizeOrganTitle(item.organ);
+      const cardKey = canonicalOrgan.toLowerCase();
 
-      const key = `${item.organ.trim().toLowerCase()}|${item.fractionation}|${siteQualifier}`;
-
-      if (!map.has(key)) {
-        map.set(key, {
-          id: item.id,
-          organ: item.organ,
+      if (!map.has(cardKey)) {
+        map.set(cardKey, {
+          id: `card-${canonicalOrgan.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+          organ: canonicalOrgan,
           region: item.region,
-          tumorSites: item.tumorSites,
+          tumorSites: item.tumorSites ? [...item.tumorSites] : [],
+          variants: [],
+        });
+      }
+
+      const card = map.get(cardKey)!;
+
+      // Union tumor sites
+      if (item.tumorSites) {
+        for (const s of item.tumorSites) {
+          if (!card.tumorSites.includes(s)) {
+            card.tumorSites.push(s);
+          }
+        }
+      }
+
+      // Find or create variant for this fractionation bucket
+      const bucketKey = getVariantBucketKey(item.fractionation);
+      let variant = card.variants.find(v => getVariantBucketKey(v.fractionation) === bucketKey);
+
+      if (!variant) {
+        variant = {
           fractionation: item.fractionation,
+          fractionationLabel: getFractionationPillLabel(item.fractionation, language),
           alphaBeta: item.alphaBeta,
           priority: item.priority,
-          endpoint: item.endpoint,
-          context: item.context,
-          source: item.source,
+          endpoint: item.endpoint || '',
+          context: item.context || '',
+          source: item.source || '',
           sourceUrl: item.sourceUrl,
           metricsList: [{ metric: item.metric, limit: item.limit, priority: item.priority }],
-        });
+        };
+        card.variants.push(variant);
       } else {
-        const existing = map.get(key)!;
-
         // Metric deduplication and consolidation
-        const existingMetricIdx = existing.metricsList.findIndex(
+        const existingMetricIdx = variant.metricsList.findIndex(
           m => m.metric.trim().toLowerCase() === item.metric.trim().toLowerCase()
         );
 
         if (existingMetricIdx >= 0) {
-          const ex = existing.metricsList[existingMetricIdx];
+          const ex = variant.metricsList[existingMetricIdx];
           const exLimit = ex.limit.trim();
           const newLimit = item.limit.trim();
 
@@ -281,7 +498,7 @@ export default function DoseConstraintsPage() {
             if (exLimit.toLowerCase().includes(newLimit.toLowerCase())) {
               // Existing limit is already comprehensive
             } else if (newLimit.toLowerCase().includes(exLimit.toLowerCase())) {
-              existing.metricsList[existingMetricIdx] = {
+              variant.metricsList[existingMetricIdx] = {
                 metric: item.metric,
                 limit: newLimit,
                 priority: ex.priority === 'hard' || item.priority === 'hard' ? 'hard' : 'soft',
@@ -294,13 +511,13 @@ export default function DoseConstraintsPage() {
                 const higher = Math.max(exNum, newNum);
                 const unit = exLimit.includes('Gy') ? 'Gy' : exLimit.includes('%') ? '%' : '';
                 const ceilWord = language === 'en' ? 'Ceiling' : 'Tavan';
-                existing.metricsList[existingMetricIdx] = {
+                variant.metricsList[existingMetricIdx] = {
                   metric: item.metric,
                   limit: `< ${lower} ${unit} (${ceilWord}: ${higher} ${unit})`.trim(),
                   priority: 'hard',
                 };
               } else {
-                existing.metricsList[existingMetricIdx] = {
+                variant.metricsList[existingMetricIdx] = {
                   metric: item.metric,
                   limit: `${exLimit} / ${newLimit}`,
                   priority: ex.priority === 'hard' || item.priority === 'hard' ? 'hard' : 'soft',
@@ -309,16 +526,16 @@ export default function DoseConstraintsPage() {
             }
           }
         } else {
-          existing.metricsList.push({ metric: item.metric, limit: item.limit, priority: item.priority });
+          variant.metricsList.push({ metric: item.metric, limit: item.limit, priority: item.priority });
         }
 
         if (item.priority === 'hard') {
-          existing.priority = 'hard';
+          variant.priority = 'hard';
         }
 
         // Clean endpoint deduplication
         if (item.endpoint) {
-          const currentEps = existing.endpoint.split(';').map(s => s.trim());
+          const currentEps = variant.endpoint ? variant.endpoint.split(';').map(s => s.trim()) : [];
           const newEp = item.endpoint.trim();
           const isDup = currentEps.some(
             e => e.toLowerCase() === newEp.toLowerCase() ||
@@ -326,35 +543,46 @@ export default function DoseConstraintsPage() {
                  newEp.toLowerCase().includes(e.toLowerCase())
           );
           if (!isDup) {
-            existing.endpoint = `${existing.endpoint}; ${newEp}`;
+            variant.endpoint = variant.endpoint ? `${variant.endpoint}; ${newEp}` : newEp;
           }
         }
 
         // Clean context deduplication
         if (item.context) {
-          const currentCtx = existing.context.trim();
+          const currentCtx = variant.context.trim();
           const newCtx = item.context.trim();
           if (!currentCtx.toLowerCase().includes(newCtx.toLowerCase()) && !newCtx.toLowerCase().includes(currentCtx.toLowerCase())) {
-            existing.context = `${currentCtx} ${newCtx}`;
+            variant.context = currentCtx ? `${currentCtx} ${newCtx}` : newCtx;
           }
         }
 
-        if (item.source && !existing.source.toLowerCase().includes(item.source.toLowerCase())) {
-          existing.source = `${existing.source}; ${item.source}`;
+        if (item.source && !variant.source.toLowerCase().includes(item.source.toLowerCase())) {
+          variant.source = variant.source ? `${variant.source}; ${item.source}` : item.source;
+        }
+
+        if (!variant.sourceUrl && item.sourceUrl) {
+          variant.sourceUrl = item.sourceUrl;
         }
       }
     }
 
+    // Sort variants inside each card by clinical fractionation order
+    for (const card of map.values()) {
+      card.variants.sort((a, b) => {
+        const orderA = bucketSortOrder[getVariantBucketKey(a.fractionation)] ?? 99;
+        const orderB = bucketSortOrder[getVariantBucketKey(b.fractionation)] ?? 99;
+        return orderA - orderB;
+      });
+    }
+
     return Array.from(map.values());
-  }, [filteredItems, language, selectedSite]);
+  }, [filteredItems, language]);
 
   const sortedConstraints = useMemo(() => {
     return [...groupedItems].sort((a, b) => {
       const nameA = (organLabel(a.organ, language) || a.organ || '').trim();
       const nameB = (organLabel(b.organ, language) || b.organ || '').trim();
-      const cmp = nameA.localeCompare(nameB, language === 'tr' ? 'tr' : 'en', { sensitivity: 'base' });
-      if (cmp !== 0) return cmp;
-      return a.fractionation.localeCompare(b.fractionation);
+      return nameA.localeCompare(nameB, language === 'tr' ? 'tr' : 'en', { sensitivity: 'base' });
     });
   }, [groupedItems, language]);
 
@@ -374,8 +602,8 @@ export default function DoseConstraintsPage() {
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             {language === 'en'
-              ? 'Institutional hospital clinical practice constraints contextualized by tumor site, organ anatomy, and fractionation. Multiple metrics per organ are integrated into single protocol cards.'
-              : 'Tümör bölgesi, organ anatomisi ve fraksiyonasyona göre kurumsal hastane klinik protokol standartları. Organ başına çoklu metrikler tek kartta gruplanmıştır.'}
+              ? 'Institutional hospital clinical practice constraints contextualized by tumor site, organ anatomy, and fractionation. Multiple fractionations and metrics per organ are consolidated into unified interactive cards with in-card regimen switchers.'
+              : 'Tümör bölgesi, organ anatomisi ve fraksiyonasyona göre kurumsal hastane klinik protokol standartları. Organ başına tüm fraksiyonasyon şemaları ve metrikler kart içi fraksiyonasyon geçişi ile birleştirilmiştir.'}
           </p>
         </header>
 
@@ -461,131 +689,15 @@ export default function DoseConstraintsPage() {
 
           <p className="mt-4 text-xs text-slate-400" aria-live="polite">
             {language === 'en'
-              ? `Showing ${sortedConstraints.length} protocol cards (${filteredItems.length} metric constraints)`
-              : `${sortedConstraints.length} protokol kartı (${filteredItems.length} doz metriği) gösteriliyor`}
+              ? `Showing ${sortedConstraints.length} organ protocol cards (${filteredItems.length} metric constraints)`
+              : `${sortedConstraints.length} organ protokol kartı (${filteredItems.length} doz metriği) gösteriliyor`}
           </p>
         </section>
 
         {sortedConstraints.length ? (
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-            {sortedConstraints.map(item => (
-              <article
-                key={item.id}
-                className="rounded-2xl border border-slate-800 bg-[#0e1726] p-4 transition hover:border-slate-700 sm:p-5 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-base font-semibold text-white">{organLabel(item.organ, language)}</h2>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                        <span className="inline-flex rounded border border-rose-400/30 bg-rose-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-200">
-                          NTCP ceiling
-                        </span>
-                        {item.tumorSites && item.tumorSites.length > 0 && (
-                          item.tumorSites.map(s => (
-                            <span key={s} className="inline-flex rounded border border-sky-400/30 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-200">
-                              {language === 'en' ? tumorSiteNamesEn[s] : tumorSiteNamesTr[s]}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                      <p className="mt-1.5 text-[11px] font-medium text-slate-400">
-                        {fractionationLabel(item.fractionation, language)} · α/β {item.alphaBeta ?? '—'}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${
-                        item.priority === 'hard'
-                          ? 'border-rose-400/30 bg-rose-400/10 text-rose-200'
-                          : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
-                      }`}
-                    >
-                      <ShieldAlert className="h-3 w-3" aria-hidden="true" />
-                      {item.priority === 'hard'
-                        ? language === 'en'
-                          ? 'Mandatory · Hard'
-                          : 'Zorunlu · Hard'
-                        : 'Optimal · Soft'}
-                    </span>
-                  </div>
-
-                  {/* Clean, High-Contrast Metrics Table Grouping All Metrics for the Organ */}
-                  <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-[#0a0f1d]">
-                    <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-800 bg-slate-900/80 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        <tr>
-                          <th className="px-3.5 py-2.5">{language === 'en' ? 'Dose Metric' : 'Dozimetrik Kriter'}</th>
-                          <th className="px-3.5 py-2.5 text-right">
-                            <span className="text-rose-300">{language === 'en' ? 'NTCP Ceiling' : 'NTCP Tavan Sınırı'}</span>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800/60">
-                        {item.metricsList.map((m, idx) => (
-                          <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                            <td className="px-3.5 py-2.5 font-semibold text-sky-400">{m.metric}</td>
-                            <td className="px-3.5 py-2.5 text-right font-mono font-bold text-slate-100">{m.limit}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="mt-3 space-y-2 text-xs leading-5">
-                    {item.endpoint && (
-                      <p>
-                        <span className="font-semibold text-slate-300">
-                          {language === 'en' ? 'Clinical endpoint: ' : 'Klinik endpoint: '}
-                        </span>
-                        <span className="text-slate-400">{item.endpoint}</span>
-                      </p>
-                    )}
-                    {item.context && (
-                      <p>
-                        <span className="font-semibold text-slate-300">
-                          {language === 'en' ? 'Context: ' : 'Bağlam: '}
-                        </span>
-                        <span className="text-slate-400">{item.context}</span>
-                      </p>
-                    )}
-                    {item.source && (
-                      <p className="text-slate-400">
-                        <span className="font-semibold text-slate-300">
-                          {language === 'en' ? 'Source: ' : 'Kaynak: '}
-                        </span>
-                        {item.sourceUrl ? (
-                          <a
-                            href={item.sourceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-sky-300 underline decoration-sky-300/30 underline-offset-2 hover:text-sky-200"
-                          >
-                            {item.source}
-                          </a>
-                        ) : (
-                          item.source
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <Link
-                  href={{
-                    pathname: '/doz-hesaplayici',
-                    query: {
-                      organ: item.organ,
-                      metric: item.metricsList[0]?.metric ?? '',
-                      limit: item.metricsList[0]?.limit ?? '',
-                      fractionation: item.fractionation,
-                    },
-                  }}
-                  className="mt-4 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/15"
-                >
-                  {language === 'en' ? 'Calculate in Dose Engine' : 'Doz Motorunda Hesapla'}
-                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </Link>
-              </article>
+            {sortedConstraints.map(card => (
+              <OrganConstraintCard key={card.id} card={card} language={language} />
             ))}
           </div>
         ) : (
