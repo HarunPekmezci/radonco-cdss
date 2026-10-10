@@ -90,7 +90,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     languageNames: { tr: 'Türkçe', en: 'English' },
     heroBadge: 'RADONCO PORTAL',
-    heroTitle: 'Klinik Karar & Onkoloji Akademisi',
+    heroTitle: 'Klinik Karar Desteği & Onkoloji Akademisi',
     heroDescription: 'Radyasyon onkolojisi klinik karar desteği ve yeterlik sınavı / onkoloji eğitimi için birleşik çalışma istasyonu.',
     heroAction: 'Karar Destek Matrisini Aç',
     hero: {

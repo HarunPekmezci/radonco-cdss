@@ -84,11 +84,8 @@ export default function PortalPage() {
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}
         <div className="flex flex-col items-center text-center mb-16 max-w-3xl">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase bg-slate-800/80 border border-slate-700/80 text-amber-300/90 mb-4">
-            ✦ RADONCO WORKSPACE
-          </span>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-[1.2] pb-2 overflow-visible">
-            {language === 'tr' ? 'Klinik Karar & Onkoloji Akademisi' : 'Clinical Decision Support & Oncology Academy'}
+            {language === 'tr' ? 'Klinik Karar Desteği & Onkoloji Akademisi' : 'Clinical Decision Support & Oncology Academy'}
           </h1>
         </div>
 
