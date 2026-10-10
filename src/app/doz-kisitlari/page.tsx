@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Search, ShieldAlert, SlidersHorizontal, Stethoscope } from 'lucide-react';
-import { oarConstraintsData } from '@/data/oarConstraintsData';
+import { oarConstraintsData, OAR_PRIORITY_LABELS } from '@/data/oarConstraintsData';
 import type { OARFractionation, OARPriority, OARRegion, TumorSite } from '@/types/oar-guide';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -297,11 +297,7 @@ function OrganConstraintCard({
             }`}
           >
             <ShieldAlert className="h-3 w-3" aria-hidden="true" />
-            {activeVariant.priority === 'hard'
-              ? language === 'en'
-                ? 'Mandatory · Hard'
-                : 'Zorunlu · Hard'
-              : 'Optimal · Soft'}
+            {OAR_PRIORITY_LABELS[language][activeVariant.priority]}
           </span>
         </div>
 

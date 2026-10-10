@@ -1,4 +1,15 @@
-import type { OARNTPCeiling } from '@/types/oar-guide';
+import type { OARNTPCeiling, OARPriority } from '@/types/oar-guide';
+
+export const OAR_PRIORITY_LABELS: Record<'tr' | 'en', Record<OARPriority, string>> = {
+  tr: {
+    hard: 'Zorunlu Kısıt',
+    soft: 'Önerilen / Hedef',
+  },
+  en: {
+    hard: 'Mandatory (Hard)',
+    soft: 'Optimal (Soft)',
+  },
+};
 
 export const oarConstraintsData: OARNTPCeiling[] = [
   {

@@ -67,6 +67,10 @@ export type TranslationDictionary = {
     sampleReports: string;
     redactedNotice: string;
   };
+  oarPriorities: {
+    hard: string;
+    soft: string;
+  };
 };
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -209,6 +213,10 @@ export const translations: Record<Language, TranslationDictionary> = {
       sampleReports: 'Örnek Rapor Yükle',
       redactedNotice: 'Kişisel veri (TCKN / İsim) otomatik maskelendi',
     },
+    oarPriorities: {
+      hard: 'Zorunlu Kısıt',
+      soft: 'Önerilen / Hedef',
+    },
   },
   en: {
     nav: {
@@ -348,6 +356,10 @@ export const translations: Record<Language, TranslationDictionary> = {
       privacyNotice: '100% Client-Side / Zero Data Leakage',
       sampleReports: 'Load Sample Report',
       redactedNotice: 'Personal identifiers (TCKN/Name) auto-redacted',
+    },
+    oarPriorities: {
+      hard: 'Mandatory (Hard)',
+      soft: 'Optimal (Soft)',
     },
   },
 };
