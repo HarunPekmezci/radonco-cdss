@@ -70,8 +70,10 @@ export default function PortalPage() {
       {/* Particle & Cosmic Ray Background Aura */}
       <ParticleBackground />
 
-      {/* Celestial Orbital Horizon Arc */}
-      <div className="absolute -top-[340px] left-1/2 -translate-x-1/2 w-[1600px] h-[450px] rounded-[100%] border-b border-cyan-400/25 shadow-[0_15px_60px_-10px_rgba(34,211,238,0.25)] pointer-events-none z-0 bg-gradient-to-b from-transparent via-cyan-950/10 to-transparent" />
+      {/* Celestial Orbital Horizon Arc - Cleanly Crowning Above the Title */}
+      <div 
+        className="absolute -top-[360px] md:-top-[400px] left-1/2 -translate-x-1/2 w-[1500px] md:w-[1800px] h-[480px] rounded-[100%] border-b border-cyan-400/30 shadow-[0_15px_60px_-10px_rgba(34,211,238,0.3)] pointer-events-none z-0 bg-gradient-to-b from-transparent via-cyan-950/15 to-transparent" 
+      />
 
       {/* Top Specular Metallic Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[380px] bg-[radial-gradient(ellipse_at_top,rgba(148,163,184,0.15),transparent_60%)] pointer-events-none z-0" />
@@ -84,7 +86,7 @@ export default function PortalPage() {
       <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-12 relative z-10 flex flex-col items-center">
         {/* Portal Entrance Header */}
         <div className="flex flex-col items-center text-center mb-16 max-w-3xl">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-[1.2] pb-2 overflow-visible">
+          <h1 className="relative z-10 pt-4 text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent leading-[1.2] pb-2 overflow-visible">
             {language === 'tr' ? 'Klinik Karar Desteği & Onkoloji Akademisi' : 'Clinical Decision Support & Oncology Academy'}
           </h1>
         </div>
