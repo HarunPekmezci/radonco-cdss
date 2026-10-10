@@ -49,7 +49,7 @@ const modules: PortalModule[] = [
     accent: 'text-fuchsia-400 bg-fuchsia-400/10 ring-fuchsia-400/20',
   },
   {
-    href: '/kaynakca',
+    href: '/references',
     cardKey: 'references',
     icon: BookOpen,
     accent: 'text-amber-300 bg-amber-400/10 ring-amber-300/20',

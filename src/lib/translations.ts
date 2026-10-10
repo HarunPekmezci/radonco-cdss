@@ -154,8 +154,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       },
       references: {
         title: 'Klinik Kılavuzlar & Kaynakça',
-        description: 'NCCN 2025, ASTRO ve ESTRO güncel klinik kılavuzları ve dönüm noktası kanıtlar.',
-        badges: ['NCCN 2025', 'Faz III'],
+        description: '30 Kurumsal Kılavuz (NCCN v1.2026, ASTRO, ESTRO, QUANTEC, TROD) ve Canlı Kanıt Radarı.',
+        badges: ['30 Kılavuz', 'v1.2026'],
       },
       toxicity: {
         title: 'Toksisite & Yan Etki Değerlendirme',
@@ -294,8 +294,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       },
       references: {
         title: 'Clinical Guidelines & References',
-        description: 'NCCN 2025, ASTRO, and ESTRO clinical guidelines and landmark evidence.',
-        badges: ['NCCN 2025', 'Phase III'],
+        description: '30 Institutional Guidelines (NCCN v1.2026, ASTRO, ESTRO, QUANTEC, TROD) & Live Evidence Radar.',
+        badges: ['30 Guidelines', 'v1.2026'],
       },
       toxicity: {
         title: 'Toxicity & Adverse Effects Assessment',
