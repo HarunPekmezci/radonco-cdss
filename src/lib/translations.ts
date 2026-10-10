@@ -27,7 +27,7 @@ export type TranslationDictionary = {
     academy: { badge: string; title: string; subtitle: string; description: string; bullet1: string; bullet2: string; bullet3: string; button: string; };
   };
   academy: {
-    tabs: { hub: string; quizzes: string; flashcards: string; radiobiology: string; pearls: string; };
+    tabs: { hub: string; quizzes: string; flashcards: string; pearls: string; };
     pillars: { clinical: string; radiobiology: string; physics: string; };
   };
   sectionTitle: string;
@@ -118,9 +118,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     academy: {
       tabs: {
         hub: 'Akademi Merkezi',
-        quizzes: 'Vaka Soruları',
+        quizzes: 'Vaka Soru Bankası',
         flashcards: 'Akıl Kartları',
-        radiobiology: 'LQ Laboratuvarı',
         pearls: 'Klinik İnciler',
       },
       pillars: {
@@ -262,10 +261,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     academy: {
       tabs: {
         hub: 'Academy Hub',
-        quizzes: 'Case Quizzes',
+        quizzes: 'Vignette Question Bank',
         flashcards: 'Flashcards',
-        radiobiology: 'LQ Lab',
-        pearls: 'Board Pearls',
+        pearls: 'Clinical Pearls',
       },
       pillars: {
         clinical: 'Clinical Oncology',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { quizVignettes, flashcards, boardPearls, type AcademicPillar } from '@/data/academyData';
 import { GraduationCap, Library, Activity, BookOpen, CheckCircle, XCircle, RotateCcw, ChevronRight, Bookmark, ArrowRight, ArrowLeft, Target, ArrowUpRight, ShieldCheck, Beaker, Atom, AlertCircle, Search, X, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -13,7 +14,7 @@ const PILLAR_STYLES: Record<AcademicPillar, { text: string; bg: string; border: 
 
 export default function AcademyPage() {
   const { t, language: lang } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'hub' | 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'quizzes' | 'flashcards' | 'pearls'>('hub');
   const [pillarFilter, setPillarFilter] = useState<AcademicPillar | 'ALL'>('ALL');
   const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
 
@@ -53,7 +54,6 @@ export default function AcademyPage() {
             <TabButton id="hub" icon={<Activity className="h-4 w-4" />} label={t.academy.tabs.hub} isActive={activeTab === 'hub'} onClick={() => setActiveTab('hub')} />
             <TabButton id="quizzes" icon={<Library className="h-4 w-4" />} label={t.academy.tabs.quizzes} isActive={activeTab === 'quizzes'} onClick={() => setActiveTab('quizzes')} />
             <TabButton id="flashcards" icon={<BookOpen className="h-4 w-4" />} label={t.academy.tabs.flashcards} isActive={activeTab === 'flashcards'} onClick={() => setActiveTab('flashcards')} />
-            <TabButton id="radiobiology" icon={<Beaker className="h-4 w-4" />} label={t.academy.tabs.radiobiology} isActive={activeTab === 'radiobiology'} onClick={() => setActiveTab('radiobiology')} />
             <TabButton id="pearls" icon={<ChevronRight className="h-4 w-4" />} label={t.academy.tabs.pearls} isActive={activeTab === 'pearls'} onClick={() => setActiveTab('pearls')} />
           </div>
         </header>
@@ -117,7 +117,6 @@ export default function AcademyPage() {
               <div className="rounded-3xl border border-slate-800 bg-[#0c1322] p-6 sm:p-10 shadow-2xl min-h-[700px] flex flex-col">
                 {activeTab === 'quizzes' && <QuizzesTab key={resetKey} filter={pillarFilter} mode={mode} score={score} setScore={setScore} answeredCount={answeredCount} setAnsweredCount={setAnsweredCount} setTotalQuestions={setTotalQuestions} />}
                 {activeTab === 'flashcards' && <FlashcardsTab filter={pillarFilter} />}
-                {activeTab === 'radiobiology' && <RadiobiologyTab />}
                 {activeTab === 'pearls' && <PearlsTab filter={pillarFilter} />}
               </div>
             </section>
@@ -128,7 +127,7 @@ export default function AcademyPage() {
   );
 }
 
-function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'radiobiology' | 'pearls', filter: AcademicPillar | 'ALL') => void, t: any }) {
+function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashcards' | 'pearls', filter: AcademicPillar | 'ALL') => void, t: any }) {
   const { language: lang } = useLanguage();
   return (
     <div className="flex flex-col gap-8 py-4">
@@ -183,10 +182,10 @@ function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashc
             <span className="rounded-md bg-emerald-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">+40 Q's</span>
           </div>
           <div className="space-y-3 relative z-10">
-            <button onClick={() => onNavigate('radiobiology', 'ALL')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-emerald-300 hover:border-emerald-500 hover:bg-emerald-950/50 transition shadow-sm">
-              <span className="flex items-center gap-2"><Activity className="w-4 h-4"/> BED / EQD2 Comparator</span>
+            <Link href="/doz-hesaplayici" className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-emerald-300 hover:border-emerald-500 hover:bg-emerald-950/50 transition shadow-sm">
+              <span className="flex items-center gap-2"><Activity className="w-4 h-4"/> {lang === 'tr' ? 'BED / EQD2 Doz Hesaplayıcı' : 'BED / EQD2 Dose Calculator'}</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
             <button onClick={() => onNavigate('quizzes', 'RADIOBIOLOGY')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-emerald-300 hover:border-emerald-500 hover:bg-emerald-950/50 transition shadow-sm">
               <span className="flex items-center gap-2"><Library className="w-4 h-4"/> Concept Quizzes</span>
               <ArrowRight className="w-4 h-4" />
@@ -783,117 +782,7 @@ function FlashcardsTab({ filter }: any) {
   );
 }
 
-function RadiobiologyTab() {
-  const [regA, setRegA] = useState({ totalDose: 60, fractions: 30 });
-  const [regB, setRegB] = useState({ totalDose: 40, fractions: 15 });
 
-  const calc = (totalDose: number, fractions: number, ab: number) => {
-    if (!fractions) return { bed: 0, eqd2: 0 };
-    const d = totalDose / fractions;
-    const bed = totalDose * (1 + d / ab);
-    const eqd2 = bed / (1 + 2 / ab);
-    return { bed, eqd2 };
-  };
-
-  const resA10 = calc(regA.totalDose, regA.fractions, 10);
-  const resA3 = calc(regA.totalDose, regA.fractions, 3);
-  const resB10 = calc(regB.totalDose, regB.fractions, 10);
-  const resB3 = calc(regB.totalDose, regB.fractions, 3);
-
-  return (
-    <div className="flex flex-col h-full flex-1 w-full max-w-5xl mx-auto py-4">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3"><Activity className="w-8 h-8 text-emerald-400"/> Live Radiobiological Comparator</h2>
-        <p className="text-base text-slate-400 mt-2 font-medium">Compare standard fractionation vs hypofractionation with live BED and EQD2 math (Linear-Quadratic Model).</p>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-2 mb-10">
-        <RegimenCard title="Standard Regimen (A)" reg={regA} setReg={setRegA} color="sky" />
-        <RegimenCard title="Alternative Regimen (B)" reg={regB} setReg={setRegB} color="amber" />
-      </div>
-
-      <div className="overflow-hidden rounded-3xl border border-slate-700 shadow-2xl bg-[#060b14]">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-[#0a101d] border-b border-slate-700 text-xs font-black text-slate-400 uppercase tracking-widest">
-            <tr>
-              <th className="px-8 py-5">Effect / Parameter</th>
-              <th className="px-8 py-5 text-right">Regimen A</th>
-              <th className="px-8 py-5 text-right">Regimen B</th>
-              <th className="px-8 py-5 text-center bg-slate-900/50">Δ Difference</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800">
-            <tr className="hover:bg-slate-900/50 transition duration-300">
-              <td className="px-8 py-7">
-                <div className="text-base font-bold text-white mb-1.5 flex items-center gap-2"><Target className="w-4 h-4 text-sky-400"/> Tumor / Acute Control</div>
-                <div className="text-xs text-slate-500 font-mono font-bold tracking-widest">α/β = 10 (BED₁₀ / EQD2₁₀)</div>
-              </td>
-              <td className="px-8 py-7 text-right font-mono">
-                <div className="text-sky-400 text-xl font-bold mb-1">{resA10.bed.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">Gy₁₀</span></div>
-                <div className="text-slate-300 text-base">{resA10.eqd2.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">EQD2</span></div>
-              </td>
-              <td className="px-8 py-7 text-right font-mono">
-                <div className="text-amber-400 text-xl font-bold mb-1">{resB10.bed.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">Gy₁₀</span></div>
-                <div className="text-slate-300 text-base">{resB10.eqd2.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">EQD2</span></div>
-              </td>
-              <td className="px-8 py-7 text-center font-mono bg-slate-900/30">
-                <div className={`text-lg font-bold ${resB10.eqd2 - resA10.eqd2 > 0 ? 'text-emerald-400' : resB10.eqd2 - resA10.eqd2 < 0 ? 'text-rose-400' : 'text-slate-500'}`}>
-                  {(resB10.eqd2 - resA10.eqd2) > 0 ? '+' : ''}{(resB10.eqd2 - resA10.eqd2).toFixed(1)}
-                </div>
-              </td>
-            </tr>
-            <tr className="hover:bg-slate-900/50 transition duration-300">
-              <td className="px-8 py-7">
-                <div className="text-base font-bold text-white mb-1.5 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-rose-400"/> Late Normal Tissue</div>
-                <div className="text-xs text-slate-500 font-mono font-bold tracking-widest">α/β = 3 (BED₃ / EQD2₃)</div>
-              </td>
-              <td className="px-8 py-7 text-right font-mono">
-                <div className="text-sky-400 text-xl font-bold mb-1">{resA3.bed.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">Gy₃</span></div>
-                <div className="text-slate-300 text-base">{resA3.eqd2.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">EQD2</span></div>
-              </td>
-              <td className="px-8 py-7 text-right font-mono">
-                <div className="text-amber-400 text-xl font-bold mb-1">{resB3.bed.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">Gy₃</span></div>
-                <div className="text-slate-300 text-base">{resB3.eqd2.toFixed(1)} <span className="text-xs text-slate-500 tracking-wider">EQD2</span></div>
-              </td>
-              <td className="px-8 py-7 text-center font-mono bg-slate-900/30">
-                <div className={`text-lg font-bold ${resB3.eqd2 - resA3.eqd2 > 0 ? 'text-rose-400' : resB3.eqd2 - resA3.eqd2 < 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
-                  {(resB3.eqd2 - resA3.eqd2) > 0 ? '+' : ''}{(resB3.eqd2 - resA3.eqd2).toFixed(1)}
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function RegimenCard({ title, reg, setReg, color }: any) {
-  const borderColor = color === 'sky' ? 'border-sky-500/30' : 'border-amber-500/30';
-  const bgColor = color === 'sky' ? 'bg-sky-500/5' : 'bg-amber-500/5';
-  const textColor = color === 'sky' ? 'text-sky-400' : 'text-amber-400';
-  const shadowColor = color === 'sky' ? 'shadow-sky-500/10' : 'shadow-amber-500/10';
-
-  return (
-    <div className={`rounded-3xl border ${borderColor} ${bgColor} p-8 shadow-xl ${shadowColor}`}>
-      <h3 className={`mb-6 text-sm font-black uppercase tracking-widest ${textColor}`}>{title}</h3>
-      <div className="space-y-6">
-        <div>
-          <label className="mb-2 block text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Dose (Gy)</label>
-          <input type="number" value={reg.totalDose || ''} onChange={e => setReg({ ...reg, totalDose: Number(e.target.value) })} className={`w-full rounded-2xl border-2 border-slate-700 bg-[#060b14] p-4 text-xl font-bold text-white shadow-inner focus:border-${color}-500 focus:outline-none transition-colors`} />
-        </div>
-        <div>
-          <label className="mb-2 block text-[11px] font-black text-slate-400 uppercase tracking-widest">Fractions</label>
-          <input type="number" value={reg.fractions || ''} onChange={e => setReg({ ...reg, fractions: Number(e.target.value) })} className={`w-full rounded-2xl border-2 border-slate-700 bg-[#060b14] p-4 text-xl font-bold text-white shadow-inner focus:border-${color}-500 focus:outline-none transition-colors`} />
-        </div>
-        <div className="pt-4 flex items-center justify-between border-t border-slate-800">
-          <div className="text-xs font-black text-slate-500 uppercase tracking-widest mt-2">Dose / Fraction</div>
-          <div className="font-mono text-2xl font-black text-white mt-2">{(reg.totalDose / (reg.fractions || 1)).toFixed(2)} <span className="text-sm font-bold text-slate-500 tracking-widest">Gy</span></div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function formatPearlText(text: string) {
   const colonIndex = text.indexOf(':');
