@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 type TumorSiteFilter = 'all' | TumorSite;
 type RegionFilter = 'all' | OARRegion | 'pelvis-palliative';
-type FractionationFilter = 'all' | 'konvansiyonel' | 'hipofraksiyon' | 'sbrt' | 'srs';
+type FractionationFilter = 'all' | 'konvansiyonel' | 'hipofraksiyon' | 'stereotactic';
 type UiLanguage = 'tr' | 'en';
 
 const tumorSitesList: { id: TumorSiteFilter; label_tr: string; label_en: string }[] = [
@@ -77,13 +77,6 @@ const regions: { id: RegionFilter; label_tr: string; label_en: string }[] = [
   { id: 'omurilik', label_tr: 'Omurilik & Kemik', label_en: 'Spine & Bone' },
 ];
 
-const fractionations: { id: FractionationFilter; label_tr: string; label_en: string }[] = [
-  { id: 'all', label_tr: 'Tüm şemalar', label_en: 'All Regimens' },
-  { id: 'konvansiyonel', label_tr: 'Konvansiyonel', label_en: 'Conventional' },
-  { id: 'hipofraksiyon', label_tr: 'Hipofraksiyon', label_en: 'Hypofractionation' },
-  { id: 'sbrt', label_tr: 'SBRT (1–5 fx)', label_en: 'SBRT (1–5 fx)' },
-  { id: 'srs', label_tr: 'SRS (1–5 fx)', label_en: 'SRS (1–5 fx)' },
-];
 
 const organNamesEn: Record<string, string> = {
   'Abdominal aort': 'Abdominal aorta',
@@ -166,8 +159,11 @@ const regionMatches = (filter: RegionFilter, region: OARRegion) => {
 
 const fractionationMatches = (filter: FractionationFilter, fractionation: OARFractionation) => {
   if (filter === 'all') return true;
-  if (filter === 'sbrt') {
+  if (filter === 'konvansiyonel') return fractionation === 'konvansiyonel';
+  if (filter === 'hipofraksiyon') return fractionation === 'hipofraksiyon';
+  if (filter === 'stereotactic') {
     return (
+      fractionation === 'sbrt-1fx' ||
       fractionation === 'sbrt-2fx' ||
       fractionation === 'sbrt-3fx' ||
       fractionation === 'sbrt-5fx' ||
@@ -176,29 +172,21 @@ const fractionationMatches = (filter: FractionationFilter, fractionation: OARFra
       fractionation === 'srs-5fx'
     );
   }
-  if (filter === 'srs') {
-    return (
-      fractionation === 'srs-1fx' ||
-      fractionation === 'srs-3fx' ||
-      fractionation === 'srs-5fx' ||
-      fractionation === 'sbrt-2fx' ||
-      fractionation === 'sbrt-3fx' ||
-      fractionation === 'sbrt-5fx'
-    );
-  }
   return filter === fractionation;
 };
 
-const fractionationLabel = (fractionation: OARFractionation, language: UiLanguage) => {
+const fractionationLabel = (fractionation: OARFractionation, language: UiLanguage, region?: OARRegion) => {
+  const isCranial = region === 'kranial';
   switch (fractionation) {
     case 'konvansiyonel': return language === 'en' ? 'Conventional (1.8–2 Gy)' : 'Konvansiyonel (1.8–2 Gy)';
     case 'hipofraksiyon': return language === 'en' ? 'Hypofractionation' : 'Hipofraksiyon';
+    case 'sbrt-1fx': return 'SBRT · 1 fx';
     case 'sbrt-2fx': return 'SBRT · 2 fx';
     case 'sbrt-3fx': return 'SBRT · 3 fx';
     case 'sbrt-5fx': return 'SBRT · 5 fx';
-    case 'srs-1fx': return 'SRS · 1 fx';
-    case 'srs-3fx': return 'SRS · 3 fx';
-    case 'srs-5fx': return 'SRS · 5 fx';
+    case 'srs-1fx': return isCranial ? 'SRS · 1 fx' : 'SBRT · 1 fx';
+    case 'srs-3fx': return isCranial ? 'SRS / SRT · 3 fx' : 'SBRT · 3 fx';
+    case 'srs-5fx': return isCranial ? 'SRS / SRT · 5 fx' : 'SBRT · 5 fx';
   }
 };
 
@@ -298,7 +286,7 @@ function OrganConstraintCard({
               )}
             </div>
             <p className="mt-1.5 text-[11px] font-medium text-slate-400">
-              {fractionationLabel(activeVariant.fractionation, language)} · α/β {activeVariant.alphaBeta ?? '—'}
+              {fractionationLabel(activeVariant.fractionation, language, card.region)} · α/β {activeVariant.alphaBeta ?? '—'}
             </p>
           </div>
           <span
@@ -426,29 +414,29 @@ export default function DoseConstraintsPage() {
 
   const handleRegionChange = (nextRegion: RegionFilter) => {
     setRegion(nextRegion);
-    if (nextRegion === 'kranial' && fractionation === 'sbrt') {
-      setFractionation('all');
-    } else if (nextRegion !== 'kranial' && nextRegion !== 'bas-boyun' && nextRegion !== 'all' && fractionation === 'srs') {
-      setFractionation('all');
-    }
   };
 
   const handleSiteChange = (nextSite: TumorSiteFilter) => {
     setSelectedSite(nextSite);
-    if (nextSite === 'cranial-cns' && fractionation === 'sbrt') {
-      setFractionation('all');
-    } else if (nextSite !== 'cranial-cns' && nextSite !== 'head-neck' && nextSite !== 'all' && fractionation === 'srs') {
-      setFractionation('all');
-    }
   };
 
-  const visibleFractionations = fractionations.filter(item => {
-    if (selectedSite === 'cranial-cns' || region === 'kranial') return item.id !== 'sbrt';
-    if (selectedSite === 'head-neck' || region === 'bas-boyun') return true;
-    if (selectedSite !== 'all' && item.id === 'srs') return false;
-    if (region !== 'all' && item.id === 'srs') return false;
-    return true;
-  });
+  const isCranial = selectedSite === 'cranial-cns' || region === 'kranial';
+  const isExtracranial =
+    (selectedSite !== 'all' && selectedSite !== 'cranial-cns') ||
+    (region !== 'all' && region !== 'kranial');
+
+  const stereotacticLabel = isCranial
+    ? 'SRS / SRT (1–5 fx)'
+    : isExtracranial
+      ? 'SBRT (1–5 fx)'
+      : 'SBRT / SRS (1–5 fx)';
+
+  const visibleFractionations = useMemo(() => [
+    { id: 'all' as FractionationFilter, label_tr: 'Tüm şemalar', label_en: 'All Regimens' },
+    { id: 'konvansiyonel' as FractionationFilter, label_tr: 'Konvansiyonel', label_en: 'Conventional' },
+    { id: 'hipofraksiyon' as FractionationFilter, label_tr: 'Hipofraksiyon', label_en: 'Hypofractionation' },
+    { id: 'stereotactic' as FractionationFilter, label_tr: stereotacticLabel, label_en: stereotacticLabel },
+  ], [stereotacticLabel]);
 
   const filteredItems = useMemo(() => {
     const locale = language === 'tr' ? 'tr-TR' : 'en-US';
@@ -466,7 +454,7 @@ export default function DoseConstraintsPage() {
         item.endpoint,
         item.source,
         item.context,
-        fractionationLabel(item.fractionation, language),
+        fractionationLabel(item.fractionation, language, item.region),
         ...(item.tumorSites?.map(s => language === 'en' ? tumorSiteNamesEn[s] : tumorSiteNamesTr[s]) ?? []),
       ].join(' ').toLocaleLowerCase(locale);
       return terms.every(term => searchable.includes(term));

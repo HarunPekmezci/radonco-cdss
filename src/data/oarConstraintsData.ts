@@ -50,7 +50,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2020.08.013",
     "context": "Tek fraksiyon SRS; Dmax nokta dozu < 0.035 cc.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -67,7 +66,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC Brainstem (2021)",
     "context": "Tek fraksiyon SRS; 10 Gy alan hacim kısıtı.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -84,7 +82,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / AAPM TG-101",
     "context": "3 fraksiyon SRS; V15Gy < 0.5 cc.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -101,7 +98,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC 2021",
     "context": "5 fraksiyon SRS; V20Gy < 0.5 cc.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -153,7 +149,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / AAPM TG-101",
     "context": "Tek fraksiyon SRS; nokta dozu Dmax.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -170,7 +165,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / AAPM TG-101",
     "context": "Küçük hacim doz eşiği D0.2cc.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -187,7 +181,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / AAPM TG-101",
     "context": "3 fraksiyon SRS; D0.2cc < 15 Gy.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -204,7 +197,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / AAPM TG-101",
     "context": "5 fraksiyon SRS; D0.2cc < 17.5-20 Gy.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -255,7 +247,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC Cochlea",
     "context": "Tek fraksiyon SRS.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -272,7 +263,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC Cochlea",
     "context": "Tek fraksiyon SRS ortalama doz.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -289,7 +279,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / TG-101",
     "context": "3 fraksiyon SRS; Dmean < 9 Gy.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -306,7 +295,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / TG-101",
     "context": "5 fraksiyon SRS; Dmean < 14 Gy.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -360,9 +348,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "sourceUrl": "https://doi.org/10.1016/j.ijrobp.2020.08.013",
     "context": "V12Gy < 5 cc: düşük risk; 5-10 cc: <%10 nekroz; >14 cc: >%20 yüksek risk.",
     "tumorSites": [
-      "head-neck",
-      "cranial-cns",
-      "parotid"
+      "cranial-cns"
     ]
   },
   {
@@ -378,9 +364,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / TG-101",
     "context": "3 fraksiyon SRS; V18Gy < 10-20 cc veya V20Gy < 20 cc.",
     "tumorSites": [
-      "head-neck",
-      "cranial-cns",
-      "parotid"
+      "cranial-cns"
     ]
   },
   {
@@ -396,9 +380,7 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "HyTEC / TG-101",
     "context": "5 fraksiyon SRS; V24Gy < 20 cc veya V28.8Gy < 5-7 cc.",
     "tumorSites": [
-      "head-neck",
-      "cranial-cns",
-      "parotid"
+      "cranial-cns"
     ]
   },
   {
@@ -431,7 +413,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "Dmean < 7-8 Gy.",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -448,7 +429,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -465,7 +445,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -499,7 +478,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -516,7 +494,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -533,7 +510,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "TG-101",
     "context": "",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ]
   },
@@ -724,10 +700,10 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
-    "id": "hn-cord-srs-1fx-dmax",
+    "id": "hn-cord-sbrt-1fx-dmax",
     "organ": "Spinal kord",
     "region": "bas-boyun",
-    "fractionation": "srs-1fx",
+    "fractionation": "sbrt-1fx",
     "metric": "Dmax",
     "limit": "< 12-14 Gy",
     "endpoint": "Miyelopati (Myelopathy)",
@@ -747,10 +723,10 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
-    "id": "hn-cord-srs-1fx-v10",
+    "id": "hn-cord-sbrt-1fx-v10",
     "organ": "Spinal kord",
     "region": "bas-boyun",
-    "fractionation": "srs-1fx",
+    "fractionation": "sbrt-1fx",
     "metric": "V10Gy",
     "limit": "< 0.35 cc",
     "endpoint": "Miyelopati (Myelopathy)",
@@ -873,10 +849,10 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
-    "id": "hn-mandible-srs-1fx-dmax",
+    "id": "hn-mandible-sbrt-1fx-dmax",
     "organ": "Mandibula",
     "region": "bas-boyun",
-    "fractionation": "srs-1fx",
+    "fractionation": "sbrt-1fx",
     "metric": "Dmax",
     "limit": "< 14-17.5 Gy",
     "endpoint": "Osteoradyonekroz (ORN)",
@@ -890,10 +866,10 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
-    "id": "hn-mandible-srs-1fx-v12",
+    "id": "hn-mandible-sbrt-1fx-v12",
     "organ": "Mandibula",
     "region": "bas-boyun",
-    "fractionation": "srs-1fx",
+    "fractionation": "sbrt-1fx",
     "metric": "V12.5Gy",
     "limit": "< 0.1 cc",
     "endpoint": "Osteoradyonekroz (ORN)",
@@ -2336,7 +2312,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik kiazma",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-1fx",
@@ -2353,7 +2328,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik kiazma",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-3fx",
@@ -2370,7 +2344,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik kiazma",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-5fx",
@@ -2387,7 +2360,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik sinir",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-1fx",
@@ -2404,7 +2376,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik sinir",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-3fx",
@@ -2421,7 +2392,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Optik sinir",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-5fx",
@@ -2438,7 +2408,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Bulbus okuli / Göz küresi",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-1fx",
@@ -2455,7 +2424,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Bulbus okuli / Göz küresi",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-3fx",
@@ -2472,7 +2440,6 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "organ": "Bulbus okuli / Göz küresi",
     "region": "kranial",
     "tumorSites": [
-      "head-neck",
       "cranial-cns"
     ],
     "fractionation": "srs-5fx",
