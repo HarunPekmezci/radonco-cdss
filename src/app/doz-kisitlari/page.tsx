@@ -19,10 +19,13 @@ const tumorSitesList: { id: TumorSiteFilter; label_tr: string; label_en: string 
   { id: 'breast', label_tr: 'Meme', label_en: 'Breast' },
   { id: 'thorax-lung', label_tr: 'Toraks / Akciğer', label_en: 'Thorax / Lung' },
   { id: 'prostate', label_tr: 'Prostat', label_en: 'Prostate' },
-  { id: 'cervix-gyn', label_tr: 'Serviks & Jinekoloji', label_en: 'Cervix & GYN' },
-  { id: 'stomach-pancreas', label_tr: 'Mide & Pankreas', label_en: 'Stomach & Pancreas' },
+  { id: 'cervix', label_tr: 'Serviks', label_en: 'Cervix' },
+  { id: 'gynecology', label_tr: 'Jinekoloji', label_en: 'Gynecology' },
+  { id: 'stomach', label_tr: 'Mide', label_en: 'Stomach' },
+  { id: 'pancreas', label_tr: 'Pankreas', label_en: 'Pancreas' },
   { id: 'esophagus', label_tr: 'Özofagus', label_en: 'Esophagus' },
-  { id: 'rectum-bladder', label_tr: 'Rektum & Mesane', label_en: 'Rectum & Bladder' },
+  { id: 'rectum', label_tr: 'Rektum', label_en: 'Rectum' },
+  { id: 'bladder', label_tr: 'Mesane', label_en: 'Bladder' },
   { id: 'parotid', label_tr: 'Parotis', label_en: 'Parotid' },
 ];
 
@@ -32,11 +35,17 @@ const tumorSiteNamesEn: Record<TumorSite, string> = {
   'breast': 'Breast',
   'thorax-lung': 'Thorax / Lung',
   'prostate': 'Prostate',
+  'cervix': 'Cervix',
+  'gynecology': 'Gynecology',
+  'stomach': 'Stomach',
+  'pancreas': 'Pancreas',
+  'esophagus': 'Esophagus',
+  'rectum': 'Rectum',
+  'bladder': 'Bladder',
+  'parotid': 'Parotid',
   'cervix-gyn': 'Cervix & GYN',
   'stomach-pancreas': 'Stomach & Pancreas',
-  'esophagus': 'Esophagus',
   'rectum-bladder': 'Rectum & Bladder',
-  'parotid': 'Parotid',
 };
 
 const tumorSiteNamesTr: Record<TumorSite, string> = {
@@ -45,11 +54,17 @@ const tumorSiteNamesTr: Record<TumorSite, string> = {
   'breast': 'Meme',
   'thorax-lung': 'Toraks / Akciğer',
   'prostate': 'Prostat',
+  'cervix': 'Serviks',
+  'gynecology': 'Jinekoloji',
+  'stomach': 'Mide',
+  'pancreas': 'Pankreas',
+  'esophagus': 'Özofagus',
+  'rectum': 'Rektum',
+  'bladder': 'Mesane',
+  'parotid': 'Parotis',
   'cervix-gyn': 'Serviks & Jinekoloji',
   'stomach-pancreas': 'Mide & Pankreas',
-  'esophagus': 'Özofagus',
   'rectum-bladder': 'Rektum & Mesane',
-  'parotid': 'Parotis',
 };
 
 const regions: { id: RegionFilter; label_tr: string; label_en: string }[] = [

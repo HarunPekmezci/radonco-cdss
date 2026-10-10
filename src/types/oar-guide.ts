@@ -25,11 +25,17 @@ export type TumorSite =
   | 'breast'
   | 'thorax-lung'
   | 'prostate'
+  | 'cervix'
+  | 'gynecology'
+  | 'stomach'
+  | 'pancreas'
+  | 'esophagus'
+  | 'rectum'
+  | 'bladder'
+  | 'parotid'
   | 'cervix-gyn'
   | 'stomach-pancreas'
-  | 'esophagus'
-  | 'rectum-bladder'
-  | 'parotid';
+  | 'rectum-bladder';
 
 export interface OARNTPCeiling {
   id: string;
