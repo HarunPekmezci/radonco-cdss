@@ -150,7 +150,7 @@ function HubDashboard({ onNavigate, t }: { onNavigate: (tab: 'quizzes' | 'flashc
             {['Breast', 'Thorax', 'GI', 'GU', 'H&N', 'CNS'].map(pill => (
               <span key={pill} className="rounded-md bg-sky-950/50 border border-sky-500/20 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-300">{pill}</span>
             ))}
-            <span className="rounded-md bg-sky-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">+120 Q's</span>
+            <span className="rounded-md bg-sky-500 text-slate-950 px-2 py-1 text-[10px] font-black uppercase tracking-widest">{quizVignettes.length} Q&apos;s</span>
           </div>
           <div className="space-y-3 relative z-10">
             <button onClick={() => onNavigate('quizzes', 'CLINICAL')} className="w-full flex items-center justify-between rounded-xl bg-[#060b14] border border-slate-700 px-5 py-3 text-sm font-bold text-sky-300 hover:border-sky-500 hover:bg-sky-950/50 transition shadow-sm">
@@ -488,7 +488,53 @@ function ReadinessStats({ score, answeredCount, totalQuestions }: any) {
 
 function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredCount, setTotalQuestions }: any) {
   const { language: lang } = useLanguage();
-  const filteredQuizzes = useMemo(() => filter === 'ALL' ? quizVignettes : quizVignettes.filter(q => q.pillar === filter), [filter]);
+  const [selectedOrgan, setSelectedOrgan] = useState<string>('ALL');
+
+  const organPills = useMemo(() => {
+    if (filter === 'RADIOBIOLOGY') {
+      return [
+        { id: 'ALL', label_tr: 'Tüm Konular', label_en: 'All Topics' },
+        { id: 'LQ Model', label_tr: 'LQ Model', label_en: 'LQ Model' },
+        { id: '5Rs', label_tr: '5Rs', label_en: '5Rs' },
+      ];
+    }
+    if (filter === 'PHYSICS') {
+      return [
+        { id: 'ALL', label_tr: 'Tüm Konular', label_en: 'All Topics' },
+        { id: 'Interactions', label_tr: 'Etkileşimler', label_en: 'Interactions' },
+        { id: 'Dosimetry QA', label_tr: 'Dozimetri & QA', label_en: 'Dosimetry QA' },
+      ];
+    }
+    return [
+      { id: 'ALL', label_tr: 'Tüm Sahalar', label_en: 'All Sites' },
+      { id: 'Breast', label_tr: 'Meme', label_en: 'Breast' },
+      { id: 'Thorax', label_tr: 'Toraks / Akciğer', label_en: 'Thorax' },
+      { id: 'Prostate', label_tr: 'Prostat', label_en: 'Prostate' },
+      { id: 'GI', label_tr: 'GİS / Kolorektal', label_en: 'GI' },
+      { id: 'Head & Neck', label_tr: 'Baş-Boyun', label_en: 'Head & Neck' },
+      { id: 'CNS', label_tr: 'MSS / Beyin', label_en: 'CNS' },
+      { id: 'Gynecology', label_tr: 'Jinekoloji', label_en: 'GYN' },
+      { id: 'GU', label_tr: 'Mesane / GÜS', label_en: 'GU / Bladder' },
+      { id: 'Palliative', label_tr: 'Palyatif', label_en: 'Palliative' },
+    ];
+  }, [filter]);
+
+  useEffect(() => {
+    setSelectedOrgan('ALL');
+  }, [filter]);
+
+  const filteredQuizzes = useMemo(() => {
+    return quizVignettes.filter(q => {
+      if (filter !== 'ALL' && q.pillar !== filter) return false;
+      if (selectedOrgan !== 'ALL') {
+        const cat = q.category || q.organ;
+        if (selectedOrgan === 'Gynecology' && (cat === 'Gynecology' || cat === 'GYN')) return true;
+        if (selectedOrgan === 'GU' && (cat === 'GU' || cat === 'Prostate')) return true;
+        return cat === selectedOrgan;
+      }
+      return true;
+    });
+  }, [filter, selectedOrgan]);
   
   useEffect(() => {
     setTotalQuestions(filteredQuizzes.length);
@@ -500,7 +546,7 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
   useEffect(() => {
     setCurrentIndex(0);
     setSelectedAnswer(null);
-  }, [filter]);
+  }, [filter, selectedOrgan]);
 
   if (filteredQuizzes.length === 0) {
     return <div className="text-center py-24 text-lg font-medium text-slate-400 flex flex-col items-center gap-4"><Library className="h-12 w-12 text-slate-700"/> No questions available for this module yet.</div>;
@@ -531,7 +577,7 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
   return (
     <div className="flex flex-col h-full flex-1">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-5 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
         <div className="flex flex-wrap items-center gap-3">
           <span className={`inline-flex items-center gap-1.5 rounded-lg ${pStyle.bg} px-3 py-1.5 text-xs font-bold ${pStyle.text} uppercase tracking-widest border ${pStyle.border} shadow-sm`}>
             {pStyle.icon}
@@ -543,14 +589,40 @@ function QuizzesTab({ filter, mode, score, setScore, answeredCount, setAnsweredC
         </div>
         <div className="flex items-center gap-5 text-sm font-bold text-slate-400 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 shadow-inner">
           <button onClick={prevQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowLeft className="h-4 w-4"/></button>
-          <span className="tracking-widest uppercase text-[10px]">Q {currentIndex + 1} / {filteredQuizzes.length}</span>
+          <span className="tracking-widest uppercase text-[10px] font-bold">Q {currentIndex + 1} of {filteredQuizzes.length}</span>
           <button onClick={nextQuiz} className={`hover:${pStyle.text} transition p-1`}><ArrowRight className="h-4 w-4"/></button>
         </div>
+      </div>
+
+      {/* Dynamic Organ / Topic Filter Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-thin">
+        {organPills.map(pill => {
+          const isSelected = selectedOrgan === pill.id;
+          return (
+            <button
+              key={pill.id}
+              onClick={() => setSelectedOrgan(pill.id)}
+              className={`shrink-0 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                isSelected
+                  ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/25 ring-1 ring-sky-400 font-extrabold'
+                  : 'bg-slate-900/90 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+              }`}
+            >
+              {lang === 'tr' ? pill.label_tr : pill.label_en}
+            </button>
+          );
+        })}
       </div>
 
       {/* Clinical Vignette Box */}
       <div className="mb-8 rounded-2xl border border-slate-700 bg-slate-900/90 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
         <div className={`absolute top-0 left-0 w-1.5 h-full ${pStyle.bg.replace('/20', '/80')} ${pStyle.glow}`}></div>
+        {quiz.title && (
+          <div className="text-xs font-bold text-sky-400 mb-3 tracking-wider uppercase flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            {quiz.title}
+          </div>
+        )}
         <h2 className="text-lg sm:text-xl font-medium leading-loose text-slate-300" dangerouslySetInnerHTML={{ __html: formattedClinicalCase }}></h2>
       </div>
 
