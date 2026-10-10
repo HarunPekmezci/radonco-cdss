@@ -47,6 +47,7 @@ import {
   Star,
   Info,
   ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { useLanguage } from '@/context/LanguageContext';
@@ -60,6 +61,8 @@ import GUSForm from '@/components/cdss/forms/GUSForm';
 import BreastForm from '@/components/cdss/forms/BreastForm';
 import CNSForm from '@/components/cdss/forms/CNSForm';
 import CDSSPrintReport from '@/components/cdss/CDSSPrintReport';
+import AutoStagerModal from '@/components/cdss/AutoStagerModal';
+import { type ParsedStagingResult } from '@/engines/clinicalReportParser';
 
 import {
   SUBTYPE_DISPLAY_MAP,
@@ -343,6 +346,68 @@ export default function RadoncoCDSSPage() {
   const [wilmsStage, setWilmsStage] = useState<'Evre_I_II' | 'Evre_III_Anaplazi'>('Evre_I_II');
   const [wilmsWholeAbdomen, setWilmsWholeAbdomen] = useState<boolean>(false);
   const [palliativeIntent, setPalliativeIntent] = useState<'Agri' | 'Beyin' | 'Organ'>('Agri');
+
+  // Otomatik Evreleyici (Auto-Stager) State'i
+  const [isAutoStagerOpen, setIsAutoStagerOpen] = useState(false);
+
+  const handleApplyAutoStaging = (parsed: ParsedStagingResult) => {
+    if (parsed.organ) {
+      setSelectedOrgan(parsed.organ);
+    }
+    if (parsed.suggestedT) {
+      setSelectedT(parsed.suggestedT);
+    }
+    if (parsed.suggestedN) {
+      setSelectedN(parsed.suggestedN);
+    }
+    if (parsed.suggestedM) {
+      setSelectedM(parsed.suggestedM);
+    }
+
+    if (parsed.organ === 'thorax') {
+      if (parsed.histology?.toLowerCase().includes('küçük hücreli')) {
+        setThoraxSubtype('sclc');
+      } else {
+        setThoraxSubtype('nsclc');
+        if (parsed.histology?.toLowerCase().includes('skuamöz')) {
+          setNsclcHistology('squamous');
+        } else {
+          setNsclcHistology('adenocarcinoma');
+        }
+      }
+    } else if (parsed.organ === 'prostate') {
+      setGusSubtype('prostate');
+      if (parsed.riskFactors.gleasonPrimary) setGleasonPrimary(parsed.riskFactors.gleasonPrimary);
+      if (parsed.riskFactors.gleasonSecondary) setGleasonSecondary(parsed.riskFactors.gleasonSecondary);
+      if (parsed.riskFactors.psa) setPsaLevel(String(parsed.riskFactors.psa));
+      if (parsed.riskFactors.ece !== undefined) setHasECE(parsed.riskFactors.ece);
+      if (parsed.riskFactors.svi !== undefined) setHasSVI(parsed.riskFactors.svi);
+    } else if (parsed.organ === 'breast') {
+      if (parsed.histology) setBreastHistology(parsed.histology);
+      if (parsed.riskFactors.er !== undefined) setBreastER(parsed.riskFactors.er);
+      if (parsed.riskFactors.pr !== undefined) setBreastPR(parsed.riskFactors.pr);
+      if (parsed.riskFactors.her2 !== undefined) setBreastHER2(parsed.riskFactors.her2);
+      if (parsed.riskFactors.ki67Percent !== undefined) setBreastKi67(String(parsed.riskFactors.ki67Percent));
+      if (parsed.riskFactors.marginStatus === 'positive') setBreastMargin('Pozitif');
+      else if (parsed.riskFactors.marginStatus === 'close') setBreastMargin('Yakin');
+      else if (parsed.riskFactors.marginStatus === 'negative') setBreastMargin('Negatif');
+    } else if (parsed.organ === 'gis') {
+      setGisOrgan('Rektum');
+      if (parsed.riskFactors.crmStatus) {
+        setGisCrmStatus(parsed.riskFactors.crmStatus === 'positive' ? 'Pozitif' : 'Negatif');
+      }
+    } else if (parsed.organ === 'cns') {
+      if (parsed.histology?.toLowerCase().includes('glioblastom')) {
+        setCnsSubtype('gbm');
+      } else if (parsed.histology?.toLowerCase().includes('meningiom')) {
+        setCnsSubtype('meningioma');
+      }
+    }
+
+    if (isGuidedMode) {
+      setGuidedStep(2);
+    }
+  };
 
   // Modal ve Kopyalama State'leri
   const [copied, setCopied] = useState<boolean>(false);
@@ -2599,10 +2664,21 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
               : 'The Clinical Decision Support System is intended to support physician evaluation; final clinical and legal responsibility rests with the treating physician.'}
           </p>
         </div>
-        <div className="col-span-12 flex h-11 min-h-0 min-w-0 items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
-          <span className="hidden shrink-0 text-xs font-semibold leading-none text-slate-300 sm:inline">
-            {t.workspaceView.title}
-          </span>
+        <div className="col-span-12 flex h-auto min-h-11 min-w-0 flex-wrap items-center justify-between gap-2.5 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="hidden shrink-0 text-xs font-semibold leading-none text-slate-300 sm:inline">
+              {t.workspaceView.title}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsAutoStagerOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-300 shadow-[0_0_15px_-3px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-900/50 hover:border-emerald-400 hover:text-emerald-100 hover:shadow-[0_0_20px_-2px_rgba(16,185,129,0.55)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+              title={lang === 'tr' ? 'Patoloji, PET-BT, MR ve USG raporlarını otomatik ayrıştırıp evrele' : 'Auto-parse and stage pathology, PET-CT, MRI and USG reports'}
+            >
+              <Zap className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+              <span>{t.autoStager?.button ?? (lang === 'tr' ? 'Otomatik Evreleyici' : 'Auto-Stager')}</span>
+            </button>
+          </div>
           <div className="flex max-w-full items-center gap-1 rounded-lg border border-slate-700 bg-[#080d18] p-0.5" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
             <button
               type="button"
@@ -4949,6 +5025,12 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         radiobiology={radiobiology}
         clinicallyRelevantOars={clinicallyRelevantOars}
         tText={tText}
+      />
+      <AutoStagerModal
+        isOpen={isAutoStagerOpen}
+        onClose={() => setIsAutoStagerOpen(false)}
+        lang={lang}
+        onApplyStaging={handleApplyAutoStaging}
       />
     </>
   );

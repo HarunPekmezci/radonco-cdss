@@ -57,6 +57,16 @@ export type TranslationDictionary = {
     guidedMode: string;
     fullMatrix: string;
   };
+  autoStager: {
+    title: string;
+    subtitle: string;
+    button: string;
+    stageReport: string;
+    applyStaging: string;
+    privacyNotice: string;
+    sampleReports: string;
+    redactedNotice: string;
+  };
 };
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -189,6 +199,16 @@ export const translations: Record<Language, TranslationDictionary> = {
       guidedMode: 'Adım Adım Klinik Akış',
       fullMatrix: 'Tam Matris Görünümü',
     },
+    autoStager: {
+      title: 'Otomatik Evreleyici',
+      subtitle: 'Patoloji, PET/BT, MR & USG Rapor Ayrıştırıcı',
+      button: 'Otomatik Evreleyici',
+      stageReport: 'Raporu Evrele',
+      applyStaging: "Evreyi CDSS'e Aktar",
+      privacyNotice: '100% Cihaz İçi / Sıfır Veri Sızıntısı',
+      sampleReports: 'Örnek Rapor Yükle',
+      redactedNotice: 'Kişisel veri (TCKN / İsim) otomatik maskelendi',
+    },
   },
   en: {
     nav: {
@@ -318,6 +338,16 @@ export const translations: Record<Language, TranslationDictionary> = {
       guidedWorkflow: 'Guided Clinical Workflow',
       guidedMode: 'Guided Clinical Workflow',
       fullMatrix: 'Full Matrix View',
+    },
+    autoStager: {
+      title: 'Auto-Stager',
+      subtitle: 'Pathology, PET/CT, MRI & USG Report Parser',
+      button: 'Auto-Stager',
+      stageReport: 'Stage Report',
+      applyStaging: 'Apply Staging to CDSS',
+      privacyNotice: '100% Client-Side / Zero Data Leakage',
+      sampleReports: 'Load Sample Report',
+      redactedNotice: 'Personal identifiers (TCKN/Name) auto-redacted',
     },
   },
 };
