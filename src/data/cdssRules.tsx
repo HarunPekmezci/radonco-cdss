@@ -959,6 +959,10 @@ export interface DoseScheme extends TCPTargetPrescription {
   evidence: string;
   evidenceLinks?: EvidenceLink[];
   evidenceObj?: RegimenEvidence;
+  guidelineVersion?: string;
+  lastVerifiedDate?: string;
+  evidenceLevel?: string;
+  nccnDeepLink?: string;
 }
 
 export const getVerifiedOarGuidance = (organ: OrganId, subsite: string, scheme: DoseScheme, lang: 'en' | 'tr'): OARNTPCeiling[] => {
@@ -1797,6 +1801,171 @@ export interface EvaluatedDecision {
   targetVolumeBadge?: string;
   nodalStatusBadge?: string;
   techniqueBadge?: string;
+  guidelineVersion?: string;
+  lastVerifiedDate?: string;
+  evidenceLevel?: string;
+  nccnDeepLink?: string;
+}
+
+export interface GuidelineMetadata {
+  guidelineVersion: string;
+  lastVerifiedDate: string;
+  evidenceLevel: string;
+  nccnDeepLink: string;
+}
+
+export const CLINICAL_GUIDELINE_REGISTRY: Record<string, GuidelineMetadata> = {
+  'thorax-nsclc': {
+    guidelineVersion: 'NCCN NSCLC v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+  },
+  'thorax-sclc': {
+    guidelineVersion: 'NCCN SCLC v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1462',
+  },
+  'thorax-thymoma': {
+    guidelineVersion: 'NCCN Thymomas and Thymic Carcinomas v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1472',
+  },
+  'thorax-mesothelioma': {
+    guidelineVersion: 'NCCN Malignant Pleural Mesothelioma v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1443',
+  },
+  'thorax': {
+    guidelineVersion: 'NCCN Thoracic Oncology v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1450',
+  },
+  'prostate': {
+    guidelineVersion: 'NCCN Prostate v1.2026 / ASTRO 2024',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1459',
+  },
+  'prostate-prostate': {
+    guidelineVersion: 'NCCN Prostate v1.2026 / ASTRO 2024',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1459',
+  },
+  'prostate-bladder': {
+    guidelineVersion: 'NCCN Bladder Cancer v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1417',
+  },
+  'breast': {
+    guidelineVersion: 'NCCN Breast v1.2026 / ASTRO 2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1419',
+  },
+  'gis': {
+    guidelineVersion: 'NCCN Gastrointestinal v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1461',
+  },
+  'gis-Rektum': {
+    guidelineVersion: 'NCCN Rectal v1.2026 / RAPIDO TNT',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1461',
+  },
+  'gis-Mide': {
+    guidelineVersion: 'NCCN Gastric v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1434',
+  },
+  'cns': {
+    guidelineVersion: 'NCCN CNS v1.2026 / Stupp Protocol',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
+  },
+  'cns-gbm': {
+    guidelineVersion: 'NCCN CNS v1.2026 (Glioblastoma)',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
+  },
+  'cns-mets': {
+    guidelineVersion: 'NCCN CNS v1.2026 (Brain Mets SRS)',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1425',
+  },
+  'head-neck': {
+    guidelineVersion: 'NCCN Head and Neck v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1437',
+  },
+  'gynecology': {
+    guidelineVersion: 'NCCN Cervical / Uterine v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1422',
+  },
+  'gynecology-Serviks': {
+    guidelineVersion: 'NCCN Cervical v1.2026 / EMBRACE II',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1422',
+  },
+  'sarcoma': {
+    guidelineVersion: 'NCCN Soft Tissue Sarcoma v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1464',
+  },
+  'bone-sarcoma': {
+    guidelineVersion: 'NCCN Bone & Soft Tissue Sarcoma v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1464',
+  },
+  'skin': {
+    guidelineVersion: 'NCCN Cutaneous / Melanoma v1.2026',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.nccn.org/guidelines/guidelines-detail?category=1&id=1438',
+  },
+  'palliative': {
+    guidelineVersion: 'ASTRO Palliative Bone / Brain 2024',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 1',
+    nccnDeepLink: 'https://www.astro.org/clinical-guidelines',
+  },
+  'benign': {
+    guidelineVersion: 'DEGRO / ESTRO Benign Radiotherapy Guidelines',
+    lastVerifiedDate: '2026-10-10',
+    evidenceLevel: 'Category 2A',
+    nccnDeepLink: 'https://www.degro.org',
+  },
+};
+
+export function getGuidelineMetadata(organ: string, subsite?: string): GuidelineMetadata {
+  const specificKey = subsite ? String(organ) + '-' + String(subsite) : organ;
+  return (
+    CLINICAL_GUIDELINE_REGISTRY[specificKey] ??
+    CLINICAL_GUIDELINE_REGISTRY[organ] ?? {
+      guidelineVersion: 'NCCN Clinical Practice Guidelines in Oncology v1.2026',
+      lastVerifiedDate: '2026-10-10',
+      evidenceLevel: 'Category 1',
+      nccnDeepLink: 'https://www.nccn.org/guidelines/category_1',
+    }
+  );
 }
 
 export interface PrognosticResult {

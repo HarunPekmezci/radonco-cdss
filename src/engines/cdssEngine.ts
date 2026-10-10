@@ -1,12 +1,12 @@
 // @ts-nocheck
 
-import { EvaluatedDecision, DoseScheme, PrognosticResult, TargetVolume, OARConstraint } from '../data/cdssRules';
+import { EvaluatedDecision, DoseScheme, PrognosticResult, TargetVolume, OARConstraint, getGuidelineMetadata } from '../data/cdssRules';
 import { NCCN_GUIDELINE_MAP } from '../data/nccnGuidelineMap';
 
 import { BENIGN_CLINICAL_OPTIONS, OARNTPCeiling, LUNG_SBRT_EVIDENCE_LINKS, LUNG_SBRT_0915_EVIDENCE_LINKS, LUNG_SBRT_0813_EVIDENCE_LINKS, LUNG_HYPO_EVIDENCE_LINKS, LUNG_CONV_0617_EVIDENCE_LINKS } from '../data/cdssRules';
 
 
-export function evaluateClinicalDecision(state: any): EvaluatedDecision {
+function _evaluateClinicalDecisionInternal(state: any): EvaluatedDecision {
   const {
     selectedOrgan, selectedSubsite, benignClinicalStatus, thoraxSubtype, thoraxCentrality, breathingMotion, thoraxSurgeryStatus, sclcStage, sclcTiming, thymomaStage, thymomaMargin, thymicHistology, nsclcHistology, mesoIntent, gusSubtype, gleasonPrimary, gleasonSecondary, psaLevel, hasECE, hasSVI, positiveCorePercent, bladderTurbtComplete, bladderTmtSuitable, bladderHydronephrosis, bladderConcurrentCis, prostateHistology, testisHistology, bladderHistology, renalHistology, renalDiseaseSetting, renalTumorSizeCm, breastHistology, breastMenopause, breastSurgery, breastMargin, breastBoost, phyllodesMarginCm, phyllodesHighGrade, breastER, breastPR, breastHER2, breastKi67, breastGrade, gisOrgan, liverHistology, liverBclcStage, biliaryHistology, biliaryTreatmentSetting, biliaryMarginStatus, gisCrmStatus, hnSubsite, hnLarynxSubsite, hnCrossesMidline, hnDistanceFromMidlineCm, hnTumorSizeCm, hnDoiMm, hnENE, hnPositiveMargin, cnsSubtype, gliomaGrade, gliomaRiskFactors, cnsMidlineShift, cnsMetCount, cnsMaxDiameter, cnsSymptoms, cnsResection, meningiomaSimpson, cnsKps, gbmPerformance, meningiomaGrade, gliomaHistology, gynSite, cervixScenario, endoRisk, ovaryScenario, vulvaScenario, sarcomaSubtype, dfspStatus, sarcomaSurgery, osteoScenario, ewingIntent, stsHistology, skinHistology, skinMargin, skinDepthMm, skinPerineuralInvasion, skinBoneInvasion, hematologicSubtype, lymphomaResponse, myelomaFractionation, pediatricSubtype, pediatricRisk, wilmsStage, wilmsWholeAbdomen, palliativeIntent, selectedT, selectedN, selectedM, patientAgeYears, patientGender, lang, tText
   } = state;
@@ -2870,4 +2870,43 @@ export function evaluateClinicalDecision(state: any): EvaluatedDecision {
     };
 
   return { statusText: 'No regimen matched', badgeClass: 'bg-slate-500', primaryScheme: null as any, alternativeSchemes: [] };
+}
+
+
+export function evaluateClinicalDecision(state: any): EvaluatedDecision {
+  const decision = _evaluateClinicalDecisionInternal(state);
+  if (!decision || !decision.primaryScheme) return decision;
+
+  const resolvedSubsite = state.selectedSubsite ||
+    (state.selectedOrgan === 'thorax' ? state.thoraxSubtype :
+     state.selectedOrgan === 'gis' ? state.gisOrgan :
+     state.selectedOrgan === 'cns' ? state.cnsSubtype :
+     state.selectedOrgan === 'gynecology' ? state.gynSite :
+     state.selectedOrgan === 'prostate' ? state.gusSubtype : '');
+
+  const meta = getGuidelineMetadata(state.selectedOrgan, resolvedSubsite);
+  decision.guidelineVersion = decision.guidelineVersion || meta.guidelineVersion;
+  decision.lastVerifiedDate = decision.lastVerifiedDate || meta.lastVerifiedDate;
+  decision.evidenceLevel = decision.evidenceLevel || meta.evidenceLevel;
+  decision.nccnDeepLink = decision.nccnDeepLink || meta.nccnDeepLink;
+
+  if (decision.primaryScheme) {
+    decision.primaryScheme.guidelineVersion = decision.primaryScheme.guidelineVersion || meta.guidelineVersion;
+    decision.primaryScheme.lastVerifiedDate = decision.primaryScheme.lastVerifiedDate || meta.lastVerifiedDate;
+    decision.primaryScheme.evidenceLevel = decision.primaryScheme.evidenceLevel || meta.evidenceLevel;
+    decision.primaryScheme.nccnDeepLink = decision.primaryScheme.nccnDeepLink || meta.nccnDeepLink;
+  }
+
+  if (decision.alternativeSchemes) {
+    decision.alternativeSchemes.forEach((scheme: any) => {
+      if (scheme) {
+        scheme.guidelineVersion = scheme.guidelineVersion || meta.guidelineVersion;
+        scheme.lastVerifiedDate = scheme.lastVerifiedDate || meta.lastVerifiedDate;
+        scheme.evidenceLevel = scheme.evidenceLevel || meta.evidenceLevel;
+        scheme.nccnDeepLink = scheme.nccnDeepLink || meta.nccnDeepLink;
+      }
+    });
+  }
+
+  return decision;
 }

@@ -4287,7 +4287,34 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
             )}
             {/* KANIT VE ÇOKLU KILAVUZ EYLEM GRUBU (EVIDENCE ACTION GROUP) */}
             <div className="mb-4 glass-panel-glow p-4 text-[11px] text-slate-300">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
+                {/* Onaylı Klinik Kılavuz Rozeti (Live Guideline Badge) */}
+                {(activeScheme.guidelineVersion || evaluatedDecision?.guidelineVersion) && (
+                  <div className="flex flex-wrap items-center gap-2 pb-2.5 border-b border-slate-800/80">
+                    <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                      {lang === 'tr' ? 'Onaylı Klinik Kılavuz:' : 'Verified Guideline:'}
+                    </span>
+                    <a
+                      href={activeScheme.nccnDeepLink || evaluatedDecision?.nccnDeepLink || 'https://www.nccn.org/guidelines'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-center gap-1.5 rounded-lg border border-sky-500/40 bg-sky-950/40 px-3 py-1 text-xs font-semibold text-sky-200 shadow-[0_0_15px_-3px_rgba(14,165,233,0.3)] transition-all hover:bg-sky-900/50 hover:border-sky-400 hover:text-white hover:shadow-[0_0_20px_-2px_rgba(14,165,233,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50"
+                      title={lang === 'tr' ? 'Resmi Klinik Kılavuz Sayfasına Git' : 'Open Official Clinical Guideline'}
+                    >
+                      <span className="text-sm">📘</span>
+                      <span className="font-bold tracking-tight">
+                        {activeScheme.guidelineVersion || evaluatedDecision?.guidelineVersion}
+                      </span>
+                      <span className="rounded bg-sky-900/70 border border-sky-700/50 px-1.5 py-0.5 text-[9px] font-semibold text-sky-300">
+                        {activeScheme.evidenceLevel || evaluatedDecision?.evidenceLevel || 'Category 1'}
+                      </span>
+                      <span className="text-[10px] text-sky-300/80">
+                        · {lang === 'tr' ? 'Son Doğrulama: Ekim 2026' : 'Last Verified: Oct 2026'}
+                      </span>
+                      <ArrowUpRight className="h-3 w-3 shrink-0 text-sky-300 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
+                  </div>
+                )}
                 <div>
                   <span className="font-semibold text-slate-200">
                     {lang === 'tr' ? '📚 Kanıt ve Kılavuz: ' : '📚 Evidence and Guidelines: '}

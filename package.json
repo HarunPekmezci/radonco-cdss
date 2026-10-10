@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx tsx src/__tests__/clinicalRules.test.ts"
   },
   "dependencies": {
     "@clerk/localizations": "^4.21.2",
