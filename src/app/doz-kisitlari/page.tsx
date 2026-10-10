@@ -66,7 +66,7 @@ const fractionations: { id: FractionationFilter; label_tr: string; label_en: str
   { id: 'all', label_tr: 'Tüm şemalar', label_en: 'All Regimens' },
   { id: 'konvansiyonel', label_tr: 'Konvansiyonel', label_en: 'Conventional' },
   { id: 'hipofraksiyon', label_tr: 'Hipofraksiyon', label_en: 'Hypofractionation' },
-  { id: 'sbrt', label_tr: 'SBRT (3–5 fx)', label_en: 'SBRT (3–5 fx)' },
+  { id: 'sbrt', label_tr: 'SBRT (1–5 fx)', label_en: 'SBRT (1–5 fx)' },
   { id: 'srs', label_tr: 'SRS (1–5 fx)', label_en: 'SRS (1–5 fx)' },
 ];
 
@@ -153,7 +153,6 @@ const fractionationMatches = (filter: FractionationFilter, fractionation: OARFra
   if (filter === 'all') return true;
   if (filter === 'sbrt') {
     return (
-      fractionation === 'sbrt-1fx' ||
       fractionation === 'sbrt-2fx' ||
       fractionation === 'sbrt-3fx' ||
       fractionation === 'sbrt-5fx' ||
@@ -167,7 +166,6 @@ const fractionationMatches = (filter: FractionationFilter, fractionation: OARFra
       fractionation === 'srs-1fx' ||
       fractionation === 'srs-3fx' ||
       fractionation === 'srs-5fx' ||
-      fractionation === 'sbrt-1fx' ||
       fractionation === 'sbrt-2fx' ||
       fractionation === 'sbrt-3fx' ||
       fractionation === 'sbrt-5fx'
@@ -180,7 +178,6 @@ const fractionationLabel = (fractionation: OARFractionation, language: UiLanguag
   switch (fractionation) {
     case 'konvansiyonel': return language === 'en' ? 'Conventional (1.8–2 Gy)' : 'Konvansiyonel (1.8–2 Gy)';
     case 'hipofraksiyon': return language === 'en' ? 'Hypofractionation' : 'Hipofraksiyon';
-    case 'sbrt-1fx': return 'SBRT · 1 fx';
     case 'sbrt-2fx': return 'SBRT · 2 fx';
     case 'sbrt-3fx': return 'SBRT · 3 fx';
     case 'sbrt-5fx': return 'SBRT · 5 fx';

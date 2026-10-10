@@ -2205,6 +2205,24 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     ]
   },
   {
+    "id": "hn-great-vessels-srs-1fx",
+    "organ": "Büyük damarlar & aort",
+    "region": "bas-boyun",
+    "fractionation": "srs-1fx",
+    "metric": "Dmax",
+    "limit": "< 37 Gy",
+    "endpoint": "Karotis blowout sendromu / Aort rüptürü (Carotid blowout syndrome)",
+    "priority": "hard",
+    "alphaBeta": 3,
+    "source": "AAPM TG-101 (2010)",
+    "sourceUrl": "https://doi.org/10.1118/1.3438066",
+    "context": "Tek fraksiyon SRS / SBRT; Dmax < 37 Gy (D0.035cc < 37-45 Gy).",
+    "tumorSites": [
+      "head-neck",
+      "thorax-lung"
+    ]
+  },
+  {
     "id": "thorax-vessels-sbrt-3fx",
     "organ": "Büyük damarlar & aort",
     "region": "toraks",
@@ -2217,7 +2235,8 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "AAPM TG-101",
     "context": "",
     "tumorSites": [
-      "thorax-lung"
+      "thorax-lung",
+      "head-neck"
     ]
   },
   {
@@ -2520,7 +2539,8 @@ export const oarConstraintsData: OARNTPCeiling[] = [
     "source": "AAPM TG-101",
     "context": "V47Gy < 1.5 cc.",
     "tumorSites": [
-      "thorax-lung"
+      "thorax-lung",
+      "head-neck"
     ]
   },
   {
