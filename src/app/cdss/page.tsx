@@ -141,7 +141,7 @@ const getServerGuidedModeSnapshot = () => true;
 export default function RadoncoCDSSPage() {
   const { isLoaded } = useUser();
   const router = useRouter();
-  const { language: lang } = useLanguage();
+  const { language: lang, t } = useLanguage();
   const isGuidedMode = useSyncExternalStore(
     subscribeToViewMode,
     getGuidedModeSnapshot,
@@ -2601,7 +2601,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
         </div>
         <div className="col-span-12 flex h-11 min-h-0 min-w-0 items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2">
           <span className="hidden shrink-0 text-xs font-semibold leading-none text-slate-300 sm:inline">
-            {lang === 'tr' ? 'Çalışma Görünümü' : 'Workspace View'}
+            {t.workspaceView.title}
           </span>
           <div className="flex max-w-full items-center gap-1 rounded-lg border border-slate-700 bg-[#080d18] p-0.5" role="group" aria-label={lang === 'tr' ? 'CDSS görünüm modu' : 'CDSS view mode'}>
             <button
@@ -2612,7 +2612,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {lang === 'tr' ? 'Rehberli Sihirbaz Modu' : 'Guided Wizard Mode'}
+              {t.workspaceView.guidedWorkflow}
             </button>
             <button
               type="button"
@@ -2622,7 +2622,7 @@ ${labels.evidence}: ${tText(activeScheme.evidence)}`;
                 !isGuidedMode ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
-              {lang === 'tr' ? 'Tam Matris Görünümü' : 'Full Matrix View'}
+              {t.workspaceView.fullMatrix}
             </button>
           </div>
         </div>

@@ -1158,6 +1158,8 @@ export const TRANSLATION_MAP: Record<string, string> = {
   'Günlük IGRT ile set-up güvenlik marjini': 'Set-up safety margin with daily IGRT',
   'İpsilateral Akciğer (P/D sonrası)': 'Ipsilateral Lung (post P/D)',
   'Karaciğer (Sağ taraf)': 'Liver (right-sided)',
+  'Adım Adım Klinik Akış': 'Guided Clinical Workflow',
+  'Rehberli Değerlendirme': 'Guided Evaluation',
 };
 
 export const TRANSLATION_ENTRIES = Object.entries(TRANSLATION_MAP).sort(

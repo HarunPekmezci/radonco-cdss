@@ -51,6 +51,12 @@ export type TranslationDictionary = {
     details: string;
     tags: string[];
   }[];
+  workspaceView: {
+    title: string;
+    guidedWorkflow: string;
+    guidedMode: string;
+    fullMatrix: string;
+  };
 };
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -177,6 +183,12 @@ export const translations: Record<Language, TranslationDictionary> = {
         tags: ['TEK FRAKSİYON', 'ASTRO'],
       },
     ],
+    workspaceView: {
+      title: 'Çalışma Görünümü',
+      guidedWorkflow: 'Adım Adım Klinik Akış',
+      guidedMode: 'Adım Adım Klinik Akış',
+      fullMatrix: 'Tam Matris Görünümü',
+    },
   },
   en: {
     nav: {
@@ -301,5 +313,11 @@ export const translations: Record<Language, TranslationDictionary> = {
         tags: ['SINGLE FRACTION', 'ASTRO'],
       },
     ],
+    workspaceView: {
+      title: 'Workspace View',
+      guidedWorkflow: 'Guided Clinical Workflow',
+      guidedMode: 'Guided Clinical Workflow',
+      fullMatrix: 'Full Matrix View',
+    },
   },
 };
